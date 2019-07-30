@@ -1,0 +1,94 @@
+DRAEK
+
++ Increased homing effect on sword projectiles from a factor of 0.3 to 0.42 (Expert)
+~ Forced sword projectile to always travel 20 blocks/sec
+
++ Reduced attack loss per shotgun attack from 3 to 2
++ Increased dash speed from 8 to 10 blocks/sec (Expert)
++ Increased dash speed from 10 to 12 blocks/sec (Expert, enraged)
++ Increased homing effect on sword projectiles from a factor of 0.2 to 0.3 (Expert)
+
+- Reduced contact damage from 50 to 45
+- Reduced expert mode contact damage from 75 to 55
+- Reduced expert mode defense from 32 to 25
+- Reduced sword projectile's lifespan from 300 to 120 ticks
+
++ Added a new "shotgun" laser attack.  (Expert+)
++ Sword projectiles slightly home in on the player.  (Expert)
++ Draek summons two Young Wyrms after throwing all of his swords.  (Expert+)
++ Draek charges one more time for each subphase and charges are faster.  (Expert+)
+~ Expert Mode AI added
+
++ Added two hitboxes to the sword projectile
+- Base HP decreased from 4000 to 3000
+~ Added gores on death
+
++ Increased laser speed
+- Decreased laser base damage from 40 to 30
+- Decreased sword base damage from 100 to 45
+~ Fixed a bug involving interrupting Draek's sword throw as he transitioned into enraged Phase 1
+~ Fixed a bug where spawning Draek without using the summon item caused him to not target the player
+
++ Base HP increased from 3000 to 4000
++ Base defense increased from 14 to 20
++ Added debuff immunities to Confused, Poisoned, and Burning
++ Decreased charge duration during charge subphases
++ Decreased wait duration between charges
+~ Actually fixed damage bug regarding projectiles  (Thanks Terry!)
+~ Fixed a small bug in the afterimage effect code
+~ Fixed a bug where the bad geode use text wouldn't appear
+
++ Increased base health from 2000 to 3000
++ Increased base contact damage from 20 to 50
++ Increased sword projectile speed by 5 tiles/sec
+- Decreased laser damage (bug)
+- Decreased sword damage (bug)
+~ Fixed bug regarding laser speed spread
+~ Made afterimage effect more smooth
+~ Added dust particles to sword projectile
+~ Changed how dust particles spawn on laser and sword projectiles
+
++ Draek's lasers now travel slightly faster
++ Draek's lasers have been given a speed and target spread.  Between +/- 2 blocks/sec and +/- 2 blocks, respectively.
++ Draek's sword projectile now travels much faster
+- Draek's general speed has been reduced
+- Draek's charge speed has been reduced
+~ New dust effects have been added to Poisonous Lasers
+~ New sound effects have been added for laser shoot and sword throw attacks
+
+~ AI finished (Enraged Phase 1)
+
+~ AI finished (Phase 1)
+
+DRAEK (PHASE 2)
+
+- Reduced base HP from 4500 to 3500 due to a copy/paste oversight (Expert)
+
++ Increased fly speed by 4 blocks/sec (Expert)
+
+- Reduced expert mode defense from 35 to 25
+- Reduced expert mode damage from 65 to 55
+
+~ Expert Mode AI added
+
++ Increased tile radius for Draek Rock attack from 5 to 9 tiles
+
+~ Added "Jewel Explosion" at start of Mega Charge subphase
+~ Added sound effects for Draek Rock attacks
+
+~ AI Finished (Enraged Phase 2)
+
++ Rock drop attack has been given a spread of +/- 3 tiles on the X-axis
+- Reduced "max dig distance" from 20 blocks to 40 blocks
+
+~ AI Finished (Phase 2)
+
+YOUNG WYRM (DRAEK BOSS SUMMON)
+
++ Increased "max dig distance" from 30 to 15 blocks
++ Increased top speed by 2 blocks/sec
+~ AI Finished
+
+WORM (GENERIC NON-SEPARATING WORM CLASS)
+
+~ Fixed "upside-down" bug

@@ -1,0 +1,5 @@
+author = absoluteAquarian
+version = 0.0.1
+displayName = Cosmivengeon Mod
+buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*
+includePDB = true
