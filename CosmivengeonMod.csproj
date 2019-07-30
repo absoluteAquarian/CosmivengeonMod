@@ -82,14 +82,35 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Gores\" />
-    <Folder Include="Sounds\Music\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="build.txt" />
     <Content Include="Changes.txt" />
     <Content Include="description.txt" />
+    <Content Include="Gores\DraekArm.png" />
+    <Content Include="Items\CoreOfDesolation.png" />
+    <Content Include="Items\DraekSummon.png" />
+    <Content Include="Items\ExpertToggleItem.png" />
+    <Content Include="Items\Potentiometer.png" />
+    <Content Include="NPCs\Draek\Draek.png" />
+    <Content Include="NPCs\Draek\DraekP2Body.png" />
+    <Content Include="NPCs\Draek\DraekP2_Body0.png" />
+    <Content Include="NPCs\Draek\DraekP2_Body1.png" />
+    <Content Include="NPCs\Draek\DraekP2_Body2.png" />
+    <Content Include="NPCs\Draek\DraekP2_Body3.png" />
+    <Content Include="NPCs\Draek\DraekP2_Head.png" />
+    <Content Include="NPCs\Draek\DraekP2_Head_Head_Boss.png" />
+    <Content Include="NPCs\Draek\DraekP2_Tail.png" />
+    <Content Include="NPCs\Draek\DraekWyrmSummon_Body0.png" />
+    <Content Include="NPCs\Draek\DraekWyrmSummon_Body1.png" />
+    <Content Include="NPCs\Draek\DraekWyrmSummon_Head.png" />
+    <Content Include="NPCs\Draek\DraekWyrmSummon_Tail.png" />
+    <Content Include="NPCs\Draek\Draek_Head_Boss.png" />
+    <Content Include="NPCs\Draek\YoungWyrm.png" />
+    <Content Include="Projectiles\Draek\DraekProjectile.png" />
+    <Content Include="Projectiles\Draek\DraekRock.png" />
+    <Content Include="Projectiles\Draek\DraekSword.png" />
+    <Content Include="Sounds\Music\SuccessorOfTheJewel.mp3" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\Settings.settings">
