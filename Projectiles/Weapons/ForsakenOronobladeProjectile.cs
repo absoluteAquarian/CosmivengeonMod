@@ -1,46 +1,49 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Projectiles.Draek{
-	public class DraekProjectile : ModProjectile{
+namespace CosmivengeonMod.Projectiles.Weapons{
+	public class ForsakenOronobladeProjectile : ModProjectile{
+		public override string Texture{
+			get{
+				return "CosmivengeonMod/Projectiles/Draek/DraekProjectile";
+			}
+		}
+
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Poisonous Laser");
 			Main.projFrames[projectile.type] = 5;
 		}
-		
+
 		public override void SetDefaults(){
 			projectile.height = 14;
 			projectile.width = 14;
-			projectile.friendly = false;
-			projectile.hostile = true;
-			projectile.tileCollide = false;
+			projectile.friendly = true;
+			projectile.hostile = false;
+			projectile.tileCollide = true;
 			projectile.ignoreWater = true;
-			projectile.penetrate = -1;
-			projectile.timeLeft = 300;
+			projectile.penetrate = 1;
+			projectile.timeLeft = 2 * 60;
+			projectile.alpha = 255;
+			projectile.scale = 0.8f;
+
+			projectile.melee = true;
+
 			projectile.aiStyle = 0;
-			projectile.alpha = 0;
 		}
 
-		public override void ModifyHitPlayer(Player target, ref int damage, ref bool crit){
-			target.AddBuff(BuffID.Poisoned, 600);	//When hit, apply "Poisoned" debuff for 10s
+		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
+			if(Main.rand.NextFloat() <= 0.16667)
+				target.AddBuff(BuffID.Poisoned, 5 * 60);
 		}
-
-		private bool hasSpawned = false;
 
 		public override void AI(){
-			//If the projectile just spawned, set its velocity vector
-			if(!hasSpawned){
-				hasSpawned = true;
+			//Fade the projectile in
+			if(projectile.alpha > 0)
+				projectile.alpha -= 25;
+			else if(projectile.alpha < 0)
+				projectile.alpha = 0;
 
-				Vector2 normalized = Vector2.Normalize(new Vector2(projectile.ai[0], projectile.ai[1]) - projectile.Center);
-				Vector2 speedOffset = normalized * Main.rand.NextFloat(-2, 2);
-
-				projectile.velocity = speedOffset + normalized * 12f;
-			}
-			
 			//Set the rotation to the projectile's velocity vector + PI
 			projectile.rotation = projectile.velocity.ToRotation() + MathHelper.ToRadians(90f);
 

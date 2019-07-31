@@ -4,7 +4,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 
-namespace CosmivengeonMod.Items{
+namespace CosmivengeonMod.Items.DebugOrTogglers{
 	public class CoreOfDesolation : ModItem{
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Core of Desolation");

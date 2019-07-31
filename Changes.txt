@@ -1,3 +1,33 @@
+===================================
+=              ITEMS              =
+===================================
+
+EARTH BOLT
+
+~ Added file
+~ Added projectile
+
+FORSAKEN ORONOBLADE
+
+~ Added sound effect for when projectile fires
+
+~ Added file
+~ Added projectile
+
+BOULDER CHUNK
+
+~ Added file
+~ Added projectile
+
+ROCKSLIDE (YOYO)
+
+~ Added file
+~ Added projectile
+
+===================================
+=              NPCS               =
+===================================
+
 DRAEK
 
 + Increased homing effect on sword projectiles from a factor of 0.3 to 0.42 (Expert)

@@ -3,7 +3,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 
-namespace CosmivengeonMod.Items{
+namespace CosmivengeonMod.Items.Draek{
 	public class DraekSummon : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Mysterious Geode");

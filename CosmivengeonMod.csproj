@@ -62,10 +62,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CosmivengeonMod.cs" />
-    <Compile Include="Items\CoreOfDesolation.cs" />
-    <Compile Include="Items\DraekSummon.cs" />
-    <Compile Include="Items\ExpertToggleItem.cs" />
-    <Compile Include="Items\PotentiometerItem.cs" />
+    <Compile Include="Items\DebugOrTogglers\CoreOfDesolation.cs" />
+    <Compile Include="Items\Draek\BoulderChunk.cs" />
+    <Compile Include="Items\Draek\DraekScales.cs" />
+    <Compile Include="Items\Draek\DraekSummon.cs" />
+    <Compile Include="Items\DebugOrTogglers\ExpertToggleItem.cs" />
+    <Compile Include="Items\DebugOrTogglers\PotentiometerItem.cs" />
+    <Compile Include="Items\Draek\ForsakenOronoblade.cs" />
+    <Compile Include="Items\Draek\RockslideYoyo.cs" />
+    <Compile Include="Items\Draek\StoneTablet.cs" />
+    <Compile Include="Items\Draek\EarthBolt.cs" />
+    <Compile Include="Items\Masks\DraekMask.cs" />
     <Compile Include="NPCs\Draek\Draek.cs" />
     <Compile Include="NPCs\Draek\DraekP2.cs" />
     <Compile Include="NPCs\Draek\DraekWyrmSummon.cs" />
@@ -75,6 +82,10 @@
     <Compile Include="Projectiles\Draek\DraekRock.cs" />
     <Compile Include="Projectiles\Draek\DraekSword.cs" />
     <Compile Include="Projectiles\Draek\DraekSwordExtra.cs" />
+    <Compile Include="Projectiles\Weapons\BoulderChunkProjectile.cs" />
+    <Compile Include="Projectiles\Weapons\EarthBoltProjectile.cs" />
+    <Compile Include="Projectiles\Weapons\ForsakenOronobladeProjectile.cs" />
+    <Compile Include="Projectiles\Weapons\RockslideProjectile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -88,10 +99,24 @@
     <Content Include="Changes.txt" />
     <Content Include="description.txt" />
     <Content Include="Gores\DraekArm.png" />
-    <Content Include="Items\CoreOfDesolation.png" />
-    <Content Include="Items\DraekSummon.png" />
-    <Content Include="Items\ExpertToggleItem.png" />
-    <Content Include="Items\Potentiometer.png" />
+    <Content Include="Items\Draek\BasiliskStaff.png" />
+    <Content Include="Items\Boss Bags\DraekTreasureBag.png" />
+    <Content Include="Items\Draek\BoulderChunk.png" />
+    <Content Include="Items\DebugOrTogglers\CoreOfDesolation.png" />
+    <Content Include="Items\Draek\DraekSummon.png" />
+    <Content Include="Items\Draek\DraekScales.png" />
+    <Content Include="Items\Draek\Earth_Bolt.png" />
+    <Content Include="Items\DebugOrTogglers\ExpertToggleItem.png" />
+    <Content Include="Items\Draek\ForsakenOronoblade.png" />
+    <Content Include="Items\Draek\JewelOfOronitus.png" />
+    <Content Include="Items\Masks\DraekMask.png" />
+    <Content Include="Items\DebugOrTogglers\Potentiometer.png" />
+    <Content Include="Items\Draek\Rockslide.png" />
+    <Content Include="Items\Draek\Scalestorm.png" />
+    <Content Include="Items\Draek\SlitherWand.png" />
+    <Content Include="Items\Draek\Stoneskipper.png" />
+    <Content Include="Items\Draek\StoneTablet.png" />
+    <Content Include="Items\Draek\Terra_Bolt.png" />
     <Content Include="NPCs\Draek\Draek.png" />
     <Content Include="NPCs\Draek\DraekP2Body.png" />
     <Content Include="NPCs\Draek\DraekP2_Body0.png" />
@@ -110,6 +135,10 @@
     <Content Include="Projectiles\Draek\DraekProjectile.png" />
     <Content Include="Projectiles\Draek\DraekRock.png" />
     <Content Include="Projectiles\Draek\DraekSword.png" />
+    <Content Include="Projectiles\Summons\BabySnek.png" />
+    <Content Include="Projectiles\Weapons\BoulderChunkProjectile.png" />
+    <Content Include="Projectiles\Weapons\EarthBoltProjectile.png" />
+    <Content Include="Projectiles\Weapons\RockslideProjectile.png" />
     <Content Include="Sounds\Music\SuccessorOfTheJewel.mp3" />
   </ItemGroup>
   <ItemGroup>

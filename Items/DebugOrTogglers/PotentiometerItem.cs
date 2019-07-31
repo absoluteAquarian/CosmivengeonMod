@@ -4,11 +4,11 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items{
+namespace CosmivengeonMod.Items.DebugOrTogglers{
 	public class PotentiometerItem : ModItem{
 		public override string Texture{
 			get{
-				return "CosmivengeonMod/Items/Potentiometer";
+				return "CosmivengeonMod/Items/DebugOrTogglers/Potentiometer";
 			}
 		}
 		
