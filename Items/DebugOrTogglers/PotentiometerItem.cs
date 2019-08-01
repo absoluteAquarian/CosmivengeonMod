@@ -6,12 +6,8 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Items.DebugOrTogglers{
 	public class PotentiometerItem : ModItem{
-		public override string Texture{
-			get{
-				return "CosmivengeonMod/Items/DebugOrTogglers/Potentiometer";
-			}
-		}
-		
+		public override string Texture => "CosmivengeonMod/Items/DebugOrTogglers/Potentiometer";
+
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Potentiometer");
 			Tooltip.SetDefault("Click to show the angle from the player's center\nto the mouse position.");

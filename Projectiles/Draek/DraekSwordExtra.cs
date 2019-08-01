@@ -6,12 +6,8 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Draek{
 	public class DraekSwordExtra : ModProjectile{
-		public override string Texture{
-			get{
-				return "CosmivengeonMod/Projectiles/Draek/DraekSword";
-			}
-		}
-		
+		public override string Texture => "CosmivengeonMod/Projectiles/Draek/DraekSword";
+
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Draek's Sword");
 		}

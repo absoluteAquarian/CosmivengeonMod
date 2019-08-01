@@ -6,12 +6,8 @@ using CosmivengeonMod.Projectiles.Weapons;
 
 namespace CosmivengeonMod.Items.Draek{
 	public class EarthBolt : ModItem{
-		public override string Texture{
-			get{
-				return "CosmivengeonMod/Items/Draek/Earth_Bolt";
-			}
-		}
-		
+		public override string Texture => "CosmivengeonMod/Items/Draek/Earth_Bolt";
+
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Earth Bolt");
 			Tooltip.SetDefault("Fires slow-moving, green bursts of energy\nHas a chance to poison per hit");

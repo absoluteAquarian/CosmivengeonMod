@@ -26,11 +26,10 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		public override void SetDefaults(){
-			//Draek is smol boi, scale up needed
-			npc.scale = 2f;
+			npc.scale = 1f;
 			//Draek frame dimentions:  186x290px
-			npc.width = 64;
-			npc.height = 100;
+			npc.width = 150;
+			npc.height = 240;
 			npc.aiStyle = -1;	//-1 means that this enemy has a unique AI; don't copy an existing style
 			npc.damage = 45;
 			npc.defense = 20;
@@ -46,8 +45,6 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.buffImmune[BuffID.Poisoned] = true;
 			npc.buffImmune[BuffID.Confused] = true;
 			npc.buffImmune[BuffID.Burning] = true;
-			
-			drawOffsetY = 0;
 
 			music = mod.GetSoundSlot(SoundType.Music, "Sounds/Music/SuccessorOfTheJewel");
 			musicPriority = MusicPriority.BossLow;
@@ -243,17 +240,14 @@ namespace CosmivengeonMod.NPCs.Draek{
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
 			//Only apply afterimage effects while dashing
 			if(afterImageLength > 1){
-				//Redraw the projectile with the color not influenced by light
 				//Afterimage effect
-				Vector2 drawOrigin = new Vector2(Main.npcTexture[npc.type].Width * 0.5f, 0.5f * Main.npcTexture[npc.type].Height / Main.npcFrameCount[npc.type]);
+				Vector2 drawOrigin = new Vector2(Main.npcTexture[npc.type].Width * 0.5f, 0.5f * Main.npcTexture[npc.type].Height / Main.npcFrameCount[npc.type]);   
 				SpriteEffects effect = (npc.spriteDirection == 1) ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 				for (int k = 0; k < afterImageLength / 2; k++){
 					Vector2 drawPos = npc.oldPos[k] - Main.screenPosition + drawOrigin + new Vector2(0f, npc.gfxOffY);
-					
-					//Offset drawPos.X by 2 tiles to the right if Draek is facing left
-					if(npc.spriteDirection == -1)
-						drawPos.X += 2 * 16;
 
+					drawPos.Y -= 32;
+					
 					Color color = npc.GetAlpha(lightColor) * ((float)(npc.oldPos.Length - k) / (float)npc.oldPos.Length);
 					color.A = (byte)(0.75f * 255f * (npc.oldPos.Length - k) / (float)npc.oldPos.Length);	//Apply transparency
 
@@ -541,15 +535,13 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		private void AI_Hover_Shoot(int delay, int times){
-			Vector2 npcTarget;
-			AI_Hover(playerTarget, playerTarget.direction, out npcTarget);
+			AI_Hover(playerTarget, playerTarget.direction, out _);
 					
 			AI_Shoot_Laser(delay, times);
 		}
 
 		private void AI_Hover_Throw_Sword(int times, int waitDuration){
-			Vector2 npcTarget;
-			AI_Hover(playerTarget, playerTarget.direction, out npcTarget);
+			AI_Hover(playerTarget, playerTarget.direction, out Vector2 npcTarget);
 					
 			//If the sword was thrown, wait until the animation has played
 			if(throwingSword){

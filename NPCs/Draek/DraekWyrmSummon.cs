@@ -7,7 +7,6 @@ namespace CosmivengeonMod.NPCs.Draek{
 	public class DraekWyrmSummon_Head : Worm{
 		private bool hasSpawned = false;
 		public int bossID = 0;
-		private float angle = 0f;
 		
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Young Wyrm");
@@ -45,13 +44,12 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
 
 			bossID = (int)npc.ai[1];
-			angle = npc.ai[2];
 		}
 
 		public override int SetCustomBodySegments(int startDistance){
 			int latestNPC = npc.whoAmI;
-			latestNPC = NewBodySegment(mod.NPCType<DraekWyrmSummon_Body0>(), latestNPC, ref startDistance);
-			latestNPC = NewBodySegment(mod.NPCType<DraekWyrmSummon_Body1>(), latestNPC, ref startDistance);
+			latestNPC = NewBodySegment(mod.NPCType<DraekWyrmSummon_Body0>(), latestNPC);
+			latestNPC = NewBodySegment(mod.NPCType<DraekWyrmSummon_Body1>(), latestNPC);
 			return latestNPC;
 		}
 

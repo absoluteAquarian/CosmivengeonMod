@@ -68,7 +68,7 @@ namespace CosmivengeonMod.NPCs{
 						latestNPC = SetCustomBodySegments(distance);
 					else{
 						while(distance > 0){
-							latestNPC = NewBodySegment(bodyType, latestNPC, ref distance);
+							latestNPC = NewBodySegment(bodyType, latestNPC);
 						}
 					}
 					// When we're out of that loop, we want to 'close' the worm with a tail part!
@@ -200,8 +200,8 @@ namespace CosmivengeonMod.NPCs{
 				float absDirX = Math.Abs(dirX);
 				float absDirY = Math.Abs(dirY);
 				float newSpeed = speed / length;
-				dirX = dirX * newSpeed;
-				dirY = dirY * newSpeed;
+				dirX *= newSpeed;
+				dirY *= newSpeed;
 				if(npc.velocity.X > 0.0 && dirX > 0.0 || npc.velocity.X < 0.0 && dirX < 0.0 || (npc.velocity.Y > 0.0 && dirY > 0.0 || npc.velocity.Y < 0.0 && dirY < 0.0)){
 					if(npc.velocity.X < dirX)
 						npc.velocity.X = npc.velocity.X + acceleration;
@@ -314,7 +314,7 @@ namespace CosmivengeonMod.NPCs{
 		/// Creates a new body segment of the specified type that follows this segment NPC.  Also decrements "distance".
 		/// </summary>
 		/// <returns>The ID of the new latestNPC.</returns>
-		public int NewBodySegment(int type, int latestNPC, ref int distance){
+		public int NewBodySegment(int type, int latestNPC){
 			// We spawn a new NPC, setting latestNPC to the newer NPC, whilst also using that same variable
 			// to set the parent of this new NPC. The parent of the new NPC (may it be a tail or body part)
 			// will determine the movement of this new NPC.
@@ -331,8 +331,8 @@ namespace CosmivengeonMod.NPCs{
 			Vector2 origin = new Vector2(texture.Width * 0.5f, texture.Height * 0.5f);
 
 			Vector2 position = npc.position - Main.screenPosition;
-			position.Y = position.Y + texture.Height / 2f;
-			position.X = position.X + texture.Width / 2f;
+			position.Y += texture.Height / 2f;
+			position.X += texture.Width / 2f;
 
 			float rotation = CosmivengeonMod.ToActualAngle(npc.rotation);
 

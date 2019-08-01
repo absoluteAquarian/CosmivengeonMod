@@ -35,6 +35,8 @@ STONESKIPPER
 
 DRAEK
 
+~ Fixed some bugs from migrating to TML v0.11.3
+
 - Reduced laser attack damage to 20/40 (Normal/Expert)
 - Reduced sword attack damage to 45/90
 

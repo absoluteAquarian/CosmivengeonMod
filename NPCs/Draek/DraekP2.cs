@@ -11,11 +11,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 	//Head NPC will contain any custom behaviour, as the other segments just follow it
 	[AutoloadBossHead]
 	public class DraekP2Head : Worm{
-		public override string Texture{
-			get{
-				return "CosmivengeonMod/NPCs/Draek/DraekP2_Head";
-			}
-		}
+		public override string Texture => "CosmivengeonMod/NPCs/Draek/DraekP2_Head";
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Draek");
@@ -75,10 +71,6 @@ namespace CosmivengeonMod.NPCs.Draek{
 		private const int summonCount_enraged_normal = 5;
 		private const int summonCount_expert = 4;
 		private const int summonCount_enraged_expert = 6;
-
-		private const float speed_subphase3_offset = 6f;
-		private const float speed_subphase3_normal = 12f;
-		private const float speed_subphase3_expert = 16f;
 		
 		private const int rockCount_normal = 6;
 		private const int rockCount_enraged_normal = 10;
@@ -101,7 +93,6 @@ namespace CosmivengeonMod.NPCs.Draek{
 		private int attackPhase = Worm_subphase0;
 		private int attackProgress = 0;
 		private int attackTimer = 0;
-		private long animationCounter = 0;
 
 		private int SummonedWyrms = 0;
 
@@ -381,10 +372,10 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 		public override int SetCustomBodySegments(int startDistance){
 			int latestNPC = npc.whoAmI;
-			latestNPC = NewBodySegment(mod.NPCType<DraekP2_Body0>(), latestNPC, ref startDistance);
-			latestNPC = NewBodySegment(mod.NPCType<DraekP2_Body1>(), latestNPC, ref startDistance);
-			latestNPC = NewBodySegment(mod.NPCType<DraekP2_Body2>(), latestNPC, ref startDistance);
-			latestNPC = NewBodySegment(mod.NPCType<DraekP2_Body3>(), latestNPC, ref startDistance);
+			latestNPC = NewBodySegment(mod.NPCType<DraekP2_Body0>(), latestNPC);
+			latestNPC = NewBodySegment(mod.NPCType<DraekP2_Body1>(), latestNPC);
+			latestNPC = NewBodySegment(mod.NPCType<DraekP2_Body2>(), latestNPC);
+			latestNPC = NewBodySegment(mod.NPCType<DraekP2_Body3>(), latestNPC);
 			return latestNPC;
 		}
 	}
@@ -454,11 +445,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 	internal class DraekP2_Body3 : DraekP2_Body0{}
 
 	internal class DraekP2Tail : Worm{
-		public override string Texture{
-			get{
-				return "CosmivengeonMod/NPCs/Draek/DraekP2_Tail";
-			}
-		}
+		public override string Texture => "CosmivengeonMod/NPCs/Draek/DraekP2_Tail";
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Draek");
