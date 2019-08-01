@@ -339,17 +339,22 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 				if(attackTimer > rockDelay){
 					float rockSpawnOffset = Main.rand.NextFloat(-3, 3);
+
+					int npcDamage = npc.damage;
+					npc.damage = 0;
 					
 					Projectile.NewProjectile(
 						npc.Center + new Vector2(rockSpawnOffset, 0),
 						Vector2.Zero,
 						mod.ProjectileType("DraekRock"),
-						CosmivengeonMod.TrueDamage(45),
+						CosmivengeonMod.TrueDamage(30 + (Main.expertMode ? 30 : 0)),
 						16f,
 						Main.myPlayer,
 						20f,
 						0.35f
 					);
+
+					npc.damage = npcDamage;
 
 					Main.PlaySound(SoundID.Item69, npc.Center);
 

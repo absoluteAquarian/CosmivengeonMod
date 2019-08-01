@@ -20,7 +20,6 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 			projectile.magic = true;
 			projectile.penetrate = 4;
 			projectile.timeLeft = 600;
-			projectile.light = 0.5f;
 			projectile.ignoreWater = true;
 			projectile.tileCollide = true;
 		}
@@ -34,6 +33,9 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 			//Rotate the sprite
 			//5 rotations per second
 			projectile.rotation += MathHelper.ToRadians(5f * 360f / 60f);
+
+			//Add a green light from the projectile
+			Lighting.AddLight(projectile.Center, 0f, 1f, 0f);
 		}
 
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){

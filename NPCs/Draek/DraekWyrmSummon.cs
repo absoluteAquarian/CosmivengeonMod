@@ -20,7 +20,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.height = 25;
 			
 			npc.aiStyle = -1;
-			npc.lifeMax = 250;
+			npc.lifeMax = 200;
 			npc.defense = 12;
 			npc.damage = 20;
 			npc.scale = 1f;

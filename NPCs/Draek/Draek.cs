@@ -495,8 +495,10 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 			Vector2 positionOffset = new Vector2(Main.rand.NextFloat(-1, 1), Main.rand.NextFloat(-1, 1)) * 48f;
 
+			int npcDamage = npc.damage;
+			npc.damage = 0;
+
 			if(AI_Timer % delay == 0){
-				int expertDamage = (Main.expertMode) ? 15 : 0;
 				//20% chance for attack to be a "shotgun" variant
 				if(Main.expertMode && Main.rand.Next(5) == 0){
 					for(int i = 0; i < 5; i++){
@@ -505,7 +507,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 							0f,
 							0f,
 							mod.ProjectileType<DraekProjectile>(),
-							CosmivengeonMod.TrueDamage(30) + expertDamage,
+							CosmivengeonMod.TrueDamage(20 + (Main.expertMode ? 20 : 0)),
 							6f,
 							Main.myPlayer,
 							playerTarget.Center.X + positionOffset.X,
@@ -520,7 +522,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 						0f,
 						0f,
 						mod.ProjectileType<DraekProjectile>(),
-						CosmivengeonMod.TrueDamage(30) + expertDamage,
+						CosmivengeonMod.TrueDamage(20 + (Main.expertMode ? 20 : 0)),
 						6f,
 						Main.myPlayer,
 						playerTarget.Center.X + positionOffset.X,
@@ -531,6 +533,9 @@ namespace CosmivengeonMod.NPCs.Draek{
 				//Play "boss laser" sound effect
 				Main.PlaySound(SoundID.Item33, npc.position);
 			}
+
+			npc.damage = npcDamage;
+
 			if(AI_Attack_Progress >= times)
 				switchSubPhases = true;
 		}
@@ -555,16 +560,22 @@ namespace CosmivengeonMod.NPCs.Draek{
 				if(AI_Timer == 30 - 22){
 					//Throw the sword on the next-to-last frame
 					Vector2 dir = (npc.spriteDirection == 1) ? npc.BottomRight : npc.BottomLeft;
-					int expertDamage = (Main.expertMode) ? 25 : 0;
+
+					int npcDamage = npc.damage;
+					npc.damage = 0;
+
 					//Base 45 damage projectile
 					Projectile.NewProjectile(dir,
 						Vector2.Zero,
 						mod.ProjectileType<DraekSword>(),
-						CosmivengeonMod.TrueDamage(45) + expertDamage,
+						CosmivengeonMod.TrueDamage(45 + (Main.expertMode ? 45 : 0)),
 						12f,
 						Main.myPlayer,
 						npc.target
 					);
+
+					npc.damage = npcDamage;
+
 					//Play sword swing sound effect
 					Main.PlaySound(SoundID.Item1, npc.position);
 				}

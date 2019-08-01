@@ -24,11 +24,19 @@ ROCKSLIDE (YOYO)
 ~ Added file
 ~ Added projectile
 
+STONESKIPPER
+
+~ Added file
+~ Added projectile
+
 ===================================
 =              NPCS               =
 ===================================
 
 DRAEK
+
+- Reduced laser attack damage to 20/40 (Normal/Expert)
+- Reduced sword attack damage to 45/90
 
 + Increased homing effect on sword projectiles from a factor of 0.3 to 0.42 (Expert)
 ~ Forced sword projectile to always travel 20 blocks/sec
@@ -92,6 +100,8 @@ DRAEK
 
 DRAEK (PHASE 2)
 
+- Reduced rock attack damage to 30/60 (Normal/Expert)
+
 - Reduced base HP from 4500 to 3500 due to a copy/paste oversight (Expert)
 
 + Increased fly speed by 4 blocks/sec (Expert)
@@ -114,6 +124,8 @@ DRAEK (PHASE 2)
 ~ AI Finished (Phase 2)
 
 YOUNG WYRM (DRAEK BOSS SUMMON)
+
+- Decreased max HP by 50/100 (Normal/Expert)
 
 + Increased "max dig distance" from 30 to 15 blocks
 + Increased top speed by 2 blocks/sec
