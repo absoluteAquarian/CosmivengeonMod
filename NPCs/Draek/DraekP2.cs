@@ -46,9 +46,9 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 			minLength = maxLength = 6;
 
-			headType = mod.NPCType<DraekP2Head>();
+			headType = ModContent.NPCType<DraekP2Head>();
 			//no bodyType since we have differing body segment textures
-			tailType = mod.NPCType<DraekP2Tail>();
+			tailType = ModContent.NPCType<DraekP2Tail>();
 			
 			speed = speed_subphase0_normal;
 			turnSpeed = turnSpeed_subphase0_normal;
@@ -246,7 +246,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			int wyrms = 0;
 			
 			for(int i = 0; i < Main.npc.Length; i++){
-				if(Main.npc[i].type == mod.NPCType<Summon>() && (int)Main.npc[i].ai[1] == npc.whoAmI && Main.npc[i].active)
+				if(Main.npc[i].type == ModContent.NPCType<Summon>() && (int)Main.npc[i].ai[1] == npc.whoAmI && Main.npc[i].active)
 					wyrms++;
 			}
 			
@@ -282,7 +282,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			else
 				rotation = angles[attackProgress];
 			
-			NPC.NewNPC((int)range.X, (int)range.Y, mod.NPCType<Summon>(), ai1: npc.whoAmI, ai2: rotation);
+			NPC.NewNPC((int)range.X, (int)range.Y, ModContent.NPCType<Summon>(), ai1: npc.whoAmI, ai2: rotation);
 			
 			SummonedWyrms++;
 
@@ -337,7 +337,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 					Projectile.NewProjectile(
 						npc.Center + new Vector2(rockSpawnOffset, 0),
 						Vector2.Zero,
-						mod.ProjectileType("DraekRock"),
+						ModContent.ProjectileType<Projectiles.Draek.DraekRock>(),
 						CosmivengeonMod.TrueDamage(30 + (Main.expertMode ? 30 : 0)),
 						16f,
 						Main.myPlayer,
@@ -372,10 +372,10 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 		public override int SetCustomBodySegments(int startDistance){
 			int latestNPC = npc.whoAmI;
-			latestNPC = NewBodySegment(mod.NPCType<DraekP2_Body0>(), latestNPC);
-			latestNPC = NewBodySegment(mod.NPCType<DraekP2_Body1>(), latestNPC);
-			latestNPC = NewBodySegment(mod.NPCType<DraekP2_Body2>(), latestNPC);
-			latestNPC = NewBodySegment(mod.NPCType<DraekP2_Body3>(), latestNPC);
+			latestNPC = NewBodySegment(ModContent.NPCType<DraekP2_Body0>(), latestNPC);
+			latestNPC = NewBodySegment(ModContent.NPCType<DraekP2_Body1>(), latestNPC);
+			latestNPC = NewBodySegment(ModContent.NPCType<DraekP2_Body2>(), latestNPC);
+			latestNPC = NewBodySegment(ModContent.NPCType<DraekP2_Body3>(), latestNPC);
 			return latestNPC;
 		}
 	}

@@ -45,7 +45,7 @@ namespace CosmivengeonMod.Projectiles.Draek{
 			projectile.rotation = projectile.velocity.ToRotation() + MathHelper.ToRadians(90f);
 
 			//Change the animation frame every 5 frames
-			if (++projectile.frameCounter >= 5){
+			if(++projectile.frameCounter >= 5){
 				projectile.frameCounter = 0;
 				projectile.frame = ++projectile.frame % Main.projFrames[projectile.type];
 			}

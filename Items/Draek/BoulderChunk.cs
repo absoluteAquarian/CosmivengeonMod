@@ -8,12 +8,12 @@ namespace CosmivengeonMod.Items.Draek{
 	public class BoulderChunk : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Boulder Chunk");
-			Tooltip.SetDefault("Description to be added.");
+			Tooltip.SetDefault("Hurls a crystal-infused boulder in the direction of the cursor.  Unable to be thrown far, but man, do they pack a real punch!");
 		}
 
 		public override void SetDefaults(){
-			item.shootSpeed = 9f;
-			item.damage = 30;
+			item.shootSpeed = 12f;
+			item.damage = 50;
 			item.knockBack = 7f;
 			item.useStyle = 1;
 			item.useAnimation = 35;
@@ -32,15 +32,15 @@ namespace CosmivengeonMod.Items.Draek{
 			item.UseSound = SoundID.Item1;
 			item.value = Item.sellPrice(0, 0, 2, 75);
 
-			item.shoot = mod.ProjectileType<BoulderChunkProjectile>();
+			item.shoot = ModContent.ProjectileType<BoulderChunkProjectile>();
 		}
 
 		public override void AddRecipes(){
 			ModRecipe recipe = new ModRecipe(mod);
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
-			recipe.AddIngredient(mod.ItemType<DraekScales>(), 15);
+			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);
 			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this);
+			recipe.SetResult(this, 50);
 			recipe.AddRecipe();
 		}
 	}

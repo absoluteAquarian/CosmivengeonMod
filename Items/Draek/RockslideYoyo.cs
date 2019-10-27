@@ -13,7 +13,7 @@ namespace CosmivengeonMod.Items.Draek{
 		}
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Rockslide");
-			Tooltip.SetDefault("Has a chance to poison on hit");
+			Tooltip.SetDefault("Casts out a medium-length earth yoyo that has a chance to poison foes on hit.");
 
 			// These are all related to gamepad controls and don't seem to affect anything else
 			ItemID.Sets.Yoyo[item.type] = true;
@@ -39,13 +39,13 @@ namespace CosmivengeonMod.Items.Draek{
 
 			item.UseSound = SoundID.Item1;
 			item.value = Item.sellPrice(0, 0, 35, 0);
-			item.shoot = mod.ProjectileType<RockslideProjectile>();
+			item.shoot = ModContent.ProjectileType<RockslideProjectile>();
 		}
 
 		public override void AddRecipes(){
 			ModRecipe recipe = new ModRecipe(mod);
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
-			recipe.AddIngredient(mod.ItemType<DraekScales>(), 15);
+			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);
 			recipe.AddTile(TileID.Anvils);
 			recipe.SetResult(this);
 			recipe.AddRecipe();

@@ -33,7 +33,7 @@ namespace CosmivengeonMod.Projectiles.Draek{
 				hasSpawned = true;
 			}
 			
-			if(!owner.active || owner.type != mod.ProjectileType<DraekSword>()){
+			if(!owner.active || owner.type != ModContent.ProjectileType<DraekSword>()){
 				projectile.Kill();
 				return;
 			}

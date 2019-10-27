@@ -32,12 +32,12 @@ namespace CosmivengeonMod.Projectiles.Draek{
 				hasSpawned = true;
 
 				projectile.velocity = Vector2.Normalize(target.Center - projectile.Center) * 20f;
-				Projectile.NewProjectile(projectile.position, Vector2.Zero, mod.ProjectileType<DraekSwordExtra>(), projectile.damage, projectile.knockBack, Main.myPlayer, projectile.whoAmI, -1);
-				Projectile.NewProjectile(projectile.position, Vector2.Zero, mod.ProjectileType<DraekSwordExtra>(), projectile.damage, projectile.knockBack, Main.myPlayer, projectile.whoAmI, 1);
+				Projectile.NewProjectile(projectile.position, Vector2.Zero, ModContent.ProjectileType<DraekSwordExtra>(), projectile.damage, projectile.knockBack, Main.myPlayer, projectile.whoAmI, -1);
+				Projectile.NewProjectile(projectile.position, Vector2.Zero, ModContent.ProjectileType<DraekSwordExtra>(), projectile.damage, projectile.knockBack, Main.myPlayer, projectile.whoAmI, 1);
 			}
 
 			//In expert mode, make the projectile home in to the target player slightly
-			if(Main.expertMode && !CosmivengeonMod.desoMode){
+			if(Main.expertMode && !CosmivengeonWorld.desoMode){
 				Vector2 normalizedTarget = Vector2.Normalize(target.Center - projectile.Center);
 				projectile.velocity += normalizedTarget * 0.42f;
 			}

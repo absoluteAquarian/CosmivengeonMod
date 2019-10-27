@@ -47,6 +47,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.buffImmune[BuffID.Burning] = true;
 
 			music = mod.GetSoundSlot(SoundType.Music, "Sounds/Music/SuccessorOfTheJewel");
+
 			musicPriority = MusicPriority.BossLow;
 		}
 #endregion
@@ -258,7 +259,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		public override bool CheckDead(){
-			NPC.NewNPC((int)(npc.Center.X), (int)(npc.Center.Y), mod.NPCType<DraekP2Head>());
+			NPC.NewNPC((int)(npc.Center.X), (int)(npc.Center.Y), ModContent.NPCType<DraekP2Head>());
 			
 			//Spawn 8 gores, 4 per arm
 			Vector2 goreTop = npc.Center;
@@ -500,7 +501,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 							npc.Bottom.Y - (0.667f * npc.height),
 							0f,
 							0f,
-							mod.ProjectileType<DraekProjectile>(),
+							ModContent.ProjectileType<DraekProjectile>(),
 							CosmivengeonMod.TrueDamage(20 + (Main.expertMode ? 20 : 0)),
 							6f,
 							Main.myPlayer,
@@ -515,7 +516,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 						npc.Bottom.Y - (0.667f * npc.height),
 						0f,
 						0f,
-						mod.ProjectileType<DraekProjectile>(),
+						ModContent.ProjectileType<DraekProjectile>(),
 						CosmivengeonMod.TrueDamage(20 + (Main.expertMode ? 20 : 0)),
 						6f,
 						Main.myPlayer,
@@ -559,7 +560,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 					//Base 45 damage projectile
 					Projectile.NewProjectile(dir,
 						Vector2.Zero,
-						mod.ProjectileType<DraekSword>(),
+						ModContent.ProjectileType<DraekSword>(),
 						CosmivengeonMod.TrueDamage(45 + (Main.expertMode ? 45 : 0)),
 						12f,
 						Main.myPlayer,
@@ -690,7 +691,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 				else
 					rotation = angles[SummonedWyrms];
 			
-				NPC.NewNPC((int)range.X, (int)range.Y, mod.NPCType<Summon>(), ai1: npc.whoAmI, ai2: rotation);
+				NPC.NewNPC((int)range.X, (int)range.Y, ModContent.NPCType<Summon>(), ai1: npc.whoAmI, ai2: rotation);
 			
 				SummonedWyrms++;
 			}
@@ -700,7 +701,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			int wyrms = 0;
 			
 			for(int i = 0; i < Main.npc.Length; i++){
-				if(Main.npc[i].type == mod.NPCType<Summon>() && (int)Main.npc[i].ai[1] == npc.whoAmI && Main.npc[i].active)
+				if(Main.npc[i].type == ModContent.NPCType<Summon>() && (int)Main.npc[i].ai[1] == npc.whoAmI && Main.npc[i].active)
 					wyrms++;
 			}
 			

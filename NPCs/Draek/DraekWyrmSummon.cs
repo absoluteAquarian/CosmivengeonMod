@@ -30,9 +30,9 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 			minLength = maxLength = 4;
 
-			headType = mod.NPCType<DraekWyrmSummon_Head>();
+			headType = ModContent.NPCType<DraekWyrmSummon_Head>();
 			//no body type b/c differing body segments
-			tailType = mod.NPCType<DraekWyrmSummon_Tail>();
+			tailType = ModContent.NPCType<DraekWyrmSummon_Tail>();
 
 			speed = 7f;
 			turnSpeed = 0.1f;
@@ -48,8 +48,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 		public override int SetCustomBodySegments(int startDistance){
 			int latestNPC = npc.whoAmI;
-			latestNPC = NewBodySegment(mod.NPCType<DraekWyrmSummon_Body0>(), latestNPC);
-			latestNPC = NewBodySegment(mod.NPCType<DraekWyrmSummon_Body1>(), latestNPC);
+			latestNPC = NewBodySegment(ModContent.NPCType<DraekWyrmSummon_Body0>(), latestNPC);
+			latestNPC = NewBodySegment(ModContent.NPCType<DraekWyrmSummon_Body1>(), latestNPC);
 			return latestNPC;
 		}
 
@@ -92,7 +92,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 	}
 	internal class DraekWyrmSummon_Body1 : DraekWyrmSummon_Body0{
 		public override void SetDefaults(){
-			npc.CloneDefaults(mod.NPCType<DraekWyrmSummon_Body0>());
+			npc.CloneDefaults(ModContent.NPCType<DraekWyrmSummon_Body0>());
 
 			npc.width = 25;
 			npc.height = 25;

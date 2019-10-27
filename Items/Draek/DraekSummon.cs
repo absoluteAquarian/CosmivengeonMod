@@ -7,7 +7,7 @@ namespace CosmivengeonMod.Items.Draek{
 	public class DraekSummon : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Mysterious Geode");
-			Tooltip.SetDefault("Summons the master of the forest\nMust be used in a forest biome");
+			Tooltip.SetDefault("Challenges the defender of the forest\nMust be used in the Purity");
 		}
 
 		public override void SetDefaults(){
@@ -26,7 +26,7 @@ namespace CosmivengeonMod.Items.Draek{
 			//Return false if "Draek" has already been summoned and the player isn't in the forest biome
 			bool forest = CosmivengeonMod.PlayerIsInForest(player);
 
-			if(!NPC.AnyNPCs(mod.NPCType("Draek"))){
+			if(!NPC.AnyNPCs(ModContent.NPCType<NPCs.Draek.Draek>())){
 				if(!forest){
 					Main.NewText("\"The geode was unresponsive.  Maybe I should try using it in the forest?\"", 255, 255, 255);
 					return false;
@@ -38,7 +38,7 @@ namespace CosmivengeonMod.Items.Draek{
 
 		public override bool UseItem(Player player){
 			//Spawn "Draek"
-			NPC.SpawnOnPlayer(player.whoAmI, mod.NPCType("Draek"));
+			NPC.SpawnOnPlayer(player.whoAmI, ModContent.NPCType<NPCs.Draek.Draek>());
 			return true;
 		}
 

@@ -13,7 +13,7 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 
 			//YoyosMaximumRange is the maximum distance the yoyo sleep away from the player. 
 			//Vanilla values range from 130f(Wood) to 400f(Terrarian), and defaults to 200f
-			ProjectileID.Sets.YoyosMaximumRange[projectile.type] = 350f;
+			ProjectileID.Sets.YoyosMaximumRange[projectile.type] = 250f;
 
 			//YoyosTopSpeed is top speed of the yoyo projectile. 
 			//Vanilla values range from 9f(Wood) to 17.5f(Terrarian), and defaults to 10f

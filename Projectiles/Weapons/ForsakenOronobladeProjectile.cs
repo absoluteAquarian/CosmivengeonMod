@@ -5,11 +5,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Weapons{
 	public class ForsakenOronobladeProjectile : ModProjectile{
-		public override string Texture{
-			get{
-				return "CosmivengeonMod/Projectiles/Draek/DraekProjectile";
-			}
-		}
+		public override string Texture => "CosmivengeonMod/Projectiles/Draek/DraekProjectile";
 
 		public override void SetStaticDefaults(){
 			Main.projFrames[projectile.type] = 5;

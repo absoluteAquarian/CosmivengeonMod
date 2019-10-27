@@ -39,11 +39,10 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 		}
 
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
-			if(!target.buffImmune[BuffID.Poisoned])
-				target.AddBuff(BuffID.Poisoned, 4 * 60);
+			target.AddBuff(BuffID.Poisoned, 4 * 60);
 		}
 
-		public override bool OnTileCollide(Vector2 oldVelocity) {
+		public override bool OnTileCollide(Vector2 oldVelocity){
 			//If collide with tile, reduce the penetrate.
 			projectile.penetrate--;
 

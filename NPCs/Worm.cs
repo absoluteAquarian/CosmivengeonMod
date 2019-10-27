@@ -100,8 +100,7 @@ namespace CosmivengeonMod.NPCs{
 			// This is the initial check for collision with tiles.
 			for(int i = minTilePosX; i < maxTilePosX; ++i){
 				for(int j = minTilePosY; j < maxTilePosY; ++j){
-					Tile tile = Main.tile[i, j];
-					if(tile != null && (tile.nactive() && (Main.tileSolid[(int)tile.type] || Main.tileSolidTop[(int)tile.type] && (int)tile.frameY == 0) || (int)tile.liquid > 64)){
+					if(CosmivengeonMod.TileIsSolidOrPlatform(i, j)){
 						Vector2 vector2;
 						vector2.X = (float)(i * 16);
 						vector2.Y = (float)(j * 16);

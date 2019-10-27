@@ -9,7 +9,7 @@ namespace CosmivengeonMod.Items.Draek{
 	public class Stoneskipper : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Stoneskipper");
-			Tooltip.SetDefault("Description to be added.");
+			Tooltip.SetDefault("Lightweight gun that fires fast, high-accuracy poison bullets");
 		}
 
 		public override void SetDefaults(){
@@ -34,7 +34,7 @@ namespace CosmivengeonMod.Items.Draek{
 		public override void AddRecipes(){
 			ModRecipe recipe = new ModRecipe(mod);
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
-			recipe.AddIngredient(mod.ItemType<DraekScales>(), 15);
+			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);
 			recipe.AddTile(TileID.Anvils);
 			recipe.SetResult(this);
 			recipe.AddRecipe();
@@ -42,7 +42,7 @@ namespace CosmivengeonMod.Items.Draek{
 
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
 			if(type == ProjectileID.Bullet)
-				type = mod.ProjectileType<StoneskipperProjectile>();
+				type = ModContent.ProjectileType<StoneskipperProjectile>();
 			return true;
 		}
 

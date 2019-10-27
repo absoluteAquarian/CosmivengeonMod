@@ -5,7 +5,7 @@ namespace CosmivengeonMod.Items.Draek{
 	public class DraekScales : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Draek Scales");
-			Tooltip.SetDefault("Description to be added");
+			Tooltip.SetDefault("The serpentine remains of the armored terra worm. They appear to be quite durable.\nMaybe they could be used for something...");
 		}
 
 		public override void SetDefaults(){

@@ -4,10 +4,18 @@
 
 EARTH BOLT
 
++ Projectile moves faster (5px/s -> 7px/s)
+
 ~ Added file
 ~ Added projectile
 
 FORSAKEN ORONOBLADE
+
++ Increased sprite size
++ Decreased use time/animation from 25 frames to 12 frames
++ Projectile now fires on every swing
++ Projectile moves faster (6px/s -> 9px/s)
+- Damage reduced from 50 to 35
 
 ~ Added sound effect for when projectile fires
 
@@ -16,18 +24,48 @@ FORSAKEN ORONOBLADE
 
 BOULDER CHUNK
 
++ Damage increased (Unknown)
++ Projectile speed increased (Unknown)
++ Items received per craft increased from 1 to 50
+
 ~ Added file
 ~ Added projectile
 
 ROCKSLIDE (YOYO)
+
+- Decreased string length
 
 ~ Added file
 ~ Added projectile
 
 STONESKIPPER
 
+~ Darkened projectile so it's more visible
+
 ~ Added file
 ~ Added projectile
+
+SCALESTORM
+
+- Lowered based damage from 30 to 25
+~ Increased sprite scale
+
+~ Added file
+
+TERRA BOLT (DESOLATION MODE ITEM)
+
+~ Added file
+~ Added projectile
+
+JEWEL OF ORONITUS
+
+~ Added file (no double jump effect yet)
+
+BASILISK STAFF
+
+~ Added file
+~ Added projectile (minion)
+~ Added projectile code
 
 ===================================
 =              NPCS               =

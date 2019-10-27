@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -6,16 +7,11 @@ using Microsoft.Xna.Framework;
 
 namespace CosmivengeonMod{
 	public class CosmivengeonMod : Mod{
-		public static bool desoMode = false;
 		public static bool debug_toggleDesoMode = true;
 		public static bool debug_canUseExpertModeToggle = true;
 		public static bool debug_canUsePotentiometer = true;
 
-		public static float DamageDecrease{
-			get{
-				return (Main.expertMode) ? 0.25f : 0.5f;
-			}
-		}
+		public static float DamageDecrease => Main.expertMode ? 0.25f : 0.5f;
 
 		public static Color TausFavouriteColour = new Color(106, 0, 170);
 
@@ -46,19 +42,22 @@ namespace CosmivengeonMod{
 		}
 
 		/// <summary>
-		/// Equivalent to (float)Math.Cos(angle)
+		/// Equivalent to (float)System.Math.Cos(angle)
 		/// </summary>
 		/// <param name="angle">The angle in radians.</param>
 		/// <returns></returns>
+		[SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Name case is intended.")]
 		public static float fCos(double angle){
 			return (float)Math.Cos(angle);
 		}
 
+
 		/// <summary>
-		/// Equivalent to (float)Math.Sin(angle)
+		/// Equivalent to (float)System.Math.Sin(angle)
 		/// </summary>
 		/// <param name="angle">The angle in radians.</param>
 		/// <returns></returns>
+		[SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Name case is intended.")]
 		public static float fSin(double angle){
 			return (float)Math.Sin(angle);
 		}
@@ -72,5 +71,24 @@ namespace CosmivengeonMod{
 		public static float ToActualAngle(float angle){
 			return (angle + MathHelper.Pi) % MathHelper.TwoPi;
 		}
+
+		/// <summary>
+		/// Converts the given XNA angle to the equivalent Terraria angle.
+		/// For reference, -Pi/2 is down on the Y-axis and Pi is right on the X-axis.
+		/// </summary>
+		/// <param name="angle">The angle in radians.</param>
+		/// <returns></returns>
+		public static float ToTerrariaAngle(float angle){
+			return (angle - MathHelper.Pi) % MathHelper.TwoPi;
+		}
+
+		public static bool TileIsSolidOrPlatform(int x, int y){
+			Tile tile = Main.tile[x, y];
+			return tile != null && (tile.nactive() && (Main.tileSolid[(int)tile.type] || Main.tileSolidTop[(int)tile.type] && (int)tile.frameY == 0) || (int)tile.liquid > 64);
+		}
+	}
+
+	internal enum CosmivengeonModMessageType : byte{
+		SyncPlayer
 	}
 }

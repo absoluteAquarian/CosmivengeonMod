@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace CosmivengeonMod.Projectiles.Weapons{
 	public class BoulderChunkProjectile : ModProjectile{
-		private const float MAX_VELOCITY = 9f;
+		private const float MAX_VELOCITY = 11f;
 
 		public override void SetDefaults(){
 			projectile.width = 40;
@@ -47,7 +47,7 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 			//Only spawn one projectile - multiplayer compatability
 			if(projectile.owner == Main.myPlayer){
 				//Drop the item (100% chance)
-				int item = Item.NewItem(projectile.getRect(), mod.ItemType<BoulderChunk>());
+				int item = Item.NewItem(projectile.getRect(), ModContent.ItemType<BoulderChunk>());
 
 				//Sync the drop for multiplayer
 				if (Main.netMode == 1 && item >= 0)
