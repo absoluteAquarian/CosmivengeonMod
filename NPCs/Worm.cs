@@ -50,7 +50,7 @@ namespace CosmivengeonMod.NPCs{
 				// This is practically ALWAYS the case with a freshly spawned NPC, so this means this is the first update.
 				// Since this is the first update, we can safely assume we need to spawn the rest of the worm (bodies + tail).
 				if(npc.ai[0] == 0){
-					// So, here we assing the npc.realLife value.
+					// So, here we assigning the npc.realLife value.
 					// The npc.realLife value is mainly used to determine which NPC loses life when we hit this NPC.
 					// We don't want every single piece of the worm to have its own HP pool, so this is a neat way to fix that.
 					npc.realLife = npc.whoAmI;

@@ -1,5 +1,7 @@
 author = absoluteAquarian
-version = 0.0.1
+version = 0.0.5
 displayName = Cosmivengeon Mod
 buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*, Properties\*, README.md, .gitattributes, .gitignore
 includePDB = true
+hideCode = true
+hideResources = true

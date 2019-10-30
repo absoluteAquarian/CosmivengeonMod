@@ -42,6 +42,10 @@ namespace CosmivengeonMod.Projectiles.Summons{
 		private int SmallHopTimer = 0;
 		private int BigHopTimer = 0;
 
+		private bool YTruncatedToZero = false;
+
+		private bool YVelocityIsZero => projectile.velocity.Y == 0 && projectile.oldVelocity.Y == 0;
+
 //		private int DebugTimer = 0;
 
 		private const int MAX_TARGET_DISTANCE = 60 * 16;
@@ -96,9 +100,11 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 				projectile.velocity.Y = Utils.Clamp(projectile.velocity.Y, -30f, 30f);
 
-				if(projectile.velocity.Y == 0 && projectile.oldVelocity.Y == 0)
+				if(YVelocityIsZero)
 					projectile.velocity.Y = -3f;
 			}
+
+			YTruncatedToZero = false;
 
 			//Apply friction
 			projectile.velocity.X *= 0.72f;
@@ -106,10 +112,13 @@ namespace CosmivengeonMod.Projectiles.Summons{
 			projectile.velocity.X = Utils.Clamp(projectile.velocity.X, -10f, 10f);
 			projectile.velocity.Y = Utils.Clamp(projectile.velocity.Y, -15f, 15f);
 
-			if(Math.Abs(projectile.velocity.X) < 6f / 60f)
+			if(Math.Abs(projectile.velocity.X) < 6f / 60f){
 				projectile.velocity.X = 0f;
-			if(Math.Abs(projectile.velocity.Y) < 6f / 60f)
+			}
+			if(Math.Abs(projectile.velocity.Y) < 6f / 60f){
 				projectile.velocity.Y = 0f;
+				YTruncatedToZero = true;
+			}
 
 			projectile.spriteDirection = (projectile.velocity.X >= 0) ? 1 : -1;
 
@@ -130,7 +139,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough){
 			if(ownerPlayer != null)
-				fallThrough = projectile.Bottom.Y < ownerPlayer.Top.Y;
+				fallThrough = projectile.Bottom.Y < ownerPlayer.Top.Y && npcTarget is null;
 			return base.TileCollideStyle(ref width, ref height, ref fallThrough);
 		}
 
@@ -190,7 +199,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 			if(npcTarget != null){
 				//First, check if the enemy is above this projectile.  if it is, then attempt to jump at it if the projectile's within 3 tiles horizontally of the enemy's center
 				//This projectile can only jump if it is not moving vertically
-				if(BigHopTimer < 0 && projectile.velocity.Y == 0 && projectile.oldVelocity.Y == 0 && npcTarget.Bottom.Y < projectile.Bottom.Y && Math.Abs(projectile.Center.X - npcTarget.Center.X) <= 3 * 16){
+				if(!YTruncatedToZero && BigHopTimer < 0 && YVelocityIsZero && npcTarget.Bottom.Y < projectile.Bottom.Y && Math.Abs(projectile.Center.X - npcTarget.Center.X) <= 3 * 16){
 					projectile.frame = 1;
 					projectile.velocity.Y = -10f;
 					BigHopTimer = Main.rand.Next(1 * 60, (int)(2.5f * 60));
@@ -231,7 +240,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 				//Finally, if the projectile is beneath the player, try to jump to the player
 				//Don't jump if the player is flying or if they're in a flying mount
-				if(!(ownerPlayer.rocketDelay2 > 0 || ownerPlayer.wingTime > 0) && projectile.Top.Y > ownerPlayer.Bottom.Y && !(ownerPlayer.mount.Active && ownerPlayer.mount.CanFly)){
+				if(!YTruncatedToZero && !(ownerPlayer.rocketDelay2 > 0 || ownerPlayer.wingTime > 0) && projectile.Top.Y > ownerPlayer.Bottom.Y && !(ownerPlayer.mount.Active && ownerPlayer.mount.CanFly)){
 					projectile.frame = 1;
 					projectile.velocity.Y = -10f;
 					BigHopTimer = Main.rand.Next((int)(1.5f * 60), 3 * 60);
@@ -241,7 +250,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 		private void NoFly_ChangeFrame(){
 			//Change the animation frame depending on how the summon is moving
-			if(projectile.velocity.Y != 0 && projectile.oldVelocity.Y != 0)
+			if(!YVelocityIsZero)
 				projectile.frame = 1;
 			else if(Math.Abs(projectile.velocity.X) < 5f){
 				if(++projectile.frameCounter >= 10){

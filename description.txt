@@ -1,2 +1,16 @@
-Syg's mod, coded by the Cosmivengeon community.
-This specific mod was coded by absoluteAquarian.
+The official Cosmivengeon mod.
+
+This mod adds the following:
+1 Boss
+3 NPCs
+8 Weapons
+2 Buffs/Debuffs
+1 Accessory
+1 New game mode (Desolation)
+1 Piece of armour
+1 Crafting material
+6 Miscellaneous items
+
+THIS IS THE ALPHA BUILD OF THE MOD.  ADDITIONAL THINGS ARE AS FOLLOWS:
+- Being able to toggle Desolation Mode
+- Two commands, "/setworldflag" and "/setmodflag"

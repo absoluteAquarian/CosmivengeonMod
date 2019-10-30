@@ -7,9 +7,10 @@ using Microsoft.Xna.Framework;
 
 namespace CosmivengeonMod{
 	public class CosmivengeonMod : Mod{
-		public static bool debug_toggleDesoMode = true;
-		public static bool debug_canUseExpertModeToggle = true;
-		public static bool debug_canUsePotentiometer = true;
+		public static bool debug_toggleDesoMode = false;
+		public static bool debug_canUseExpertModeToggle = false;
+		public static bool debug_canUsePotentiometer = false;
+		public static bool allowModFlagEdit = true;
 
 		public static float DamageDecrease => Main.expertMode ? 0.25f : 0.5f;
 

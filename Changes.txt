@@ -2,6 +2,10 @@
 =              ITEMS              =
 ===================================
 
+===============
+=    DRAEK    =
+===============
+
 EARTH BOLT
 
 + Projectile moves faster (5px/s -> 7px/s)
@@ -67,11 +71,18 @@ BASILISK STAFF
 ~ Added projectile (minion)
 ~ Added projectile code
 
+SLITHER WAND
+
+~ Added file
+~ Added projectile
+
 ===================================
 =              NPCS               =
 ===================================
 
-DRAEK
+===============
+=    DRAEK    =
+===============
 
 ~ Fixed some bugs from migrating to TML v0.11.3
 

@@ -55,6 +55,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 			
 			maxDigDistance = 16 * 40;
 			customBodySegments = true;
+
+			bossBag = ModContent.ItemType<Items.Boss_Bags.DraekBag>();
 		}
 
 		private const float speed_subphase0_normal = 6f;
@@ -103,12 +105,65 @@ namespace CosmivengeonMod.NPCs.Draek{
 		private float prevSpeed;
 		private float prevTurnSpeed;
 
-		public override bool PreNPCLoot(){
-			return false;	//Don't drop anything for now
+		public override void NPCLoot(){
+			CosmivengeonWorld.downedDraekBoss = true;
+
+			if(Main.expertMode)
+				npc.DropBossBags();
+			else
+				NormalModeDrops(npc: npc);
+
+			CosmivengeonWorld.CheckWorldFlagUpdate(nameof(CosmivengeonWorld.downedDraekBoss));
 		}
 
-		public override void NPCLoot(){
-			//Not implemented yet
+		public static void NormalModeDrops(Player player = null, NPC npc = null, bool quickSpawn = false){
+			int[] drops = new int[]{
+				ModContent.ItemType<Items.Draek.BasiliskStaff>(),
+				ModContent.ItemType<Items.Draek.BoulderChunk>(),
+				ModContent.ItemType<Items.Draek.EarthBolt>(),
+				ModContent.ItemType<Items.Draek.ForsakenOronoblade>(),
+				ModContent.ItemType<Items.Draek.RockslideYoyo>(),
+				ModContent.ItemType<Items.Draek.Scalestorm>(),
+				ModContent.ItemType<Items.Draek.SlitherWand>(),
+				ModContent.ItemType<Items.Draek.Stoneskipper>()
+			};
+
+			bool dropChosen;
+			int dropType, dropAmount = 1;
+
+			do{
+				dropType = Main.rand.Next(drops.Length);
+				dropChosen = Main.rand.NextFloat() < 0.2;
+			}while(!dropChosen);
+
+			if(dropType == ModContent.ItemType<Items.Draek.BoulderChunk>())
+				dropAmount = Main.rand.Next(20, 41);
+
+			if(player != null && quickSpawn){
+				player.QuickSpawnItem(dropType, dropAmount);
+				player.QuickSpawnItem(ModContent.ItemType<Items.Draek.JewelOfOronitus>());
+				player.QuickSpawnItem(ModContent.ItemType<Items.Draek.DraekScales>(), Main.rand.Next(20, 31));
+
+				if(Main.rand.NextFloat() < 0.1)
+					player.QuickSpawnItem(ModContent.ItemType<Items.Masks.DraekMask>());
+
+				if(!CosmivengeonWorld.obtainedLore_DraekBoss){
+					player.QuickSpawnItem(ModContent.ItemType<Items.Draek.StoneTablet>());
+					CosmivengeonWorld.CheckWorldFlagUpdate(nameof(CosmivengeonWorld.obtainedLore_DraekBoss));
+				}
+			}else if(npc != null){
+				Item.NewItem(npc.getRect(), dropType, dropAmount);
+				Item.NewItem(npc.getRect(), ModContent.ItemType<Items.Draek.JewelOfOronitus>(), 1);
+				Item.NewItem(npc.getRect(), ModContent.ItemType<Items.Draek.DraekScales>(), Main.rand.Next(20, 31));
+				
+				if(Main.rand.NextFloat() < 0.1)
+					Item.NewItem(npc.getRect(), ModContent.ItemType<Items.Masks.DraekMask>());
+
+				if(!CosmivengeonWorld.obtainedLore_DraekBoss){
+					Item.NewItem(npc.getRect(), ModContent.ItemType<Items.Draek.StoneTablet>());
+					CosmivengeonWorld.CheckWorldFlagUpdate(nameof(CosmivengeonWorld.obtainedLore_DraekBoss));
+				}
+			}
 		}
 
 		public override void ScaleExpertStats(int numPlayers, float bossLifeScale){
