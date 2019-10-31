@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace CosmivengeonMod.Projectiles.Weapons{
 	public class SlitherWandProjectile_Head : ModProjectile{
@@ -22,7 +23,7 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 		private Vector2 target;
 
 		private float currentX;
-		private float BurrowSpeed => (12f * 16f) / (1f * 60f);	//(distance * pixelsPerTile) / (secondCount * framesPerSecond)
+		private float BurrowSpeed => (16f * 16f) / (1f * 60f);	//(distance * pixelsPerTile) / (secondCount * framesPerSecond)
 
 		private int BurrowTimer = 0;
 
@@ -42,8 +43,8 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 
 			projectile.penetrate = -1;
 
-			speed = 9f;
-			gravity = 0.5f;
+			speed = 11f;
+			gravity = 0.53f;
 		}
 
 		private Point previousPoint = new Point();
@@ -74,6 +75,9 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 				target = Main.MouseWorld;
 
 				finalTileXSmaller = currentX > target.X;
+				projectile.Center = new Vector2(projectile.Center.X - 16f * (finalTileXSmaller ? -5 : 4), projectile.Center.Y);
+
+				currentX = projectile.Center.X;
 
 				projectile.ai = new float[]{0f, 0f};
 
@@ -221,9 +225,9 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 		private void AI_Worm_Head(){
 			// acceleration is exactly what it sounds like. The speed at which this projectile accelerates.
 			if(fall)
-				projectile.velocity.Y += 0.23f;
+				projectile.velocity.Y += gravity;
 			else
-				projectile.velocity.Y -= gravity;
+				projectile.velocity.Y = -speed;		//Move upwards at maximum velocity
 
 			// Set the correct rotation for this projectile.
 			projectile.rotation = projectile.velocity.ToRotation();
@@ -242,10 +246,11 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 
 			bool finalXSmaller = currentCoordX > finalX;
 
-			finalX += (finalXSmaller ? -4 : 4);
+			finalX += (finalXSmaller ? -5 : 4);
+			currentCoordX -= finalXSmaller ? -5 : 4;
 
 			//Get the coordinates
-			for(; finalXSmaller ? (currentCoordX > finalX - 1) : (currentCoordX < finalX); currentCoordX += (finalXSmaller) ? -1 : 1){
+			for(; finalXSmaller ? (currentCoordX > finalX) : (currentCoordX < finalX); currentCoordX += (finalXSmaller) ? -1 : 1){
 				int tileCoordsCount = tileCoords.Count;
 				currentCoordY = (int)(target.Y / 16f);
 
@@ -274,7 +279,7 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 
 		public override void SetDefaults(){
 			projectile.CloneDefaults(ModContent.ProjectileType<SlitherWandProjectile_Head>());
-			projectile.width = 26;
+			projectile.width = 22;
 			projectile.height = 38;
 			drawOriginOffsetY = projectile.width / 2;
 		}
@@ -302,11 +307,6 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 
 				AI_Worm_BodyTail();
 			}
-
-			projectile.spriteDirection = (projectile.ai[1] == 1) ? 1 : -1;
-
-			if(Parent.position.Y > Parent.oldPosition.Y)
-				projectile.rotation += MathHelper.Pi;
 		}
 
 		internal void AI_Worm_BodyTail(){
@@ -320,11 +320,10 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 			}
 
 			if(Parent.whoAmI < (double)Main.projectile.Length){
-				// Then using that center, we calculate the direction towards the 'parent projectile' of this projectile.
 				float dirY = Parent.position.Y
 					+ ((Parent.ai[1] == 0) ? Main.projectileTexture[Parent.type].Width : -Main.projectileTexture[projectile.type].Width);
-				// We then use Atan2 to get a correct rotation towards that parent projectile.
-				projectile.rotation = (float)Math.Atan2(dirY, 0);
+				
+				projectile.rotation = projectile.position.Y < Parent.position.Y ? MathHelper.PiOver2 : -MathHelper.PiOver2;
 
 				// Reset the velocity of this Projectile, because we don't want it to move on its own
 				projectile.velocity = Vector2.Zero;
@@ -334,6 +333,26 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 				projectile.position.Y = dirY;
 			}
 		}
+
+		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
+			Texture2D texture = Main.projectileTexture[projectile.type];
+
+			Vector2 vector = projectile.Center - Main.screenPosition;
+
+			if(projectile.alpha == 0)
+				spriteBatch.Draw(texture,
+					vector,
+					null,
+					lightColor,
+					projectile.rotation,
+					new Vector2(texture.Width / 2f, texture.Height / 2),
+					projectile.scale,
+					SpriteEffects.None,
+					0
+				);
+
+			return false;
+		}
 	}
 
 	public class SlitherWandProjectile_Body1 : SlitherWandProjectile_Body0{
@@ -341,7 +360,7 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 
 		public override void SetDefaults(){
 			projectile.CloneDefaults(ModContent.ProjectileType<SlitherWandProjectile_Body0>());
-			projectile.width = 22;
+			projectile.width = 20;
 			projectile.height = 26;
 			drawOriginOffsetY = projectile.width / 2;
 		}

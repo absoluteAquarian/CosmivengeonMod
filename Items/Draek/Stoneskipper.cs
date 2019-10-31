@@ -7,6 +7,8 @@ using Microsoft.Xna.Framework;
 
 namespace CosmivengeonMod.Items.Draek{
 	public class Stoneskipper : ModItem{
+
+		public static float ShootSpeed = 40f;
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Stoneskipper");
 			Tooltip.SetDefault("Lightweight gun that fires fast, high-accuracy poison bullets");
@@ -27,7 +29,6 @@ namespace CosmivengeonMod.Items.Draek{
 			item.UseSound = SoundID.Item41;
 			item.autoReuse = false;
 			item.shoot = 10;		//Vanilla guns have this value, but it really doesn't matter since it's overwritten in Shoot()
-			item.shootSpeed = 40f;
 			item.useAmmo = AmmoID.Bullet;
 		}
 
@@ -41,8 +42,7 @@ namespace CosmivengeonMod.Items.Draek{
 		}
 
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
-			if(type == ProjectileID.Bullet)
-				type = ModContent.ProjectileType<StoneskipperProjectile>();
+			type = ModContent.ProjectileType<StoneskipperProjectile>();
 			return true;
 		}
 

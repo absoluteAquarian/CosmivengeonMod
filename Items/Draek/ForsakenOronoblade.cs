@@ -4,27 +4,33 @@ using Terraria.ID;
 using Terraria.ModLoader;
 
 using CosmivengeonMod.Projectiles.Weapons;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace CosmivengeonMod.Items.Draek{
 	public class ForsakenOronoblade : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Forsaken Oronoblade");
-			Tooltip.SetDefault("Occasionally Launches green energy blasts when swung\nAn ancient blade, forged millennia ago and left to degrade over time.\nAppears to have recently been reclaimed by Draek, though its condition is still unstable.\nPerhaps with the right tools, it could be reforged to its original state...");
+			Tooltip.SetDefault("Occasionally Launches green energy blasts when swung" +
+				"\nAn ancient blade, forged millennia ago and left to" +
+				"\ndegrade over time.  Appears to have recently been reclaimed" +
+				"\nby Draek, though its condition is still unstable.  Perhaps" +
+				"\nwith the right tools, it could be reforged to its original state...");
 		}
 		public override void SetDefaults(){
 			item.damage = 35;
 			item.melee = true;
+			item.useTurn = true;
 			item.width = 40;
 			item.height = 40;
-			item.useTime = 12;
-			item.useAnimation = 12;
+			item.useTime = 18;
+			item.useAnimation = 18;
 			item.useStyle = 1;
 			item.knockBack = 5;
 			item.value = Item.sellPrice(0, 2, 50, 0);
-			item.shoot = ModContent.ProjectileType<ForsakenOronobladeProjectile>();
+			item.shoot = 10;
 			item.shootSpeed = 9f;
 			item.rare = 2;
-			item.scale = 1f;
+			item.scale = 0.75f;
 			item.UseSound = SoundID.Item1;
 			item.autoReuse = true;
 		}
@@ -37,11 +43,22 @@ namespace CosmivengeonMod.Items.Draek{
 			recipe.AddRecipe();
 		}
 
-//		private int projectilesShot = 0;
-
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
-			Main.PlaySound(SoundID.Item43, position);
-			return true;
+			if(Main.rand.NextFloat() < 0.6f){
+				Main.PlaySound(SoundID.Item43.WithVolume(0.5f), position);
+				type = ModContent.ProjectileType<ForsakenOronobladeProjectile>();
+				damage = (int)(item.damage * 0.6667f);
+				return true;
+			}
+			return false;
+		}
+
+		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
+			Texture2D texture = Main.itemTexture[item.type];
+
+			spriteBatch.Draw(texture, item.position - Main.screenPosition, null, lightColor, rotation, new Vector2(item.width / 2, item.width / 2), item.scale, SpriteEffects.None, 0);
+			
+			return false;
 		}
 	}
 }

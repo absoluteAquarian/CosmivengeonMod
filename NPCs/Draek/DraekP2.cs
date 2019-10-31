@@ -132,7 +132,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			int dropType, dropAmount = 1;
 
 			do{
-				dropType = Main.rand.Next(drops.Length);
+				dropType = drops[Main.rand.Next(drops.Length)];
 				dropChosen = Main.rand.NextFloat() < 0.2;
 			}while(!dropChosen);
 

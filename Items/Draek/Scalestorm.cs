@@ -1,4 +1,6 @@
-﻿using Terraria;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -6,13 +8,13 @@ namespace CosmivengeonMod.Items.Draek{
 	public class Scalestorm : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Scalestorm");
-			Tooltip.SetDefault("An elegant bow that rapidly fires arrows to their mark.\nWooden arrows are converted into Serpent Arrows which poison enemies on hit");
+			Tooltip.SetDefault("An elegant bow that rapidly fires arrows to their mark.");
 		}
 
 		public override void SetDefaults() {
 			item.damage = 25;
 			item.ranged = true;
-			item.scale = 1f;
+			item.scale = 0.5f;
 			item.width = (int)(42 * item.scale);
 			item.height = (int)(108 * item.scale);
 			item.useTime = 20;
@@ -36,6 +38,18 @@ namespace CosmivengeonMod.Items.Draek{
 			recipe.AddTile(TileID.Anvils);
 			recipe.SetResult(this);
 			recipe.AddRecipe();
+		}
+
+		public override Vector2? HoldoutOffset() => new Vector2(-12, 0);
+
+		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
+			Texture2D texture = Main.itemTexture[item.type];
+
+			Vector2 vector = item.Top - Main.screenPosition + new Vector2(-2, 6);
+
+			spriteBatch.Draw(texture, vector, null, lightColor, rotation, new Vector2(item.width / 2, item.width / 2), item.scale, SpriteEffects.None, 0);
+			
+			return false;
 		}
 	}
 }

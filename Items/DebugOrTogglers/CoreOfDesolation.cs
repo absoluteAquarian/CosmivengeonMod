@@ -23,6 +23,12 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 			item.consumable = false;
 		}
 
+		public override bool CanUseItem(Player player){
+			if(CosmivengeonWorld.desoMode && !CosmivengeonMod.debug_toggleDesoMode)
+				Main.NewText("Nice try, but the deed has already been done.", CosmivengeonMod.TausFavouriteColour);
+			return !(CosmivengeonWorld.desoMode && !CosmivengeonMod.debug_toggleDesoMode);
+		}
+
 		public override bool UseItem(Player player){
 			if(!CosmivengeonWorld.desoMode){
 				Main.NewText("An otherworldly chaos has been unleashed...  No turning back now.", CosmivengeonMod.TausFavouriteColour);
@@ -33,7 +39,6 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 				CosmivengeonWorld.desoMode = false;
 				return true;
 			}
-			Main.NewText("Nice try, but the deed has already been done.", CosmivengeonMod.TausFavouriteColour);
 			return false;
 		}
 

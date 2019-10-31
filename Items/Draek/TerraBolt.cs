@@ -11,7 +11,16 @@ namespace CosmivengeonMod.Items.Draek{
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Terra Bolt");
-			Tooltip.SetDefault("[c/6a00aa:Desolator]\nDESOLATION MODE ITEM\nLaunches a devastating barrage of earthen stones. Rocks will curse enemies with Primordial Wrath, lowering their defense and damaging them over time.\nScales in damage with each boss defeated\nOne of the legendary 10 Desolator weapons, an ancient stone capable of ripping apart the planet itself if used in the right hands.\nHow Draek managed to stumble across something this powerful is unknown, but if it were to ever be combined with the others of its class...");
+			Tooltip.SetDefault("[c/6a00aa:Desolator]" +
+				"\nLaunches a devastating barrage of earthen stones. Rocks will curse" +
+				"\nenemies with Primordial Wrath, lowering their defense and damaging" +
+				"\nthem over time." +
+				"\nScales in damage with each boss defeated" +
+				"\nOne of the legendary 10 Desolator weapons, an ancient stone capable" +
+				"\nof ripping apart the planet itself if used in the right hands.  How" +
+				"\nDraek managed to stumble across something this powerful is unknown," +
+				"\nbut if it were to ever be combined with the others of its class..." +
+				"\nDesolation Mode Item");
 		}
 
 		public override void SetDefaults(){

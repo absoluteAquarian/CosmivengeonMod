@@ -352,7 +352,7 @@ namespace CosmivengeonMod.Items.Draek{
 
 			Texture2D texture = Main.itemTexture[item.type];
 
-			spriteBatch.Draw(texture, position - new Vector2(frameWidth / 2f, 0f), rectangle, drawColor, 0f, origin, 1f, SpriteEffects.None, 0);
+			spriteBatch.Draw(texture, position - new Vector2(frameWidth / 2f, 0f) + new Vector2(1, -3), rectangle, drawColor, 0f, origin, 1f, SpriteEffects.None, 0);
 			
 			return false;
 		}

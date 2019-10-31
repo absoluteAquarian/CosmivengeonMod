@@ -1,3 +1,5 @@
+THIS CHANGELOG IS FOR VERSIONS BEFORE v0.0.6
+
 ===================================
 =              ITEMS              =
 ===================================
@@ -80,9 +82,9 @@ SLITHER WAND
 =              NPCS               =
 ===================================
 
-===============
-=    DRAEK    =
-===============
+DRAEK
+
+~ Added treasure bag
 
 ~ Fixed some bugs from migrating to TML v0.11.3
 

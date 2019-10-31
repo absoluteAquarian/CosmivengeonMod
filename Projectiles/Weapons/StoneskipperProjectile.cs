@@ -22,6 +22,9 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 		}
 
 		public override void AI(){
+			if(projectile.velocity.Length() < Items.Draek.Stoneskipper.ShootSpeed)
+				projectile.velocity = Vector2.Normalize(projectile.velocity) * Items.Draek.Stoneskipper.ShootSpeed;
+
 			//Add a green light from the projectile
 			Lighting.AddLight(projectile.Center, 0f, 1f, 0f);
 

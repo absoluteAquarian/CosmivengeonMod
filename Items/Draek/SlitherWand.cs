@@ -1,4 +1,5 @@
-﻿using Terraria;
+﻿using Microsoft.Xna.Framework;
+using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -22,11 +23,20 @@ namespace CosmivengeonMod.Items.Draek{
 			item.width = 28;
 			item.height = 30;
 			item.shoot = ModContent.ProjectileType<Projectiles.Weapons.SlitherWandProjectile_Head>();
-			item.scale = 1f;
-			item.shootSpeed = 0f;
 			item.knockBack = 3f;
 			item.magic = true;
 			item.value = Item.sellPrice(0, 2, 50, 0);
 		}
+
+		public override void AddRecipes(){
+			ModRecipe recipe = new ModRecipe(mod);
+			recipe.AddIngredient(ItemID.StoneBlock, 50);
+			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);
+			recipe.AddTile(TileID.Anvils);
+			recipe.SetResult(this);
+			recipe.AddRecipe();
+		}
+
+		public override Vector2? HoldoutOffset() => new Vector2(-5, -8);
 	}
 }

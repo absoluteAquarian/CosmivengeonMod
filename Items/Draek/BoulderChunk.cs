@@ -8,16 +8,18 @@ namespace CosmivengeonMod.Items.Draek{
 	public class BoulderChunk : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Boulder Chunk");
-			Tooltip.SetDefault("Hurls a crystal-infused boulder in the direction of the cursor.  Unable to be thrown far, but man, do they pack a real punch!");
+			Tooltip.SetDefault("Hurls a crystal-infused boulder in the direction of" +
+				"\nthe cursor.  Unable to be thrown far, but man, do they" +
+				"\npack a real punch!");
 		}
 
 		public override void SetDefaults(){
-			item.shootSpeed = 12f;
-			item.damage = 50;
+			item.shootSpeed = 14f;
+			item.damage = 110;
 			item.knockBack = 7f;
 			item.useStyle = 1;
-			item.useAnimation = 35;
-			item.useTime = 35;
+			item.useAnimation = 28;
+			item.useTime = 28;
 			item.width = 40;
 			item.height = 40;
 			item.maxStack = 999;
