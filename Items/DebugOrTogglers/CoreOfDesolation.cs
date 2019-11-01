@@ -25,17 +25,17 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 
 		public override bool CanUseItem(Player player){
 			if(CosmivengeonWorld.desoMode && !CosmivengeonMod.debug_toggleDesoMode)
-				Main.NewText("Nice try, but the deed has already been done.", CosmivengeonMod.TausFavouriteColour);
+				Main.NewText("Nice try, but the deed has already been done.", CosmivengeonUtils.TausFavouriteColour);
 			return !(CosmivengeonWorld.desoMode && !CosmivengeonMod.debug_toggleDesoMode);
 		}
 
 		public override bool UseItem(Player player){
 			if(!CosmivengeonWorld.desoMode){
-				Main.NewText("An otherworldly chaos has been unleashed...  No turning back now.", CosmivengeonMod.TausFavouriteColour);
+				Main.NewText("An otherworldly chaos has been unleashed...  No turning back now.", CosmivengeonUtils.TausFavouriteColour);
 				CosmivengeonWorld.desoMode = true;
 				return true;
 			}else if(CosmivengeonMod.debug_toggleDesoMode){
-				Main.NewText("Wait, what?  You aren't supposed to be able to toggle that!  Oh well, I guess it can't be helped.", CosmivengeonMod.TausFavouriteColour);
+				Main.NewText("Wait, what?  You aren't supposed to be able to toggle that!  Oh well, I guess it can't be helped.", CosmivengeonUtils.TausFavouriteColour);
 				CosmivengeonWorld.desoMode = false;
 				return true;
 			}

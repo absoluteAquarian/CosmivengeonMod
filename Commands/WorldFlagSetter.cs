@@ -18,7 +18,7 @@ namespace CosmivengeonMod.Commands{
 			//Check if the provided flag actually exists.
 			//If it does, edit it
 			if(args.Length == 0){
-				Main.NewText(Usage, Color.DarkOrange);
+				Main.NewText($"Usage: {Usage}", Color.DarkOrange);
 				return;
 			}
 

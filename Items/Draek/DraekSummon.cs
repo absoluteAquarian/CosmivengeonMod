@@ -24,7 +24,7 @@ namespace CosmivengeonMod.Items.Draek{
 
 		public override bool CanUseItem(Player player){
 			//Return false if "Draek" has already been summoned and the player isn't in the forest biome
-			bool forest = CosmivengeonMod.PlayerIsInForest(player);
+			bool forest = CosmivengeonUtils.PlayerIsInForest(player);
 
 			if(!NPC.AnyNPCs(ModContent.NPCType<NPCs.Draek.Draek>())){
 				if(!forest){

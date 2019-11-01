@@ -6,7 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 
 using DraekSword = CosmivengeonMod.Projectiles.Draek.DraekSword;
-using DraekProjectile = CosmivengeonMod.Projectiles.Draek.DraekProjectile;
+using DraekLaser = CosmivengeonMod.Projectiles.Draek.DraekLaser;
 using Summon = CosmivengeonMod.NPCs.Draek.DraekWyrmSummon_Head;
 
 namespace CosmivengeonMod.NPCs.Draek{
@@ -14,6 +14,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 	public class Draek : ModNPC{
 		private bool dashing = false;
 		private bool dashWait = true;
+		private bool startDespawn = false;
 
 //		private PID pid = PID.Uninitialized;
 		
@@ -32,7 +33,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.height = 240;
 			npc.aiStyle = -1;	//-1 means that this enemy has a unique AI; don't copy an existing style
 			npc.damage = 45;
-			npc.defense = 20;
+			npc.defense = 18;
 			npc.lifeMax = 3000;
 			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
 			npc.noGravity = true;
@@ -57,9 +58,16 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		public override void ScaleExpertStats(int numPlayers, float bossLifeScale){
-			npc.lifeMax = 3000 + 1500 * (numPlayers + 1);
-			npc.damage = 55;
-			npc.defense = 25;
+			npc.lifeMax /= 2;	//Negate vanilla health bonus
+			if(!CosmivengeonWorld.desoMode){
+				npc.lifeMax += (int)(npc.lifeMax / 2f) * (numPlayers + 1);
+				npc.damage = 55;
+				npc.defense = 22;
+			}else{
+				npc.lifeMax += (int)(npc.lifeMax * 2f / 3f) * (numPlayers + 1);
+				npc.damage = 80;
+				npc.defense = 26;
+			}
 		}
 
 #region AI Properties
@@ -281,59 +289,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 			return true;
 		}
 
-		/*	AI (Normal mode):
-		 *	- Phase 1, 50-100% HP
-		 *		- Shoot
-		 *			- Hovers near player and shoots projectiles
-		 *		- Sword throw
-		 *			- Hovers near player, then throw after being in a certain range close to target offset for some time
-		 *		- Shoot again, no sword
-		 *			- Follows player and shoots same projectiles, but more often
-		 *		- Dash
-		 *			- Attempts to ram the player twice
-		 *			- Afterimage effects
-		 *		- Retrive Sword
-		 *			- Slows down, plays "retrieve sword" animation
-		 *			- Becomes intangible for a short period of time
-		 *		- Repeat
-		 *	- Phase 1 (Enraged), 0-49% HP
-		 *		- Shoot
-		 *			- Faster than P1 SP0
-		 *		- Sword throw
-		 *			- Throws three swords this time
-		 *		- Shoot again
-		 *			- Faster P1 SP2
-		 *		- Dash
-		 *			- Three times, much faster but still avoidable
-		 *		- Retrieve Sword
-		 *		- Repeat
-		 *	- At 0% HP, a new DraekP2 NPC spawns at this NPC's position and then this NPC dies
-		 *	
-		 *	AI (Expert mode):
-		 *	- same as Normal mode AI, except:
-		 *		- Shoot attacks
-		 *			- sometimes fires a "shotgun" spread of lasers
-		 *			- each shotgun attack reduces laser count by 3
-		 *		- Sword throw
-		 *			- spawns two Young Wyrms after final sword is thrown
-		 *			- swords are slightly homing
-		 *		- Dash
-		 *			- one extra dash for each phase
-		 *			- dashes are also slightly faster
-		 */
 		public override void AI(){
-			if(!dashing){
-				npc.spriteDirection = (npc.Center.X > Main.player[npc.target].Center.X) ? -1 : 1;
-				afterImageLength--;
-			}
-
-			if (npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead) {
-				npc.TargetClosest(true);
-			}
-
-			AI_Animation_Counter++;
-
-			AI_Check_Phase_Switch();
+			//AI:  https://docs.google.com/document/d/13IlpNUdO2X_elLPwsYcB1mzd_FMxQkwAcRKq1oSWgLg
 
 			playerTarget = Main.player[npc.target];
 			noTargetsAlive = playerTarget.dead || !playerTarget.active;
@@ -341,6 +298,19 @@ namespace CosmivengeonMod.NPCs.Draek{
 			
 			if(noTargetsAlive)
 				return;
+
+			if(!dashing){
+				npc.spriteDirection = (npc.Center.X > Main.player[npc.target].Center.X) ? -1 : 1;
+				afterImageLength--;
+			}
+
+			if(npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead){
+				npc.TargetClosest(true);
+			}
+
+			AI_Animation_Counter++;
+
+			AI_Check_Phase_Switch();
 			
 			if(!hasSpawned){
 				npc.TargetClosest(true);
@@ -350,36 +320,44 @@ namespace CosmivengeonMod.NPCs.Draek{
 				CurrentPhase = Phase_1;
 				Main.NewText("So, a new challenger has arisen to take my domain, hm?", TextColour);
 
-				//Force the boss to appear within a 100-tile radius of the player
-				Vector2 targetPointOnCircle = playerTarget.Center + Vector2.Normalize(playerTarget.Center - npc.Center) * 100f * 16f;
-				if(Vector2.Distance(playerTarget.Center, npc.Center) > 100f * 16f)
-					npc.position = targetPointOnCircle - new Vector2(Main.npcTexture[npc.type].Width * 0.5f, Main.npcTexture[npc.type].Height * 0.5f);
+				//Force the boss to appear within a 35-tile radius of the player
+				Vector2 targetPointOnCircle = playerTarget.Center + Vector2.Normalize(playerTarget.Center - npc.Center) * 35f * 16f;
+				if(Vector2.Distance(playerTarget.Center, npc.Center) > 35f * 16f)
+					npc.Center = targetPointOnCircle - new Vector2(Main.npcTexture[npc.type].Width * 0.5f, Main.npcTexture[npc.type].Height * 0.5f);
 			}
 
 			if(CurrentPhase == Phase_1){
 				if(AI_Attack == Attack_Shoot){
-					AI_Hover_Shoot(60, P1_subphase0_Attacks);
+					AI_Hover_Shoot(CosmivengeonUtils.GetModeChoice(60, 50, 45), P1_subphase0_Attacks + CosmivengeonUtils.GetModeChoice(0, 0, 6));
 				}else if(AI_Attack == Attack_Throw_Sword){
 					AI_Hover_Throw_Sword(1, 60);
 				}else if(AI_Attack == Attack_Shoot_No_Sword){
-					AI_Charge_Shoot(40, P1_subphase2_Attacks, 4, 4);
+					int maxXY = CosmivengeonUtils.GetModeChoice(4, 6, 8);
+					AI_Charge_Shoot(CosmivengeonUtils.GetModeChoice(40, 35, 30),
+						P1_subphase2_Attacks + CosmivengeonUtils.GetModeChoice(0, 0, 8),
+						maxXY, maxXY
+					);
 				}else if(AI_Attack == Attack_Dash){
-					int dashCount = Main.expertMode ? 3 : 2;
-					float dashVelocity = Main.expertMode ? 10f : 7f;
+					int dashCount = CosmivengeonUtils.GetModeChoice(2, 3, 4);
+					float dashVelocity = CosmivengeonUtils.GetModeChoice(7f, 10f, 12f);
 					AI_Dash(dashVelocity, dashCount, 75, 30);
 				}else if(AI_Attack == Attack_Retrieve_Sword){
 					AI_Retrieve_Sword();
 				}
 			}else if(CurrentPhase == Phase_1_Enrage){
 				if(AI_Attack == Attack_Shoot){
-					AI_Hover_Shoot(40, P1_Enrage_subphase0_Attacks);
+					AI_Hover_Shoot(CosmivengeonUtils.GetModeChoice(40, 36, 32), P1_Enrage_subphase0_Attacks + CosmivengeonUtils.GetModeChoice(0, 2, 6));
 				}else if(AI_Attack == Attack_Throw_Sword){
 					AI_Hover_Throw_Sword(3, 45);
 				}else if(AI_Attack == Attack_Shoot_No_Sword){
-					AI_Charge_Shoot(20, P1_Enrage_subphase2_Attacks, 6, 6);
+					int maxXY = CosmivengeonUtils.GetModeChoice(6, 8, 11);
+					AI_Charge_Shoot(CosmivengeonUtils.GetModeChoice(20, 18, 17),
+						P1_Enrage_subphase2_Attacks + CosmivengeonUtils.GetModeChoice(0, 0, 4),
+						maxXY, maxXY
+					);
 				}else if(AI_Attack == Attack_Dash){
-					int dashCount = Main.expertMode ? 4 : 3;
-					float dashVelocity = Main.expertMode ? 12f : 9f;
+					int dashCount = CosmivengeonUtils.GetModeChoice(3, 4, 6);
+					float dashVelocity = CosmivengeonUtils.GetModeChoice(9f, 12f, 14f);
 					AI_Dash(dashVelocity, dashCount, 60, 20);
 				}else if(AI_Attack == Attack_Retrieve_Sword){
 					AI_Retrieve_Sword();
@@ -460,7 +438,12 @@ namespace CosmivengeonMod.NPCs.Draek{
 				}
 
 				if(npc.velocity.X == 0){
-					npc.velocity.Y += 8f;
+					npc.velocity.Y += 10f;
+				}
+
+				if(!startDespawn){
+					startDespawn = true;
+					npc.timeLeft = 2 * 60;
 				}
 			}
 		}
@@ -489,35 +472,39 @@ namespace CosmivengeonMod.NPCs.Draek{
 			AI_Timer++;
 
 			Vector2 positionOffset = new Vector2(Main.rand.NextFloat(-1, 1), Main.rand.NextFloat(-1, 1)) * 48f;
+			Vector2 spreadOrigin = playerTarget.Center;
 
 			int npcDamage = npc.damage;
 			npc.damage = 0;
 
+			int laserDamage = 20 + CosmivengeonUtils.GetModeChoice(0, 20, 30);
+
 			if(AI_Timer % delay == 0){
 				//20% chance for attack to be a "shotgun" variant
-				if(Main.expertMode && Main.rand.Next(5) == 0){
+				if(Main.expertMode && Main.rand.NextFloat() < CosmivengeonUtils.GetModeChoice(0f, 0.4f, 0.3333f)){
 					for(int i = 0; i < 5; i++){
-						Projectile.NewProjectile(npc.Center.X,
+						npc.SpawnProjectile(npc.Center.X,
 							npc.Bottom.Y - (0.667f * npc.height),
 							0f,
 							0f,
-							ModContent.ProjectileType<DraekProjectile>(),
-							CosmivengeonMod.TrueDamage(20 + (Main.expertMode ? 20 : 0)),
+							ModContent.ProjectileType<DraekLaser>(),
+							laserDamage,
 							6f,
 							Main.myPlayer,
-							playerTarget.Center.X + positionOffset.X,
-							playerTarget.Center.Y + positionOffset.Y
+							spreadOrigin.X + positionOffset.X,
+							spreadOrigin.Y + positionOffset.Y
 						);
+
 						positionOffset = new Vector2(Main.rand.NextFloat(-1, 1), Main.rand.NextFloat(-1, 1)) * 48f;
 					}
-					AI_Attack_Progress += 2;
+					AI_Attack_Progress += 3;
 				}else{
-					Projectile.NewProjectile(npc.Center.X,
+					npc.SpawnProjectile(npc.Center.X,
 						npc.Bottom.Y - (0.667f * npc.height),
 						0f,
 						0f,
-						ModContent.ProjectileType<DraekProjectile>(),
-						CosmivengeonMod.TrueDamage(20 + (Main.expertMode ? 20 : 0)),
+						ModContent.ProjectileType<DraekLaser>(),
+						laserDamage,
 						6f,
 						Main.myPlayer,
 						playerTarget.Center.X + positionOffset.X,
@@ -554,20 +541,17 @@ namespace CosmivengeonMod.NPCs.Draek{
 					//Throw the sword on the next-to-last frame
 					Vector2 dir = (npc.spriteDirection == 1) ? npc.BottomRight : npc.BottomLeft;
 
-					int npcDamage = npc.damage;
-					npc.damage = 0;
+					int swordDamage = 35 + CosmivengeonUtils.GetModeChoice(0, 20, 55);
 
-					//Base 45 damage projectile
-					Projectile.NewProjectile(dir,
+					npc.SpawnProjectile(dir,
 						Vector2.Zero,
 						ModContent.ProjectileType<DraekSword>(),
-						CosmivengeonMod.TrueDamage(45 + (Main.expertMode ? 45 : 0)),
+						swordDamage,
 						12f,
 						Main.myPlayer,
-						npc.target
+						npc.target,
+						CosmivengeonWorld.desoMode ? ((CurrentPhase == Phase_1) ? 1 : 2 ) : 0
 					);
-
-					npc.damage = npcDamage;
 
 					//Play sword swing sound effect
 					Main.PlaySound(SoundID.Item1, npc.position);
@@ -579,9 +563,11 @@ namespace CosmivengeonMod.NPCs.Draek{
 					if(AI_Attack_Progress == times){
 						switchSubPhases = true;
 
-						//If we're in expert mode, then summon two Young Wyrms after all swords have been thrown
-						if(Main.expertMode)
-							AI_Summon(2, true, 0f);
+						//Summon wyrms if he's thrown all swords and we're not in Normal Mode
+						if(CosmivengeonWorld.desoMode)
+							AI_Summon(6, true);
+						else if(Main.expertMode)
+							AI_Summon(2, true);
 					}
 				}
 			}
@@ -701,7 +687,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			int wyrms = 0;
 			
 			for(int i = 0; i < Main.npc.Length; i++){
-				if(Main.npc[i].type == ModContent.NPCType<Summon>() && (int)Main.npc[i].ai[1] == npc.whoAmI && Main.npc[i].active)
+				if(Main.npc[i].active && Main.npc[i].type == ModContent.NPCType<Summon>() && (int)Main.npc[i].ai[1] == npc.whoAmI)
 					wyrms++;
 			}
 			

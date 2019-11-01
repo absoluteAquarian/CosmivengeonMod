@@ -15,12 +15,12 @@ namespace CosmivengeonMod.Items.Draek{
 		}
 
 		public override void SetDefaults(){
-			item.damage = 60;
+			item.damage = 73;
 			item.ranged = true;
 			item.width = 66;
 			item.height = 22;
-			item.useTime = 40;
-			item.useAnimation = 40;
+			item.useTime = 35;
+			item.useAnimation = 35;
 			item.useStyle = 5;
 			item.noMelee = true;
 			item.knockBack = 10f;

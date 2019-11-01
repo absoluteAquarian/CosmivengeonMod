@@ -7,15 +7,15 @@ using CosmivengeonMod.Projectiles.Weapons;
 namespace CosmivengeonMod.Items.Draek{
 	public class BoulderChunk : ModItem{
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Boulder Chunk");
+			DisplayName.SetDefault("Rockserpent Boulder");
 			Tooltip.SetDefault("Hurls a crystal-infused boulder in the direction of" +
 				"\nthe cursor.  Unable to be thrown far, but man, do they" +
 				"\npack a real punch!");
 		}
 
 		public override void SetDefaults(){
-			item.shootSpeed = 14f;
-			item.damage = 110;
+			item.shootSpeed = BoulderChunkProjectile.MAX_VELOCITY;
+			item.damage = 90;
 			item.knockBack = 7f;
 			item.useStyle = 1;
 			item.useAnimation = 28;

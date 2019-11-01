@@ -38,11 +38,11 @@ namespace CosmivengeonMod.Projectiles.Draek{
 				return;
 			}
 
-			float rotation = CosmivengeonMod.ToActualAngle(owner.rotation);
+			float rotation = CosmivengeonUtils.ToActualAngle(owner.rotation);
 
 			Vector2 center = owner.Center;
-			center.X += projectile.ai[1] * CosmivengeonMod.fSin(rotation) * 48;
-			center.Y += projectile.ai[1] * -CosmivengeonMod.fCos(rotation) * 48;
+			center.X += projectile.ai[1] * CosmivengeonUtils.fSin(rotation) * 48;
+			center.Y += projectile.ai[1] * -CosmivengeonUtils.fCos(rotation) * 48;
 			projectile.Center = center;
 		}
 	}

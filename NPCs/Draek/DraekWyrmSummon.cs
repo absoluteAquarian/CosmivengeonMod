@@ -7,6 +7,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 	public class DraekWyrmSummon_Head : Worm{
 		private bool hasSpawned = false;
 		public int bossID = 0;
+		private int AcidSpitTimer = -1;
 		
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Young Wyrm");
@@ -59,9 +60,31 @@ namespace CosmivengeonMod.NPCs.Draek{
 				npc.TargetClosest(false);
 			}
 
+			if(npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead){
+				npc.TargetClosest(true);
+			}
+
 			if(Vector2.Distance(npc.Center, Main.player[npc.target].Center) > 100 * 16){
 				npc.life = 0;
 				npc.active = false;
+			}
+
+			//Occasionally spit acid
+			if(CosmivengeonWorld.desoMode){
+				if(AcidSpitTimer < 0){
+					npc.SpawnProjectile(npc.position,
+						Vector2.Zero,
+						ModContent.ProjectileType<Projectiles.Draek.DraekAcidSpit>(),
+						20,
+						3f,
+						Main.myPlayer,
+						Main.player[npc.target].Center.X,
+						Main.player[npc.target].Center.Y
+					);
+
+					AcidSpitTimer = Main.rand.Next(60, 150);
+				}
+				AcidSpitTimer--;
 			}
 		}
 	}

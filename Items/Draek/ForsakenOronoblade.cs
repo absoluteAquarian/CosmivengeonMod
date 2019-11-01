@@ -25,7 +25,7 @@ namespace CosmivengeonMod.Items.Draek{
 			item.useTime = 18;
 			item.useAnimation = 18;
 			item.useStyle = 1;
-			item.knockBack = 5;
+			item.knockBack = 7;
 			item.value = Item.sellPrice(0, 2, 50, 0);
 			item.shoot = 10;
 			item.shootSpeed = 9f;

@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace CosmivengeonMod.Projectiles.Weapons{
 	public class BoulderChunkProjectile : ModProjectile{
-		private const float MAX_VELOCITY = 11f;
+		public const float MAX_VELOCITY = 12.8f;
 
 		public override void SetDefaults(){
 			projectile.width = 40;
@@ -18,7 +18,7 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 			projectile.friendly = true;
 			projectile.hostile = false;
 			projectile.thrown = true;
-			projectile.penetrate = 1;
+			projectile.penetrate = 2;
 		}
 
 		public override void AI(){

@@ -12,7 +12,7 @@ namespace CosmivengeonMod.Items.Draek{
 		}
 
 		public override void SetDefaults() {
-			item.damage = 25;
+			item.damage = 20;
 			item.ranged = true;
 			item.scale = 0.5f;
 			item.width = (int)(42 * item.scale);
@@ -27,7 +27,7 @@ namespace CosmivengeonMod.Items.Draek{
 			item.UseSound = SoundID.Item5;
 			item.autoReuse = true;
 			item.shoot = 10;		//Needed to shoot projectiles
-			item.shootSpeed = 24f;
+			item.shootSpeed = 19f;
 			item.useAmmo = AmmoID.Arrow;
 		}
 

@@ -10,7 +10,4 @@ This mod adds the following:
 1 Piece of armour
 1 Crafting material
 6 Miscellaneous items
-
-THIS IS THE ALPHA BUILD OF THE MOD.  ADDITIONAL THINGS ARE AS FOLLOWS:
-- Being able to toggle Desolation Mode
-- Two commands, "/setworldflag" and "/setmodflag"
+2 Commands for debugging purposes

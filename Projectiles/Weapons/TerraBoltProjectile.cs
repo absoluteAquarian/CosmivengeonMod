@@ -36,7 +36,7 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 		}
 
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
-			target.AddBuff(ModContent.BuffType<Buffs.PrimordialWrath>(), 10 * 60);
+			target.AddBuff(ModContent.BuffType<Buffs.PrimordialWrath>(), 7 * 60);
 		}
 
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){

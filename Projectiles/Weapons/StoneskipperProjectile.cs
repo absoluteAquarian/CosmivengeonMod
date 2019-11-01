@@ -14,7 +14,8 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 			projectile.hostile = false;
 			projectile.ranged = true;
 			projectile.penetrate = 1;
-			projectile.timeLeft = 5 * 60;
+			projectile.extraUpdates = 3;
+			projectile.timeLeft = 5 * 60 * projectile.extraUpdates;
 			projectile.alpha = 255;
 			projectile.ignoreWater = true;
 			projectile.tileCollide = true;
@@ -23,7 +24,7 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 
 		public override void AI(){
 			if(projectile.velocity.Length() < Items.Draek.Stoneskipper.ShootSpeed)
-				projectile.velocity = Vector2.Normalize(projectile.velocity) * Items.Draek.Stoneskipper.ShootSpeed;
+				projectile.velocity = Vector2.Normalize(projectile.velocity) * Items.Draek.Stoneskipper.ShootSpeed / projectile.extraUpdates;
 
 			//Add a green light from the projectile
 			Lighting.AddLight(projectile.Center, 0f, 1f, 0f);

@@ -5,7 +5,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Draek{
-	public class DraekProjectile : ModProjectile{
+	public class DraekLaser : ModProjectile{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Poisonous Laser");
 			Main.projFrames[projectile.type] = 5;

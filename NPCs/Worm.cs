@@ -35,10 +35,26 @@ namespace CosmivengeonMod.NPCs{
 		/// </summary>
 		public Vector2 CustomTarget = Vector2.Zero;
 
+		private bool startDespawn = false;
+
 		public override bool PreAI(){
-			if(head)
+			if(head){
 				PreAI_Head();
-			else
+
+				if(npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead){
+					npc.TargetClosest(true);
+
+					if(!Main.player[npc.target].active || Main.player[npc.target].dead){	//Couldn't get a player target, fall down fast instead
+						npc.velocity.Y += 8f;
+						speed = 500f;
+
+						if(!startDespawn){
+							startDespawn = true;
+							npc.timeLeft = 5 * 60;
+						}
+					}
+				}
+			}else
 				PreAI_BodyTail();
 			
 			return true;
@@ -100,7 +116,7 @@ namespace CosmivengeonMod.NPCs{
 			// This is the initial check for collision with tiles.
 			for(int i = minTilePosX; i < maxTilePosX; ++i){
 				for(int j = minTilePosY; j < maxTilePosY; ++j){
-					if(CosmivengeonMod.TileIsSolidOrPlatform(i, j)){
+					if(CosmivengeonUtils.TileIsSolidOrPlatform(i, j)){
 						Vector2 vector2;
 						vector2.X = (float)(i * 16);
 						vector2.Y = (float)(j * 16);
@@ -333,7 +349,7 @@ namespace CosmivengeonMod.NPCs{
 			position.Y += texture.Height / 2f;
 			position.X += texture.Width / 2f;
 
-			float rotation = CosmivengeonMod.ToActualAngle(npc.rotation);
+			float rotation = CosmivengeonUtils.ToActualAngle(npc.rotation);
 
 			SpriteEffects effect = SpriteEffects.FlipVertically;
 

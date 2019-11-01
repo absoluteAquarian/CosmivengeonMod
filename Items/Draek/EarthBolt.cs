@@ -16,11 +16,11 @@ namespace CosmivengeonMod.Items.Draek{
 		public override void SetDefaults(){
 			item.autoReuse = true;
 			item.rare = 2;
-			item.mana = 13;
+			item.mana = 8;
 			item.UseSound = SoundID.Item21;
 			item.noMelee = true;
 			item.useStyle = 5;
-			item.damage = 23;
+			item.damage = 26;
 			item.useAnimation = 22;
 			item.useTime = 22;
 			item.width = 28;

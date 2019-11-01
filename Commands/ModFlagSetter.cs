@@ -23,7 +23,7 @@ namespace CosmivengeonMod.Commands{
 			}
 
 			if(args.Length == 0){
-				Main.NewText(Usage, Color.DarkOrange);
+				Main.NewText($"Usage: {Usage}", Color.DarkOrange);
 				return;
 			}
 

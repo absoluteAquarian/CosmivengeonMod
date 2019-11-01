@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -21,8 +22,13 @@ namespace CosmivengeonMod{
 					npc.lifeRegen = 0;
 				npc.defense -= 10;
 				endurance -= 0.1f;
-				npc.lifeRegen -= 100;
+				npc.lifeRegen -= 15 * 2;
 			}
+		}
+
+		public override void DrawEffects(NPC npc, ref Color drawColor){
+			if(primordialWrath)
+				drawColor = CosmivengeonUtils.Blend(drawColor, Color.DarkRed);
 		}
 
 		public override void ModifyHitByItem(NPC npc, Player player, Item item, ref int damage, ref float knockback, ref bool crit){

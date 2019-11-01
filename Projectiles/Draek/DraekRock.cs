@@ -4,13 +4,12 @@ using Terraria.ModLoader;
 namespace CosmivengeonMod.Projectiles.Draek{
 	public class DraekRock : ModProjectile{
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Rock");
 			Main.projFrames[projectile.type] = 3;
 		}
 		
 		public override void SetDefaults(){
-			projectile.height = 15;
-			projectile.width = 15;
+			projectile.height = CosmivengeonWorld.desoMode ? 20 : 15;
+			projectile.width = CosmivengeonWorld.desoMode ? 20 : 15;
 			projectile.friendly = false;
 			projectile.hostile = true;
 			projectile.tileCollide = true;
@@ -19,7 +18,7 @@ namespace CosmivengeonMod.Projectiles.Draek{
 			projectile.timeLeft = 300;
 			projectile.aiStyle = 0;
 			projectile.alpha = 0;
-			projectile.scale = 2f;
+			projectile.scale = CosmivengeonWorld.desoMode ? 2f * 4f / 3f : 2f;
 
 			drawOriginOffsetX = -projectile.width / 2f;
 			drawOriginOffsetY = (int)(projectile.height / 2f);

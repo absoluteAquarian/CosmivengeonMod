@@ -256,7 +256,7 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 
 				//Loop over all tiles going up to down that are solid
 				for(; currentCoordY <= (int)((Main.screenPosition.Y + Main.screenHeight) / 16f); currentCoordY++){
-					if(CosmivengeonMod.TileIsSolidOrPlatform(currentCoordX, currentCoordY) && Main.tile[currentCoordX, currentCoordY].type != TileID.Platforms){
+					if(CosmivengeonUtils.TileIsSolidOrPlatform(currentCoordX, currentCoordY) && Main.tile[currentCoordX, currentCoordY].type != TileID.Platforms){
 						tileCoords.Add(new Point(currentCoordX, currentCoordY));
 						break;
 					}
