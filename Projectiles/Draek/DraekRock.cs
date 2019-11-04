@@ -18,7 +18,7 @@ namespace CosmivengeonMod.Projectiles.Draek{
 			projectile.timeLeft = 300;
 			projectile.aiStyle = 0;
 			projectile.alpha = 0;
-			projectile.scale = CosmivengeonWorld.desoMode ? 2f * 4f / 3f : 2f;
+			projectile.scale = 2f;
 
 			drawOriginOffsetX = -projectile.width / 2f;
 			drawOriginOffsetY = (int)(projectile.height / 2f);

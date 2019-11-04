@@ -292,6 +292,19 @@ namespace CosmivengeonMod.NPCs.Draek{
 		public override void AI(){
 			//AI:  https://docs.google.com/document/d/13IlpNUdO2X_elLPwsYcB1mzd_FMxQkwAcRKq1oSWgLg
 
+			if(!hasSpawned){
+				npc.TargetClosest(true);
+				
+				hasSpawned = true;
+				AI_Attack = Attack_Shoot;
+				CurrentPhase = Phase_1;
+				Main.NewText("So, a new challenger has arisen to take my domain, hm?", TextColour);
+			}
+
+			if(npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead){
+				npc.TargetClosest(true);
+			}
+
 			playerTarget = Main.player[npc.target];
 			noTargetsAlive = playerTarget.dead || !playerTarget.active;
 			CheckTargetIsDead();
@@ -304,27 +317,9 @@ namespace CosmivengeonMod.NPCs.Draek{
 				afterImageLength--;
 			}
 
-			if(npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead){
-				npc.TargetClosest(true);
-			}
-
 			AI_Animation_Counter++;
 
 			AI_Check_Phase_Switch();
-			
-			if(!hasSpawned){
-				npc.TargetClosest(true);
-				
-				hasSpawned = true;
-				AI_Attack = Attack_Shoot;
-				CurrentPhase = Phase_1;
-				Main.NewText("So, a new challenger has arisen to take my domain, hm?", TextColour);
-
-				//Force the boss to appear within a 35-tile radius of the player
-				Vector2 targetPointOnCircle = playerTarget.Center + Vector2.Normalize(playerTarget.Center - npc.Center) * 35f * 16f;
-				if(Vector2.Distance(playerTarget.Center, npc.Center) > 35f * 16f)
-					npc.Center = targetPointOnCircle - new Vector2(Main.npcTexture[npc.type].Width * 0.5f, Main.npcTexture[npc.type].Height * 0.5f);
-			}
 
 			if(CurrentPhase == Phase_1){
 				if(AI_Attack == Attack_Shoot){
@@ -438,12 +433,12 @@ namespace CosmivengeonMod.NPCs.Draek{
 				}
 
 				if(npc.velocity.X == 0){
-					npc.velocity.Y += 10f;
+					npc.velocity.Y += 15f;
 				}
 
 				if(!startDespawn){
 					startDespawn = true;
-					npc.timeLeft = 2 * 60;
+					npc.timeLeft = 1 * 60;
 				}
 			}
 		}
@@ -550,7 +545,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 						12f,
 						Main.myPlayer,
 						npc.target,
-						CosmivengeonWorld.desoMode ? ((CurrentPhase == Phase_1) ? 1 : 2 ) : 0
+						CosmivengeonWorld.desoMode ? ((CurrentPhase == Phase_1) ? 2 : 3) : 0
 					);
 
 					//Play sword swing sound effect

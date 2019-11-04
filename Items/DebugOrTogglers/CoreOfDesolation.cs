@@ -24,9 +24,11 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 		}
 
 		public override bool CanUseItem(Player player){
+			if(!Main.expertMode)
+				Main.NewText("You are not powerful enough to withstand the chaos...", CosmivengeonUtils.TausFavouriteColour);
 			if(CosmivengeonWorld.desoMode && !CosmivengeonMod.debug_toggleDesoMode)
 				Main.NewText("Nice try, but the deed has already been done.", CosmivengeonUtils.TausFavouriteColour);
-			return !(CosmivengeonWorld.desoMode && !CosmivengeonMod.debug_toggleDesoMode);
+			return Main.expertMode && (!CosmivengeonWorld.desoMode || CosmivengeonMod.debug_toggleDesoMode);
 		}
 
 		public override bool UseItem(Player player){

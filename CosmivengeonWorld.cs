@@ -8,7 +8,7 @@ using Terraria.ModLoader.IO;
 
 namespace CosmivengeonMod {
 	public class CosmivengeonWorld : ModWorld{
-		private const int saveVersion = 1;
+		private const int saveVersion = 413;
 		public static bool desoMode;
 		public static bool downedDraekBoss;
 

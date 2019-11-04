@@ -10,15 +10,15 @@ namespace CosmivengeonMod.Commands{
 
 		public override string Command => "setworldflag";
 
-		public override string Usage => "/setworldflag <internal flag name> <true/false>";
+		public override string Usage => "[c/ff6a00:Usage: /setworldflag <internal flag name> <true/false>]";
 
-		public override string Description => "Toggle the given Cosmivengeon world flag.";
+		public override string Description => "Sets the given Cosmivengeon world flag to the given Boolean value.";
 
 		public override void Action(CommandCaller caller, string input, string[] args){
 			//Check if the provided flag actually exists.
 			//If it does, edit it
-			if(args.Length == 0){
-				Main.NewText($"Usage: {Usage}", Color.DarkOrange);
+			if(!CosmivengeonMod.allowWorldFlagEdit){
+				Main.NewText("Editing world flags is disabled.", Color.Red);
 				return;
 			}
 

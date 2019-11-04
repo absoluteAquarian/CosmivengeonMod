@@ -62,7 +62,6 @@ namespace CosmivengeonMod.NPCs.Draek{
 			bossBag = ModContent.ItemType<Items.Boss_Bags.DraekBag>();
 		}
 
-#region Constants
 		private const float speed_subphase0_normal = 6f;
 		private const float speed_subphase0_enraged_normal = 9f;
 		private const float speed_subphase0_expert = 8f;
@@ -112,13 +111,14 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 		public const int Laser_Delay = 90;
 		private const int DesoMode_RockDelay = 20;
-#endregion
 
 		private int attackPhase = Worm_subphase0;
 		private int attackProgress = 0;
 		private int attackTimer = 0;
 		private int spitTimer = -1;
 		private int laserTimer = -1;
+		private const int MaxExplosionTimer = 150;
+		private int explosionTimer = MaxExplosionTimer;
 
 		private int SummonedWyrms = 0;
 
@@ -166,7 +166,6 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 			if(player != null && quickSpawn){
 				player.QuickSpawnItem(dropType, dropAmount);
-				player.QuickSpawnItem(ModContent.ItemType<Items.Draek.JewelOfOronitus>());
 				player.QuickSpawnItem(ModContent.ItemType<Items.Draek.DraekScales>(), Main.rand.Next(20, 31));
 
 				if(Main.rand.NextFloat() < 0.1)
@@ -178,7 +177,6 @@ namespace CosmivengeonMod.NPCs.Draek{
 				}
 			}else if(npc != null){
 				Item.NewItem(npc.getRect(), dropType, dropAmount);
-				Item.NewItem(npc.getRect(), ModContent.ItemType<Items.Draek.JewelOfOronitus>(), 1);
 				Item.NewItem(npc.getRect(), ModContent.ItemType<Items.Draek.DraekScales>(), Main.rand.Next(20, 31));
 				
 				if(Main.rand.NextFloat() < 0.1)
@@ -288,6 +286,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 					AI_MegaCharge(20, (int)(duration * 60), 12, 50 * 16);
 				}else if(attackPhase == DesoMode_Try_Land_Explosion){
 					AI_TryLandExplosion();
+					explosionTimer--;
 				}else if(attackPhase == DesoMode_Berserker){
 					AI_Beserker();
 				}else if(attackPhase == DesoMode_Berserker_Lasers){
@@ -344,6 +343,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 				if(attackPhase == DesoMode_Mega_Charge)
 					attackProgress = 2;
+
+				explosionTimer = MaxExplosionTimer;
 			}else
 				attackPhase++;
 			
@@ -511,8 +512,9 @@ namespace CosmivengeonMod.NPCs.Draek{
 				}
 			}
 
-			//If we should trigger the explosion, do so
-			if(triggerExplosion)
+			//If we should trigger the explosion due to colliding with tiles, do so
+			//OR if the timer has run out
+			if(triggerExplosion || explosionTimer < 0)
 				RockExplosion();
 		}
 

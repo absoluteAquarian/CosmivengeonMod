@@ -9,7 +9,7 @@ namespace CosmivengeonMod.Projectiles.Draek{
 		public override string Texture => "CosmivengeonMod/Projectiles/Draek/DraekSword";
 
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Draek's Sword");
+			DisplayName.SetDefault("Forsaken Oronoblade");
 		}
 		public override void SetDefaults(){
 			projectile.height = 30;

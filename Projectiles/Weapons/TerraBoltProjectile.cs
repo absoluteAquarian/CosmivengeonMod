@@ -11,17 +11,18 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 		}
 
 		public override void SetDefaults(){
-			projectile.width = 8;
-			projectile.height = 8;
-			projectile.aiStyle = 1;
+			projectile.width = 16;
+			projectile.height = 16;
 			projectile.friendly = true;
 			projectile.hostile = false;
-			projectile.penetrate = -1;
+			projectile.penetrate = 5;
 			projectile.timeLeft = 5 * 60;
 			projectile.alpha = 0;
 			projectile.ignoreWater = true;
 			projectile.tileCollide = true;
-			aiType = ProjectileID.Bullet;
+
+			projectile.usesLocalNPCImmunity = true;
+			projectile.localNPCHitCooldown = 3;
 		}
 
 		private bool hasSpawned = false;
@@ -30,9 +31,10 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 			if(!hasSpawned){
 				hasSpawned = true;
 				projectile.frame = Main.rand.Next(3);
+				projectile.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
 			}
 			
-			projectile.rotation += MathHelper.ToRadians(30f) + Main.rand.NextFloat(-15f, 15f);
+			projectile.rotation += MathHelper.ToRadians((5f + Main.rand.NextFloat(-2f, 2f)) * 360f / 60f);
 		}
 
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
@@ -48,7 +50,7 @@ namespace CosmivengeonMod.Projectiles.Weapons{
 			Color color = projectile.GetAlpha(lightColor);
 			Rectangle drawFrame = new Rectangle(0, texture.Height / Main.projFrames[projectile.type] * projectile.frame, texture.Width, texture.Height / Main.projFrames[projectile.type]);
 
-			spriteBatch.Draw(Main.projectileTexture[projectile.type], drawPos, drawFrame, color, projectile.rotation, drawOrigin, projectile.scale, SpriteEffects.None, 0f);
+			spriteBatch.Draw(texture, drawPos, drawFrame, color, projectile.rotation, drawOrigin, projectile.scale, SpriteEffects.None, 0f);
 
 			return true;
 		}

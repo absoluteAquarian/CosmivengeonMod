@@ -28,8 +28,12 @@ namespace CosmivengeonMod.Items.Boss_Bags{
 
 			if(Main.expertMode && CosmivengeonWorld.desoMode && !CosmivengeonWorld.obtainedDesolator_DraekBoss){
 				player.QuickSpawnItem(ModContent.ItemType<Draek.TerraBolt>());
+				CosmivengeonWorld.obtainedDesolator_DraekBoss = true;
+
 				CosmivengeonWorld.CheckWorldFlagUpdate(nameof(CosmivengeonWorld.obtainedDesolator_DraekBoss));
 			}
+
+			player.QuickSpawnItem(ModContent.ItemType<Draek.JewelOfOronitus>());
 
 			NPCs.Draek.DraekP2Head.NormalModeDrops(player: player, quickSpawn: true);
 		}

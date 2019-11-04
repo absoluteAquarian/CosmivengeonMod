@@ -50,7 +50,7 @@ namespace CosmivengeonMod.NPCs{
 
 						if(!startDespawn){
 							startDespawn = true;
-							npc.timeLeft = 5 * 60;
+							npc.timeLeft = 2 * 60;
 						}
 					}
 				}

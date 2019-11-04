@@ -28,30 +28,28 @@ namespace CosmivengeonMod{
 		/// </summary>
 		/// <param name="damage">The intended damage to be dealt.</param>
 		/// <returns></returns>
-		public static int TrueDamage(int damage){
-			return (int)(damage * DamageDecrease);
-		}
+		public static int TrueDamage(int damage) => (int)(damage * DamageDecrease);
 
 		/// <summary>
 		/// Equivalent to (float)System.Math.Cos(angle)
 		/// </summary>
 		/// <param name="angle">The angle in radians.</param>
-		/// <returns></returns>
 		[SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Name case is intended.")]
-		public static float fCos(double angle){
-			return (float)Math.Cos(angle);
-		}
+		public static float fCos(double angle) => (float)Math.Cos(angle);
 
 
 		/// <summary>
 		/// Equivalent to (float)System.Math.Sin(angle)
 		/// </summary>
 		/// <param name="angle">The angle in radians.</param>
-		/// <returns></returns>
 		[SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Name case is intended.")]
-		public static float fSin(double angle){
-			return (float)Math.Sin(angle);
-		}
+		public static float fSin(double angle) => (float)Math.Sin(angle);
+
+		/// <summary>
+		/// Equivalent to (float)System.Math.Sqrt(value)
+		/// </summary>
+		[SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Name case is intended.")]
+		public static float fSqrt(double value) => (float)Math.Sqrt(value);
 
 		/// <summary>
 		/// Converts the given Terraria angle to the proper XNA angle.
@@ -59,9 +57,7 @@ namespace CosmivengeonMod{
 		/// </summary>
 		/// <param name="angle">The angle in radians.</param>
 		/// <returns></returns>
-		public static float ToActualAngle(float angle){
-			return (angle + MathHelper.Pi) % MathHelper.TwoPi;
-		}
+		public static float ToActualAngle(float angle) => (angle + MathHelper.Pi) % MathHelper.TwoPi;
 
 		/// <summary>
 		/// Converts the given XNA angle to the equivalent Terraria angle.
@@ -69,21 +65,39 @@ namespace CosmivengeonMod{
 		/// </summary>
 		/// <param name="angle">The angle in radians.</param>
 		/// <returns></returns>
-		public static float ToTerrariaAngle(float angle){
-			return (angle - MathHelper.Pi) % MathHelper.TwoPi;
-		}
+		public static float ToTerrariaAngle(float angle) => (angle - MathHelper.Pi) % MathHelper.TwoPi;
 
 		public static bool TileIsSolidOrPlatform(int x, int y){
 			Tile tile = Main.tile[x, y];
 			return tile != null && (tile.nactive() && (Main.tileSolid[(int)tile.type] || Main.tileSolidTop[(int)tile.type] && (int)tile.frameY == 0) || (int)tile.liquid > 64);
 		}
 
-		public static float Average(params int[] values) => values.Sum() / (float)values.Length;
+		private static double Average(params double[] values) => values.Sum() / values.Length;
 
-		public static int IntAverage(params int[] values) => (int)Average(values);
+		/// <summary>
+		/// Returns the average of the values provided.
+		/// </summary>
+		/// <typeparam name="T">The type of the elements in the array.</typeparam>
+		/// <param name="values">The array of values.</param>
+		public static T Average<T>(params T[] values) where T : struct, IComparable<T>
+			=> new double[]{ Average(values.Cast<double>().ToArray()) }.Cast<T>().First();
 
+		/// <summary>
+		/// Blends the two colours together with a 50% bias.
+		/// </summary>
+		/// <param name="color"></param>
+		/// <param name="otherColor"></param>
 		public static Color Blend(Color color, Color otherColor)
-			=> new Color(IntAverage(color.R, otherColor.R), IntAverage(color.G, otherColor.G), IntAverage(color.B, otherColor.B), color.A);
+			=> FadeBetween(color, otherColor, 0.5f);
+
+		/// <summary>
+		/// Blends the two colours with the given % bias towards "toColor".  Thanks direwolf420!
+		/// </summary>
+		/// <param name="fromColor">The original colour.</param>
+		/// <param name="toColor">The colour being blended towards</param>
+		/// <param name="fadePercent">The % bias towards "toColor".  Range: [0,1]</param>
+		public static Color FadeBetween(Color fromColor, Color toColor, float fadePercent)
+			=> fadePercent == 0f ? fromColor : new Color(fromColor.ToVector4() * (1f - fadePercent) + toColor.ToVector4() * fadePercent);
 
 		/// <summary>
 		/// Chooses the value to get based on the game's mode.
@@ -92,7 +106,6 @@ namespace CosmivengeonMod{
 		/// <param name="normal">The value to use if the game is in Normal Mode.</param>
 		/// <param name="expert">The value to use if the game is in Expert Mode.</param>
 		/// <param name="desolation">The value to use if the game is in Desolation Mode.</param>
-		/// <returns></returns>
 		public static T GetModeChoice<T>(T normal, T expert, T desolation)
 			=> CosmivengeonWorld.desoMode ? desolation : (Main.expertMode ? expert : normal);
 

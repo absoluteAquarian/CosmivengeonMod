@@ -29,7 +29,7 @@ namespace CosmivengeonMod.Projectiles.Draek{
 		private bool spinFinished = false;
 
 		private const int Spin_Timer_Max = 90;
-		private int AI_Spin_Timer = Spin_Timer_Max;
+		private int AI_Spin_Timer = -1;
 		private const int FlyAfterSpinTimerMax = 45;
 		private int AI_FlyAfterSpin_Timer = FlyAfterSpinTimerMax;
 
@@ -37,8 +37,12 @@ namespace CosmivengeonMod.Projectiles.Draek{
 			Player target = Main.player[(int)projectile.ai[0]];
 			
 			//If the projectile just spawned, spawn the "extra" hitboxes
+			//Also, check if we're in normal mode and set the velocity
 			if(!hasSpawned){
 				hasSpawned = true;
+
+				if(!Main.expertMode && !CosmivengeonWorld.desoMode)
+					projectile.velocity = Vector2.Normalize(target.Center - projectile.Center) * 20f;
 
 				Projectile.NewProjectile(projectile.position, Vector2.Zero, ModContent.ProjectileType<DraekSwordExtra>(), projectile.damage, projectile.knockBack, Main.myPlayer, projectile.whoAmI, -1);
 				Projectile.NewProjectile(projectile.position, Vector2.Zero, ModContent.ProjectileType<DraekSwordExtra>(), projectile.damage, projectile.knockBack, Main.myPlayer, projectile.whoAmI, 1);
@@ -48,8 +52,8 @@ namespace CosmivengeonMod.Projectiles.Draek{
 			if(projectile.ai[1] > 0){
 				if(AI_Spin_Timer >= 0){
 					float ratio = 1f - (AI_Spin_Timer / Spin_Timer_Max);
-					float spin = MathHelper.ToRadians(0.5f * 360f / 60f);
-					float spinAdd = MathHelper.ToRadians(3f * 360f / 60f);
+					float spin = MathHelper.ToRadians(0.25f * 360f / 60f);
+					float spinAdd = MathHelper.ToRadians(6f * 360f / 60f);
 
 					AI_Spin_Timer--;
 				

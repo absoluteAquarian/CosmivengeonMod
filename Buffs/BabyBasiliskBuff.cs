@@ -8,7 +8,6 @@ namespace CosmivengeonMod.Buffs{
 			Description.SetDefault("A baby basilisk will protect you.\nWho knew a potential descendant of Draek could be so cute!");
 			Main.buffNoSave[Type] = true;
 			Main.buffNoTimeDisplay[Type] = true;
-			Main.vanityPet[Type] = true;
 		}
 
 		public override void Update(Player player, ref int buffIndex){

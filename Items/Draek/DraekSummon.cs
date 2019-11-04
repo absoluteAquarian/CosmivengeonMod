@@ -37,8 +37,14 @@ namespace CosmivengeonMod.Items.Draek{
 		}
 
 		public override bool UseItem(Player player){
-			//Spawn "Draek"
-			NPC.SpawnOnPlayer(player.whoAmI, ModContent.NPCType<NPCs.Draek.Draek>());
+			//Spawn "Draek" within 50 tiles of the player
+			float randomAngle = Main.rand.NextFloat(0, MathHelper.TwoPi);
+			Vector2 offset = randomAngle.ToRotationVector2() * 50f * 16f;
+			int targetX = (int)(player.Center.X + offset.X);
+			int targetY = (int)(player.Center.Y + offset.Y);
+
+			NPC.NewNPC(targetX, targetY, ModContent.NPCType<NPCs.Draek.Draek>());
+
 			return true;
 		}
 

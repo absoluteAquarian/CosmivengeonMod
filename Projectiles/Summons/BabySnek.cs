@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 namespace CosmivengeonMod.Projectiles.Summons{
 	public class BabySnek : ModProjectile{
 		public override void SetStaticDefaults(){
+			DisplayName.SetDefault("Yamanu");
 			Main.projFrames[projectile.type] = Main.projFrames[ProjectileID.BabySlime];
 			Main.projPet[projectile.type] = true;
 			ProjectileID.Sets.MinionTargettingFeature[projectile.type] = true; //This is necessary for right-click targeting
@@ -35,10 +36,9 @@ namespace CosmivengeonMod.Projectiles.Summons{
 			get;
 			internal set;
 		} = false;
-		public float DistanceToTarget{
-			get;
-			internal set;
-		} = 0f;
+		public float DistanceToTarget => CosmivengeonUtils.fSqrt(xDistanceToTarget * xDistanceToTarget + yDistanceToTarget + yDistanceToTarget);
+		private float xDistanceToTarget = 0f;
+		private float yDistanceToTarget = 0f;
 		private int SmallHopTimer = 0;
 		private int BigHopTimer = 0;
 
@@ -50,7 +50,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 		private const int MAX_TARGET_DISTANCE = 60 * 16;
 		private int MAX_PLAYER_DISTANCE => 7 * 16 * (projectile.minionPos + 1);
-		private const int MAX_PLAYER_FLY_DISTANCE = 40 * 16;
+		private const int MAX_PLAYER_FLY_DISTANCE = 30 * 16;
 		private Vector2 Player_StandBehind_Distance => new Vector2(3 * 16, 0) * (projectile.minionPos + 1);
 
 		private Player ownerPlayer = null;
@@ -88,7 +88,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 				//First, check to see if the projectile can't move due to tiles
 				//If this is the case, then do a small hop to try and get over the tile
-				if(SmallHopTimer < 0 && projectile.position == projectile.oldPosition && DistanceToTarget > 1f){
+				if(BigHopTimer < 0 && SmallHopTimer < 0 && projectile.position == projectile.oldPosition && DistanceToTarget > 1f){
 					projectile.velocity.Y = -6f;
 					SmallHopTimer = Main.rand.Next((int)(0.5f * 60), 2 * 60);
 				}
@@ -144,9 +144,19 @@ namespace CosmivengeonMod.Projectiles.Summons{
 		}
 
 		private void AI_Fly(){
+			float acceleration = 1.5f;
+
 			//If the pet should fly back to the player, create a reference position behind the character and make the summon target it
-			projectile.velocity +=
-				-Vector2.Normalize(projectile.Center - (ownerPlayer.Center - (ownerPlayer.direction * Player_StandBehind_Distance))) * 31f / 60f;
+			Vector2 direction =
+				-Vector2.Normalize(projectile.Center - (ownerPlayer.Center - (ownerPlayer.direction * Player_StandBehind_Distance)));
+			direction *= acceleration;
+
+			if(Math.Abs(direction.X) < acceleration / 2f)
+				direction.X = acceleration * (direction.X < 0 ? -1 : 1) / 2f;
+
+			projectile.velocity += direction;
+
+			projectile.velocity.Y = Utils.Clamp(projectile.velocity.Y, -5f, 5f);
 
 			projectile.rotation = projectile.velocity.X * 0.08f;
 				
@@ -161,7 +171,8 @@ namespace CosmivengeonMod.Projectiles.Summons{
 					projectile.frame = 2;
 			}
 
-			DistanceToTarget = Vector2.Distance(ownerPlayer.Center, projectile.Center);
+			yDistanceToTarget = Math.Abs(ownerPlayer.Center.X - projectile.Center.X);
+			yDistanceToTarget = Math.Abs(ownerPlayer.Center.Y - projectile.Center.Y);
 		}
 
 		private void TryTargetNPC(){
@@ -199,30 +210,33 @@ namespace CosmivengeonMod.Projectiles.Summons{
 			if(npcTarget != null){
 				//First, check if the enemy is above this projectile.  if it is, then attempt to jump at it if the projectile's within 3 tiles horizontally of the enemy's center
 				//This projectile can only jump if it is not moving vertically
-				if(!YTruncatedToZero && BigHopTimer < 0 && YVelocityIsZero && npcTarget.Bottom.Y < projectile.Bottom.Y && Math.Abs(projectile.Center.X - npcTarget.Center.X) <= 3 * 16){
+				if(!YTruncatedToZero && BigHopTimer < 0 && YVelocityIsZero && npcTarget.Bottom.Y < projectile.Bottom.Y && xDistanceToTarget <= 3 * 16){
 					projectile.frame = 1;
 					projectile.velocity.Y = -10f;
 					BigHopTimer = Main.rand.Next(1 * 60, (int)(2.5f * 60));
 				}
 
-				DistanceToTarget = Vector2.Distance(projectile.Center, npcTarget.Center);
+				xDistanceToTarget = Math.Abs(npcTarget.Center.X - projectile.Center.X);
+				yDistanceToTarget = Math.Abs(npcTarget.Center.Y - projectile.Center.Y);
 
-				float ratio = DistanceToTarget / MAX_PLAYER_DISTANCE;
+				float ratio = xDistanceToTarget / MAX_PLAYER_DISTANCE;
 				ratio = Utils.Clamp(ratio, 0.9f, 1.3f);
 				ratio *= (7f / 60f);
 
 				Vector2 acceleration = -Vector2.Normalize(projectile.Center - npcTarget.Center) * ratio;
 
-				if(DistanceToTarget > 1.5f * 16 && Math.Abs(acceleration.X) < 3f)
+				if(xDistanceToTarget > 1.5f * 16 && Math.Abs(acceleration.X) < 3f)
 					acceleration.X = 3f * (acceleration.X >= 0 ? 1 : -1);
 
 				projectile.velocity.X += acceleration.X;
 
-				if(DistanceToTarget <= 1.5f * 16)
+				if(xDistanceToTarget <= 1.5f * 16)
 					projectile.velocity.X *= 0.86f;
 			}else{
 				//Otherwise, there aren't any hostile entities nearby.  Move to behind the player
-				DistanceToTarget = Vector2.Distance(projectile.Center, ownerPlayer.Center - ownerPlayer.direction * Player_StandBehind_Distance);
+				Vector2 targetPos = ownerPlayer.Center - ownerPlayer.direction * Player_StandBehind_Distance;
+				xDistanceToTarget = Math.Abs(targetPos.X - projectile.Center.X);
+				yDistanceToTarget = Math.Abs(targetPos.Y - projectile.Center.Y);
 
 				if(DistanceToTarget > 1 * 16){
 					float ratio = DistanceToTarget / Player_StandBehind_Distance.X / 2f;
@@ -232,7 +246,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 					Vector2 acceleration =
 						-Vector2.Normalize(projectile.Center - (ownerPlayer.Center - ownerPlayer.direction * Player_StandBehind_Distance)) * ratio;
 
-					if(DistanceToTarget > 1.5f * 16 && Math.Abs(acceleration.X) < 3f)
+					if(xDistanceToTarget > 1.5f * 16 && Math.Abs(acceleration.X) < 3f)
 						acceleration.X = 3f * (acceleration.X >= 0 ? 1 : -1);
 
 					projectile.velocity.X += acceleration.X;
@@ -240,10 +254,10 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 				//Finally, if the projectile is beneath the player, try to jump to the player
 				//Don't jump if the player is flying or if they're in a flying mount
-				if(!YTruncatedToZero && !(ownerPlayer.rocketDelay2 > 0 || ownerPlayer.wingTime > 0) && projectile.Top.Y > ownerPlayer.Bottom.Y && !(ownerPlayer.mount.Active && ownerPlayer.mount.CanFly)){
+				if(BigHopTimer < 0 && !YTruncatedToZero && !(ownerPlayer.rocketDelay2 > 0 || ownerPlayer.wingTime > 0) && projectile.Top.Y > ownerPlayer.Bottom.Y && !(ownerPlayer.mount.Active && ownerPlayer.mount.CanFly)){
 					projectile.frame = 1;
 					projectile.velocity.Y = -10f;
-					BigHopTimer = Main.rand.Next((int)(1.5f * 60), 3 * 60);
+					BigHopTimer = Main.rand.Next((int)(1f * 60), (int)(1.75f * 60));
 				}
 			}
 		}

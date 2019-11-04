@@ -318,7 +318,8 @@ namespace CosmivengeonMod.Items.Draek{
 			item.height = 39;
 			item.accessory = true;
 			item.value = Item.sellPrice(gold: 1, silver: 50);
-			item.rare = ItemRarityID.Green;
+			item.rare = ItemRarityID.Expert;
+			item.expert = true;
 		}
 
 		public override void UpdateAccessory(Player player, bool hideVisual){

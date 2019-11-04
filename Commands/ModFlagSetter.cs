@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Linq;
 using System.Reflection;
 using Terraria;
 using Terraria.ModLoader;
@@ -10,9 +11,9 @@ namespace CosmivengeonMod.Commands{
 
 		public override string Command => "setmodflag";
 
-		public override string Usage => "/setmodflag <internal flag name> <true/false>";
+		public override string Usage => "[c/ffa600:/setmodflag <internal flag name> <true/false>]";
 
-		public override string Description => "Toggle the given Cosmivengeon Mod flag.";
+		public override string Description => "Sets the given Cosmivengeon Mod flag to the given Boolean value.";
 
 		public override void Action(CommandCaller caller, string input, string[] args){
 			//Check if the provided flag actually exists.
@@ -22,20 +23,14 @@ namespace CosmivengeonMod.Commands{
 				return;
 			}
 
-			if(args.Length == 0){
-				Main.NewText($"Usage: {Usage}", Color.DarkOrange);
-				return;
-			}
-
 			if(args.Length < 2){
 				Main.NewText("Parameter list was too small.", Color.Red);
 				return;
 			}
 
-			//There's one flag the user shouldn't be able to edit:  CosmivengeonMod.allowModFlagEdit
-			//If the user tries to edit this flag OR the flag is already false, return a UsageException
+			//The user is not allowed to edit the "allowModFlagEdit" flag
 			if(args[0] == "allowModFlagEdit"){
-				Main.NewText("Unable to edit the \"allowModFlagEdit\" flag.", Color.Red);
+				Main.NewText($"Unable to edit the \"allowModFlagEdit\" flag.", Color.Red);
 				return;
 			}
 
