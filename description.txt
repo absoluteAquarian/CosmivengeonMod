@@ -7,6 +7,7 @@ This mod adds the following:
 2 Buffs/Debuffs
 1 Accessory
 1 New game mode (Desolation)
+3 Songs
 1 Piece of armour
 1 Crafting material
 6 Miscellaneous items

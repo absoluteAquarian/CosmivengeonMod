@@ -3,10 +3,11 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace CosmivengeonMod.Items.DebugOrTogglers{
 	public class CoreOfDesolation : ModItem{
-		public override void SetStaticDefaults() {
+		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Core of Desolation");
 			Tooltip.SetDefault("Activates Desolation Mode." +
 				$"\nEnables the \"Stamina\" effect, which can be toggled using \"{CosmivengeonMod.StaminaHotKey.GetAssignedKeys()[0]}\"" +
@@ -14,7 +15,7 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 				"\nthough getting Exhausted will cause you to move and attack slower.");
 		}
 
-		public override void SetDefaults() {
+		public override void SetDefaults(){
 			item.width = 20;
 			item.height = 20;
 			item.maxStack = 1;
@@ -24,6 +25,13 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 			item.useStyle = 4;
 			item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0);
 			item.consumable = false;
+		}
+
+		public override void ModifyTooltips(List<TooltipLine> tooltips){
+			foreach(TooltipLine line in tooltips){
+				if(line.text.Substring(0, 7) == "Enables")
+					line.text = $"Enables the \"Stamina\" effect, which can be toggled using \"{CosmivengeonMod.StaminaHotKey.GetAssignedKeys()[0]}\"";
+			}
 		}
 
 		public override bool CanUseItem(Player player){
