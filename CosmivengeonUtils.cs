@@ -128,19 +128,20 @@ namespace CosmivengeonMod{
 		public static int SpawnProjectile(this NPC npc, float spawnX, float spawnY, float velocityX, float velocityY, int type, int damage, float knockback, int owner = 255, float ai0 = 0f, float ai1 = 0f)
 			=> npc.SpawnProjectile(new Vector2(spawnX, spawnY), new Vector2(velocityX, velocityY), type, damage, knockback, owner, ai0, ai1);
 
-		public static void PlayMusic(NPC npc, CosmivengeonBoss boss){
+		public static void PlayMusic(ModNPC modNPC, CosmivengeonBoss boss){
 			float songChance = Main.rand.NextFloat();
 			if(boss == CosmivengeonBoss.Draek){
-				if(songChance < 0.01 || npc.modNPC.music == CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/successor_of_the_kazoo"))
-					npc.modNPC.music = CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/successor_of_the_kazoo");
-				else if(songChance < 0.06 || npc.modNPC.music == CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/RETRO_SuccessorOfTheJewel"))
-					npc.modNPC.music = CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/RETRO_SuccessorOfTheJewel");
-				else{
-					npc.modNPC.music = CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/Successor_of_the_Jewel");
-				}
+				if(modNPC.npc.type == ModContent.NPCType<NPCs.Draek.DraekP2Head>())
+					
+				if(songChance < 0.01 || modNPC.music == CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/successor_of_the_kazoo"))
+					modNPC.music = CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/successor_of_the_kazoo");
+				else if(songChance < 0.06 || modNPC.music == CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/RETRO_SuccessorOfTheJewel"))
+					modNPC.music = CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/RETRO_SuccessorOfTheJewel");
+				else
+					modNPC.music = CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/Successor_of_the_Jewel");
 			}
 
-			npc.modNPC.musicPriority = MusicPriority.BossLow;
+			modNPC.musicPriority = MusicPriority.BossLow;
 		}
 	}
 

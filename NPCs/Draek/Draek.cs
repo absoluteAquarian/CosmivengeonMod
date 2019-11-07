@@ -47,7 +47,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.buffImmune[BuffID.Confused] = true;
 			npc.buffImmune[BuffID.Burning] = true;
 
-			CosmivengeonUtils.PlayMusic(npc, CosmivengeonBoss.Draek);
+			CosmivengeonUtils.PlayMusic(this, CosmivengeonBoss.Draek);
 		}
 #endregion
 
@@ -269,7 +269,9 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		public override bool CheckDead(){
-			NPC.NewNPC((int)(npc.Center.X), (int)(npc.Center.Y), ModContent.NPCType<DraekP2Head>());
+			int newNPC = NPC.NewNPC((int)(npc.Center.X), (int)(npc.Center.Y), ModContent.NPCType<DraekP2Head>());
+			Main.npc[newNPC].modNPC.music = music;
+			Main.npc[newNPC].modNPC.musicPriority = musicPriority;
 			
 			//Spawn 8 gores, 4 per arm
 			Vector2 goreTop = npc.Center;

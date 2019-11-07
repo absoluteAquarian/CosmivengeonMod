@@ -39,8 +39,6 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
 			npc.DeathSound = SoundID.NPCDeath60;	//Phantasm Dragon death sound
-
-			CosmivengeonUtils.PlayMusic(npc, CosmivengeonBoss.Draek);
 			
 			npc.buffImmune[BuffID.Poisoned] = true;
 			npc.buffImmune[BuffID.Confused] = true;

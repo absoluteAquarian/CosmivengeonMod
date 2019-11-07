@@ -29,7 +29,7 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 
 		public override void ModifyTooltips(List<TooltipLine> tooltips){
 			foreach(TooltipLine line in tooltips){
-				if(line.text.Substring(0, 7) == "Enables"){
+				if(line.text != null && line.text.Length >= 7 && line.text.Substring(0, 7) == "Enables"){
 					string hotkey;
 
 					try{
