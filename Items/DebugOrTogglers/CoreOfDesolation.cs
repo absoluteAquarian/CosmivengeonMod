@@ -10,7 +10,7 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Core of Desolation");
 			Tooltip.SetDefault("Activates Desolation Mode." +
-				$"\nEnables the \"Stamina\" effect, which can be toggled using \"{CosmivengeonMod.StaminaHotKey.GetAssignedKeys()[0]}\"" +
+				$"\nEnables the \"Stamina\" effect, which can be toggled using \"G\"" +
 				"\nStamina increases move and attack speed while active," +
 				"\nthough getting Exhausted will cause you to move and attack slower.");
 		}
