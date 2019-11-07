@@ -29,8 +29,17 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 
 		public override void ModifyTooltips(List<TooltipLine> tooltips){
 			foreach(TooltipLine line in tooltips){
-				if(line.text.Substring(0, 7) == "Enables")
-					line.text = $"Enables the \"Stamina\" effect, which can be toggled using \"{CosmivengeonMod.StaminaHotKey.GetAssignedKeys()[0]}\"";
+				if(line.text.Substring(0, 7) == "Enables"){
+					string hotkey;
+
+					try{
+						hotkey = CosmivengeonMod.StaminaHotKey.GetAssignedKeys()[0];
+					}catch(Exception){
+						hotkey = "<NOT BOUND>";
+					}
+
+					line.text = $"Enables the \"Stamina\" effect, which can be toggled using \"{hotkey}\"";
+				}
 			}
 		}
 
