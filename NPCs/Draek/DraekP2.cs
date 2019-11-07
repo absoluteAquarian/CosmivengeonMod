@@ -40,8 +40,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
 			npc.DeathSound = SoundID.NPCDeath60;	//Phantasm Dragon death sound
 
-			music = mod.GetSoundSlot(SoundType.Music, "Sounds/Music/SuccessorOfTheJewel");
-			musicPriority = MusicPriority.BossLow;
+			CosmivengeonUtils.PlayMusic(npc, CosmivengeonBoss.Draek);
 			
 			npc.buffImmune[BuffID.Poisoned] = true;
 			npc.buffImmune[BuffID.Confused] = true;
@@ -129,6 +128,10 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 		private float prevSpeed;
 		private float prevTurnSpeed;
+
+		public override bool CheckActive(){
+			return Vector2.Distance(npc.Center, CustomTarget) > 200 * 16;
+		}
 
 		public override void NPCLoot(){
 			CosmivengeonWorld.downedDraekBoss = true;

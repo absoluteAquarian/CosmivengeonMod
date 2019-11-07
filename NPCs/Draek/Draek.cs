@@ -47,9 +47,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.buffImmune[BuffID.Confused] = true;
 			npc.buffImmune[BuffID.Burning] = true;
 
-			music = mod.GetSoundSlot(SoundType.Music, "Sounds/Music/SuccessorOfTheJewel");
-
-			musicPriority = MusicPriority.BossLow;
+			CosmivengeonUtils.PlayMusic(npc, CosmivengeonBoss.Draek);
 		}
 #endregion
 
@@ -266,6 +264,10 @@ namespace CosmivengeonMod.NPCs.Draek{
 			return true;
 		}
 
+		public override bool CheckActive(){
+			return Vector2.Distance(npc.Center, playerTarget.Center) > 200 * 16;
+		}
+
 		public override bool CheckDead(){
 			NPC.NewNPC((int)(npc.Center.X), (int)(npc.Center.Y), ModContent.NPCType<DraekP2Head>());
 			
@@ -438,7 +440,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 				if(!startDespawn){
 					startDespawn = true;
-					npc.timeLeft = 1 * 60;
+					npc.timeLeft = (int)(0.5f * 60);
 				}
 			}
 		}

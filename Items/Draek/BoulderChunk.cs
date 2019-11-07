@@ -15,11 +15,11 @@ namespace CosmivengeonMod.Items.Draek{
 
 		public override void SetDefaults(){
 			item.shootSpeed = BoulderChunkProjectile.MAX_VELOCITY;
-			item.damage = 90;
-			item.knockBack = 7f;
+			item.damage = 78;
+			item.knockBack = 7.9f;
 			item.useStyle = 1;
-			item.useAnimation = 28;
-			item.useTime = 28;
+			item.useAnimation = 30;
+			item.useTime = 30;
 			item.width = 40;
 			item.height = 40;
 			item.maxStack = 999;

@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Terraria;
+using Terraria.ModLoader;
 
 namespace CosmivengeonMod{
 	public static class CosmivengeonUtils{
@@ -79,8 +80,13 @@ namespace CosmivengeonMod{
 		/// </summary>
 		/// <typeparam name="T">The type of the elements in the array.</typeparam>
 		/// <param name="values">The array of values.</param>
-		public static T Average<T>(params T[] values) where T : struct, IComparable<T>
-			=> new double[]{ Average(values.Cast<double>().ToArray()) }.Cast<T>().First();
+		public static T Average<T>(params T[] values) where T : struct, IComparable<T>{
+			//If "T" isn't a primitive type, throw an error
+			if(typeof(T).Assembly != typeof(object).Assembly || !typeof(T).IsPrimitive)
+				throw new ArithmeticException($"The given type \"{typeof(T)}\" is invalid for this method.");
+
+			return new double[]{ Average(values.Cast<double>().ToArray()) }.Cast<T>().First();
+		}
 
 		/// <summary>
 		/// Blends the two colours together with a 50% bias.
@@ -121,5 +127,24 @@ namespace CosmivengeonMod{
 
 		public static int SpawnProjectile(this NPC npc, float spawnX, float spawnY, float velocityX, float velocityY, int type, int damage, float knockback, int owner = 255, float ai0 = 0f, float ai1 = 0f)
 			=> npc.SpawnProjectile(new Vector2(spawnX, spawnY), new Vector2(velocityX, velocityY), type, damage, knockback, owner, ai0, ai1);
+
+		public static void PlayMusic(NPC npc, CosmivengeonBoss boss){
+			float songChance = Main.rand.NextFloat();
+			if(boss == CosmivengeonBoss.Draek){
+				if(songChance < 0.01 || npc.modNPC.music == CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/successor_of_the_kazoo"))
+					npc.modNPC.music = CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/successor_of_the_kazoo");
+				else if(songChance < 0.06 || npc.modNPC.music == CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/RETRO_SuccessorOfTheJewel"))
+					npc.modNPC.music = CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/RETRO_SuccessorOfTheJewel");
+				else{
+					npc.modNPC.music = CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/Successor_of_the_Jewel");
+				}
+			}
+
+			npc.modNPC.musicPriority = MusicPriority.BossLow;
+		}
+	}
+
+	public enum CosmivengeonBoss{
+		Draek
 	}
 }

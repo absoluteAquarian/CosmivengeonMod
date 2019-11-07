@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace CosmivengeonMod.Items.Draek{
 	public class ForsakenOronoblade : ModItem{
+		public override bool OnlyShootOnSwing => true;
+
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Forsaken Oronoblade");
 			Tooltip.SetDefault("Occasionally Launches green energy blasts when swung" +
@@ -17,20 +19,20 @@ namespace CosmivengeonMod.Items.Draek{
 				"\nwith the right tools, it could be reforged to its original state...");
 		}
 		public override void SetDefaults(){
-			item.damage = 35;
+			item.damage = 41;
 			item.melee = true;
 			item.useTurn = true;
 			item.width = 40;
 			item.height = 40;
-			item.useTime = 18;
-			item.useAnimation = 18;
-			item.useStyle = 1;
-			item.knockBack = 7;
+			item.useTime = 15;
+			item.useAnimation = 15;
+			item.useStyle = ItemUseStyleID.SwingThrow;
+			item.knockBack = 7f;
 			item.value = Item.sellPrice(0, 2, 50, 0);
 			item.shoot = 10;
 			item.shootSpeed = 9f;
 			item.rare = 2;
-			item.scale = 0.75f;
+			item.scale = 0.92f;
 			item.UseSound = SoundID.Item1;
 			item.autoReuse = true;
 		}
@@ -44,7 +46,7 @@ namespace CosmivengeonMod.Items.Draek{
 		}
 
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
-			if(Main.rand.NextFloat() < 0.6f){
+			if(Main.rand.NextFloat() < 0.75f){
 				Main.PlaySound(SoundID.Item43.WithVolume(0.5f), position);
 				type = ModContent.ProjectileType<ForsakenOronobladeProjectile>();
 				damage = (int)(item.damage * 0.6667f);

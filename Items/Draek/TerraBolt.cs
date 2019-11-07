@@ -15,7 +15,7 @@ namespace CosmivengeonMod.Items.Draek{
 				"\nLaunches a devastating barrage of earthen stones. Rocks will curse" +
 				"\nenemies with Primordial Wrath, lowering their defense and damaging" +
 				"\nthem over time." +
-				"\nScales in damage with each boss defeated" +
+				"\nRight click to shoot a shotgun burst of rocks." +
 				"\nOne of the legendary 10 Desolator weapons, an ancient stone capable" +
 				"\nof ripping apart the planet itself if used in the right hands.  How" +
 				"\nDraek managed to stumble across something this powerful is unknown," +

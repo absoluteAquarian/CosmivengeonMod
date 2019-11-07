@@ -8,7 +8,10 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 	public class CoreOfDesolation : ModItem{
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Core of Desolation");
-			Tooltip.SetDefault("Activates Desolation Mode.");
+			Tooltip.SetDefault("Activates Desolation Mode." +
+				$"\nEnables the \"Stamina\" effect, which can be toggled using \"{CosmivengeonMod.StaminaHotKey.GetAssignedKeys()[0]}\"" +
+				"\nStamina increases move and attack speed while active," +
+				"\nthough getting Exhausted will cause you to move and attack slower.");
 		}
 
 		public override void SetDefaults() {
@@ -24,6 +27,8 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 		}
 
 		public override bool CanUseItem(Player player){
+			if(player.GetModPlayer<CosmivengeonPlayer>().stamina.Active)
+				return false;
 			if(!Main.expertMode)
 				Main.NewText("You are not powerful enough to withstand the chaos...", CosmivengeonUtils.TausFavouriteColour);
 			if(CosmivengeonWorld.desoMode && !CosmivengeonMod.debug_toggleDesoMode)

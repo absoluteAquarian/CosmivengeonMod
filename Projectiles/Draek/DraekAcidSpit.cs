@@ -8,6 +8,10 @@ namespace CosmivengeonMod.Projectiles.Draek{
 	public class DraekAcidSpit : ModProjectile{
 		public override string Texture => "CosmivengeonMod/Projectiles/Draek/DraekLaser";
 
+		public override void SetStaticDefaults(){
+			DisplayName.SetDefault("Acid Spit");
+		}
+
 		public override void SetDefaults(){
 			projectile.alpha = 255;
 			projectile.width = 8;
@@ -35,7 +39,7 @@ namespace CosmivengeonMod.Projectiles.Draek{
 			//Spawn several dust randomly
 			for(int i = 0; i < 4; i++)
 				if(Main.rand.NextFloat() < 0.125f)
-					Dust.NewDust(projectile.position, projectile.width, projectile.height, 74);
+					Dust.NewDustPerfect(projectile.Center, 74, new Vector2(Main.rand.NextFloat(-1, 1), Main.rand.NextFloat(-1, 1)));
 
 		}
 	}

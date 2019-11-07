@@ -17,6 +17,7 @@ namespace CosmivengeonMod {
 		public static bool obtainedDesolator_DraekBoss;
 
 		public override void Initialize(){
+			//World flags
 			desoMode = false;
 			downedDraekBoss = false;
 			obtainedLore_DraekBoss = false;
@@ -43,6 +44,8 @@ namespace CosmivengeonMod {
 			desoMode = tag.GetBool("desolation");
 			obtainedLore_DraekBoss = tag.GetBool("lore_Draek");
 			obtainedDesolator_DraekBoss = tag.GetBool("desolator_Draek");
+
+			SetModFlags();
 		}
 
 		public override void LoadLegacy(BinaryReader reader){
@@ -53,6 +56,8 @@ namespace CosmivengeonMod {
 				desoMode = flags[1];
 				obtainedLore_DraekBoss = flags[2];
 				obtainedDesolator_DraekBoss = flags[3];
+
+				SetModFlags();
 			}else
 				mod.Logger.WarnFormat("CosmivengeonMod:  Unknown loadVersion: {0}", loadVersion);
 		}
@@ -85,6 +90,16 @@ namespace CosmivengeonMod {
 				if(Main.netMode == NetmodeID.Server)
 					NetMessage.SendData(MessageID.WorldData);	//Immediately inform clients of new world state
 			}
+		}
+
+		private void SetModFlags(){
+			//Mod Flags
+			CosmivengeonMod.debug_toggleDesoMode = false;
+			CosmivengeonMod.debug_canUseExpertModeToggle = false;
+			CosmivengeonMod.debug_canUsePotentiometer = false;
+			CosmivengeonMod.allowModFlagEdit = true;
+			CosmivengeonMod.allowWorldFlagEdit = true;
+			CosmivengeonMod.allowTimeEdit = true;
 		}
 	}
 }

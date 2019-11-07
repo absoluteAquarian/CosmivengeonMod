@@ -44,13 +44,13 @@ namespace CosmivengeonMod.NPCs{
 				if(npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead){
 					npc.TargetClosest(true);
 
-					if(!Main.player[npc.target].active || Main.player[npc.target].dead){	//Couldn't get a player target, fall down fast instead
+					if(!Main.player[npc.target].active || Main.player[npc.target].dead && npc.boss){	//Couldn't get a player target, fall down fast instead
 						npc.velocity.Y += 8f;
 						speed = 500f;
 
 						if(!startDespawn){
 							startDespawn = true;
-							npc.timeLeft = 2 * 60;
+							npc.timeLeft = (int)(0.5f * 60);
 						}
 					}
 				}

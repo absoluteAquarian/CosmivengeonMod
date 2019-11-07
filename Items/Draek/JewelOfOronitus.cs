@@ -16,7 +16,11 @@ namespace CosmivengeonMod.Items.Draek{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Jewel of Oronitus");
 			//NOTE:  "\nGrants an earth-blessed rock jump" needs to be added after "Fall speed increased by 20%" when the IL code is implemented and works.
-			Tooltip.SetDefault("Damage dealt and damage reduction increased by 5%\nMovement speed increased by 10%\nFall speed increased by 20%\nAn ancient artifact, last donned by the rock serpent Draek. Its original master, Oronitus, was seemingly lost to time many years ago...");
+			Tooltip.SetDefault("Damage dealt and damage reduction increased by 5%" +
+				"\nMovement speed increased by 10%" +
+				"\nFall speed increased by 20%" +
+				"\nAn ancient artifact, last donned by the rock serpent Draek." +
+				"\nIts original master, Oronitus, was seemingly lost to time many years ago...");
 		}
 
 //Ignore any "unreachable code" and "unused members" warnings
@@ -325,7 +329,8 @@ namespace CosmivengeonMod.Items.Draek{
 		public override void UpdateAccessory(Player player, bool hideVisual){
 			player.allDamage += 0.05f;
 			player.endurance += 0.05f;
-			player.moveSpeed += 0.1f;
+			player.moveSpeed *= 1.1f;
+			player.accRunSpeed *= 1.1f;
 			player.maxFallSpeed *= 1.2f;
 			player.GetModPlayer<CosmivengeonPlayer>().doubleJump_JewelOfOronitus = true;
 		}

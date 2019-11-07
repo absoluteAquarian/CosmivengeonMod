@@ -4,17 +4,27 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Linq;
 using System.Reflection;
+using System.Collections.Generic;
+using Terraria.UI;
+using CosmivengeonMod.Buffs.Stamina;
+using CosmivengeonMod.UI;
 
 namespace CosmivengeonMod{
 	public class CosmivengeonMod : Mod{
-		public static bool debug_toggleDesoMode = false;
-		public static bool debug_canUseExpertModeToggle = false;
-		public static bool debug_canUsePotentiometer = false;
-		public static bool allowModFlagEdit = true;
-		public static bool allowWorldFlagEdit = true;
-		public static bool allowTimeEdit = true;
+		public static bool debug_toggleDesoMode;
+		public static bool debug_canUseExpertModeToggle;
+		public static bool debug_canUsePotentiometer;
+		public static bool allowModFlagEdit;
+		public static bool allowWorldFlagEdit;
+		public static bool allowTimeEdit;
+
+		//Stamina use hotkey
+		public static ModHotKey StaminaHotKey;
+
+		public static CosmivengeonMod Instance;
 
 		//Mod instance properties
 		private static bool bossCheckListInstanceLoadAttempted = false;
@@ -42,8 +52,25 @@ namespace CosmivengeonMod{
 		public static bool BossChecklistActive => BossChecklistInstance != null;
 		public static bool CalamityActive => CalamityInstance != null;
 
-		public CosmivengeonMod(){
-			
+		//UI
+		private StaminaUI staminaUI;
+		private UserInterface userInterface;
+
+		public CosmivengeonMod(){ }
+
+		public override void Load(){
+			StaminaHotKey = RegisterHotKey("Toggle Stamina Use", "G");
+
+			//Only run this segment if we're not loading on a server
+			if(!Main.dedServ){
+				staminaUI = new StaminaUI();
+				staminaUI.Activate();
+
+				userInterface = new UserInterface();
+				userInterface.SetState(staminaUI);
+			}
+
+			Instance = this;
 		}
 
 		public override void PostSetupContent(){
@@ -79,6 +106,29 @@ namespace CosmivengeonMod{
 			FieldInfo field = world.GetType().GetField("death", BindingFlags.Public | BindingFlags.Static);
 
 			return (bool)field.GetValue(null);
+		}
+
+		public override void UpdateUI(GameTime gameTime){
+			StaminaUI.Visible = !Main.gameMenu && CosmivengeonWorld.desoMode;
+			if(StaminaUI.Visible){
+				userInterface?.Update(gameTime);
+			}
+		}
+
+		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers){
+			//Copied from ExampleMod :thinkies:
+			int mouseIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Mouse Text"));
+			if(mouseIndex != -1){
+				layers.Insert(mouseIndex, new LegacyGameInterfaceLayer(
+					"CosmivengeonMod: Stamina UI",
+					delegate{
+						if(StaminaUI.Visible)
+							userInterface.Draw(Main.spriteBatch, new GameTime());
+						return true;
+					},
+					InterfaceScaleType.UI)
+				);
+			}
 		}
 	}
 
