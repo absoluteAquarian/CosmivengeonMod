@@ -11,4 +11,3 @@ This mod adds the following:
 1 Piece of armour
 1 Crafting material
 6 Miscellaneous items
-3 Commands for debugging purposes
