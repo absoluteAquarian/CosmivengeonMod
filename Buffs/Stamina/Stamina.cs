@@ -10,6 +10,8 @@ namespace CosmivengeonMod.Buffs.Stamina{
 	public class Stamina {
 		public Player Parent{ get; private set; }
 
+		public bool NoDecay;
+
 		private float value;
 		public int Value => (int)(value * 10000f);
 		public bool Active;
@@ -24,6 +26,9 @@ namespace CosmivengeonMod.Buffs.Stamina{
 		private const float DefaultIncreaseRate = 1f / (4f * 60f);
 		private const float DefaultExhaustionIncreaseRate = 1f / (8f * 60f);
 		private const float DefaultDecreaseRate = 1f / (5f * 60f);
+
+		private float[] Multipliers = new float[3];
+		private float[] Adders = new float[3];
 
 		private const int ExhaustionTimerMax = 60;
 		private int ExhaustionTimer;
@@ -56,6 +61,7 @@ namespace CosmivengeonMod.Buffs.Stamina{
 
 		public Stamina(Player player){
 			Parent = player;
+			NoDecay = false;
 
 			value = 1f;
 			Active = false;
@@ -82,6 +88,17 @@ namespace CosmivengeonMod.Buffs.Stamina{
 		public void Update(){
 			if(!CosmivengeonWorld.desoMode)
 				return;
+
+			if(NoDecay){
+				value = 1f;
+				Exhaustion = false;
+				ExhaustionTimer = 0;
+				ExhaustionEffectsWornOff = true;
+				StartRegen = false;
+				goto End;
+			}
+
+			ApplyEffects();
 
 			//If enabled and it's just been depleted, activate Exhaustion
 			if(!Exhaustion && Active && value - DecreaseRate < 0f){
@@ -124,6 +141,7 @@ namespace CosmivengeonMod.Buffs.Stamina{
 			if(ExhaustionTimer > 0 && Exhaustion)
 				ExhaustionTimer--;
 
+End:
 			oldActive = Active;
 
 			//Apply a visual buff
@@ -191,6 +209,9 @@ namespace CosmivengeonMod.Buffs.Stamina{
 			IncreaseRate = DefaultIncreaseRate;
 			ExhaustionIncreaseRate = DefaultExhaustionIncreaseRate;
 			DecreaseRate = DefaultDecreaseRate;
+
+			Multipliers = new float[3]{ 1f, 1f, 1f };
+			Adders = new float[3]{ 0f, 0f, 0f };
 		}
 
 		/// <summary>
@@ -210,13 +231,19 @@ namespace CosmivengeonMod.Buffs.Stamina{
 		/// <param name="incMult">A scalar change to IncreaseRate.  Applied before <paramref name="incAdd"/>.</param>
 		/// <param name="exIncMult">A scalar change to ExhaustionIncreaseRate.  Applied before <paramref name="exIncAdd"/>.</param>
 		/// <param name="decMult">A scalar change to DecreaseRate.  Applied before <paramref name="decAdd"/>.</param>
-		public void ApplyEffects(float incAdd = 0f, float exIncAdd = 0f, float decAdd = 0f, float incMult = 1f, float exIncMult = 1f, float decMult = 1f){
-			IncreaseRate *= incMult;
-			IncreaseRate += incAdd;
-			ExhaustionIncreaseRate *= exIncMult;
-			ExhaustionIncreaseRate += exIncAdd;
-			DecreaseRate *= decMult;
-			DecreaseRate += decAdd;
+		public void SetEffects(float incAdd = 0f, float exIncAdd = 0f, float decAdd = 0f, float incMult = 1f, float exIncMult = 1f, float decMult = 1f){
+			Multipliers[0] += incMult;
+			Adders[0] += incAdd;
+			Multipliers[1] += exIncMult;
+			Adders[1] += exIncAdd;
+			Multipliers[2] += decMult;
+			Adders[2] += decAdd;
+		}
+
+		private void ApplyEffects(){
+			IncreaseRate = IncreaseRate * Multipliers[0] + Adders[0];
+			ExhaustionIncreaseRate = ExhaustionIncreaseRate * Multipliers[1] + Adders[1];
+			DecreaseRate = DecreaseRate * Multipliers[2] + Adders[2];
 		}
 
 		public float GetIncreaseRate() => Exhaustion ? ExhaustionIncreaseRate : IncreaseRate;

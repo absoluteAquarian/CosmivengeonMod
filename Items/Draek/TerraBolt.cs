@@ -23,12 +23,17 @@ namespace CosmivengeonMod.Items.Draek{
 				"\nDesolation Mode Item");
 		}
 
+		private const int PRIMARY_DAMAGE = 7;
+		private const int SECONDARY_DAMAGE = 2;
+		private const int PRIMARY_USETIME = 9;
+		private const int SECONDARY_USETIME = 46;
+
 		public override void SetDefaults(){
-			item.damage = 10;
+			item.damage = PRIMARY_DAMAGE;
 			item.width = 42;
 			item.height = 24;
-			item.useTime = 6;
-			item.useAnimation = 8;
+			item.useTime = PRIMARY_USETIME;
+			item.useAnimation = PRIMARY_USETIME;
 			item.useStyle = 5;
 			item.noMelee = true;
 			item.knockBack = 2f;
@@ -44,15 +49,15 @@ namespace CosmivengeonMod.Items.Draek{
 
 		public override bool CanUseItem(Player player){
 			if(player.altFunctionUse == 2){		//Right click
-				item.damage = 4;
-				item.useTime = 40;
-				item.useAnimation = 40;
+				item.damage = SECONDARY_DAMAGE;
+				item.useTime = SECONDARY_USETIME;
+				item.useAnimation = SECONDARY_USETIME;
 				item.shootSpeed = 30f;
 				item.UseSound = SoundID.Item38;
 			}else{
-				item.damage = 10;
-				item.useTime = 8;
-				item.useAnimation = 8;
+				item.damage = PRIMARY_DAMAGE;
+				item.useTime = PRIMARY_USETIME;
+				item.useAnimation = PRIMARY_USETIME;
 				item.shootSpeed = 30f;
 				item.UseSound = SoundID.Item11;
 			}

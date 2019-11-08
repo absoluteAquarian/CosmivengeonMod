@@ -97,9 +97,9 @@ namespace CosmivengeonMod {
 			CosmivengeonMod.debug_toggleDesoMode = false;
 			CosmivengeonMod.debug_canUseExpertModeToggle = false;
 			CosmivengeonMod.debug_canUsePotentiometer = false;
-			CosmivengeonMod.allowModFlagEdit = true;
-			CosmivengeonMod.allowWorldFlagEdit = true;
-			CosmivengeonMod.allowTimeEdit = true;
+			CosmivengeonMod.allowWorldFlagEdit = false;
+			CosmivengeonMod.allowTimeEdit = false;
+			CosmivengeonMod.allowStaminaNoDecay = false;
 		}
 	}
 }

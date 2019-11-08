@@ -17,9 +17,11 @@ namespace CosmivengeonMod{
 		public static bool debug_toggleDesoMode;
 		public static bool debug_canUseExpertModeToggle;
 		public static bool debug_canUsePotentiometer;
-		public static bool allowModFlagEdit;
+
+		public static bool allowModFlagEdit = true;
 		public static bool allowWorldFlagEdit;
 		public static bool allowTimeEdit;
+		public static bool allowStaminaNoDecay;
 
 		//Stamina use hotkey
 		public static ModHotKey StaminaHotKey;

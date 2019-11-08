@@ -12,13 +12,13 @@ namespace CosmivengeonMod.Items.Draek{
 		}
 
 		public override void SetDefaults() {
-			item.damage = 20;
+			item.damage = 17;
 			item.ranged = true;
 			item.scale = 0.5f;
 			item.width = (int)(42 * item.scale);
 			item.height = (int)(108 * item.scale);
-			item.useTime = 20;
-			item.useAnimation = 20;
+			item.useTime = 22;
+			item.useAnimation = 22;
 			item.useStyle = 5;
 			item.noMelee = true;
 			item.knockBack = 4;
@@ -40,7 +40,7 @@ namespace CosmivengeonMod.Items.Draek{
 			recipe.AddRecipe();
 		}
 
-		public override Vector2? HoldoutOffset() => new Vector2(-12, 0);
+		public override Vector2? HoldoutOffset() => new Vector2(-6, 0);
 
 		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
 			Texture2D texture = Main.itemTexture[item.type];

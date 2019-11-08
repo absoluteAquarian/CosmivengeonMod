@@ -59,15 +59,15 @@ namespace CosmivengeonMod.NPCs.Draek{
 			bossBag = ModContent.ItemType<Items.Boss_Bags.DraekBag>();
 		}
 
-		private const float speed_subphase0_normal = 6f;
-		private const float speed_subphase0_enraged_normal = 9f;
-		private const float speed_subphase0_expert = 8f;
-		private const float speed_subphase0_enraged_expert = 11f;
+		private const float speed_subphase0_normal = 5f;
+		private const float speed_subphase0_enraged_normal = 8f;
+		private const float speed_subphase0_expert = 7f;
+		private const float speed_subphase0_enraged_expert = 9f;
 		
-		private const float turnSpeed_subphase0_normal = 0.125f;
-		private const float turnSpeed_subphase0_enraged_normal = 0.185f;
-		private const float turnSpeed_subphase0_expert = 0.15f;
-		private const float turnSpeed_subphase0_enraged_expert = 0.205f;
+		private const float turnSpeed_subphase0_normal = 0.115f;
+		private const float turnSpeed_subphase0_enraged_normal = 0.175f;
+		private const float turnSpeed_subphase0_expert = 0.14f;
+		private const float turnSpeed_subphase0_enraged_expert = 0.195f;
 
 		private const int summonCount_normal = 3;
 		private const int summonCount_enraged_normal = 5;
@@ -443,7 +443,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			 */
 			if(attackProgress == 0){
 				speed = 1f;
-				turnSpeed = 0.3f;
+				turnSpeed = 0.5f;
 				CustomTarget = Main.player[npc.target].Center;
 				attackProgress++;
 			}else if(attackProgress == 1){
@@ -454,7 +454,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 					attackTimer = 0;
 				}
 			}else if(attackProgress == 2 || attackProgress == 3){
-				speed = Main.expertMode ? 16f : 12f;
+				speed = Main.expertMode ? 13f : 10f;
+				turnSpeed = 0.4f;
 				fly = true;
 				JewelExplosion();
 				if(Vector2.Distance(CustomTarget, npc.Center) < 1 * 16)
@@ -536,8 +537,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 			}
 
 			if(attackProgress == 2 || attackProgress == 3){
-				speed = 20f;
-				turnSpeed = 0.245f;
+				speed = 18f;
+				turnSpeed = 0.325f;
 				fly = true;
 				JewelExplosion();
 				if(Vector2.Distance(CustomTarget, npc.Center) < 1 * 16)

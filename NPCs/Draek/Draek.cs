@@ -331,14 +331,14 @@ namespace CosmivengeonMod.NPCs.Draek{
 				}else if(AI_Attack == Attack_Throw_Sword){
 					AI_Hover_Throw_Sword(1, 60);
 				}else if(AI_Attack == Attack_Shoot_No_Sword){
-					int maxXY = CosmivengeonUtils.GetModeChoice(4, 6, 8);
+					int maxXY = CosmivengeonUtils.GetModeChoice(3, 5, 6);
 					AI_Charge_Shoot(CosmivengeonUtils.GetModeChoice(40, 35, 30),
 						P1_subphase2_Attacks + CosmivengeonUtils.GetModeChoice(0, 0, 8),
 						maxXY, maxXY
 					);
 				}else if(AI_Attack == Attack_Dash){
 					int dashCount = CosmivengeonUtils.GetModeChoice(2, 3, 4);
-					float dashVelocity = CosmivengeonUtils.GetModeChoice(7f, 10f, 12f);
+					float dashVelocity = CosmivengeonUtils.GetModeChoice(6f, 8f, 9f);
 					AI_Dash(dashVelocity, dashCount, 75, 30);
 				}else if(AI_Attack == Attack_Retrieve_Sword){
 					AI_Retrieve_Sword();
@@ -349,14 +349,14 @@ namespace CosmivengeonMod.NPCs.Draek{
 				}else if(AI_Attack == Attack_Throw_Sword){
 					AI_Hover_Throw_Sword(3, 45);
 				}else if(AI_Attack == Attack_Shoot_No_Sword){
-					int maxXY = CosmivengeonUtils.GetModeChoice(6, 8, 11);
+					int maxXY = CosmivengeonUtils.GetModeChoice(5, 7, 9);
 					AI_Charge_Shoot(CosmivengeonUtils.GetModeChoice(20, 18, 17),
 						P1_Enrage_subphase2_Attacks + CosmivengeonUtils.GetModeChoice(0, 0, 4),
 						maxXY, maxXY
 					);
 				}else if(AI_Attack == Attack_Dash){
 					int dashCount = CosmivengeonUtils.GetModeChoice(3, 4, 6);
-					float dashVelocity = CosmivengeonUtils.GetModeChoice(9f, 12f, 14f);
+					float dashVelocity = CosmivengeonUtils.GetModeChoice(7f, 9f, 10f);
 					AI_Dash(dashVelocity, dashCount, 60, 20);
 				}else if(AI_Attack == Attack_Retrieve_Sword){
 					AI_Retrieve_Sword();

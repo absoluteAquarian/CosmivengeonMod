@@ -26,12 +26,15 @@ namespace CosmivengeonMod.Projectiles.Draek{
 		}
 
 		private bool hasSpawned = false;
+		private bool spinStarted = false;
 		private bool spinFinished = false;
 
 		private const int Spin_Timer_Max = 90;
 		private int AI_Spin_Timer = -1;
 		private const int FlyAfterSpinTimerMax = 45;
 		private int AI_FlyAfterSpin_Timer = FlyAfterSpinTimerMax;
+
+		private int baseDamage;
 
 		public override void AI(){
 			Player target = Main.player[(int)projectile.ai[0]];
@@ -46,11 +49,18 @@ namespace CosmivengeonMod.Projectiles.Draek{
 
 				Projectile.NewProjectile(projectile.position, Vector2.Zero, ModContent.ProjectileType<DraekSwordExtra>(), projectile.damage, projectile.knockBack, Main.myPlayer, projectile.whoAmI, -1);
 				Projectile.NewProjectile(projectile.position, Vector2.Zero, ModContent.ProjectileType<DraekSwordExtra>(), projectile.damage, projectile.knockBack, Main.myPlayer, projectile.whoAmI, 1);
+
+				baseDamage = projectile.damage;
 			}
 
 			//If we're in Desolation Mode, make the projectile spin for 1.5 seconds
 			if(projectile.ai[1] > 0){
 				if(AI_Spin_Timer >= 0){
+					if(!spinStarted){
+						spinStarted = true;
+						projectile.damage = (int)(baseDamage * 0.2f);
+					}
+
 					float ratio = 1f - (AI_Spin_Timer / Spin_Timer_Max);
 					float spin = MathHelper.ToRadians(0.25f * 360f / 60f);
 					float spinAdd = MathHelper.ToRadians(6f * 360f / 60f);
@@ -67,6 +77,9 @@ namespace CosmivengeonMod.Projectiles.Draek{
 
 				//Finally, set the intended velocity
 				if(!spinFinished && AI_Spin_Timer < 0){
+					spinStarted = false;
+					projectile.damage = baseDamage;
+
 					spinFinished = true;
 					projectile.ai[1]--;
 					AI_FlyAfterSpin_Timer = FlyAfterSpinTimerMax;

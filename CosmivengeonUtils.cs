@@ -131,8 +131,6 @@ namespace CosmivengeonMod{
 		public static void PlayMusic(ModNPC modNPC, CosmivengeonBoss boss){
 			float songChance = Main.rand.NextFloat();
 			if(boss == CosmivengeonBoss.Draek){
-				if(modNPC.npc.type == ModContent.NPCType<NPCs.Draek.DraekP2Head>())
-					
 				if(songChance < 0.01 || modNPC.music == CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/successor_of_the_kazoo"))
 					modNPC.music = CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/successor_of_the_kazoo");
 				else if(songChance < 0.06 || modNPC.music == CosmivengeonMod.Instance.GetSoundSlot(SoundType.Music, "Sounds/Music/RETRO_SuccessorOfTheJewel"))

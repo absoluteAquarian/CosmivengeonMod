@@ -19,20 +19,20 @@ namespace CosmivengeonMod.Items.Draek{
 				"\nwith the right tools, it could be reforged to its original state...");
 		}
 		public override void SetDefaults(){
-			item.damage = 41;
+			item.damage = 30;
 			item.melee = true;
 			item.useTurn = true;
 			item.width = 40;
 			item.height = 40;
-			item.useTime = 15;
-			item.useAnimation = 15;
+			item.useTime = 19;
+			item.useAnimation = 19;
 			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.knockBack = 7f;
+			item.knockBack = 6.3f;
 			item.value = Item.sellPrice(0, 2, 50, 0);
 			item.shoot = 10;
 			item.shootSpeed = 9f;
 			item.rare = 2;
-			item.scale = 0.92f;
+			item.scale = 0.86f;
 			item.UseSound = SoundID.Item1;
 			item.autoReuse = true;
 		}

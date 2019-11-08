@@ -28,6 +28,8 @@ namespace CosmivengeonMod.Projectiles.Draek{
 
 		public override void AI(){
 			Projectile owner = Main.projectile[(int)projectile.ai[0]];
+
+			projectile.damage = owner.damage;
 			
 			if(!hasSpawned){
 				hasSpawned = true;

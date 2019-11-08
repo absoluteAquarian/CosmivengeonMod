@@ -1,0 +1,59 @@
+﻿=====COMMANDS=====
+
+/setmodflag <internal flag name> <true/false>
+
+Sets the given Cosmivengeon Mod flag to the given Boolean value.
+Cannot be executed if the "allowModFlagEdit" flag is false.
+Cannot edit the "allowModFlagEdit" flag.
+
+Internal Flag Names:
+  debug_toggleDesoMode
+  debug_canUseExpertModeToggle
+  debug_canUsePotentiometer
+  allowModFlagEdit
+  allowWorldFlagEdit
+  allowTimeEdit
+  allowStaminaNoDecay
+
+Examples:
+  /setmodflag allowTimeEdit true
+  /setmodflag debug_toggleDesoMode false
+
+==================
+
+/setworldflag <internal flag name> <true/false>
+
+Sets the given Cosmivengeon world flag to the given Boolean value.
+Cannot be executed if the "allowWorldFlagEdit" flag is false.
+
+Internal Flag Names:
+  desoMode
+  downedDraekBoss
+  obtainedLore_DraekBoss
+  obtainedDesolator_DraekBoss
+
+Examples:
+  /setworldflag desoMode true
+  /setworldflag downedDraekBoss false
+
+==================
+
+/timeset <time string> <AM/PM>
+
+Sets the time.  <time string> is a string, such as \"4:30\" (without the quotes).
+Cannot be executed if the "allowTimeEdit" flag is false.
+
+Examples:
+  /timeset 7:00 AM
+  /timeset 4:30 PM
+
+==================
+
+/nsd <true/false>
+
+Sets whether the Stamina Bar should decay or not.  true = no decay, false = decay
+Cannot be executed if the "allowStaminaNoDecay" flag is false.
+
+Examples:
+  /nsd true
+  /nsd false

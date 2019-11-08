@@ -15,7 +15,7 @@ namespace CosmivengeonMod.Items.Draek{
 		}
 
 		public override void SetDefaults(){
-			item.damage = 73;
+			item.damage = 58;
 			item.ranged = true;
 			item.width = 66;
 			item.height = 22;
@@ -23,13 +23,15 @@ namespace CosmivengeonMod.Items.Draek{
 			item.useAnimation = 35;
 			item.useStyle = 5;
 			item.noMelee = true;
-			item.knockBack = 10f;
+			item.knockBack = 9.2f;
 			item.value = Item.sellPrice(0, 2, 50, 0);
 			item.rare = 2;
 			item.UseSound = SoundID.Item41;
 			item.autoReuse = false;
 			item.shoot = 10;		//Vanilla guns have this value, but it really doesn't matter since it's overwritten in Shoot()
 			item.useAmmo = AmmoID.Bullet;
+
+			item.crit += 25;	//+25% crit chance
 		}
 
 		public override void AddRecipes(){

@@ -11,9 +11,9 @@ namespace CosmivengeonMod.Commands{
 
 		public override string Command => "timeset";
 
-		public override string Usage => "[c/ffca00:Usage: /timeset <time> <AM/PM>]";
+		public override string Usage => "[c/ffca00:Usage: /timeset <time string> <AM/PM>]";
 
-		public override string Description => "Sets the time.  <time> is a string, such as \"4:30\" (without the quotes).";
+		public override string Description => "Sets the time.  <time string> is a string, such as \"4:30\" (without the quotes).";
 
 		public override void Action(CommandCaller caller, string input, string[] args){
 			const int _4_30 = 4 * 3600 + 30 * 60;
