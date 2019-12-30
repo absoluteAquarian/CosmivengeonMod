@@ -15,8 +15,8 @@ namespace CosmivengeonMod.Items.Draek{
 			item.useStyle = 1;
 			item.shoot = ModContent.ProjectileType<Projectiles.Summons.BabySnek>();
 			item.scale = 0.6667f;
-			item.width = (int)(80 * item.scale);
-			item.height = (int)(80 * item.scale);
+			item.width = 80;
+			item.height = 80;
 			item.UseSound = SoundID.Item44;
 			item.useAnimation = 30;
 			item.useTime = 30;
@@ -47,16 +47,6 @@ namespace CosmivengeonMod.Items.Draek{
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
 			position = Main.MouseWorld;		//Make the summon spawn at the cursor
 			return true;
-		}
-
-		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
-			Texture2D texture = Main.itemTexture[item.type];
-
-			Vector2 vector = item.Center - Main.screenPosition + new Vector2(-8, -8);
-
-			spriteBatch.Draw(texture, vector, null, lightColor, rotation, new Vector2(item.width / 2, item.width / 2), item.scale, SpriteEffects.None, 0);
-			
-			return false;
 		}
 	}
 }

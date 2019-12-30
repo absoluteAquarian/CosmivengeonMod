@@ -98,7 +98,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 				NoFly_ChangeFrame();
 
-				projectile.velocity.Y = Utils.Clamp(projectile.velocity.Y, -30f, 30f);
+				projectile.velocity.Y.Clamp(-30f, 30f);
 
 				if(YVelocityIsZero)
 					projectile.velocity.Y = -3f;
@@ -109,8 +109,8 @@ namespace CosmivengeonMod.Projectiles.Summons{
 			//Apply friction
 			projectile.velocity.X *= 0.72f;
 
-			projectile.velocity.X = Utils.Clamp(projectile.velocity.X, -10f, 10f);
-			projectile.velocity.Y = Utils.Clamp(projectile.velocity.Y, -15f, 15f);
+			projectile.velocity.X.Clamp(-10f, 10f);
+			projectile.velocity.Y.Clamp(-15f, 15f);
 
 			if(Math.Abs(projectile.velocity.X) < 6f / 60f){
 				projectile.velocity.X = 0f;
@@ -156,7 +156,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 			projectile.velocity += direction;
 
-			projectile.velocity.Y = Utils.Clamp(projectile.velocity.Y, -5f, 5f);
+			projectile.velocity.Y.Clamp(-5f, 5f);
 
 			projectile.rotation = projectile.velocity.X * 0.08f;
 				
@@ -220,7 +220,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 				yDistanceToTarget = Math.Abs(npcTarget.Center.Y - projectile.Center.Y);
 
 				float ratio = xDistanceToTarget / MAX_PLAYER_DISTANCE;
-				ratio = Utils.Clamp(ratio, 0.9f, 1.3f);
+				ratio.Clamp(0.9f, 1.3f);
 				ratio *= (7f / 60f);
 
 				Vector2 acceleration = -Vector2.Normalize(projectile.Center - npcTarget.Center) * ratio;
@@ -240,7 +240,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 				if(DistanceToTarget > 1 * 16){
 					float ratio = DistanceToTarget / Player_StandBehind_Distance.X / 2f;
-					ratio = Utils.Clamp(ratio, 0.9f, 1.3f);
+					ratio.Clamp(0.9f, 1.3f);
 					ratio *= (7f / 60f);
 
 					Vector2 acceleration =

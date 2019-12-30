@@ -3,7 +3,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-using CosmivengeonMod.Projectiles.Weapons;
+using CosmivengeonMod.Projectiles.Weapons.Draek;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace CosmivengeonMod.Items.Draek{
@@ -22,15 +22,15 @@ namespace CosmivengeonMod.Items.Draek{
 			item.damage = 30;
 			item.melee = true;
 			item.useTurn = true;
-			item.width = 40;
-			item.height = 40;
+			item.width = 32;
+			item.height = 32;	//width and height determine dropped item's hitbox, not the actual hitbox of the sword
 			item.useTime = 19;
 			item.useAnimation = 19;
 			item.useStyle = ItemUseStyleID.SwingThrow;
 			item.knockBack = 6.3f;
 			item.value = Item.sellPrice(0, 2, 50, 0);
-			item.shoot = 10;
-			item.shootSpeed = 9f;
+			item.shoot = ModContent.ProjectileType<ForsakenOronobladeProjectile>();
+			item.shootSpeed = ForsakenOronobladeProjectile.ShootVelocity;
 			item.rare = 2;
 			item.scale = 0.86f;
 			item.UseSound = SoundID.Item1;
@@ -48,7 +48,6 @@ namespace CosmivengeonMod.Items.Draek{
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
 			if(Main.rand.NextFloat() < 0.75f){
 				Main.PlaySound(SoundID.Item43.WithVolume(0.5f), position);
-				type = ModContent.ProjectileType<ForsakenOronobladeProjectile>();
 				damage = (int)(item.damage * 0.6667f);
 				return true;
 			}
@@ -56,11 +55,8 @@ namespace CosmivengeonMod.Items.Draek{
 		}
 
 		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
-			Texture2D texture = Main.itemTexture[item.type];
-
-			spriteBatch.Draw(texture, item.position - Main.screenPosition, null, lightColor, rotation, new Vector2(item.width / 2, item.width / 2), item.scale, SpriteEffects.None, 0);
-			
-			return false;
+			scale = item.scale;
+			return true;
 		}
 	}
 }

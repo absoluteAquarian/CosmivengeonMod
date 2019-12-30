@@ -2,15 +2,12 @@
 using Terraria.ID;
 using Terraria.ModLoader;
 
-using CosmivengeonMod.Projectiles.Weapons;
+using CosmivengeonMod.Projectiles.Weapons.Draek;
 
 namespace CosmivengeonMod.Items.Draek{
 	public class RockslideYoyo : ModItem{
-		public override string Texture{
-			get{
-				return "CosmivengeonMod/Items/Draek/Rockslide";
-			}
-		}
+		public override string Texture => "CosmivengeonMod/Items/Draek/Rockslide";
+
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Rockslide");
 			Tooltip.SetDefault("Casts out a medium-length earth yoyo that has a chance to poison foes on hit.");

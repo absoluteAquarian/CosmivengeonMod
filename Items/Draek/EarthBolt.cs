@@ -2,7 +2,7 @@
 using Terraria.ID;
 using Terraria.ModLoader;
 
-using CosmivengeonMod.Projectiles.Weapons;
+using CosmivengeonMod.Projectiles.Weapons.Draek;
 
 namespace CosmivengeonMod.Items.Draek{
 	public class EarthBolt : ModItem{
@@ -26,7 +26,7 @@ namespace CosmivengeonMod.Items.Draek{
 			item.width = 28;
 			item.height = 30;
 			item.shoot = ModContent.ProjectileType<EarthBoltProjectile>();
-			item.scale = 1f;
+			item.scale = 0.9f;
 			item.shootSpeed = 7f;
 			item.knockBack = 5f;
 			item.magic = true;

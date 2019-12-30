@@ -1,13 +1,9 @@
 The official Cosmivengeon mod.
 
 This mod adds the following:
-1 Boss
-3 NPCs
-8 Weapons
-2 Buffs/Debuffs
-1 Accessory
+2 Bosses
+Several NPCs
+Several Items
+9 Buffs/Debuffs
 1 New game mode (Desolation)
-3 Songs
-1 Piece of armour
-1 Crafting material
-6 Miscellaneous items
+4 Songs

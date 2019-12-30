@@ -12,7 +12,9 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 			Tooltip.SetDefault("Activates Desolation Mode." +
 				$"\nEnables the \"Stamina\" effect, which can be toggled using \"G\"" +
 				"\nStamina increases move and attack speed while active," +
-				"\nthough getting Exhausted will cause you to move and attack slower.");
+				"\nthough getting Exhausted will cause you to move and attack slower." +
+				"\nDesolation Mode unleashes hell upon this world, causing all" +
+				"\nenemies to become stronger.");
 		}
 
 		public override void SetDefaults(){
@@ -23,7 +25,6 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 			item.useAnimation = 45;
 			item.useTime = 45;
 			item.useStyle = 4;
-			item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0);
 			item.consumable = false;
 		}
 
@@ -44,26 +45,48 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 		}
 
 		public override bool CanUseItem(Player player){
+			bool calamityRevengeance = (bool?)CosmivengeonMod.CalamityInstance?.Call("Difficulty", "Rev") ?? false;
+			bool calamityDeath = (bool?)CosmivengeonMod.CalamityInstance?.Call("Difficulty", "Death") ?? false;
+
 			if(player.GetModPlayer<CosmivengeonPlayer>().stamina.Active)
 				return false;
 			if(!Main.expertMode)
 				Main.NewText("You are not powerful enough to withstand the chaos...", CosmivengeonUtils.TausFavouriteColour);
-			if(CosmivengeonWorld.desoMode && !CosmivengeonMod.debug_toggleDesoMode)
-				Main.NewText("Nice try, but the deed has already been done.", CosmivengeonUtils.TausFavouriteColour);
-			return Main.expertMode && (!CosmivengeonWorld.desoMode || CosmivengeonMod.debug_toggleDesoMode);
+		//	if(CosmivengeonWorld.desoMode && !CosmivengeonMod.debug_toggleDesoMode)
+		//		Main.NewText("Nice try, but the deed has already been done.", CosmivengeonUtils.TausFavouriteColour);
+
+			//Disable Calamity's modes if they are active
+			if(Main.expertMode && (calamityRevengeance || calamityDeath)){
+				CosmivengeonMod.DeactivateCalamityRevengeance();
+				CosmivengeonMod.DeactivateCalamityDeath();
+			}
+
+			return Main.expertMode;
+		//	return Main.expertMode && (!CosmivengeonWorld.desoMode || CosmivengeonMod.debug_toggleDesoMode);
 		}
 
 		public override bool UseItem(Player player){
+			Main.PlaySound(new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0), player.Center);
+
 			if(!CosmivengeonWorld.desoMode){
 				Main.NewText("An otherworldly chaos has been unleashed...  No turning back now.", CosmivengeonUtils.TausFavouriteColour);
 				CosmivengeonWorld.desoMode = true;
 				return true;
+			}else{
+				Main.NewText("The otherworldy chaos recedes...  For now.", CosmivengeonUtils.TausFavouriteColour);
+				CosmivengeonWorld.desoMode = false;
+				return true;
+			}
+
+		/*	
 			}else if(CosmivengeonMod.debug_toggleDesoMode){
 				Main.NewText("Wait, what?  You aren't supposed to be able to toggle that!  Oh well, I guess it can't be helped.", CosmivengeonUtils.TausFavouriteColour);
 				CosmivengeonWorld.desoMode = false;
 				return true;
 			}
+
 			return false;
+		*/
 		}
 
 		public override void AddRecipes(){

@@ -12,9 +12,9 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 		}
 
 		public override void SetDefaults(){
-			item.width = 20;
-			item.height = 20;
-			item.maxStack = 99;
+			item.width = 40;
+			item.height = 40;
+			item.maxStack = 1;
 			item.rare = 5;
 			item.useAnimation = 45;
 			item.useTime = 45;

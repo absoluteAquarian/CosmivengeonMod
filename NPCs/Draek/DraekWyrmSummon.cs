@@ -45,6 +45,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
 
 			bossID = (int)npc.ai[1];
+
+			npc.gfxOffY = -6;
 		}
 
 		public override int SetCustomBodySegments(int startDistance){
@@ -111,6 +113,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.dontCountMe = true;
 
 			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
+
+			npc.gfxOffY = 0;
 		}
 	}
 	internal class DraekWyrmSummon_Body1 : DraekWyrmSummon_Body0{
@@ -119,6 +123,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 			npc.width = 25;
 			npc.height = 25;
+			npc.gfxOffY = 0;
 		}
 	}
 
@@ -146,6 +151,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.dontCountMe = true;
 
 			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
+			
+			npc.gfxOffY = 0;
 		}
 	}
 }

@@ -5,23 +5,40 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-using DraekSword = CosmivengeonMod.Projectiles.Draek.DraekSword;
-using DraekLaser = CosmivengeonMod.Projectiles.Draek.DraekLaser;
+using CosmivengeonMod.Projectiles.Draek;
+
 using Summon = CosmivengeonMod.NPCs.Draek.DraekWyrmSummon_Head;
 
 namespace CosmivengeonMod.NPCs.Draek{
 	[AutoloadBossHead]
 	public class Draek : ModNPC{
+		public static int Value => Item.buyPrice(gold: 6, silver: 50);
+
 		private bool dashing = false;
 		private bool dashWait = true;
 		private bool startDespawn = false;
 
-//		private PID pid = PID.Uninitialized;
+		private readonly int GraphicsOffsetX = -49;
+		private readonly int GraphicsOffsetY = -52;
+
+		public Rectangle RealFrame;
+
+		public Texture2D RealTexture => ModContent.GetTexture("CosmivengeonMod/NPCs/Draek/Draek_Animations");
+
+		private int animationOffset;
+		public int AnimationOffset{
+			get{
+				FindFrame(Main.npcTexture[npc.type].Height / Main.npcFrameCount[npc.type]);
+				return animationOffset;
+			}
+		}
+
+		private DraekP1ExtraHurtbox Child;
 		
 #region Defaults
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Draek");
-			Main.npcFrameCount[npc.type] = 16;
+			Main.npcFrameCount[npc.type] = 4;
 			NPCID.Sets.TrailCacheLength[npc.type] = 5;
 			NPCID.Sets.TrailingMode[npc.type] = 0;
 		}
@@ -29,8 +46,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 		public override void SetDefaults(){
 			npc.scale = 1f;
 			//Draek frame dimentions:  186x290px
-			npc.width = 150;
-			npc.height = 240;
+			npc.width = 74;
+			npc.height = 233;
 			npc.aiStyle = -1;	//-1 means that this enemy has a unique AI; don't copy an existing style
 			npc.damage = 45;
 			npc.defense = 18;
@@ -43,11 +60,17 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.lavaImmune = true;
 			npc.noTileCollide = true;
 
+			npc.value = Value;
+
 			npc.buffImmune[BuffID.Poisoned] = true;
 			npc.buffImmune[BuffID.Confused] = true;
 			npc.buffImmune[BuffID.Burning] = true;
+			npc.buffImmune[BuffID.Frostburn] = true;
 
 			CosmivengeonUtils.PlayMusic(this, CosmivengeonBoss.Draek);
+
+			RealFrame.Width = RealTexture.Frame(4, 4).Width;
+			RealFrame.Height = RealTexture.Frame(4, 4).Height;
 		}
 #endregion
 
@@ -152,6 +175,15 @@ namespace CosmivengeonMod.NPCs.Draek{
 		private const int P1_Enrage_subphase2_Attacks = 16;
 		private const int Phase_1 = 0;
 		private const int Phase_1_Enrage = 1;
+
+		public bool ForceFastCharge = false;
+		public bool FastCharge_SwordActive = true;
+		public bool FastChargeStarted = false;
+		public bool FastChargeEnded = false;
+
+		public float[] preFastChargeAI = new float[4];
+		public bool preDash = false;
+		public bool preDashWait = true;
 		
 		public static Color TextColour{
 			get{
@@ -168,22 +200,22 @@ namespace CosmivengeonMod.NPCs.Draek{
 		
 		public override void FindFrame(int frameHeight){
 			int CounterMod30 = (int)(AI_Animation_Counter % 30);
-			int offset = 0;
+			int offsetX = 0, offsetY;
 			bool useSwordThrowAnimation = (CurrentPhase == Phase_1 || CurrentPhase == Phase_1_Enrage) && throwingSword;
 			if(CurrentPhase == Phase_1 || CurrentPhase == Phase_1_Enrage){
-				if(AI_Attack == Attack_Idle || AI_Attack == Attack_Shoot || (AI_Attack == Attack_Throw_Sword && !useSwordThrowAnimation)){
+				if(AI_Attack == Attack_Idle || AI_Attack == Attack_Shoot || (AI_Attack == Attack_Throw_Sword && !useSwordThrowAnimation) || (ForceFastCharge && FastCharge_SwordActive)){
 					switch(CounterMod30){
 						case 0:
-							offset = Idle_Sword_0;
+							offsetX = Idle_Sword_0;
 							break;
 						case 7:
-							offset = Idle_Sword_1;
+							offsetX = Idle_Sword_1;
 							break;
 						case 15:
-							offset = Idle_Sword_2;
+							offsetX = Idle_Sword_2;
 							break;
 						case 22:
-							offset = Idle_Sword_3;
+							offsetX = Idle_Sword_3;
 							break;
 						default:
 							return;
@@ -191,33 +223,33 @@ namespace CosmivengeonMod.NPCs.Draek{
 				}else if(AI_Attack == Attack_Throw_Sword && useSwordThrowAnimation){
 					switch(CounterMod30){
 						case 0:
-							offset = Throw_Sword_0;
+							offsetX = Throw_Sword_0;
 							break;
 						case 7:
-							offset = Throw_Sword_1;
+							offsetX = Throw_Sword_1;
 							break;
 						case 15:
-							offset = Throw_Sword_2;
+							offsetX = Throw_Sword_2;
 							break;
 						case 22:
-							offset = Throw_Sword_3;
+							offsetX = Throw_Sword_3;
 							break;
 						default:
 							return;
 					}
-				}else if(AI_Attack == Attack_Shoot_No_Sword || AI_Attack == Attack_Dash){
+				}else if(AI_Attack == Attack_Shoot_No_Sword || AI_Attack == Attack_Dash || (ForceFastCharge && !FastCharge_SwordActive)){
 					switch(CounterMod30){
 						case 0:
-							offset = Idle_No_Sword_0;
+							offsetX = Idle_No_Sword_0;
 							break;
 						case 7:
-							offset = Idle_No_Sword_1;
+							offsetX = Idle_No_Sword_1;
 							break;
 						case 15:
-							offset = Idle_No_Sword_2;
+							offsetX = Idle_No_Sword_2;
 							break;
 						case 22:
-							offset = Idle_No_Sword_3;
+							offsetX = Idle_No_Sword_3;
 							break;
 						default:
 							return;
@@ -225,43 +257,64 @@ namespace CosmivengeonMod.NPCs.Draek{
 				}else if(AI_Attack == Attack_Retrieve_Sword){
 					switch(CounterMod30){
 						case 0:
-							offset = Retrieve_Sword_0;
+							offsetX = Retrieve_Sword_0;
 							break;
 						case 7:
-							offset = Retrieve_Sword_1;
+							offsetX = Retrieve_Sword_1;
 							break;
 						case 15:
-							offset = Retrieve_Sword_2;
+							offsetX = Retrieve_Sword_2;
 							break;
 						case 22:
-							offset = Retrieve_Sword_3;
+							offsetX = Retrieve_Sword_3;
 							break;
 						default:
 							return;
 					}
 				}
 			}
-			npc.frame.Y = offset * frameHeight;
+			offsetY = offsetX / 4;
+			offsetX %= 4;
+			
+			RealFrame.X = offsetX * RealFrame.Width;
+			RealFrame.Y = offsetY * RealFrame.Height;
+
+			animationOffset = offsetY * 4 + offsetX;
+		}
+
+		public override void OnHitPlayer(Player target, int damage, bool crit){
+			target.AddBuff(ModContent.BuffType<Buffs.PrimordialWrath>(), 150);
 		}
 
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
 			//Only apply afterimage effects while dashing
 			if(afterImageLength > 1){
 				//Afterimage effect
-				Vector2 drawOrigin = new Vector2(Main.npcTexture[npc.type].Width * 0.5f, 0.5f * Main.npcTexture[npc.type].Height / Main.npcFrameCount[npc.type]);   
-				SpriteEffects effect = (npc.spriteDirection == 1) ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+				Vector2 drawOrigin = RealTexture.Frame(4, 4).Size() / 2f;
+				SpriteEffects effect = (npc.spriteDirection == -1) ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 				for (int k = 0; k < afterImageLength / 2; k++){
-					Vector2 drawPos = npc.oldPos[k] - Main.screenPosition + drawOrigin + new Vector2(0f, npc.gfxOffY);
+					Vector2 drawPos = npc.oldPos[k] - Main.screenPosition + drawOrigin + new Vector2(GraphicsOffsetX, GraphicsOffsetY);
 
-					drawPos.Y -= 32;
+					drawPos.X -= (effect == SpriteEffects.None) ? 16 : 0;
 					
-					Color color = npc.GetAlpha(lightColor) * ((float)(npc.oldPos.Length - k) / (float)npc.oldPos.Length);
-					color.A = (byte)(0.75f * 255f * (npc.oldPos.Length - k) / (float)npc.oldPos.Length);	//Apply transparency
+					Color color = npc.GetAlpha(lightColor) * (((float)npc.oldPos.Length - k) / npc.oldPos.Length);
+					color.A = (byte)(0.75f * 255f * (npc.oldPos.Length - k) / npc.oldPos.Length);	//Apply transparency
 
-					spriteBatch.Draw(Main.npcTexture[npc.type], drawPos, npc.frame, color, npc.rotation, drawOrigin, npc.scale, effect, 0f);
+					spriteBatch.Draw(RealTexture, drawPos, RealFrame, color, npc.rotation, drawOrigin, npc.scale, effect, 0f);
 				}
 			}
-			return true;
+			return false;	//Prevent sprite from being drawn normally
+		}
+
+		public override void PostDraw(SpriteBatch spriteBatch, Color drawColor){
+			//We're going to manually draw Draek to better fit his hitbox size
+			SpriteEffects effect = (npc.spriteDirection == -1) ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+			Vector2 drawOrigin = RealTexture.Frame(4, 4).Size() / 2f;
+			Vector2 drawPos = npc.position - Main.screenPosition + drawOrigin + new Vector2(GraphicsOffsetX, GraphicsOffsetY);
+
+			drawPos.X -= (effect == SpriteEffects.None) ? 16 : 0;
+
+			spriteBatch.Draw(RealTexture, drawPos, RealFrame, drawColor, npc.rotation, drawOrigin, npc.scale, effect, 0f);
 		}
 
 		public override bool CheckActive(){
@@ -303,6 +356,16 @@ namespace CosmivengeonMod.NPCs.Draek{
 				AI_Attack = Attack_Shoot;
 				CurrentPhase = Phase_1;
 				Main.NewText("So, a new challenger has arisen to take my domain, hm?", TextColour);
+
+				//Spawn the additional hurtbox
+				int newNPC = NPC.NewNPC((int)npc.Center.X, (int)npc.Center.Y, ModContent.NPCType<DraekP1ExtraHurtbox>(), ai0: npc.whoAmI);
+				Main.npc[newNPC].realLife = npc.whoAmI;
+
+				Child = Main.npc[newNPC].modNPC as DraekP1ExtraHurtbox;
+
+				//Spawn the lasting projectile
+				npc.SpawnProjectile(npc.Center, Vector2.Zero, ModContent.ProjectileType<DraekP1ExtraProjectile>(),
+					npc.damage, 6f, Main.myPlayer, npc.whoAmI);
 			}
 
 			if(npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead){
@@ -317,13 +380,68 @@ namespace CosmivengeonMod.NPCs.Draek{
 				return;
 
 			if(!dashing){
-				npc.spriteDirection = (npc.Center.X > Main.player[npc.target].Center.X) ? -1 : 1;
+				npc.spriteDirection = (npc.Center.X > Main.player[npc.target].Center.X) ? 1 : -1;
 				afterImageLength--;
 			}
 
 			AI_Animation_Counter++;
 
+			if(npc.life < npc.lifeMax / 2f && !switchPhases && CurrentPhase == Phase_1){
+				switchPhases = true;
+
+				Main.NewText("You're stronger than I expected, aren't you?  No matter.", TextColour);
+
+				AI_Timer = 120;
+				delayPhaseChange = true;
+
+				npc.dontTakeDamage = true;
+			}
+
 			AI_Check_Phase_Switch();
+
+			afterImageLength.Clamp(0, npc.oldPos.Length * 2);
+
+			if(ForceFastCharge){
+				if(!FastChargeStarted){
+					FastChargeStarted = true;
+					preFastChargeAI[0] = AI_Timer;
+					preFastChargeAI[1] = AI_Attack;
+					preFastChargeAI[2] = AI_Attack_Progress;
+					preFastChargeAI[3] = AI_Animation_Counter;
+
+					preDash = dashing;
+					preDashWait = dashWait;
+
+					AI_Timer = 0;
+					AI_Attack_Progress = 0;
+					AI_Animation_Counter = 0;
+					dashing = false;
+					dashWait = true;
+
+					string text = Main.rand.Next(new string[]{
+						"Get back here, coward!",
+						"Where do you think you're going?",
+						"You won't get away that easily!"
+					});
+
+					Main.NewText(text, TextColour);
+				}
+
+				AI_Dash(16.5f, 1, 60, 0, true);
+
+				if(FastChargeEnded){
+					FastChargeEnded = false;
+					ForceFastCharge = false;
+					FastChargeStarted = false;
+					AI_Timer = preFastChargeAI[0];
+					AI_Attack = preFastChargeAI[1];
+					AI_Attack_Progress = preFastChargeAI[2];
+					AI_Animation_Counter = preFastChargeAI[3];
+					dashing = preDash;
+					dashWait = preDashWait;
+				}
+				return;
+			}
 
 			if(CurrentPhase == Phase_1){
 				if(AI_Attack == Attack_Shoot){
@@ -362,18 +480,170 @@ namespace CosmivengeonMod.NPCs.Draek{
 					AI_Retrieve_Sword();
 				}
 			}
-			
-			afterImageLength = Utils.Clamp(afterImageLength, 0, npc.oldPos.Length * 2);
+		}
 
-			if(npc.life < npc.lifeMax / 2f && !switchPhases && CurrentPhase == Phase_1){
-				switchPhases = true;
+		/// <summary>
+		/// Gets the size and position of the extra hitbox relative to Draek's animation frame.
+		/// </summary>
+		public Vector4 GetExtraHurtbox(){
+			Vector2 newSize = Vector2.Zero;
+			Vector2 offsetPos = Vector2.Zero;
 
-				Main.NewText("You're stronger than I expected, aren't you?  No matter.", TextColour);
+			//Values were determined manually
+			//"offsetPos" is relative to the sprite's top-left corner, NOT the hitbox
+			switch(AnimationOffset){
+				case Idle_Sword_0:
+					offsetPos = new Vector2(52, 137);
+					newSize = new Vector2(104, 68);
+					break;
+				case Idle_Sword_1:
+					offsetPos = new Vector2(53, 140);
+					newSize = new Vector2(100, 70);
+					break;
+				case Idle_Sword_2:
+					offsetPos = new Vector2(52, 138);
+					newSize = new Vector2(104, 76);
+					break;
+				case Idle_Sword_3:
+					offsetPos = new Vector2(50, 138);
+					newSize = new Vector2(103, 78);
+					break;
+				case Idle_No_Sword_0:
+					offsetPos = new Vector2(53, 138);
+					newSize = new Vector2(102, 74);
+					break;
+				case Idle_No_Sword_1:
+					offsetPos = new Vector2(55, 140);
+					newSize = new Vector2(97, 77);
+					break;
+				case Idle_No_Sword_2:
+					offsetPos = new Vector2(55, 140);
+					newSize = new Vector2(97, 78);
+					break;
+				case Idle_No_Sword_3:
+					offsetPos = new Vector2(51, 140);
+					newSize = new Vector2(100, 74);
+					break;
+				case Throw_Sword_0:
+					offsetPos = new Vector2(41, 137);
+					newSize = new Vector2(83, 84);
+					break;
+				case Throw_Sword_1:
+					offsetPos = new Vector2(41, 121);
+					newSize = new Vector2(60, 82);
+					break;
+				case Throw_Sword_2:
+					offsetPos = new Vector2(53, 133);
+					newSize = new Vector2(113, 81);
+					break;
+				case Throw_Sword_3:
+					offsetPos = new Vector2(49, 136);
+					newSize = new Vector2(125, 80);
+					break;
+				case Retrieve_Sword_0:
+					offsetPos = new Vector2(48, 139);
+					newSize = new Vector2(61, 78);
+					break;
+				case Retrieve_Sword_1:
+					offsetPos = new Vector2(41, 122);
+					newSize = new Vector2(56, 87);
+					break;
+				case Retrieve_Sword_2:
+					offsetPos = new Vector2(49, 139);
+					newSize = new Vector2(110, 74);
+					break;
+				case Retrieve_Sword_3:
+					offsetPos = new Vector2(50, 135);
+					newSize = new Vector2(120, 75);
+					break;
+			}
 
-				AI_Timer = 120;
-				delayPhaseChange = true;
+			ExtraHurtboxHelper(ref offsetPos, ref newSize);
 
-				npc.dontTakeDamage = true;
+			return new Vector4(offsetPos.X, offsetPos.Y, newSize.X, newSize.Y);
+		}
+
+		/// <summary>
+		/// Gets the size and position of the extra projectile hitbox relative to Draek's animation frame.
+		/// </summary>
+		public Vector4 GetLastingProjectileHitbox(){
+			Vector2 newSize = Vector2.Zero;
+			Vector2 offsetPos = Vector2.Zero;
+
+			switch(AnimationOffset){
+				case Idle_Sword_0:
+					offsetPos = new Vector2(37, 206);
+					newSize = new Vector2(125, 23);
+					break;
+				case Idle_Sword_1:
+					offsetPos = new Vector2(37, 206);
+					newSize = new Vector2(125, 23);
+					break;
+				case Idle_Sword_2:
+					offsetPos = new Vector2(37, 209);
+					newSize = new Vector2(125, 23);
+					break;
+				case Idle_Sword_3:
+					offsetPos = new Vector2(37, 209);
+					newSize = new Vector2(125, 23);
+					break;
+				case Idle_No_Sword_0:
+				case Idle_No_Sword_1:
+				case Idle_No_Sword_2:
+				case Idle_No_Sword_3:
+					break;
+				case Throw_Sword_0:
+					offsetPos = new Vector2(19, 53);
+					newSize = new Vector2(35, 109);
+					break;
+				case Throw_Sword_1:
+					offsetPos = new Vector2(32, 22);
+					newSize = new Vector2(25, 102);
+					break;
+				case Throw_Sword_2:
+					offsetPos = new Vector2(14, 48);
+					newSize = new Vector2(88, 196);
+					break;
+				case Throw_Sword_3:
+				case Retrieve_Sword_0:
+				case Retrieve_Sword_1:
+					break;
+				case Retrieve_Sword_2:
+					offsetPos = new Vector2(34, 45);
+					newSize = new Vector2(85, 193);
+					break;
+				case Retrieve_Sword_3:
+					offsetPos = new Vector2(53, 195);
+					newSize = new Vector2(119, 31);
+					break;
+			}
+
+			ExtraHurtboxHelper(ref offsetPos, ref newSize);
+
+			return new Vector4(offsetPos.X, offsetPos.Y, newSize.X, newSize.Y);
+		}
+
+		private void ExtraHurtboxHelper(ref Vector2 offset, ref Vector2 size){
+			if(npc.spriteDirection == -1)
+				offset.X = 186 - offset.X - size.X + 16;
+
+			offset += new Vector2(GraphicsOffsetX, GraphicsOffsetY);
+
+			offset += new Vector2(16, 8);
+		}
+
+		//Thanks jopojelly for helping me figure out how to make the Parent-Child link work for the two hooks below:
+		public override void OnHitByItem(Player player, Item item, int damage, float knockback, bool crit){
+			if(Child != null)
+				Child.npc.immune[player.whoAmI] = player.itemAnimation;
+		}
+
+		public override void OnHitByProjectile(Projectile projectile, int damage, float knockback, bool crit){
+			if(Child != null){
+				Child.npc.immune[projectile.owner] = npc.immune[projectile.owner];
+
+				if(projectile.usesLocalNPCImmunity)
+					projectile.localNPCImmunity[Child.npc.whoAmI] = projectile.localNPCHitCooldown;
 			}
 		}
 
@@ -421,6 +691,18 @@ namespace CosmivengeonMod.NPCs.Draek{
 				if((CurrentPhase == Phase_1 || CurrentPhase == Phase_1_Enrage) && AI_Attack > Attack_Retrieve_Sword)	//Repeat P1 subphases
 					AI_Attack = Attack_Shoot;
 			}
+
+			if(ForceFastCharge || AI_Attack == Attack_Retrieve_Sword)
+				return;
+
+			float maxDistance = 70 * 16;
+			if((AI_Attack == Attack_Shoot || (AI_Attack == Attack_Throw_Sword && !throwingSword)) && npc.Distance(playerTarget.Center) > maxDistance){
+				ForceFastCharge = true;
+				FastCharge_SwordActive = true;
+			}else if((AI_Attack == Attack_Dash || AI_Attack == Attack_Shoot_No_Sword) && npc.Distance(playerTarget.Center) > maxDistance){
+				ForceFastCharge = true;
+				FastCharge_SwordActive = false;
+			}
 		}
 
 		private void CheckTargetIsDead(){
@@ -448,9 +730,11 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		private void AI_Hover(Player target, int facingDirection, out Vector2 npcTarget){
+			npc.velocity *= 0.86f;
+
 			//Generate a Vector2 point about 12 blocks up, 20 blocks left/right from the player
 			//X will be negative if the player is facing left
-				
+
 			npcTarget = target.Center;		//Get the player's coordinates
 			npcTarget.X += 20 * 16 * facingDirection;		//Add the offset
 			npcTarget.Y += -12 * 16;
@@ -460,11 +744,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 			else
 				npc.velocity = Vector2.Zero;
 			
-//			pid.Control(npc, npcTarget);
-			PID.PlaceholderControl(npc, npcTarget, 0.86f);
-			
-			npc.velocity.X = Utils.Clamp(npc.velocity.X, -8, 8);
-			npc.velocity.Y = Utils.Clamp(npc.velocity.Y, -10, 10);
+			npc.velocity.X.Clamp(-8, 8);
+			npc.velocity.Y.Clamp(-10, 10);
 		}
 
 		private void AI_Shoot_Laser(int delay, int times){
@@ -553,7 +834,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 					);
 
 					//Play sword swing sound effect
-					Main.PlaySound(SoundID.Item1, npc.position);
+					Main.PlaySound(SoundID.Item1, dir);
 				}
 
 				if(AI_Timer == 0){
@@ -587,20 +868,20 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		private void AI_Charge_Shoot(int delay, int times, float maxXvel, float maxYvel){
+			npc.velocity *= 0.86f;
+
 			if(Vector2.Distance(playerTarget.Center, npc.Center) > 16)		//If the boss isn't near the target
 				npc.velocity += Vector2.Normalize(playerTarget.Center - npc.Center) * new Vector2(0.7f, 0.7f);
 			else
 				npc.velocity = Vector2.Zero;
 					
 			AI_Shoot_Laser(delay, times);
-			
-			PID.PlaceholderControl(npc, playerTarget.Center, 0.86f);
 
-			npc.velocity.X = Utils.Clamp(npc.velocity.X, -maxXvel, maxXvel);
-			npc.velocity.Y = Utils.Clamp(npc.velocity.Y, -maxYvel, maxYvel);
+			npc.velocity.X.Clamp(-maxXvel, maxXvel);
+			npc.velocity.Y.Clamp(-maxYvel, maxYvel);
 		}
 
-		private void AI_Dash(float velocity, int times, int duration, int wait){
+		private void AI_Dash(float velocity, int times, int duration, int wait, bool fastCharge = false){
 			if(dashWait){
 				//Delay dash for 30 ticks
 				AI_Timer = wait;
@@ -618,8 +899,10 @@ namespace CosmivengeonMod.NPCs.Draek{
 				}
 
 				AI_Timer--;
-				if(AI_Timer == 0)
+				if(AI_Timer <= 0){
 					AI_Attack_Progress++;
+					AI_Timer = 0;
+				}
 			}else if(AI_Attack_Progress % 2 == 1){
 				if(dashing){
 					AI_Timer--;
@@ -637,21 +920,32 @@ namespace CosmivengeonMod.NPCs.Draek{
 						dashing = true;
 						AI_Timer = duration;
 
-						npc.velocity = Vector2.Normalize(playerTarget.Center - npc.Center) * velocity;
+						Vector2 newVel = npc.DirectionTo(playerTarget.Center) * velocity;
 
-						Main.PlaySound(new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0), npc.Center);
+						if(fastCharge)
+							newVel = newVel.RotatedByRandom(MathHelper.ToRadians(30));
+
+						npc.velocity = newVel;
+
+						Main.PlaySound(SoundID.ForceRoar, npc.Center, fastCharge ? -1 : 0);
 
 						afterImageLength++;
 					}
 				}
 			}
 
-			if(AI_Attack_Progress == 2 * times)
-				switchSubPhases = true;
+			if(AI_Attack_Progress == 2 * times){
+				if(!fastCharge)
+					switchSubPhases = true;
+				else{
+					ForceFastCharge = false;
+					FastChargeEnded = true;
+				}
+			}
 			
 			if(!dashing){
-				npc.velocity.X = Utils.Clamp(npc.velocity.X, -6, 6);
-				npc.velocity.Y = Utils.Clamp(npc.velocity.Y, -8, 8);
+				npc.velocity.X.Clamp(-6, 6);
+				npc.velocity.Y.Clamp(-8, 8);
 			}
 		}
 

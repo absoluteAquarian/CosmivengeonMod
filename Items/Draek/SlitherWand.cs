@@ -22,7 +22,7 @@ namespace CosmivengeonMod.Items.Draek{
 			item.useTime = 45;
 			item.width = 28;
 			item.height = 30;
-			item.shoot = ModContent.ProjectileType<Projectiles.Weapons.SlitherWandProjectile_Head>();
+			item.shoot = ModContent.ProjectileType<Projectiles.Weapons.Draek.SlitherWandProjectile_Head>();
 			item.knockBack = 3f;
 			item.magic = true;
 			item.value = Item.sellPrice(0, 2, 50, 0);

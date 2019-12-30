@@ -19,18 +19,18 @@ namespace CosmivengeonMod.Commands{
 			//Check if the provided flag actually exists.
 			//If it does, edit it
 			if(!CosmivengeonMod.allowModFlagEdit){
-				Main.NewText("Editing mod flags is disabled.", Color.Red);
+				caller.Reply("Editing mod flags is disabled.", Color.Red);
 				return;
 			}
 
 			if(args.Length < 2){
-				Main.NewText("Parameter list was too small.", Color.Red);
+				caller.Reply("Parameter list was too small.", Color.Red);
 				return;
 			}
 
 			//The user is not allowed to edit the "allowModFlagEdit" flag
 			if(args[0] == "allowModFlagEdit"){
-				Main.NewText($"Unable to edit the \"allowModFlagEdit\" flag.", Color.Red);
+				caller.Reply($"Unable to edit the \"allowModFlagEdit\" flag.", Color.Red);
 				return;
 			}
 
@@ -43,13 +43,13 @@ namespace CosmivengeonMod.Commands{
 				field.SetValue(null, (bool)value);
 			}else{
 				if(field is null)
-					Main.NewText($"Unknown flag: {args[0]}", Color.Red);
+					caller.Reply($"Unknown flag: {args[0]}", Color.Red);
 				if(value is null)
-					Main.NewText($"Boolean input was invalid: {args[1]}", Color.Red);
+					caller.Reply($"Boolean input was invalid: {args[1]}", Color.Red);
 				return;
 			}
 
-			Main.NewText($"Flag \"{args[0]}\" was updated to \"{args[1]}\"!", Color.Orange);
+			caller.Reply($"Flag \"{args[0]}\" was updated to \"{args[1]}\"!", Color.Orange);
 		}
 	}
 }

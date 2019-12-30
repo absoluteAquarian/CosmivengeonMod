@@ -288,7 +288,8 @@ namespace CosmivengeonMod.NPCs{
 				npc.timeLeft = 10;
  
 			if(Main.netMode != 1){
-				if(!Main.npc[(int)npc.ai[1]].active){
+				//Some of these conditions are possble if the body/tail segment was spawned individually
+				if(!Main.npc[(int)npc.ai[1]].active || Main.npc[(int)npc.ai[1]].friendly || Main.npc[(int)npc.ai[1]].townNPC || Main.npc[(int)npc.ai[1]].lifeMax <= 5){
 					npc.life = 0;
 					npc.HitEffect(0, 10.0);
 					npc.active = false;
@@ -343,11 +344,8 @@ namespace CosmivengeonMod.NPCs{
 
 		public override bool PreDraw(SpriteBatch spriteBatch, Color drawColor){
 			Texture2D texture = Main.npcTexture[npc.type];
-			Vector2 origin = new Vector2(texture.Width * 0.5f, texture.Height * 0.5f);
 
-			Vector2 position = npc.position - Main.screenPosition;
-			position.Y += texture.Height / 2f;
-			position.X += texture.Width / 2f;
+			Vector2 position = npc.Center - Main.screenPosition;
 
 			float rotation = CosmivengeonUtils.ToActualAngle(npc.rotation);
 
@@ -356,7 +354,7 @@ namespace CosmivengeonMod.NPCs{
 			if(rotation > MathHelper.PiOver2 && rotation < 3 * MathHelper.PiOver2)
 				effect = SpriteEffects.None;
 
-			Main.spriteBatch.Draw(texture, position, new Rectangle?(), drawColor, npc.rotation, origin, npc.scale, effect, 0);
+			Main.spriteBatch.Draw(texture, position, null, drawColor, npc.rotation, texture.Size() / 2f, npc.scale, effect, 0);
 			return false;
 		}
 		public override bool? DrawHealthBar(byte hbPosition, ref float scale, ref Vector2 position){

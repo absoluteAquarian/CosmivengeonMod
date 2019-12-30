@@ -14,4 +14,7 @@
     <None Remove="Sounds\Music\SuccessorOfTheJewel.mp3" />
     <None Remove="Sounds\Music\successor_of_the_kazoo.mp3" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Chains\" />
+  </ItemGroup>
 </Project>

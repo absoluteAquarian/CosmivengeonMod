@@ -53,8 +53,10 @@ namespace CosmivengeonMod.Projectiles.Draek{
 			//Add a green light from the projectile
 			Lighting.AddLight(projectile.Center, 0f, 1f, 0f);
 
-			if(Main.rand.Next(8) == 0)
-				Dust.NewDust(projectile.position, projectile.width, projectile.height, 74);
+			if(Main.rand.NextFloat() < 0.125f){
+				Dust dust = Dust.NewDustDirect(projectile.position, projectile.width, projectile.height, 74);
+				dust.velocity = projectile.velocity * 0.3f;
+			}
 		}
 	}
 }

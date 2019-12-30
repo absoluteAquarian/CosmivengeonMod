@@ -12,7 +12,7 @@ namespace CosmivengeonMod.Items.Draek{
 				"\nhis sacred jewel, and its mystical powers transformed the snake into the" +
 				"\nterrifying guardian of the forest, Draek, capable of manipulating" +
 				"\nthe terrain around him into forming arms, servants, and even granting the ability" +
-				"\nto hover above the ground.\nThe earthen worm held his position fiercely, striking" +
+				"\nto hover above the ground.  The earthen worm held his position fiercely, striking" +
 				"\ndown any challengers with other relics recovered shortly after, until now, where" +
 				"\nit appears that he has finally met his match...");
 		}

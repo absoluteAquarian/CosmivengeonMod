@@ -21,8 +21,11 @@ namespace CosmivengeonMod.Items.Draek{
 				"\nFall speed increased by 20%" +
 				"\nAn ancient artifact, last donned by the rock serpent Draek." +
 				"\nIts original master, Oronitus, was seemingly lost to time many years ago...");
+
+			Main.RegisterItemAnimation(item.type, new JewelOfOronitusAnimation());
 		}
 
+#region IL Code
 //Ignore any "unreachable code" and "unused members" warnings
 #pragma warning disable CS0162
 #pragma warning disable IDE0051
@@ -263,7 +266,7 @@ namespace CosmivengeonMod.Items.Draek{
 		}
 
 #pragma warning restore CS0162
-#pragma warning restore IDE0053
+#pragma warning restore IDE0051
 
 		private void LogJumpMovementBefore(ILCursor c){
 			using(StreamWriter writer = new StreamWriter(@"C:/Users/jruss/Desktop/HookJumpBefore.log", false))
@@ -316,10 +319,11 @@ namespace CosmivengeonMod.Items.Draek{
 			}
 			writer.WriteLine();
 		}
+#endregion
 
 		public override void SetDefaults(){
 			item.width = 26;
-			item.height = 39;
+			item.height = 34;
 			item.accessory = true;
 			item.value = Item.sellPrice(gold: 1, silver: 50);
 			item.rare = ItemRarityID.Expert;
@@ -332,56 +336,23 @@ namespace CosmivengeonMod.Items.Draek{
 			player.moveSpeed *= 1.1f;
 			player.accRunSpeed *= 1.1f;
 			player.maxFallSpeed *= 1.2f;
+			player.gravity *= 1.2f;
 			player.GetModPlayer<CosmivengeonPlayer>().doubleJump_JewelOfOronitus = true;
 		}
+	}
 
-		private int timer = 0;
-		private int frameCounter = 0;
-		private bool animate = true;
-		private const int frameHeight = 34;
-		private const int frameWidth = 26;
-		private const int frameAmount = 13;
-
-		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale){
-			timer++;
-
-			if(timer % 120 == 60 && animate){
-				animate = false;
-				frameCounter = 0;
-			}else if(timer % 120 == 0 && !animate)
-				animate = true;
-
-			if(animate && timer % 5 == 0)
-				frameCounter = ++frameCounter % frameAmount;
-
-			Rectangle rectangle = new Rectangle(0, frameCounter * frameHeight, frameWidth, frameHeight);
-
-			Texture2D texture = Main.itemTexture[item.type];
-
-			spriteBatch.Draw(texture, position - new Vector2(frameWidth / 2f, 0f) + new Vector2(1, -3), rectangle, drawColor, 0f, origin, 1f, SpriteEffects.None, 0);
-			
-			return false;
+	public class JewelOfOronitusAnimation : DrawAnimation{
+		public JewelOfOronitusAnimation(){
+			FrameCount = 25;
+			TicksPerFrame = 5;
 		}
 
-		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
-			timer++;
+		public override Rectangle GetFrame(Texture2D texture)
+			=> texture.Frame(1, FrameCount, 0, Frame);
 
-			if(timer % 120 == 60 && animate){
-				animate = false;
-				frameCounter = 0;
-			}else if(timer % 120 == 0 && !animate)
-				animate = true;
-
-			if(animate && timer % 5 == 0)
-				frameCounter = ++frameCounter % frameAmount;
-
-			Rectangle rectangle = new Rectangle(0, frameCounter * frameHeight, frameWidth, frameHeight);
-
-			Texture2D texture = Main.itemTexture[item.type];
-
-			spriteBatch.Draw(texture, item.Center - Main.screenPosition, rectangle, lightColor, rotation, new Vector2(frameWidth / 2, frameHeight / 2), 1f, SpriteEffects.None, 0);
-			
-			return false;
+		public override void Update(){
+			if(++FrameCounter % TicksPerFrame == 0)
+				Frame = ++Frame % FrameCount;
 		}
 	}
 }

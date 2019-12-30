@@ -1,11 +1,15 @@
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 
 namespace CosmivengeonMod.Projectiles.Draek{
 	public class DraekSword : ModProjectile{
+		public int DesoDebuffTime => AI_Spin_Timer >= 0 ? 3 * 60 : 45;
+
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Forsaken Oronoblade");
 		}
@@ -36,6 +40,8 @@ namespace CosmivengeonMod.Projectiles.Draek{
 
 		private int baseDamage;
 
+		private float prevHomingDistance = -1f;
+
 		public override void AI(){
 			Player target = Main.player[(int)projectile.ai[0]];
 			
@@ -61,7 +67,7 @@ namespace CosmivengeonMod.Projectiles.Draek{
 						projectile.damage = (int)(baseDamage * 0.2f);
 					}
 
-					float ratio = 1f - (AI_Spin_Timer / Spin_Timer_Max);
+					float ratio = 1f - (float)AI_Spin_Timer / Spin_Timer_Max;
 					float spin = MathHelper.ToRadians(0.25f * 360f / 60f);
 					float spinAdd = MathHelper.ToRadians(6f * 360f / 60f);
 
@@ -84,7 +90,7 @@ namespace CosmivengeonMod.Projectiles.Draek{
 					projectile.ai[1]--;
 					AI_FlyAfterSpin_Timer = FlyAfterSpinTimerMax;
 
-					projectile.velocity = Vector2.Normalize(target.Center - projectile.Center) * 20f;
+					projectile.velocity = projectile.DirectionTo(target.Center) * 20f;
 				}
 
 				if(spinFinished){
@@ -99,22 +105,51 @@ namespace CosmivengeonMod.Projectiles.Draek{
 
 			//In expert mode, make the projectile home in to the target player slightly
 			if(Main.expertMode && !CosmivengeonWorld.desoMode){
-				Vector2 normalizedTarget = Vector2.Normalize(target.Center - projectile.Center);
+				//Better homing effect:  use the opposite direction if we're moving away from the target
+				Vector2 normalizedTarget = projectile.DirectionTo(target.Center);
+
+				if(prevHomingDistance > 0 && prevHomingDistance < projectile.Distance(target.Center)){
+					if(Math.Abs(normalizedTarget.X) > Math.Abs(normalizedTarget.Y))
+						normalizedTarget.X *= -1;
+					else if(Math.Abs(normalizedTarget.Y) > Math.Abs(normalizedTarget.X))
+						normalizedTarget.Y *= -1;
+				}
+
 				projectile.velocity += normalizedTarget * 0.42f;
+
+				prevHomingDistance = projectile.Distance(target.Center);
 			}
 
 			Vector2 normalizedVelocity = Vector2.Normalize(projectile.velocity);
 
 			//Force the sword to travel at 20 px/frame
-			if(projectile.velocity.Length() < 20f)
+			if(projectile.velocity.Length() != 20f)
 				projectile.velocity = normalizedVelocity * 20f;
 
 			projectile.rotation = projectile.velocity.ToRotation() + MathHelper.ToRadians(90f);
 
-			if(Main.rand.Next(6) == 0)
-				Dust.NewDust(projectile.position, projectile.width, projectile.height, 236);
-			if(Main.rand.Next(8) == 0)
-				Dust.NewDust(projectile.position, projectile.width, projectile.height, 74);
+			//Don't spawn dust if the sword is spinning
+			if(CosmivengeonWorld.desoMode && AI_Spin_Timer > 0)
+				return;
+
+			if(Main.rand.NextFloat() < 0.1667f){
+				Dust dust = Dust.NewDustDirect(projectile.position, projectile.width, projectile.height, 236);
+				dust.velocity = Vector2.Zero;
+				dust.noGravity = true;
+			}
+			if(Main.rand.NextFloat() < 0.125f){
+				Dust dust = Dust.NewDustDirect(projectile.position, projectile.width, projectile.height, 74);
+				dust.velocity = Vector2.Zero;
+				dust.noGravity = true;
+			}
+		}
+
+		public override void OnHitPlayer(Player target, int damage, bool crit){
+			//Only apply the Primordial Wrath debuff if the world is in Desolation mode
+			if(CosmivengeonWorld.desoMode){
+				//Apply a shorter debuff time while not spinning
+				target.AddBuff(ModContent.BuffType<Buffs.PrimordialWrath>(), DesoDebuffTime);
+			}
 		}
 	}
 }

@@ -7,31 +7,33 @@ namespace CosmivengeonMod.Buffs.Stamina{
 	/// <summary>
 	/// The custom buff thing for Cosmivengeon.
 	/// </summary>
-	public class Stamina {
+	public class Stamina{
+		public static Color EnergizedColor => new Color(0x4c, 0xff, 0x00);
 		public Player Parent{ get; private set; }
 
 		public bool NoDecay;
 
+		private float maxValue;
+		public int MaxValue => (int)(maxValue * 10000f);
 		private float value;
 		public int Value => (int)(value * 10000f);
 		public bool Active;
 		private bool oldActive;
 		public bool Exhaustion{ get; private set; }
-		public bool ApplyExhaustionDebuffs => Exhaustion && ExhaustionTimer > 0 && !ExhaustionEffectsWornOff;
+		public bool ApplyExhaustionDebuffs => Exhaustion && !ExhaustionEffectsWornOff;
 		private bool ExhaustionEffectsWornOff;
 		public float IncreaseRate{ get; private set; }
 		public float ExhaustionIncreaseRate{ get; private set; }
 		public float DecreaseRate{ get; private set; }
 
-		private const float DefaultIncreaseRate = 1f / (4f * 60f);
-		private const float DefaultExhaustionIncreaseRate = 1f / (8f * 60f);
-		private const float DefaultDecreaseRate = 1f / (5f * 60f);
+		private float DefaultIncreaseRate => 0.25f / 60f;
+		private float DefaultExhaustionIncreaseRate => 0.125f / 60f;
+		private float DefaultDecreaseRate => 0.2f / 60f;
+		private float DefaultMaxValue => 1f;
 
-		private float[] Multipliers = new float[3];
-		private float[] Adders = new float[3];
+		private float[] Multipliers = new float[4];
+		private float[] Adders = new float[4];
 
-		private const int ExhaustionTimerMax = 60;
-		private int ExhaustionTimer;
 		private const int RegenDelay = 45;
 		private int RegenDelayTimer;
 		private bool StartRegen;
@@ -42,7 +44,8 @@ namespace CosmivengeonMod.Buffs.Stamina{
 		private int FlashDelay{
 			get{
 				float curRatio = value / FlashThreshold;
-				curRatio = Utils.Clamp(curRatio * curRatio * curRatio, 0.3333f, 0.6667f);
+				curRatio = curRatio * curRatio * curRatio;
+				curRatio.Clamp(0.3333f, 0.6667f);
 				return (int)(FlashCycle * curRatio);
 			}
 		}
@@ -63,11 +66,10 @@ namespace CosmivengeonMod.Buffs.Stamina{
 			Parent = player;
 			NoDecay = false;
 
-			value = 1f;
+			value = DefaultMaxValue;
 			Active = false;
 			oldActive = false;
 			Exhaustion = false;
-			ExhaustionTimer = 0;
 			ExhaustionEffectsWornOff = false;
 			RegenDelayTimer = RegenDelay;
 			StartRegen = false;
@@ -90,9 +92,8 @@ namespace CosmivengeonMod.Buffs.Stamina{
 				return;
 
 			if(NoDecay){
-				value = 1f;
+				value = maxValue;
 				Exhaustion = false;
-				ExhaustionTimer = 0;
 				ExhaustionEffectsWornOff = true;
 				StartRegen = false;
 				goto End;
@@ -132,14 +133,8 @@ namespace CosmivengeonMod.Buffs.Stamina{
 				StartRegen = true;
 			FlashTimer++;
 
-			if(!ExhaustionEffectsWornOff && Exhaustion && ExhaustionTimer == 0){
-				ExhaustionTimer = ExhaustionTimerMax;
-				if(value > 0.1f)
-					ExhaustionEffectsWornOff = true;
-			}
-
-			if(ExhaustionTimer > 0 && Exhaustion)
-				ExhaustionTimer--;
+			if(ApplyExhaustionDebuffs && value > 0.175f)
+				ExhaustionEffectsWornOff = true;
 
 End:
 			oldActive = Active;
@@ -199,7 +194,7 @@ End:
 				return;
 
 			Parent.gravity *= ApplyExhaustionDebuffs ? 1.3f : 1f;
-			Parent.maxFallSpeed *= 1.15f;
+			Parent.maxFallSpeed *= ApplyExhaustionDebuffs ? 1.15f : 1f;
 		}
 
 		/// <summary>
@@ -209,9 +204,10 @@ End:
 			IncreaseRate = DefaultIncreaseRate;
 			ExhaustionIncreaseRate = DefaultExhaustionIncreaseRate;
 			DecreaseRate = DefaultDecreaseRate;
+			maxValue = DefaultMaxValue;
 
-			Multipliers = new float[3]{ 1f, 1f, 1f };
-			Adders = new float[3]{ 0f, 0f, 0f };
+			Multipliers = new float[4]{ 1f, 1f, 1f, 1f };
+			Adders = new float[4]{ 0f, 0f, 0f, 0f };
 		}
 
 		/// <summary>
@@ -219,7 +215,7 @@ End:
 		/// </summary>
 		public void ResetValue(){
 			if(Parent.dead)
-				value = 1f;
+				value = MaxValue / 10000f;
 		}
 
 		/// <summary>
@@ -227,23 +223,28 @@ End:
 		/// </summary>
 		/// <param name="incAdd">The direct increase to IncreaseRate.</param>
 		/// <param name="exIncAdd">The direct increase to ExhaustionIncreaseRate.</param>
-		/// <param name="decAdd">The direct increase to DecreaseRate</param>
+		/// <param name="decAdd">The direct increase to DecreaseRate.</param>
 		/// <param name="incMult">A scalar change to IncreaseRate.  Applied before <paramref name="incAdd"/>.</param>
 		/// <param name="exIncMult">A scalar change to ExhaustionIncreaseRate.  Applied before <paramref name="exIncAdd"/>.</param>
 		/// <param name="decMult">A scalar change to DecreaseRate.  Applied before <paramref name="decAdd"/>.</param>
-		public void SetEffects(float incAdd = 0f, float exIncAdd = 0f, float decAdd = 0f, float incMult = 1f, float exIncMult = 1f, float decMult = 1f){
+		/// <param name="maxAdd">The direct increase to MaxValue.</param>
+		/// <param name="maxMult">A scalar change to MaxValue.  Applied before <paramref name="maxAdd"/>.</param>
+		public void SetEffects(float incAdd = 0f, float exIncAdd = 0f, float decAdd = 0f, float incMult = 1f, float exIncMult = 1f, float decMult = 1f, int maxAdd = 0, float maxMult = 1f){
 			Multipliers[0] += incMult;
 			Adders[0] += incAdd;
 			Multipliers[1] += exIncMult;
 			Adders[1] += exIncAdd;
 			Multipliers[2] += decMult;
 			Adders[2] += decAdd;
+			Multipliers[3] += maxMult;
+			Adders[3] += maxAdd / 10000f;
 		}
 
 		private void ApplyEffects(){
 			IncreaseRate = IncreaseRate * Multipliers[0] + Adders[0];
 			ExhaustionIncreaseRate = ExhaustionIncreaseRate * Multipliers[1] + Adders[1];
 			DecreaseRate = DecreaseRate * Multipliers[2] + Adders[2];
+			maxValue = maxValue * Multipliers[3] + Adders[3];
 		}
 
 		public float GetIncreaseRate() => Exhaustion ? ExhaustionIncreaseRate : IncreaseRate;

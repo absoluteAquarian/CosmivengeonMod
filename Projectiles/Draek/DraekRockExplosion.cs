@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Draek{
@@ -37,6 +39,15 @@ namespace CosmivengeonMod.Projectiles.Draek{
 				frameChosen = true;
 				projectile.frame = Main.rand.Next(Main.projFrames[projectile.type]);
 			}
+		}
+
+		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
+			Texture2D texture = Main.projectileTexture[projectile.type];
+			Rectangle frame = texture.Frame(1, 3, 0, projectile.frame);
+
+			spriteBatch.Draw(texture, projectile.Center - Main.screenPosition, frame, lightColor, projectile.rotation, frame.Size() / 2f, projectile.scale, SpriteEffects.None, 0);
+
+			return false;
 		}
 	}
 }

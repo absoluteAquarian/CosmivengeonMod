@@ -24,21 +24,19 @@ namespace CosmivengeonMod.Projectiles.Draek{
 			projectile.alpha = 255;
 		}
 
-		private bool hasSpawned = false;
+		Projectile owner = null;
 
 		public override void AI(){
-			Projectile owner = Main.projectile[(int)projectile.ai[0]];
+			owner = Main.projectile[(int)projectile.ai[0]];
 
 			projectile.damage = owner.damage;
-			
-			if(!hasSpawned){
-				hasSpawned = true;
-			}
 			
 			if(!owner.active || owner.type != ModContent.ProjectileType<DraekSword>()){
 				projectile.Kill();
 				return;
 			}
+
+			projectile.timeLeft = owner.timeLeft;
 
 			float rotation = CosmivengeonUtils.ToActualAngle(owner.rotation);
 
@@ -46,6 +44,10 @@ namespace CosmivengeonMod.Projectiles.Draek{
 			center.X += projectile.ai[1] * CosmivengeonUtils.fSin(rotation) * 48;
 			center.Y += projectile.ai[1] * -CosmivengeonUtils.fCos(rotation) * 48;
 			projectile.Center = center;
+		}
+
+		public override void OnHitPlayer(Player target, int damage, bool crit){
+			(owner?.modProjectile as DraekSword)?.OnHitPlayer(target, damage, crit);
 		}
 	}
 }

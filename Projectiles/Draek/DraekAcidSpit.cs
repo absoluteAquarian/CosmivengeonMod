@@ -3,17 +3,17 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Audio;
+using System.Collections.Generic;
+using System;
 
 namespace CosmivengeonMod.Projectiles.Draek{
 	public class DraekAcidSpit : ModProjectile{
-		public override string Texture => "CosmivengeonMod/Projectiles/Draek/DraekLaser";
-
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Acid Spit");
 		}
 
 		public override void SetDefaults(){
-			projectile.alpha = 255;
+			projectile.alpha = 75;
 			projectile.width = 8;
 			projectile.height = 8;
 			projectile.penetrate = 1;
@@ -32,15 +32,17 @@ namespace CosmivengeonMod.Projectiles.Draek{
 				Main.PlaySound(SoundID.NPCDeath19.WithVolume(0.6f), projectile.Center);
 			}
 
-			projectile.velocity.Y += (8f / 60f);
+			projectile.velocity.Y += 8f / 60f;
 
-			projectile.velocity.Y = Utils.Clamp(projectile.velocity.Y, -10, 10);
+			projectile.velocity.Y.Clamp(-10, 10);
 
-			//Spawn several dust randomly
-			for(int i = 0; i < 4; i++)
-				if(Main.rand.NextFloat() < 0.125f)
-					Dust.NewDustPerfect(projectile.Center, 74, new Vector2(Main.rand.NextFloat(-1, 1), Main.rand.NextFloat(-1, 1)));
+			if(Main.rand.NextFloat() < 0.75f){
+				Dust dust = Dust.NewDustPerfect(projectile.Center, 74);
+				dust.velocity = Vector2.Zero;
+				dust.noGravity = true;
+			}
 
+			projectile.rotation += MathHelper.ToRadians(4f * 6f) * Math.Sign(projectile.velocity.X);
 		}
 	}
 }

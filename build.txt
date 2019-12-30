@@ -1,7 +1,7 @@
 author = absoluteAquarian
-version = 0.0.7.6
+version = 0.0.8
 displayName = Cosmivengeon Mod
-homepage = https://discord.gg/pG5rPnN
+homepage = https://forums.terraria.org/index.php?threads/cosmivengeon-mod.84905/
 buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*, Properties\*, README.md, .gitattributes, .gitignore
 includePDB = true
 hideCode = true

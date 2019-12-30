@@ -2,7 +2,7 @@
 using Terraria.ID;
 using Terraria.ModLoader;
 
-using CosmivengeonMod.Projectiles.Weapons;
+using CosmivengeonMod.Projectiles.Weapons.Draek;
 
 namespace CosmivengeonMod.Items.Draek{
 	public class BoulderChunk : ModItem{

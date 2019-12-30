@@ -7,7 +7,7 @@ namespace CosmivengeonMod.Items.Draek{
 	public class DraekSummon : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Mysterious Geode");
-			Tooltip.SetDefault("Challenges the defender of the forest\nMust be used in the Purity");
+			Tooltip.SetDefault("Challenges the defender of the forest\nMust be used in the Forest biome");
 		}
 
 		public override void SetDefaults(){
@@ -22,31 +22,11 @@ namespace CosmivengeonMod.Items.Draek{
 			item.consumable = true;
 		}
 
-		public override bool CanUseItem(Player player){
-			//Return false if "Draek" has already been summoned and the player isn't in the forest biome
-			bool forest = CosmivengeonUtils.PlayerIsInForest(player);
+		public override bool CanUseItem(Player player)
+			=> CosmivengeonUtils.TrySummonBoss(CosmivengeonBoss.Draek, player);
 
-			if(!NPC.AnyNPCs(ModContent.NPCType<NPCs.Draek.Draek>())){
-				if(!forest){
-					Main.NewText("\"The geode was unresponsive.  Maybe I should try using it in the forest?\"", 255, 255, 255);
-					return false;
-				}
-				return true;
-			}
-			return false;
-		}
-
-		public override bool UseItem(Player player){
-			//Spawn "Draek" within 50 tiles of the player
-			float randomAngle = Main.rand.NextFloat(0, MathHelper.TwoPi);
-			Vector2 offset = randomAngle.ToRotationVector2() * 50f * 16f;
-			int targetX = (int)(player.Center.X + offset.X);
-			int targetY = (int)(player.Center.Y + offset.Y);
-
-			NPC.NewNPC(targetX, targetY, ModContent.NPCType<NPCs.Draek.Draek>());
-
-			return true;
-		}
+		public override bool UseItem(Player player)
+			=> CosmivengeonUtils.SummonBossNearPlayer(player, ModContent.NPCType<NPCs.Draek.Draek>(), 50f);
 
 		public override void AddRecipes(){
 			ModRecipe recipe = new ModRecipe(mod);

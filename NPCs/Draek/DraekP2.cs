@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using CosmivengeonMod.Items.Boss_Bags;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -23,14 +24,13 @@ namespace CosmivengeonMod.NPCs.Draek{
 		public override void SetDefaults(){
 			head = true;
 			
-			npc.width = 20;
-			npc.height = 20;
+			npc.width = 40;
+			npc.height = 40;
 
 			npc.aiStyle = -1;
 			npc.lifeMax = 2500;
 			npc.defense = 16;
 			npc.damage = 40;
-			npc.scale = 2f;
 			npc.boss = true;
 			npc.lavaImmune = true;
 			npc.noGravity = true;
@@ -43,6 +43,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.buffImmune[BuffID.Poisoned] = true;
 			npc.buffImmune[BuffID.Confused] = true;
 			npc.buffImmune[BuffID.Burning] = true;
+			npc.buffImmune[BuffID.Frostburn] = true;
 
 			minLength = maxLength = 6;
 
@@ -56,7 +57,11 @@ namespace CosmivengeonMod.NPCs.Draek{
 			maxDigDistance = 16 * 40;
 			customBodySegments = true;
 
-			bossBag = ModContent.ItemType<Items.Boss_Bags.DraekBag>();
+			npc.value = Draek.Value;
+
+			bossBag = ModContent.ItemType<DraekBag>();
+
+			CosmivengeonUtils.PlayMusic(this, CosmivengeonBoss.Draek);
 		}
 
 		private const float speed_subphase0_normal = 5f;
@@ -105,6 +110,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 		private int[] desoModeSubphases = new int[]{ };
 		private float curLifeRatio = 1f;
 		private bool switchDesoModeSubphaseSet = false;
+		private int desoModeSubphaseSet = 0;
 
 		public const int Laser_Delay = 90;
 		private const int DesoMode_RockDelay = 20;
@@ -154,13 +160,9 @@ namespace CosmivengeonMod.NPCs.Draek{
 				ModContent.ItemType<Items.Draek.Stoneskipper>()
 			};
 
-			bool dropChosen;
 			int dropType, dropAmount = 1;
 
-			do{
-				dropType = Main.rand.Next(drops);
-				dropChosen = Main.rand.NextFloat() < 0.2;
-			}while(!dropChosen);
+			dropType = Main.rand.Next(drops);
 
 			if(dropType == ModContent.ItemType<Items.Draek.BoulderChunk>())
 				dropAmount = Main.rand.Next(20, 41);
@@ -212,6 +214,14 @@ namespace CosmivengeonMod.NPCs.Draek{
 			turnSpeed = turnSpeed_subphase0_expert;
 		}
 
+		public override void ModifyHitByProjectile(Projectile projectile, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
+			damage = (int)((projectile.maxPenetrate < 1 ? 0.2f : 1f / projectile.maxPenetrate) * damage);
+		}
+
+		public override void OnHitPlayer(Player target, int damage, bool crit){
+			target.AddBuff(ModContent.BuffType<Buffs.PrimordialWrath>(), 150);
+		}
+
 		public override void AI(){
 			//AI:  https://docs.google.com/document/d/13IlpNUdO2X_elLPwsYcB1mzd_FMxQkwAcRKq1oSWgLg
 			
@@ -226,6 +236,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 					CurrentPhase = Phase_2_DesoMode;
 					attackPhase = DesoMode_subphase0;
 				}
+
+				//Check if this was spawned using CheatSheet or other means not through Phase 1
 			}
 
 			if((npc.life < npc.lifeMax * 0.3 && CurrentPhase == Phase_2) || (npc.life < npc.lifeMax * 0.4f && CosmivengeonWorld.desoMode && !desoMode_enrageTextPrinted)){
@@ -281,7 +293,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 				}
 			}else if(CurrentPhase == Phase_2_DesoMode){
 				if(attackPhase == DesoMode_subphase0){
-					AI_Worm(speed_subphase0_expert, turnSpeed_subphase0_expert, 5 * 60);
+					AI_Worm(speed_subphase0_expert + 3f, turnSpeed_subphase0_expert + 0.08f, 5 * 60);
 				}else if(attackPhase == DesoMode_Mega_Charge){
 					float duration = Main.rand.NextFloat(3, 5) * 1.5f;
 					AI_MegaCharge(20, (int)(duration * 60), 12, 50 * 16);
@@ -310,15 +322,18 @@ namespace CosmivengeonMod.NPCs.Draek{
 				return;
 
 			curLifeRatio = npc.life / (float)npc.lifeMax;
-			if(desoModeSubphases[0] == DesoMode_subphase0 && curLifeRatio <= 0.6f && curLifeRatio > 0.4f){
+
+			if(desoModeSubphaseSet == 0 && curLifeRatio <= 0.6f && curLifeRatio > 0.4f){
 				switchDesoModeSubphaseSet = true;
 				desomode_subphase = 0;
-			}else if(desoModeSubphases[0] == DesoMode_Mega_Charge && curLifeRatio <= 0.4f && curLifeRatio > 0.2f){
+				desoModeSubphaseSet = 1;
+			}else if(desoModeSubphaseSet == 1 && curLifeRatio <= 0.4f && curLifeRatio > 0.2f){
 				switchDesoModeSubphaseSet = true;
 				desomode_subphase = 0;
-			}else if(desoModeSubphases[0] == DesoMode_Mega_Charge && curLifeRatio <= 0.2f){
+				desoModeSubphaseSet = 2;
+			}else if(desoModeSubphaseSet == 2 && curLifeRatio <= 0.2f){
 				switchDesoModeSubphaseSet = true;
-				desomode_subphase = 0;
+				desomode_subphase = 3;
 			}
 		}
 
@@ -331,11 +346,11 @@ namespace CosmivengeonMod.NPCs.Draek{
 			else if(attackPhase == Enraged_Mega_Charge && CurrentPhase == Phase_2_Enraged)
 				attackPhase = Enraged_Worm_subphase0;
 			else if(CurrentPhase == Phase_2_DesoMode || switchDesoModeSubphaseSet){
-				if(curLifeRatio > 0.6f)
+				if(desoModeSubphaseSet == 0)
 					desoModeSubphases = new int[]{ DesoMode_subphase0, DesoMode_Mega_Charge, DesoMode_Try_Land_Explosion };
-				else if(curLifeRatio > 0.4f)
+				else if(desoModeSubphaseSet == 1)
 					desoModeSubphases = new int[]{ DesoMode_Mega_Charge, DesoMode_Berserker, DesoMode_Try_Land_Explosion };
-				else if(curLifeRatio > 0.2f)
+				else if(desoModeSubphaseSet == 2)
 					desoModeSubphases = new int[]{ DesoMode_Mega_Charge, DesoMode_Berserker_Lasers, DesoMode_Try_Land_Explosion };
 				else
 					desoModeSubphases = new int[]{ DesoMode_Berserker_Constant };
@@ -454,15 +469,15 @@ namespace CosmivengeonMod.NPCs.Draek{
 					attackTimer = 0;
 				}
 			}else if(attackProgress == 2 || attackProgress == 3){
-				speed = Main.expertMode ? 13f : 10f;
-				turnSpeed = 0.4f;
+				speed = CosmivengeonUtils.GetModeChoice(10, 13, 16);
+				turnSpeed = CosmivengeonUtils.GetModeChoice(0.4f, 0.4f, 0.53f);
 				fly = true;
 				JewelExplosion();
 				if(Vector2.Distance(CustomTarget, npc.Center) < 1 * 16)
 					attackProgress++;
 			}else if(attackProgress >= 4){
 				CustomTarget = Main.player[npc.target].Center - new Vector2(0, 16 * 10);
-				speed = Main.player[npc.target].velocity.Length() + 6f;
+				speed = Main.player[npc.target].velocity.Length() + CosmivengeonUtils.GetModeChoice(6, 6, 9);
 
 				float rockDelay = flyTime / (rockCount + 1);
 
@@ -641,14 +656,13 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 			npc.boss = true;
 			
-			npc.width = 15;
-			npc.height = 15;
+			npc.width = 30;
+			npc.height = 30;
 			
 			npc.aiStyle = -1;
 			npc.lifeMax = 2500;
 			npc.defense = 25;
 			npc.damage = 40;
-			npc.scale = 2f;
 			npc.lavaImmune = true;
 			npc.noGravity = true;
 			npc.noTileCollide = true;
@@ -657,6 +671,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.buffImmune[BuffID.Poisoned] = true;
 			npc.buffImmune[BuffID.Confused] = true;
 			npc.buffImmune[BuffID.Burning] = true;
+			npc.buffImmune[BuffID.Frostburn] = true;
 
 			npc.dontCountMe = true;
 
@@ -668,8 +683,16 @@ namespace CosmivengeonMod.NPCs.Draek{
 			return false;	//Don't drop anything
 		}
 
+		public override void OnHitPlayer(Player target, int damage, bool crit){
+			target.AddBuff(ModContent.BuffType<Buffs.PrimordialWrath>(), 150);
+		}
+
 		public override void ScaleExpertStats(int numPlayers, float bossLifeScale){
 			DraekP2Head.ExpertStatsHelper(npc, numPlayers, bossLifeScale);
+		}
+
+		public override void ModifyHitByProjectile(Projectile projectile, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
+			damage = (int)((projectile.maxPenetrate < 1 ? 0.2 : 1f / projectile.maxPenetrate) * damage);
 		}
 	}
 	internal class DraekP2_Body1 : DraekP2_Body0{
@@ -713,12 +736,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 	internal class DraekP2_Body2 : DraekP2_Body0{}
 	internal class DraekP2_Body3 : DraekP2_Body0{}
 
-	internal class DraekP2Tail : Worm{
+	internal class DraekP2Tail : DraekP2_Body0{
 		public override string Texture => "CosmivengeonMod/NPCs/Draek/DraekP2_Tail";
-
-		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Draek");
-		}
 
 		public override void SetDefaults(){
 			npc.CloneDefaults(headType);
@@ -729,7 +748,6 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.lifeMax = 500;
 			npc.defense = 25;
 			npc.damage = 40;
-			npc.scale = 2f;
 			npc.lavaImmune = true;
 			npc.noGravity = true;
 			npc.noTileCollide = true;
@@ -738,23 +756,16 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.buffImmune[BuffID.Poisoned] = true;
 			npc.buffImmune[BuffID.Confused] = true;
 			npc.buffImmune[BuffID.Burning] = true;
+			npc.buffImmune[BuffID.Frostburn] = true;
 
 			tail = true;
-			npc.width = 15;
-			npc.height = 15;
+			npc.width = 30;
+			npc.height = 30;
 
 			npc.dontCountMe = true;
 
 			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
 			npc.DeathSound = SoundID.NPCDeath60;	//Phantasm Dragon death sound
-		}
-
-		public override bool PreNPCLoot(){
-			return false;	//Don't drop anything
-		}
-
-		public override void ScaleExpertStats(int numPlayers, float bossLifeScale){
-			DraekP2Head.ExpertStatsHelper(npc, numPlayers, bossLifeScale);
 		}
 	}
 }

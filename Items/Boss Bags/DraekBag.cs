@@ -1,4 +1,5 @@
-﻿using Terraria;
+﻿using CosmivengeonMod.NPCs.Draek;
+using Terraria;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Items.Boss_Bags{
@@ -13,8 +14,8 @@ namespace CosmivengeonMod.Items.Boss_Bags{
 		public override void SetDefaults(){
 			item.maxStack = 999;
 			item.consumable = true;
-			item.width = 24;
-			item.height = 24;
+			item.width = 32;
+			item.height = 32;
 			item.rare = 9;
 			item.expert = true;
 		}
@@ -35,9 +36,9 @@ namespace CosmivengeonMod.Items.Boss_Bags{
 
 			player.QuickSpawnItem(ModContent.ItemType<Draek.JewelOfOronitus>());
 
-			NPCs.Draek.DraekP2Head.NormalModeDrops(player: player, quickSpawn: true);
+			DraekP2Head.NormalModeDrops(player: player, quickSpawn: true);
 		}
 
-		public override int BossBagNPC => ModContent.NPCType<NPCs.Draek.DraekP2Head>();
+		public override int BossBagNPC => ModContent.NPCType<DraekP2Head>();
 	}
 }
