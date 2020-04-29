@@ -19,7 +19,7 @@ namespace CosmivengeonMod.Items.Draek{
 		}
 
 		public override void SetDefaults(){
-			item.useStyle = 5;
+			item.useStyle = ItemUseStyleID.HoldingOut;
 			item.width = 30;
 			item.height = 26;
 			item.useAnimation = 25;
@@ -27,7 +27,7 @@ namespace CosmivengeonMod.Items.Draek{
 			item.shootSpeed = 16f;
 			item.knockBack = 3f;
 			item.damage = 20;
-			item.rare = 2;
+			item.rare = ItemRarityID.Green;
 
 			item.melee = true;
 			item.channel = true;

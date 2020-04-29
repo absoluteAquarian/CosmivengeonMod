@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Items.Draek;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
@@ -23,8 +24,8 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 		}
 
 		public override void AI(){
-			if(projectile.velocity.Length() < Items.Draek.Stoneskipper.ShootSpeed)
-				projectile.velocity = Vector2.Normalize(projectile.velocity) * Items.Draek.Stoneskipper.ShootSpeed / projectile.extraUpdates;
+			if(projectile.velocity.Length() < Stoneskipper.ShootSpeed)
+				projectile.velocity = Vector2.Normalize(projectile.velocity) * Stoneskipper.ShootSpeed / (projectile.extraUpdates + 1);
 
 			//Add a green light from the projectile
 			Lighting.AddLight(projectile.Center, 0f, 1f, 0f);

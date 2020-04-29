@@ -1,5 +1,6 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
+using Terraria.ID;
 
 namespace CosmivengeonMod.Items.Draek{
 	public class StoneTablet : ModItem{
@@ -19,7 +20,7 @@ namespace CosmivengeonMod.Items.Draek{
 
 		public override void SetDefaults(){
 			item.maxStack = 1;
-			item.rare = 2;
+			item.rare = ItemRarityID.Green;
 			item.consumable = false;
 		}
 

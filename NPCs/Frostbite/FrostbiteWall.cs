@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System.IO;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -33,6 +34,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				activeTime = (int)npc.ai[0];
 				npc.damage = (int)npc.ai[1];
 				shouldShootBolts = npc.ai[2] == 1;
+
+				npc.netUpdate = true;
 			}
 
 			activeTime--;
@@ -47,9 +50,11 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				npc.alpha = 0;
 
 			if(shouldShootBolts){
-				if(AI_Timer < 0)
+				if(AI_Timer < 0){
 					AI_Timer = Main.rand.Next(60, 120);
-				else if(AI_Timer == 0){
+
+					npc.netUpdate = true;
+				}else if(AI_Timer == 0){
 					//Spawn some Frostbite ice projectiles (the breath ones)
 					for(int i = 0; i < 6; i++){
 						npc.SpawnProjectile(
@@ -68,6 +73,21 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			npc.velocity.Y += 8f / 60f;
 
 			AI_Timer--;
+		}
+
+		public override void SendExtraAI(BinaryWriter writer){
+			BitsByte flag = new BitsByte(shouldShootBolts, spawned);
+			
+			writer.Write(flag);
+			writer.Write(AI_Timer);
+			writer.Write(activeTime);
+		}
+
+		public override void ReceiveExtraAI(BinaryReader reader){
+			BitsByte flag = reader.ReadByte();
+			flag.Retrieve(ref shouldShootBolts, ref spawned);
+			AI_Timer = reader.ReadInt32();
+			activeTime = reader.ReadInt32();
 		}
 
 		public override void ModifyHitPlayer(Player target, ref int damage, ref bool crit){

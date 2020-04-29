@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
+using Terraria.ID;
 
 namespace CosmivengeonMod.NPCs{
 	/// <summary>
@@ -37,7 +39,9 @@ namespace CosmivengeonMod.NPCs{
 
 		private bool startDespawn = false;
 
-		public override bool PreAI(){
+		internal List<Worm> Segments = new List<Worm>();
+
+		public sealed override bool PreAI(){
 			if(head){
 				PreAI_Head();
 
@@ -61,7 +65,7 @@ namespace CosmivengeonMod.NPCs{
 		}
 
 		internal void PreAI_Head(){			
-			if(Main.netMode != 1){
+			if(Main.netMode != NetmodeID.MultiplayerClient){
 				// So, we start the AI off by checking if npc.ai[0] is 0.
 				// This is practically ALWAYS the case with a freshly spawned NPC, so this means this is the first update.
 				// Since this is the first update, we can safely assume we need to spawn the rest of the worm (bodies + tail).
@@ -91,6 +95,13 @@ namespace CosmivengeonMod.NPCs{
 					latestNPC = NPC.NewNPC((int)npc.Center.X, (int)npc.Center.Y, tailType, npc.whoAmI, 0, latestNPC);
 					Main.npc[latestNPC].realLife = npc.whoAmI;
 					Main.npc[latestNPC].ai[3] = npc.whoAmI;
+
+					//Set the Segments list
+					for(int i = 0; i < Main.npc.Length; i++){
+						NPC n = Main.npc[i];
+						if(n?.active == true && n.realLife == npc.whoAmI && n.modNPC is Worm)
+							Segments.Add(n.modNPC as Worm);
+					}
  
 					// We're setting npc.ai[0] to 1, so that this 'if' is not triggered again.
 					npc.ai[0] = 1;
@@ -287,7 +298,7 @@ namespace CosmivengeonMod.NPCs{
 			if(Main.player[npc.target].dead && npc.timeLeft > 30000)
 				npc.timeLeft = 10;
  
-			if(Main.netMode != 1){
+			if(Main.netMode != NetmodeID.MultiplayerClient){
 				//Some of these conditions are possble if the body/tail segment was spawned individually
 				if(!Main.npc[(int)npc.ai[1]].active || Main.npc[(int)npc.ai[1]].friendly || Main.npc[(int)npc.ai[1]].townNPC || Main.npc[(int)npc.ai[1]].lifeMax <= 5){
 					npc.life = 0;
@@ -327,7 +338,7 @@ namespace CosmivengeonMod.NPCs{
 		}
 
 		/// <summary>
-		/// Creates a new body segment of the specified type that follows this segment NPC.  Also decrements "distance".
+		/// Creates a new body segment of the specified <paramref name="type"/> that follows the NPC whose whoAmI is <paramref name="latestNPC"/>.
 		/// </summary>
 		/// <returns>The ID of the new latestNPC.</returns>
 		public int NewBodySegment(int type, int latestNPC){
@@ -342,7 +353,14 @@ namespace CosmivengeonMod.NPCs{
 			return latestNPC;
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color drawColor){
+		/// <summary>
+		/// Runs at the beginning of Worm.PreDraw()
+		/// </summary>
+		public virtual void PreDrawSafe(SpriteBatch spriteBatch, Color drawColor){ }
+
+		public sealed override bool PreDraw(SpriteBatch spriteBatch, Color drawColor){
+			PreDrawSafe(spriteBatch, drawColor);
+
 			Texture2D texture = Main.npcTexture[npc.type];
 
 			Vector2 position = npc.Center - Main.screenPosition;
@@ -357,11 +375,9 @@ namespace CosmivengeonMod.NPCs{
 			Main.spriteBatch.Draw(texture, position, null, drawColor, npc.rotation, texture.Size() / 2f, npc.scale, effect, 0);
 			return false;
 		}
-		public override bool? DrawHealthBar(byte hbPosition, ref float scale, ref Vector2 position){
+
+		public sealed override bool? DrawHealthBar(byte hbPosition, ref float scale, ref Vector2 position){
 			return head;	//Only let the head segment have a healtbar
-		}
-		public override bool CheckActive(){
-			return !head;
 		}
 	}
 }

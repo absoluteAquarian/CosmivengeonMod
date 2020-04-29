@@ -22,7 +22,7 @@ namespace CosmivengeonMod.Items.Frostbite{
 			item.scale = 0.8f;
 			item.noMelee = true;
 			item.useAmmo = AmmoID.Arrow;
-			item.shoot = 10;
+			item.shoot = ProjectileID.PurificationPowder;
 			item.shootSpeed = 10f;
 			item.UseSound = SoundID.Item5;
 			item.value = Item.sellPrice(silver: 1, copper: 75);

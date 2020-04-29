@@ -1,15 +1,19 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Items.Frostbite{
 	public class FrostbiteFlamethrower : ModItem{
+		public override bool CloneNewInstances => true;
+
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Frostfire's Breath");
 			Tooltip.SetDefault("Shoots Frostburn-inflicing flames at a quick rate." +
-				"\nUses [c/00dddd:Ice Blocks] for ammo.");
+				"\nUses [c/00dddd:Ice Blocks] for ammo." +
+				"\nHas a 50% chance to not consume ammo.");
 		}
 
 		public override void SetDefaults(){
@@ -30,6 +34,9 @@ namespace CosmivengeonMod.Items.Frostbite{
 			item.UseSound = SoundID.Item34;
 			item.rare = ItemRarityID.Blue;
 		}
+
+		public override bool ConsumeAmmo(Player player)
+			=> Main.rand.NextBool(2);
 
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
 			Vector2 newVelocity = new Vector2(speedX, speedY).RotatedByRandom(MathHelper.ToRadians(2f));
@@ -52,6 +59,10 @@ namespace CosmivengeonMod.Items.Frostbite{
 			);
 			
 			return false;
+		}
+
+		public override void ModifyTooltips(List<TooltipLine> tooltips){
+			
 		}
 
 		public override Vector2? HoldoutOffset() => new Vector2(-6, 2);

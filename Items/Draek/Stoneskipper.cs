@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 namespace CosmivengeonMod.Items.Draek{
 	public class Stoneskipper : ModItem{
 
-		public static float ShootSpeed = 40f;
+		public static float ShootSpeed = 28f;
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Stoneskipper");
 			Tooltip.SetDefault("Lightweight gun that fires fast, high-accuracy poison bullets");
@@ -19,19 +19,19 @@ namespace CosmivengeonMod.Items.Draek{
 			item.ranged = true;
 			item.width = 66;
 			item.height = 22;
-			item.useTime = 35;
-			item.useAnimation = 35;
-			item.useStyle = 5;
+			item.useTime = 42;
+			item.useAnimation = 42;
+			item.useStyle = ItemUseStyleID.HoldingOut;
 			item.noMelee = true;
-			item.knockBack = 9.2f;
+			item.knockBack = 8.7f;
 			item.value = Item.sellPrice(0, 2, 50, 0);
-			item.rare = 2;
+			item.rare = ItemRarityID.Green;
 			item.UseSound = SoundID.Item41;
 			item.autoReuse = false;
-			item.shoot = 10;		//Vanilla guns have this value, but it really doesn't matter since it's overwritten in Shoot()
+			item.shoot = ProjectileID.PurificationPowder;		//Vanilla guns have this value, but it really doesn't matter since it's overwritten in Shoot()
 			item.useAmmo = AmmoID.Bullet;
 
-			item.crit += 25;	//+25% crit chance
+			item.crit = 25;  //+25% crit chance
 		}
 
 		public override void AddRecipes(){

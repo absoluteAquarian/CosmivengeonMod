@@ -1,5 +1,6 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
+using Terraria.ID;
 
 namespace CosmivengeonMod.Items.Draek{
 	public class DraekScales : ModItem{
@@ -10,7 +11,7 @@ namespace CosmivengeonMod.Items.Draek{
 
 		public override void SetDefaults(){
 			item.maxStack = 99;
-			item.rare = 1;
+			item.rare = ItemRarityID.Blue;
 			item.consumable = false;
 			item.value = Item.sellPrice(0, 0, 15, 0);
 		}

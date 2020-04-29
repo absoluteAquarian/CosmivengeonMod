@@ -25,6 +25,8 @@ namespace CosmivengeonMod.Projectiles.Summons{
 			projectile.height = 46;
 			projectile.timeLeft = 3600 * 60;
 			projectile.sentry = true;
+			projectile.tileCollide = false;
+			projectile.penetrate = -1;
 		}
 
 		private bool spawned = false;
@@ -110,7 +112,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 			Lighting.AddLight(projectile.Center, Color.Cyan.ToVector3() * 2.5f);
 
-			if(++projectile.frameCounter > 8)
+			if(++projectile.frameCounter % 9 == 0)
 				projectile.frame = ++projectile.frame % Main.projFrames[projectile.type];
 
 			floatAngle += MathHelper.ToRadians(1.5f * 6f);

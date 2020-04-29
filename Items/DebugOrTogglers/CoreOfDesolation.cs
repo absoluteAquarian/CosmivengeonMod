@@ -4,6 +4,8 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System.Linq;
+using Terraria.DataStructures;
 
 namespace CosmivengeonMod.Items.DebugOrTogglers{
 	public class CoreOfDesolation : ModItem{
@@ -21,10 +23,10 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 			item.width = 20;
 			item.height = 20;
 			item.maxStack = 1;
-			item.rare = 5;
+			item.rare = ItemRarityID.Pink;
 			item.useAnimation = 45;
 			item.useTime = 45;
-			item.useStyle = 4;
+			item.useStyle = ItemUseStyleID.HoldingUp;
 			item.consumable = false;
 		}
 
@@ -33,11 +35,11 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 				if(line.text != null && line.text.Length >= 7 && line.text.Substring(0, 7) == "Enables"){
 					string hotkey;
 
-					try{
-						hotkey = CosmivengeonMod.StaminaHotKey.GetAssignedKeys()[0];
-					}catch(Exception){
-						hotkey = "<NOT BOUND>";
-					}
+					var hotkeys = CosmivengeonMod.StaminaHotKey.GetAssignedKeys();
+					if(hotkeys.Count > 0)
+						hotkey = hotkeys[0];
+					else
+					   hotkey = "<NOT BOUND>";
 
 					line.text = $"Enables the \"Stamina\" effect, which can be toggled using \"{hotkey}\"";
 				}
@@ -45,15 +47,22 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 		}
 
 		public override bool CanUseItem(Player player){
+			//If the game is in multiplayer, only allow the host to use the item
+			// TODO: Make sure that this actually works
+			if(Main.netMode != NetmodeID.SinglePlayer && !Netplay.Clients[Main.myPlayer].Socket.GetRemoteAddress().IsLocalHost()){
+				Main.NewText("Only the server host can use this item!", Color.Red);
+				return false;
+			}
+
 			bool calamityRevengeance = (bool?)CosmivengeonMod.CalamityInstance?.Call("Difficulty", "Rev") ?? false;
 			bool calamityDeath = (bool?)CosmivengeonMod.CalamityInstance?.Call("Difficulty", "Death") ?? false;
 
-			if(player.GetModPlayer<CosmivengeonPlayer>().stamina.Active)
+			if(player.GetModPlayer<CosmivengeonPlayer>().stamina.Active || player.GetModPlayer<CosmivengeonPlayer>().stamina.Exhaustion)
 				return false;
 			if(!Main.expertMode)
 				Main.NewText("You are not powerful enough to withstand the chaos...", CosmivengeonUtils.TausFavouriteColour);
-		//	if(CosmivengeonWorld.desoMode && !CosmivengeonMod.debug_toggleDesoMode)
-		//		Main.NewText("Nice try, but the deed has already been done.", CosmivengeonUtils.TausFavouriteColour);
+			if(CosmivengeonWorld.desoMode && !CosmivengeonMod.debug_toggleDesoMode)
+				Main.NewText("Nice try, but the deed has already been done.", CosmivengeonUtils.TausFavouriteColour);
 
 			//Disable Calamity's modes if they are active
 			if(Main.expertMode && (calamityRevengeance || calamityDeath)){
@@ -61,32 +70,24 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 				CosmivengeonMod.DeactivateCalamityDeath();
 			}
 
-			return Main.expertMode;
-		//	return Main.expertMode && (!CosmivengeonWorld.desoMode || CosmivengeonMod.debug_toggleDesoMode);
+			return Main.expertMode && (!CosmivengeonWorld.desoMode || CosmivengeonMod.debug_toggleDesoMode);
 		}
 
 		public override bool UseItem(Player player){
-			Main.PlaySound(new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0), player.Center);
+			Main.PlaySound(SoundID.ForceRoar, player.Center, 0);
 
 			if(!CosmivengeonWorld.desoMode){
-				Main.NewText("An otherworldly chaos has been unleashed...  No turning back now.", CosmivengeonUtils.TausFavouriteColour);
+				CosmivengeonUtils.SendMessage("An otherworldly chaos has been unleashed...  No turning back now.", CosmivengeonUtils.TausFavouriteColour);
 				CosmivengeonWorld.desoMode = true;
-				return true;
 			}else{
-				Main.NewText("The otherworldy chaos recedes...  For now.", CosmivengeonUtils.TausFavouriteColour);
+				CosmivengeonUtils.SendMessage("The otherworldy chaos recedes...  For now.", CosmivengeonUtils.TausFavouriteColour);
 				CosmivengeonWorld.desoMode = false;
-				return true;
 			}
 
-		/*	
-			}else if(CosmivengeonMod.debug_toggleDesoMode){
-				Main.NewText("Wait, what?  You aren't supposed to be able to toggle that!  Oh well, I guess it can't be helped.", CosmivengeonUtils.TausFavouriteColour);
-				CosmivengeonWorld.desoMode = false;
-				return true;
-			}
+			if(Main.npc.Any(n => n?.active == true && n.boss))
+				player.KillMe(PlayerDeathReason.ByCustomReason($"{player.name} was consumed by the chaos."), 9999, 0);
 
-			return false;
-		*/
+			return true;
 		}
 
 		public override void AddRecipes(){

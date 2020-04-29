@@ -87,15 +87,17 @@ namespace CosmivengeonMod.Items.Frostbite{
 
 			player.AddBuff(ModContent.BuffType<Buffs.EyeOfTheBlizzardBuff>(), 2);
 
+			CosmivengeonPlayer mp = player.GetModPlayer<CosmivengeonPlayer>();
+
 			if(--abilityTimer > 0){
-				player.GetModPlayer<CosmivengeonPlayer>().abilityActive_EyeOfTheBlizzard = true;
+				mp.abilityActive_EyeOfTheBlizzard = true;
 			}else if(abilityTimer == 0 && !player.HasBuff(ModContent.BuffType<Buffs.EyeOfTheBlizzard_Cooldown>())){
-				player.GetModPlayer<CosmivengeonPlayer>().abilityActive_EyeOfTheBlizzard = false;
+				mp.abilityActive_EyeOfTheBlizzard = false;
 				player.AddBuff(ModContent.BuffType<Buffs.EyeOfTheBlizzard_Cooldown>(), 60 * 60);
 				abilityTimer = -1;
 			}
 
-			if(Crystal != null && abilityTimer < 0 && !player.mount?.Active == true && !player.mount?.CanFly == true && !player.HasBuff(ModContent.BuffType<Buffs.EyeOfTheBlizzard_Cooldown>()) && player.controlUp && player.releaseUp && player.doubleTapCardinalTimer[1] > 0){
+			if(Crystal != null && abilityTimer < 0 && !player.mount?.Active == true && !player.mount?.CanFly == true && !player.HasBuff(ModContent.BuffType<Buffs.EyeOfTheBlizzard_Cooldown>()) && mp.doubleTapUp){
 				int amount = (int)(player.statLifeMax2 * 0.1f);
 				player.statLife += amount;
 				player.HealEffect(amount);
@@ -135,7 +137,7 @@ namespace CosmivengeonMod.Items.Frostbite{
 	public class EyeOfTheBlizzardAnimation : DrawAnimation{
 		public EyeOfTheBlizzardAnimation(){
 			FrameCount = 6;
-			TicksPerFrame = 10;
+			TicksPerFrame = 9;
 		}
 
 		public override Rectangle GetFrame(Texture2D texture)

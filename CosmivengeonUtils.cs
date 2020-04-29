@@ -327,6 +327,44 @@ namespace CosmivengeonMod{
 			if(proj.alpha < 0)
 				proj.alpha = 0;
 		}
+
+		public static void SendMessage(string message, Color? color = null){
+#pragma warning disable IDE0054 // Use compound assignment
+			color = color ?? Color.White;
+#pragma warning restore IDE0054 // Use compound assignment
+
+			if(Main.netMode == NetmodeID.SinglePlayer)
+				Main.NewText(message, color.Value);
+			else
+				NetMessage.BroadcastChatMessage(NetworkText.FromLiteral(message), color.Value);
+		}
+
+		/// <summary>
+		/// Equivalent to <paramref name="vector"/>.RotatedBy(<paramref name="rotateBy"/>).RotatedByRandom(<paramref name="rotateByRandom"/>)
+		/// </summary>
+		/// <param name="vector">The original vector</param>
+		/// <param name="rotateBy">The absolute rotation in radians</param>
+		/// <param name="rotateByRandom">The relative random rotation in radians/></param>
+		/// <returns></returns>
+		public static Vector2 Rotate(this Vector2 vector, double rotateBy, double rotateByRandom)
+			=> vector.RotatedBy(rotateBy).RotatedByRandom(rotateByRandom);
+
+		/// <summary>
+		/// Calls the Vector2.Rotate() extension, but it converts the parameters to radians
+		/// </summary>
+		/// <param name="vector">The original rotation</param>
+		/// <param name="rotateByDegrees">The absolute rotation in degrees</param>
+		/// <param name="rotateByRandomDegrees">The relative random rotation in degrees</param>
+		/// <returns></returns>
+		public static Vector2 RotateDegrees(this Vector2 vector, float rotateByDegrees, float rotateByRandomDegrees)
+			=> vector.Rotate(MathHelper.ToRadians(rotateByDegrees), MathHelper.ToRadians(rotateByRandomDegrees));
+
+		public static T[] CreateArray<T>(T defaultValue, uint size){
+			T[] arr = new T[size];
+			for(int i = 0; i < size; i++)
+				arr[i] = defaultValue;
+			return arr;
+		}
 	}
 
 	public enum CosmivengeonBoss{

@@ -313,7 +313,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 			//Changed from NPC Worm AI:  removed first if blocks
 
 			//Changed from NPC Worm AI:  removed "hit effect" and "life" setters as they don't exist
-			if(Main.netMode != 1){
+			if(Main.netMode != NetmodeID.MultiplayerClient){
 				if(!Parent.active){
 					projectile.active = false;
 				}

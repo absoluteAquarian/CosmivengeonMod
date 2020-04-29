@@ -12,7 +12,7 @@ namespace CosmivengeonMod.Items.Draek{
 		}
 
 		public override void SetDefaults(){
-			item.useStyle = 1;
+			item.useStyle = ItemUseStyleID.SwingThrow;
 			item.shoot = ModContent.ProjectileType<Projectiles.Summons.BabySnek>();
 			item.scale = 0.6667f;
 			item.width = 80;

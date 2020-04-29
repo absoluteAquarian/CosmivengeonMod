@@ -19,14 +19,14 @@ namespace CosmivengeonMod.Items.Draek{
 			item.height = (int)(108 * item.scale);
 			item.useTime = 22;
 			item.useAnimation = 22;
-			item.useStyle = 5;
+			item.useStyle = ItemUseStyleID.HoldingOut;
 			item.noMelee = true;
 			item.knockBack = 4;
 			item.value = Item.sellPrice(0, 2, 50, 0);
-			item.rare = 2;
+			item.rare = ItemRarityID.Green;
 			item.UseSound = SoundID.Item5;
 			item.autoReuse = true;
-			item.shoot = 10;		//Needed to shoot projectiles
+			item.shoot = ProjectileID.PurificationPowder;		//Needed to shoot projectiles
 			item.shootSpeed = 19f;
 			item.useAmmo = AmmoID.Arrow;
 		}

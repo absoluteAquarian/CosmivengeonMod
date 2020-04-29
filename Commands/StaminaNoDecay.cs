@@ -17,7 +17,7 @@ namespace CosmivengeonMod.Commands{
 		public override string Description => "Sets whether the Stamina Bar should decay or not.  true = no decay, false = decay";
 
 		public override void Action(CommandCaller caller, string input, string[] args){
-			//Only allow time editing if the corresponding flag is true
+			//Only allow editing if the corresponding flag is true
 			if(!CosmivengeonMod.allowStaminaNoDecay){
 				caller.Reply("Editing this flag is disabled.", Color.Red);
 				return;

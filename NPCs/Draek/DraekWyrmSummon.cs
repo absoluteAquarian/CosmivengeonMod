@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
+using System.IO;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -8,6 +10,11 @@ namespace CosmivengeonMod.NPCs.Draek{
 		private bool hasSpawned = false;
 		public int bossID = 0;
 		private int AcidSpitTimer = -1;
+		private int FastChargeTimer = -1;
+		public bool fastCharge = false;
+		private float prevSpeed;
+		private float prevTurnSpeed;
+		private int baseDefense;
 		
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Young Wyrm");
@@ -21,7 +28,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			
 			npc.aiStyle = -1;
 			npc.lifeMax = 200;
-			npc.defense = 12;
+			npc.defense = 6;
 			npc.damage = 20;
 			npc.scale = 1f;
 			npc.lavaImmune = true;
@@ -35,18 +42,21 @@ namespace CosmivengeonMod.NPCs.Draek{
 			//no body type b/c differing body segments
 			tailType = ModContent.NPCType<DraekWyrmSummon_Tail>();
 
-			speed = 7f;
+			speed = CosmivengeonUtils.GetModeChoice(7, 8, 10);
 			turnSpeed = 0.1f;
 
+			prevSpeed = speed;
+			prevTurnSpeed = turnSpeed;
+
 			fly = false;
-			maxDigDistance = 16 * 15;
+			maxDigDistance = 16 * CosmivengeonUtils.GetModeChoice(15, 10, 7);
 			customBodySegments = true;
 
-			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
+			npc.HitSound = new LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
 
 			bossID = (int)npc.ai[1];
 
-			npc.gfxOffY = -6;
+			baseDefense = npc.defense;
 		}
 
 		public override int SetCustomBodySegments(int startDistance){
@@ -56,14 +66,35 @@ namespace CosmivengeonMod.NPCs.Draek{
 			return latestNPC;
 		}
 
+		public override void SendExtraAI(BinaryWriter writer){
+			BitsByte flag = new BitsByte(hasSpawned, fastCharge);
+			writer.Write(flag);
+			writer.Write(AcidSpitTimer);
+			writer.Write((byte)bossID);
+			writer.Write(FastChargeTimer);
+			writer.Write((byte)baseDefense);
+		}
+
+		public override void ReceiveExtraAI(BinaryReader reader){
+			BitsByte flag = reader.ReadByte();
+			flag.Retrieve(ref hasSpawned, ref fastCharge);
+			AcidSpitTimer = reader.ReadInt32();
+			bossID = reader.ReadByte();
+			FastChargeTimer = reader.ReadInt32();
+			baseDefense = reader.ReadByte();
+		}
+
 		public override void AI(){
 			if(!hasSpawned){
 				hasSpawned = true;
 				npc.TargetClosest(false);
+				FastChargeTimer = Main.rand.Next(6 * 60, 10 * 60);
+				npc.netUpdate = true;
 			}
 
 			if(npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead){
 				npc.TargetClosest(true);
+				npc.netUpdate = true;
 			}
 
 			if(Vector2.Distance(npc.Center, Main.player[npc.target].Center) > 100 * 16){
@@ -85,8 +116,42 @@ namespace CosmivengeonMod.NPCs.Draek{
 					);
 
 					AcidSpitTimer = Main.rand.Next(60, 150);
+
+					npc.netUpdate = true;
 				}
 				AcidSpitTimer--;
+			}
+
+			//Check for Expert+ and the fast charge
+			if(Main.expertMode){
+				FastChargeTimer--;
+
+				if(!fastCharge && FastChargeTimer == 0){
+					//If the timer is 0, do the thing
+					fastCharge = true;
+					speed = prevSpeed + 4f;
+					turnSpeed = 0.25f;
+					FastChargeTimer = 120;
+					npc.defense = 0;
+
+					Main.PlaySound(SoundID.Item27.WithVolume(0.35f), npc.Center);
+
+					npc.netUpdate = true;
+				}else if(fastCharge && FastChargeTimer == 0){
+					fastCharge = false;
+					speed = prevSpeed;
+					turnSpeed = prevTurnSpeed;
+					FastChargeTimer = Main.rand.Next(6 * 60, 10 * 60);
+					npc.defense = baseDefense;
+
+					npc.netUpdate = true;
+				}
+			}
+
+			if(fastCharge && Main.rand.NextFloat() < 0.85f){
+				Dust dust = Dust.NewDustDirect(npc.position, npc.width, npc.height, 74);
+				dust.velocity = Vector2.Zero;
+				dust.noGravity = true;
 			}
 		}
 	}
@@ -102,7 +167,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			
 			npc.aiStyle = -1;
 			npc.lifeMax = 250;
-			npc.defense = 12;
+			npc.defense = 6;
 			npc.damage = 20;
 			npc.scale = 1f;
 			npc.lavaImmune = true;
@@ -112,9 +177,19 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 			npc.dontCountMe = true;
 
-			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
+			npc.HitSound = new LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
+		}
 
-			npc.gfxOffY = 0;
+		public override void AI(){
+			if(Main.npc[(int)npc.ai[3]].modNPC is DraekWyrmSummon_Head head){
+				if(head.fastCharge && Main.rand.NextFloat() < 0.1667){
+					Dust dust = Dust.NewDustDirect(npc.position, npc.width, npc.height, 74);
+					dust.velocity = Vector2.Zero;
+					dust.noGravity = true;
+				}
+
+				npc.defense = head.npc.defense;
+			}
 		}
 	}
 	internal class DraekWyrmSummon_Body1 : DraekWyrmSummon_Body0{
@@ -123,11 +198,10 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 			npc.width = 25;
 			npc.height = 25;
-			npc.gfxOffY = 0;
 		}
 	}
 
-	internal class DraekWyrmSummon_Tail : Worm{
+	internal class DraekWyrmSummon_Tail : DraekWyrmSummon_Body0{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Young Wyrm");
 		}
@@ -140,7 +214,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			
 			npc.aiStyle = -1;
 			npc.lifeMax = 250;
-			npc.defense = 12;
+			npc.defense = 6;
 			npc.damage = 20;
 			npc.scale = 1f;
 			npc.lavaImmune = true;
@@ -150,9 +224,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 			npc.dontCountMe = true;
 
-			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
-			
-			npc.gfxOffY = 0;
+			npc.HitSound = new LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
 		}
 	}
 }

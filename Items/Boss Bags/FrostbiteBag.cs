@@ -24,7 +24,8 @@ namespace CosmivengeonMod.Items.Boss_Bags{
 		public override bool CanRightClick() => true;
 
 		public override void OpenBossBag(Player player){
-			player.TryGettingDevArmor();
+			if(Main.hardMode)
+				player.TryGettingDevArmor();
 
 			player.QuickSpawnItem(ModContent.ItemType<EyeOfTheBlizzard>());
 

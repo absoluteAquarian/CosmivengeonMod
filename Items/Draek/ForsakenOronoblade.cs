@@ -19,19 +19,19 @@ namespace CosmivengeonMod.Items.Draek{
 				"\nwith the right tools, it could be reforged to its original state...");
 		}
 		public override void SetDefaults(){
-			item.damage = 30;
+			item.damage = 26;
 			item.melee = true;
 			item.useTurn = true;
 			item.width = 32;
 			item.height = 32;	//width and height determine dropped item's hitbox, not the actual hitbox of the sword
-			item.useTime = 19;
-			item.useAnimation = 19;
+			item.useTime = 23;
+			item.useAnimation = 23;
 			item.useStyle = ItemUseStyleID.SwingThrow;
 			item.knockBack = 6.3f;
 			item.value = Item.sellPrice(0, 2, 50, 0);
 			item.shoot = ModContent.ProjectileType<ForsakenOronobladeProjectile>();
 			item.shootSpeed = ForsakenOronobladeProjectile.ShootVelocity;
-			item.rare = 2;
+			item.rare = ItemRarityID.Green;
 			item.scale = 0.86f;
 			item.UseSound = SoundID.Item1;
 			item.autoReuse = true;

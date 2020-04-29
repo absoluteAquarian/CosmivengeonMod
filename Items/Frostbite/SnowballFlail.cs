@@ -24,7 +24,7 @@ namespace CosmivengeonMod.Items.Frostbite{
 			item.height = 40;
 			item.damage = 20;
 			item.scale = 1f;
-			item.shoot = 10;
+			item.shoot = ProjectileID.PurificationPowder;
 			item.shootSpeed = 12f;
 			item.rare = ItemRarityID.Blue;
 			item.value = Item.sellPrice(silver: 30);

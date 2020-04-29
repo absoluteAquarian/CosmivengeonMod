@@ -7,7 +7,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 	public class ForsakenOronobladeProjectile : ModProjectile{
 		public override string Texture => "CosmivengeonMod/Projectiles/Draek/DraekLaser";
 
-		public static readonly float ShootVelocity = 9f;
+		public static readonly float ShootVelocity = 8.21f;
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Poisonous Energy Blast");

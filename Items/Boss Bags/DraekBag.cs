@@ -1,6 +1,7 @@
 ﻿using CosmivengeonMod.NPCs.Draek;
 using Terraria;
 using Terraria.ModLoader;
+using Terraria.ID;
 
 namespace CosmivengeonMod.Items.Boss_Bags{
 	public class DraekBag : ModItem{
@@ -16,7 +17,7 @@ namespace CosmivengeonMod.Items.Boss_Bags{
 			item.consumable = true;
 			item.width = 32;
 			item.height = 32;
-			item.rare = 9;
+			item.rare = ItemRarityID.Cyan;
 			item.expert = true;
 		}
 
@@ -25,7 +26,8 @@ namespace CosmivengeonMod.Items.Boss_Bags{
 		}
 
 		public override void OpenBossBag(Player player){
-			player.TryGettingDevArmor();
+			if(Main.hardMode)
+				player.TryGettingDevArmor();
 
 			if(Main.expertMode && CosmivengeonWorld.desoMode && !CosmivengeonWorld.obtainedDesolator_DraekBoss){
 				player.QuickSpawnItem(ModContent.ItemType<Draek.TerraBolt>());

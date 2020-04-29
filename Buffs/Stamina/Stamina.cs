@@ -1,7 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.IO;
+using System.Linq;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 
 namespace CosmivengeonMod.Buffs.Stamina{
 	/// <summary>
@@ -19,20 +24,49 @@ namespace CosmivengeonMod.Buffs.Stamina{
 		public int Value => (int)(value * 10000f);
 		public bool Active;
 		private bool oldActive;
-		public bool Exhaustion{ get; private set; }
+		public bool Exhaustion;
 		public bool ApplyExhaustionDebuffs => Exhaustion && !ExhaustionEffectsWornOff;
 		private bool ExhaustionEffectsWornOff;
+
+		/// <summary>
+		/// How quickly the stamina bar fills when the player is in the Idle state.
+		/// Defaults to 1/4th the maximum Value per second (2500 units)
+		/// </summary>
 		public float IncreaseRate{ get; private set; }
+		/// <summary>
+		/// How quickly the stamina bar fills when the player is or was in the Exhausted state.
+		/// Defaults to 1/8th the maximum Value per second (1250 units)
+		/// </summary>
 		public float ExhaustionIncreaseRate{ get; private set; }
+		/// <summary>
+		/// How quickly the stamina bar depletes when the player is in the Active state.
+		/// Defaults to 1/5th the maximum Value per second (2000 units)
+		/// </summary>
 		public float DecreaseRate{ get; private set; }
 
-		private float DefaultIncreaseRate => 0.25f / 60f;
-		private float DefaultExhaustionIncreaseRate => 0.125f / 60f;
-		private float DefaultDecreaseRate => 0.2f / 60f;
-		private float DefaultMaxValue => 1f;
+		public static float DefaultIncreaseRate => DefaultMaxValue * 0.25f / 60f;
+		public static float DefaultExhaustionIncreaseRate => DefaultMaxValue * 0.125f / 60f;
+		public static float DefaultDecreaseRate => DefaultMaxValue * 0.2f / 60f;
+		public static float DefaultMaxValue => 1f;
+		public static float DefaultAttackSpeedBuff => 1.35f;
+		public static float DefaultAttackSpeedDebuff => 0.6667f;
+		public static float DefaultMaxMoveSpeedBuff => 1.2f;
+		public static float DefaultMaxMoveSpeedDebuff => 0.73f;
+		public static float DefaultMoveSpeedBuff => 1.33f;
+		public static float DefaultMoveSpeedDebuff => 0.84f;
 
-		private float[] Multipliers = new float[4];
-		private float[] Adders = new float[4];
+		public ref float AttackSpeedBuffMultiplier => ref Multipliers[4];
+		public ref float AttackSpeedDebuffMultiplier => ref Multipliers[7];
+		public ref float MaxMoveSpeedBuffMultiplier => ref Multipliers[5];
+		public ref float MaxMoveSpeedDebuffMultiplier => ref Multipliers[9];
+		public ref float MoveSpeedBuffMultiplier => ref Multipliers[7];
+		public ref float MoveSpeedDebuffMultiplier => ref Multipliers[8];
+
+		public float[] Multipliers = DefaultMults;
+		public float[] Adders = DefaultAdds;
+
+		private static float[] DefaultMults => CosmivengeonUtils.CreateArray(1f, 10);
+		private static float[] DefaultAdds => CosmivengeonUtils.CreateArray(0f, 4);
 
 		private const int RegenDelay = 45;
 		private int RegenDelayTimer;
@@ -62,11 +96,19 @@ namespace CosmivengeonMod.Buffs.Stamina{
 		public static Vector2 BackDrawPos => new Vector2(Main.screenWidth - 650, 30);
 		public static Vector2 BarDrawPos => BackDrawPos + new Vector2(58, 14);
 
-		public Stamina(Player player){
+		public readonly bool Empty = false;
+
+		public Stamina(Player player = null){
+			if(player is null){
+				Empty = true;
+				return;
+			}
+
 			Parent = player;
 			NoDecay = false;
 
 			value = DefaultMaxValue;
+			maxValue = DefaultMaxValue;
 			Active = false;
 			oldActive = false;
 			Exhaustion = false;
@@ -87,9 +129,77 @@ namespace CosmivengeonMod.Buffs.Stamina{
 			BarGray = ModContent.GetTexture("CosmivengeonMod/Buffs/Stamina/UIBar_Gray");
 		}
 
-		public void Update(){
-			if(!CosmivengeonWorld.desoMode)
+		public void Clone(Stamina other){
+			if(Empty)
 				return;
+
+			value = other.value;
+			Active = other.Active;
+			oldActive = other.oldActive;
+			Exhaustion = other.Exhaustion;
+			ExhaustionEffectsWornOff = other.ExhaustionEffectsWornOff;
+			maxValue = other.maxValue;
+			NoDecay = other.NoDecay;
+			StartRegen = other.StartRegen;
+			RegenDelayTimer = other.RegenDelayTimer;
+			Parent = other.Parent;
+			Multipliers = other.Multipliers;
+			Adders = other.Adders;
+		}
+
+		public void SendData(ModPacket packet){
+			if(Empty)
+				return;
+
+			BitsByte flag = new BitsByte(Active, oldActive, Exhaustion, ExhaustionEffectsWornOff, NoDecay, StartRegen);
+
+			packet.Write(value);
+			packet.Write(maxValue);
+			packet.Write(RegenDelayTimer);
+			packet.Write(flag);
+			packet.Write((byte)Parent.whoAmI);
+		}
+
+		/// <summary>
+		/// Assumes that this is being called within a syncing hook.
+		/// </summary>
+		public void ReceiveData(BinaryReader reader){
+			value = reader.ReadSingle();
+			maxValue = reader.ReadSingle();
+			RegenDelayTimer = reader.ReadInt32();
+
+			BitsByte flag = reader.ReadByte();
+			flag.Retrieve(ref Active, ref oldActive, ref Exhaustion, ref ExhaustionEffectsWornOff, ref NoDecay, ref StartRegen);
+
+			Parent = Main.player[reader.ReadByte()];
+		}
+
+		public TagCompound GetTagCompound() => new TagCompound(){
+			["value"] = value,
+			["maxValue"] = maxValue,
+			["multipliers"] = Multipliers.ToList(),
+			["adders"] = Adders.ToList()
+		};
+
+		public void ParseCompound(TagCompound tag){
+			value = tag.GetFloat("value");
+			maxValue = tag.GetFloat("maxValue");
+			//These lists in the tag can be 'null' if this is a new character or one that doesn't have any Stamina data yet
+			Multipliers = tag.GetList<float>("multipliers")?.ToArray() ?? DefaultMults;
+			Adders = tag.GetList<float>("adders")?.ToArray() ?? DefaultAdds;
+		}
+
+		public void Update(){
+			if(Empty)
+				return;
+
+			if(!CosmivengeonWorld.desoMode){
+				if(value < 0.175f * maxValue)
+					value = 0.175f * maxValue;
+				return;
+			}
+
+			ApplyEffects();
 
 			if(NoDecay){
 				value = maxValue;
@@ -98,8 +208,6 @@ namespace CosmivengeonMod.Buffs.Stamina{
 				StartRegen = false;
 				goto End;
 			}
-
-			ApplyEffects();
 
 			//If enabled and it's just been depleted, activate Exhaustion
 			if(!Exhaustion && Active && value - DecreaseRate < 0f){
@@ -113,12 +221,12 @@ namespace CosmivengeonMod.Buffs.Stamina{
 				StartRegen = false;
 			}
 
-			//Cap value at 1f and deactivate Exhaustion if active
-			if((!Active || Exhaustion) && value + GetIncreaseRate() > 1f){
+			//Cap value at maxValue and deactivate Exhaustion if active
+			if((!Active || Exhaustion) && value + GetIncreaseRate() > maxValue){
 				Exhaustion = false;
 				StartRegen = false;
 				ExhaustionEffectsWornOff = false;
-				value = 1f;
+				value = maxValue;
 			}
 
 			//Check which decrease to use, increase otherwise
@@ -127,13 +235,13 @@ namespace CosmivengeonMod.Buffs.Stamina{
 			else if(!Active && StartRegen)
 				value += GetIncreaseRate();
 
-			if(!StartRegen && !Active && value < 1f)
+			if(!StartRegen && !Active && value < maxValue)
 				RegenDelayTimer--;
 			if(RegenDelayTimer == 0 && !StartRegen)
 				StartRegen = true;
 			FlashTimer++;
 
-			if(ApplyExhaustionDebuffs && value > 0.175f)
+			if(ApplyExhaustionDebuffs && value > 0.175f * maxValue)
 				ExhaustionEffectsWornOff = true;
 
 End:
@@ -144,9 +252,15 @@ End:
 				Parent.AddBuff(ModContent.BuffType<EnergizedBuff>(), 2);
 			else if(ApplyExhaustionDebuffs)
 				Parent.AddBuff(ModContent.BuffType<ExhaustedDebuff>(), 2);
+
+			if(value > maxValue)
+				value = maxValue;
 		}
 
 		public Texture2D GetBackTexture(){
+			if(Empty)
+				return Main.magicPixel;
+
 			if(Exhaustion)
 				return BackGray;
 			else if(value > FlashThreshold)
@@ -157,6 +271,9 @@ End:
 		}
 
 		public Texture2D GetBarTexture(){
+			if(Empty)
+				return Main.magicPixel;
+
 			if(Exhaustion)
 				return BarGray;
 			else if(value > FlashThreshold)
@@ -166,22 +283,23 @@ End:
 			return BarRed;
 		}
 
-		public Rectangle GetBarRect() => new Rectangle(0, 0, (int)(GetBarTexture().Width * value), GetBarTexture().Height);
+		public Rectangle GetBarRect() => Empty ? Rectangle.Empty : new Rectangle(0, 0, (int)(GetBarTexture().Width * (value / maxValue)), GetBarTexture().Height);
 
-		public string GetHoverText() => $"{Value:D5}/10000";
+		public string GetHoverText() => Empty ? "0/0" : $"{Value:D5}/{MaxValue}";
 
-		public float UseTimeMultiplier() => CosmivengeonWorld.desoMode ? (ApplyExhaustionDebuffs ? 0.6667f : (Active ? 1.35f : 1f)) : 1f;
+		public float UseTimeMultiplier()
+			=> CosmivengeonWorld.desoMode && !Empty ? (ApplyExhaustionDebuffs ? AttackSpeedDebuffMultiplier * DefaultAttackSpeedDebuff : (Active ? AttackSpeedBuffMultiplier * DefaultAttackSpeedBuff : 1f)) : 1f;
 
 		/// <summary>
 		/// Called in ModPlayer.PostUpdateRunSpeeds()
 		/// </summary>
 		public void RunSpeedChange(){
-			if(!CosmivengeonWorld.desoMode)
+			if(!CosmivengeonWorld.desoMode || Empty)
 				return;
 
-			Parent.moveSpeed *= ApplyExhaustionDebuffs ? 0.84f : (Active ? 1.33f : 1f);
+			Parent.moveSpeed *= ApplyExhaustionDebuffs ? MoveSpeedDebuffMultiplier * DefaultMoveSpeedDebuff : (Active ? MoveSpeedBuffMultiplier * DefaultMoveSpeedBuff : 1f);
 
-			float runSpeedMult = ApplyExhaustionDebuffs ? 0.73f : (Active ? 1.2f : 1f);
+			float runSpeedMult = ApplyExhaustionDebuffs ? MaxMoveSpeedDebuffMultiplier * DefaultMaxMoveSpeedDebuff : (Active ? MaxMoveSpeedBuffMultiplier * DefaultMaxMoveSpeedBuff : 1f);
 			Parent.maxRunSpeed *= runSpeedMult;
 			Parent.accRunSpeed *= runSpeedMult;
 		}
@@ -190,7 +308,7 @@ End:
 		/// Called in ModPlayer.PreUpdate()
 		/// </summary>
 		public void FallSpeedDebuff(){
-			if(!CosmivengeonWorld.desoMode)
+			if(!CosmivengeonWorld.desoMode || Empty)
 				return;
 
 			Parent.gravity *= ApplyExhaustionDebuffs ? 1.3f : 1f;
@@ -201,21 +319,27 @@ End:
 		/// Resets this Stamina's rates to default.  Should only be called in a ResetEffects() hook.
 		/// </summary>
 		public void Reset(){
+			if(Empty)
+				return;
+
 			IncreaseRate = DefaultIncreaseRate;
 			ExhaustionIncreaseRate = DefaultExhaustionIncreaseRate;
 			DecreaseRate = DefaultDecreaseRate;
 			maxValue = DefaultMaxValue;
 
-			Multipliers = new float[4]{ 1f, 1f, 1f, 1f };
-			Adders = new float[4]{ 0f, 0f, 0f, 0f };
+			Multipliers = DefaultMults;
+			Adders = DefaultAdds;
 		}
 
 		/// <summary>
-		/// Resets this Stamina's "value" to 1 ONLY if its Parent is dead.  Use in ModPlayer.UpdateDead()
+		/// Resets this Stamina's "value" to "maxValue" ONLY if its Parent is dead.  Use in ModPlayer.UpdateDead()
 		/// </summary>
 		public void ResetValue(){
+			if(Empty)
+				return;
+
 			if(Parent.dead)
-				value = MaxValue / 10000f;
+				value = maxValue;
 		}
 
 		/// <summary>
@@ -229,7 +353,10 @@ End:
 		/// <param name="decMult">A scalar change to DecreaseRate.  Applied before <paramref name="decAdd"/>.</param>
 		/// <param name="maxAdd">The direct increase to MaxValue.</param>
 		/// <param name="maxMult">A scalar change to MaxValue.  Applied before <paramref name="maxAdd"/>.</param>
-		public void SetEffects(float incAdd = 0f, float exIncAdd = 0f, float decAdd = 0f, float incMult = 1f, float exIncMult = 1f, float decMult = 1f, int maxAdd = 0, float maxMult = 1f){
+		public void AddEffects(float incAdd = 0f, float exIncAdd = 0f, float decAdd = 0f, float incMult = 0f, float exIncMult = 0f, float decMult = 0f, int maxAdd = 0, float maxMult = 0f){
+			if(Empty)
+				return;
+
 			Multipliers[0] += incMult;
 			Adders[0] += incAdd;
 			Multipliers[1] += exIncMult;
@@ -240,13 +367,22 @@ End:
 			Adders[3] += maxAdd / 10000f;
 		}
 
-		private void ApplyEffects(){
+		public void ApplyEffects(){
+			if(Empty)
+				return;
+
+			//Apply the boss buffs, if any should be applied
+			CosmivengeonPlayer mp = Parent.GetModPlayer<CosmivengeonPlayer>();
+			foreach(var thing in StaminaBuffsGlobalNPC.BuffActions)
+				if(mp.BossesKilled.Contains(thing.Key))
+					thing.Value(this);
+
 			IncreaseRate = IncreaseRate * Multipliers[0] + Adders[0];
 			ExhaustionIncreaseRate = ExhaustionIncreaseRate * Multipliers[1] + Adders[1];
 			DecreaseRate = DecreaseRate * Multipliers[2] + Adders[2];
 			maxValue = maxValue * Multipliers[3] + Adders[3];
 		}
 
-		public float GetIncreaseRate() => Exhaustion ? ExhaustionIncreaseRate : IncreaseRate;
+		public float GetIncreaseRate() => Empty ? 0f : (Exhaustion ? ExhaustionIncreaseRate : IncreaseRate);
 	}
 }

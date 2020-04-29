@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using CosmivengeonMod.Items.Boss_Bags;
 using Microsoft.Xna.Framework;
@@ -133,6 +134,47 @@ namespace CosmivengeonMod.NPCs.Draek{
 		private float prevSpeed;
 		private float prevTurnSpeed;
 
+		public override void SendExtraAI(BinaryWriter writer){
+			BitsByte flag = new BitsByte(switchDesoModeSubphaseSet, hasSpawned, switchPhases, switchSubPhases, desoMode_enrageTextPrinted);
+
+			writer.Write(flag);
+			writer.Write((byte)CurrentPhase);
+			writer.Write((byte)desomode_subphase);
+			writer.Write(curLifeRatio);
+			writer.Write((byte)desoModeSubphaseSet);
+			writer.Write((byte)attackPhase);
+			writer.Write((byte)attackProgress);
+			writer.Write(attackTimer);
+			writer.Write(spitTimer);
+			writer.Write(laserTimer);
+			writer.Write(explosionTimer);
+			writer.Write((byte)SummonedWyrms);
+			writer.Write(prevSpeed);
+			writer.Write(prevTurnSpeed);
+			writer.Write(CustomTarget.X);
+			writer.Write(CustomTarget.Y);
+		}
+
+		public override void ReceiveExtraAI(BinaryReader reader){
+			BitsByte flag = reader.ReadByte();
+			flag.Retrieve(ref switchDesoModeSubphaseSet, ref hasSpawned, ref switchPhases, ref switchSubPhases, ref desoMode_enrageTextPrinted);
+			CurrentPhase = reader.ReadByte();
+			desomode_subphase = reader.ReadByte();
+			curLifeRatio = reader.ReadSingle();
+			desoModeSubphaseSet = reader.ReadByte();
+			attackPhase = reader.ReadByte();
+			attackProgress = reader.ReadByte();
+			attackTimer = reader.ReadInt32();
+			spitTimer = reader.ReadInt32();
+			laserTimer = reader.ReadInt32();
+			explosionTimer = reader.ReadInt32();
+			SummonedWyrms = reader.ReadByte();
+			prevSpeed = reader.ReadSingle();
+			prevTurnSpeed = reader.ReadSingle();
+			CustomTarget.X = reader.ReadSingle();
+			CustomTarget.Y = reader.ReadSingle();
+		}
+
 		public override bool CheckActive(){
 			return Vector2.Distance(npc.Center, CustomTarget) > 200 * 16;
 		}
@@ -215,11 +257,13 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		public override void ModifyHitByProjectile(Projectile projectile, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
-			damage = (int)((projectile.maxPenetrate < 1 ? 0.2f : 1f / projectile.maxPenetrate) * damage);
+			if(CosmivengeonWorld.desoMode)
+				damage = (int)((projectile.maxPenetrate < 1 ? 0.2f : 1f / projectile.maxPenetrate) * damage);
 		}
 
 		public override void OnHitPlayer(Player target, int damage, bool crit){
-			target.AddBuff(ModContent.BuffType<Buffs.PrimordialWrath>(), 150);
+			if(CosmivengeonWorld.desoMode)
+				target.AddBuff(ModContent.BuffType<Buffs.PrimordialWrath>(), 150);
 		}
 
 		public override void AI(){
@@ -229,22 +273,20 @@ namespace CosmivengeonMod.NPCs.Draek{
 				npc.TargetClosest(true);
 				hasSpawned = true;
 
-				Main.NewText("MY JEWEL!", Draek.TextColour);
-				Main.NewText("AARG, YOU'LL PAY FOR THAT, YOU WRETCHED LITTLE WORM!", Draek.TextColour);
+				CosmivengeonUtils.SendMessage("MY JEWEL!", Draek.TextColour);
+				CosmivengeonUtils.SendMessage("AARG, YOU'LL PAY FOR THAT, YOU WRETCHED LITTLE WORM!", Draek.TextColour);
 
 				if(CosmivengeonWorld.desoMode){
 					CurrentPhase = Phase_2_DesoMode;
 					attackPhase = DesoMode_subphase0;
 				}
-
-				//Check if this was spawned using CheatSheet or other means not through Phase 1
 			}
 
 			if((npc.life < npc.lifeMax * 0.3 && CurrentPhase == Phase_2) || (npc.life < npc.lifeMax * 0.4f && CosmivengeonWorld.desoMode && !desoMode_enrageTextPrinted)){
 				switchPhases = true;
 				desoMode_enrageTextPrinted = true;
 
-				Main.NewText("YOU ACCURSED INSECT!  I'LL BURY YOU ALIVE!", Draek.TextColour);
+				CosmivengeonUtils.SendMessage("YOU ACCURSED INSECT!  I'LL BURY YOU ALIVE!", Draek.TextColour);
 			}
 
 			//If we're in desolation mode, we want to force the changed Berserker subphase when possible
@@ -252,6 +294,19 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 			CheckSubphaseChange();
 			CheckPhaseChange();
+
+			if(Main.expertMode){
+				SummonedWyrms = UpdateWyrmCount();
+
+				CosmivengeonGlobalNPC gnpc = npc.GetGlobalNPC<CosmivengeonGlobalNPC>();
+
+				if(SummonedWyrms > 0){
+					gnpc.endurance += CosmivengeonWorld.desoMode ? 0.2f : 0.4f;
+
+					for(int i = 0; i < Segments.Count; i++)
+						Segments[i].npc.GetGlobalNPC<CosmivengeonGlobalNPC>().endurance = gnpc.endurance;
+				}
+			}
 
 			if(CurrentPhase == Phase_2){
 				float wormSpeed = Main.expertMode ? speed_subphase0_expert : speed_subphase0_normal;
@@ -262,7 +317,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 				}else if(attackPhase == Summon){
 					int count = Main.expertMode ? summonCount_expert : summonCount_normal;
 
-					AI_Summon(count, 15, true, 0f);
+					AI_Summon(count, 15);
 				}else if(attackPhase == Worm_subphase2){
 					AI_Worm(wormSpeed, wormTurnSpeed, 4 * 60);
 				}else if(attackPhase == Mega_Charge){
@@ -281,7 +336,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 				}else if(attackPhase == Enraged_Summon){
 					int count = Main.expertMode ? summonCount_enraged_expert : summonCount_enraged_normal;
 
-					AI_Summon(count, 10, true, 0f);
+					AI_Summon(count, 10);
 				}else if(attackPhase == Enraged_Worm_subphase2){
 					AI_Worm(wormSpeed, wormTurnSpeed, 3 * 60);
 				}else if(attackPhase == Enraged_Mega_Charge){
@@ -314,6 +369,11 @@ namespace CosmivengeonMod.NPCs.Draek{
 			}
 
 			attackTimer++;
+		}
+
+		public override void UpdateLifeRegen(ref int damage){
+			if(Main.expertMode && SummonedWyrms > 0)
+				npc.lifeRegen += SummonedWyrms * (CosmivengeonWorld.desoMode ? 10 : 15);
 		}
 
 		private void TryForceDesoModeSubphaseChange(){
@@ -368,6 +428,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 			attackProgress = 0;
 			switchSubPhases = false;
 			switchDesoModeSubphaseSet = false;
+
+			npc.netUpdate = true;
 		}
 
 		private void CheckPhaseChange(){
@@ -381,13 +443,15 @@ namespace CosmivengeonMod.NPCs.Draek{
 			attackProgress = 0;
 			switchPhases = false;
 			switchSubPhases = false;
+
+			npc.netUpdate = true;
 		}
 
 		private int UpdateWyrmCount(){
 			int wyrms = 0;
 			
 			for(int i = 0; i < Main.npc.Length; i++){
-				if(Main.npc[i].type == ModContent.NPCType<Summon>() && (int)Main.npc[i].ai[1] == npc.whoAmI && Main.npc[i].active)
+				if(Main.npc[i].active && Main.npc[i].type == ModContent.NPCType<Summon>() && (int)Main.npc[i].ai[2] == npc.whoAmI)
 					wyrms++;
 			}
 			
@@ -395,7 +459,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		private void AI_Spit(){
-			if(spitTimer < 0){
+			if(spitTimer < 0 && Main.netMode != NetmodeID.MultiplayerClient){
 				npc.SpawnProjectile(npc.Center,
 					Vector2.Zero,
 					ModContent.ProjectileType<Projectiles.Draek.DraekAcidSpit>(),
@@ -407,6 +471,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 				);
 
 				spitTimer = Main.rand.Next(120, 180);
+
+				npc.netUpdate = true;
 			}
 		}
 
@@ -420,31 +486,25 @@ namespace CosmivengeonMod.NPCs.Draek{
 				switchSubPhases = true;
 		}
 
-		private void AI_Summon(int times, int waitBetween, bool randomAngle, params float[] angles){
-			SummonedWyrms = UpdateWyrmCount();
-
+		private void AI_Summon(int times, int waitBetween){
 			if(attackProgress >= times || SummonedWyrms == times){
 				switchSubPhases = true;
 				return;
 			}
 
-			if(attackTimer < waitBetween)
+			if(attackTimer < waitBetween || Main.netMode == NetmodeID.MultiplayerClient)
 				return;
 			
-			float rotation;
 			Vector2 range = npc.Center + new Vector2(Main.rand.NextFloat(-5 * 16, 5 * 16), Main.rand.NextFloat(-5 * 16, 5 * 16));
 			
-			if(randomAngle)
-				rotation = Main.rand.NextFloat(0, 2 * MathHelper.Pi);
-			else
-				rotation = angles[attackProgress];
-			
-			NPC.NewNPC((int)range.X, (int)range.Y, ModContent.NPCType<Summon>(), ai1: npc.whoAmI, ai2: rotation);
+			NPC.NewNPC((int)range.X, (int)range.Y, ModContent.NPCType<Summon>(), ai2: npc.whoAmI);
 			
 			SummonedWyrms++;
 
 			attackProgress++;
 			attackTimer = 0;
+
+			npc.netUpdate = true;
 		}
 
 		private void AI_MegaCharge(int delay, int flyTime, int rockCount, float targetTolerance){
@@ -597,6 +657,9 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		private void RockExplosion(){
+			if(Main.netMode == NetmodeID.MultiplayerClient)
+				return;
+
 			//Generate 10-16 small rocks going in several different directions and velocity changes
 			int amount = Main.rand.Next(10, 17);
 
@@ -684,7 +747,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		public override void OnHitPlayer(Player target, int damage, bool crit){
-			target.AddBuff(ModContent.BuffType<Buffs.PrimordialWrath>(), 150);
+			if(CosmivengeonWorld.desoMode)
+				target.AddBuff(ModContent.BuffType<Buffs.PrimordialWrath>(), 150);
 		}
 
 		public override void ScaleExpertStats(int numPlayers, float bossLifeScale){
@@ -692,7 +756,12 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		public override void ModifyHitByProjectile(Projectile projectile, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
-			damage = (int)((projectile.maxPenetrate < 1 ? 0.2 : 1f / projectile.maxPenetrate) * damage);
+			if(CosmivengeonWorld.desoMode)
+				damage = (int)((projectile.maxPenetrate < 1 ? 0.2 : 1f / projectile.maxPenetrate) * damage);
+		}
+
+		public override bool CheckActive(){
+			return Vector2.Distance(npc.Center, (Main.npc[(int)npc.ai[3]].modNPC as Worm)?.CustomTarget ?? npc.Center) > 200 * 16;
 		}
 	}
 	internal class DraekP2_Body1 : DraekP2_Body0{

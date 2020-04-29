@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.IO;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -37,6 +38,26 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 
 		private int activeTime = 15 * 60;
 
+		public override void SendExtraAI(BinaryWriter writer){
+			writer.Write(spawned);
+			writer.Write((byte)AI_State);
+			writer.Write(AI_Timer);
+			writer.Write((byte)PlayerTarget.whoAmI);
+			writer.Write((byte)Parent.whoAmI);
+			writer.Write(frameCount);
+			writer.Write(activeTime);
+		}
+
+		public override void ReceiveExtraAI(BinaryReader reader){
+			spawned = reader.ReadByte() == 1;
+			AI_State = reader.ReadByte();
+			AI_Timer = reader.ReadInt32();
+			PlayerTarget = Main.player[reader.ReadByte()];
+			Parent = Main.npc[reader.ReadByte()];
+			frameCount = reader.ReadByte();
+			activeTime = reader.ReadInt32();
+		}
+
 		public override void FindFrame(int frameHeight){
 			if(AI_Timer % 15 == 0)
 				npc.frame.Y = ++frameCount % Main.npcFrameCount[npc.type] * frameHeight;
@@ -49,6 +70,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				PlayerTarget = Main.player[npc.target];
 				Parent = Main.npc[(int)npc.ai[0]];
 				npc.velocity = new Vector2(npc.ai[1], npc.ai[2]);
+
+				npc.netUpdate = true;
 			}
 
 			if(activeTime < 0 || !Parent.active || Parent.townNPC || !Parent.boss || Parent.friendly){
@@ -64,6 +87,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				else{
 					npc.velocity = Vector2.Normalize(npc.velocity) * TargetSpeed;
 					AI_State++;
+
+					npc.netUpdate = true;
 				}
 			}else if(AI_State == AI_FollowPlayer){
 				npc.velocity *= 0.9427f;
@@ -83,6 +108,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 						20,
 						4f
 					);
+
+					npc.netUpdate = true;
 				}
 			}
 

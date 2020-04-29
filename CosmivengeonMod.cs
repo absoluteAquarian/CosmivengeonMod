@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Terraria;
 using Terraria.ID;
-using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Linq;
@@ -16,6 +15,11 @@ using CosmivengeonMod.Items.Masks;
 using CosmivengeonMod.Items.Boss_Bags;
 using CosmivengeonMod.Items.Draek;
 using Terraria.Localization;
+using System.IO;
+using Terraria.ModLoader;
+using Terraria.GameContent.UI;
+using CosmivengeonMod.NPCs.Frostbite;
+using CosmivengeonMod.NPCs.Draek;
 
 namespace CosmivengeonMod{
 	public class CosmivengeonMod : Mod{
@@ -24,6 +28,7 @@ namespace CosmivengeonMod{
 		public static bool debug_canUsePotentiometer;
 		public static bool debug_canUseCrazyHand;
 		public static bool debug_canUseCalamityChecker;
+		public static bool debug_canClearBossIDs;
 
 		public static bool allowModFlagEdit;
 		public static bool allowWorldFlagEdit;
@@ -111,15 +116,17 @@ namespace CosmivengeonMod{
 			calamityInstanceLoadAttempted = false;
 			bossCheckListInstance = null;
 			bossCheckListInstanceLoadAttempted = false;
+			StaminaBuffsGlobalNPC.BossKilled = null;
+			StaminaBuffsGlobalNPC.BuffActions = null;
 		}
 
 		public override void PostSetupContent(){
 			//Set the boss's position in BossChecklist if the mod is active
 			//see:  https://github.com/JavidPack/BossChecklist/wiki/Support-using-Mod-Call
-			
+
 			if(BossChecklistActive){
 				//2.7f ==> just before Eater of Worlds
-				_ = BossChecklistInstance.Call("AddBoss",
+				BossChecklistInstance.Call("AddBoss",
 					2.7f,
 					new List<int>(){
 						ModContent.NPCType<NPCs.Draek.Draek>(),
@@ -152,7 +159,7 @@ namespace CosmivengeonMod{
 				);
 
 				//1.5f ==> between Slime King and Eye of Cthulhu
-				_ = BossChecklistInstance.Call("AddBoss",
+				BossChecklistInstance.Call("AddBoss",
 					1.5f,
 					ModContent.NPCType<NPCs.Frostbite.Frostbite>(),
 					this,
@@ -182,6 +189,116 @@ namespace CosmivengeonMod{
 					"CosmivengeonMod/NPCs/Frostbite/Frostbite_BossLog"
 				);
 			}
+
+			//Initialize the stamina buff dictionary
+	/*		StaminaBuffsGlobalNPC.BossKilled = new Dictionary<int, bool>(){
+				//Vanilla bosses
+				[NPCID.KingSlime] = false,
+				[NPCID.EyeofCthulhu] = false,
+				[NPCID.EaterofWorldsHead] = false,
+				[NPCID.BrainofCthulhu] = false,
+				[NPCID.QueenBee] = false,
+				[NPCID.SkeletronHead] = false,
+				[NPCID.WallofFlesh] = false,
+				[NPCID.Retinazer] = false,
+				[NPCID.SkeletronPrime] = false,
+				[NPCID.TheDestroyer] = false,
+				[NPCID.Plantera] = false,
+				[NPCID.Golem] = false,
+				[NPCID.DukeFishron] = false,
+				[NPCID.CultistBoss] = false,
+				[NPCID.MoonLordCore] = false,
+				//Vanilla minibosses
+				[NPCID.DD2DarkMageT1] = false,
+				[NPCID.DD2OgreT2] = false,
+				[NPCID.DD2Betsy] = false,
+				[NPCID.MourningWood] = false,
+				[NPCID.Pumpking] = false,
+				[NPCID.Everscream] = false,
+				[NPCID.SantaNK1] = false,
+				[NPCID.IceQueen] = false,
+				//Cosmivengeon bosses
+				[ModContent.NPCType<Frostbite>()] = false,
+				[ModContent.NPCType<DraekP2Head>()] = false
+			};
+	*/
+			StaminaBuffsGlobalNPC.BossKilled = new Dictionary<int, bool>();
+			StaminaBuffsGlobalNPC.BuffActions = new Dictionary<int, Action<Stamina>>();
+			StaminaBuffsGlobalNPC.OnKillMessages = new Dictionary<int, string>();
+
+			//Vanilla bosses
+			AddStaminaBossBuff(NPCID.KingSlime,
+				"Defeating the monarch of slime has loosened up your muscles, allowing you to use Stamina for longer and recover from Exhaustion faster." +
+					"\nIdle increase rate: +10%, Exhausted increase rate: +6%, Active use rate: -3.5%, Maximum Stamina: +1000 units",
+				stamina => {
+					stamina.AddEffects(incMult: 0.1f, exIncMult: 0.06f, decMult: -0.035f, maxAdd: 1000);
+				});
+			AddStaminaBossBuff(NPCID.EyeofCthulhu,
+				"Defeating the master observer of the night has honed your senses, allowing you to move and attack faster while in the Active state." +
+					"\nActive attack speed rate: -8%, Active move acceleration rate: +6%, Active max move speed: +5%",
+				stamina => {
+					stamina.AttackSpeedBuffMultiplier += 0.08f;
+					stamina.MoveSpeedBuffMultiplier += 0.06f;
+					stamina.MaxMoveSpeedBuffMultiplier += 0.05f;
+				});
+			AddStaminaBossBuff(NPCID.EaterofWorldsHead,
+				"Defeating the grotesque harbinger from the Corruption has strengthened your resolve, reducing the harmful effects from Exhaustion." +
+					"\nExhaustion attack speed rate: +3%, Exhaustion move acceleration rate: +4%, Exhaustion max move speed: +5.75%, Exhausted increase rate: +6%",
+				stamina => {
+					stamina.AddEffects(exIncMult: 0.06f);
+					stamina.AttackSpeedDebuffMultiplier += 0.03f;
+					stamina.MoveSpeedDebuffMultiplier += 0.04f;
+					stamina.MaxMoveSpeedDebuffMultiplier += 0.0575f;
+				});
+			AddStaminaBossBuff(NPCID.BrainofCthulhu,
+				"Defeating the Crimson's mastermind has sharpened your wits, letting you react faster to your surroundings." +
+					"\nActive attack speed rate: -6.5%, Active move acceleration rate: +7%, Active max move speed: +4%",
+				stamina => {
+					stamina.AttackSpeedBuffMultiplier += 0.065f;
+					stamina.MoveSpeedBuffMultiplier += 0.07f;
+					stamina.MaxMoveSpeedBuffMultiplier += 0.04f;
+				});
+			AddStaminaBossBuff(NPCID.SkeletronHead,
+				"Defeating the cursed guardian of the Dungeon has further increased your control over your Stamina." +
+					"\nAll Active buffs: +5% (-5% for attack rate), All Exhaustion debuffs: +3.125%, Idle increase rate: +22.5%, Active use rate: -6%, Maximum Stamina: +2500 units",
+				stamina => {
+					stamina.AddEffects(incMult: 0.225f, exIncMult: 0.08f, decMult: -0.06f, maxAdd: 2500);
+					stamina.AttackSpeedBuffMultiplier += 0.05f;
+					stamina.MoveSpeedBuffMultiplier += 0.05f;
+					stamina.MaxMoveSpeedBuffMultiplier += 0.05f;
+					stamina.AttackSpeedDebuffMultiplier += 0.03125f;
+					stamina.MoveSpeedDebuffMultiplier += 0.03125f;
+					stamina.MaxMoveSpeedDebuffMultiplier += 0.03125f;
+				});
+			// TODO: add the rest of the vanilla boss stuff
+			//Vanilla minibosses
+			// TODO: add the vanilla miniboss stuff
+			//Cosmivengeon bosses
+			AddStaminaBossBuff(ModContent.NPCType<Frostbite>(),
+				"Defeating the mutant frost demon has boosted your resistance to the effects of Exhaustion." +
+					"\nExhaustion attack speed rate: +2.25%, Exhaustion move acceleration rate: +1.25%, Exhaustion max move speed: +2.5%, Exhaustion increase rate: +5%",
+				stamina => {
+					stamina.AddEffects(exIncMult: 0.05f);
+					stamina.AttackSpeedDebuffMultiplier += 0.0225f;
+					stamina.MoveSpeedDebuffMultiplier += 0.0125f;
+					stamina.MaxMoveSpeedDebuffMultiplier += 0.025f;
+				});
+			AddStaminaBossBuff(ModContent.NPCType<DraekP2Head>(),
+				"Defeating the serpentine master of the Forest has taught you to steady your form, allowing you to use your Stamina for longer and slightly increasing its benefits." +
+					"\nIdle increase rate: +18%, Active use rate: -7.5%, All Active buffs: +2% (-2% for attack rate), Maximum Stamina: +1500 units",
+				stamina => {
+					stamina.AddEffects(incMult: 0.18f, decMult: -0.075f, maxAdd: 1500);
+					stamina.AttackSpeedBuffMultiplier += 0.02f;
+					stamina.MoveSpeedBuffMultiplier += 0.02f;
+					stamina.MaxMoveSpeedBuffMultiplier += 0.02f;
+				});
+			// TODO: add the rest of the Cosmivengeon boss stuff
+		}
+
+		private static void AddStaminaBossBuff(int type, string message, Action<Stamina> action){
+			StaminaBuffsGlobalNPC.BossKilled.Add(type, false);
+			StaminaBuffsGlobalNPC.BuffActions.Add(type, action);
+			StaminaBuffsGlobalNPC.OnKillMessages.Add(type, message);
 		}
 
 		public static void DeactivateCalamityRevengeance(){
@@ -232,9 +349,38 @@ namespace CosmivengeonMod{
 				new RecipeGroup(() => $"{Language.GetTextValue("LegacyMisc.37")} {Lang.GetItemNameValue(ItemID.ShadowScale)}",
 					new int[]{ ItemID.ShadowScale, ItemID.TissueSample }));
 		}
+
+		public override void HandlePacket(BinaryReader reader, int whoAmI){
+			CosmivengeonModMessageType message = (CosmivengeonModMessageType)reader.ReadByte();
+
+			switch(message){
+				case CosmivengeonModMessageType.SyncPlayer:
+					byte clientWhoAmI = reader.ReadByte();
+					CosmivengeonPlayer mp = Main.player[clientWhoAmI].GetModPlayer<CosmivengeonPlayer>();
+					mp.stamina.ReceiveData(reader);
+					break;
+				case CosmivengeonModMessageType.StaminaChanged:
+					clientWhoAmI = reader.ReadByte();
+					mp = Main.player[clientWhoAmI].GetModPlayer<CosmivengeonPlayer>();
+					mp.stamina.ReceiveData(reader);
+
+					if(Main.netMode == NetmodeID.Server){
+						ModPacket packet = GetPacket();
+						packet.Write((byte)CosmivengeonModMessageType.StaminaChanged);
+						packet.Write(clientWhoAmI);
+						mp.stamina.SendData(packet);
+						packet.Send(-1, clientWhoAmI);
+					}
+					break;
+				default:
+					Logger.WarnFormat("CosmivengeonMod: Unknown message type: {0}", message);
+					break;
+			}
+		}
 	}
 
 	internal enum CosmivengeonModMessageType : byte{
-		SyncPlayer
+		SyncPlayer,
+		StaminaChanged
 	}
 }

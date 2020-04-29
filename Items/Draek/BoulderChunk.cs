@@ -17,13 +17,13 @@ namespace CosmivengeonMod.Items.Draek{
 			item.shootSpeed = BoulderChunkProjectile.MAX_VELOCITY;
 			item.damage = 58;
 			item.knockBack = 7.9f;
-			item.useStyle = 1;
+			item.useStyle = ItemUseStyleID.SwingThrow;
 			item.useAnimation = 30;
 			item.useTime = 30;
 			item.width = 40;
 			item.height = 40;
 			item.maxStack = 999;
-			item.rare = 2;
+			item.rare = ItemRarityID.Green;
 
 			item.consumable = true;
 			item.noUseGraphic = true;

@@ -16,7 +16,7 @@ namespace CosmivengeonMod.Items.Draek{
 			item.mana = 24;
 			item.UseSound = SoundID.Item70;
 			item.noMelee = true;
-			item.useStyle = 5;
+			item.useStyle = ItemUseStyleID.HoldingOut;
 			item.damage = 40;
 			item.useAnimation = 45;
 			item.useTime = 45;

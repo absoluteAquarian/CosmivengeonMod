@@ -17,10 +17,10 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 			item.width = 40;
 			item.height = 40;
 			item.maxStack = 1;
-			item.rare = 5;
+			item.rare = ItemRarityID.Pink;
 			item.useAnimation = 15;
 			item.useTime = 15;
-			item.useStyle = 4;
+			item.useStyle = ItemUseStyleID.HoldingUp;
 			item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.MenuTick, 0);
 			item.consumable = false;
 		}

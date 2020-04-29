@@ -58,7 +58,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 				int item = Item.NewItem(projectile.getRect(), ModContent.ItemType<BoulderChunk>());
 
 				//Sync the drop for multiplayer
-				if (Main.netMode == 1 && item >= 0)
+				if (Main.netMode == NetmodeID.MultiplayerClient && item >= 0)
 					NetMessage.SendData(MessageID.SyncItem, -1, -1, null, item, 1f);
 			}
 		}

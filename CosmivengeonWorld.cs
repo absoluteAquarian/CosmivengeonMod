@@ -110,11 +110,12 @@ namespace CosmivengeonMod {
 
 		private void SetModFlags(){
 			//Mod Flags
-			CosmivengeonMod.debug_toggleDesoMode = false;
+			CosmivengeonMod.debug_toggleDesoMode = true;
 			CosmivengeonMod.debug_canUseExpertModeToggle = false;
 			CosmivengeonMod.debug_canUsePotentiometer = false;
 			CosmivengeonMod.debug_canUseCrazyHand = true;
 			CosmivengeonMod.debug_canUseCalamityChecker = false;
+			CosmivengeonMod.debug_canClearBossIDs = true;
 
 			CosmivengeonMod.allowModFlagEdit = true;
 			CosmivengeonMod.allowWorldFlagEdit = false;

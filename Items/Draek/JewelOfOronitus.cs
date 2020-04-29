@@ -42,12 +42,12 @@ namespace CosmivengeonMod.Items.Draek{
 			//If this code is shown to anyone, just ignore the thrown exception below
 			throw new NotImplementedException("This hook has not been implemented yet.  If you got this error, please contact the developers.");
 
-			ILCursor c = new ILCursor(il);
+			ILCursor c = new ILCursor(il).Goto(0);
 
 			LogDoubleJumpVisualsBefore(c);
 
 			//Move the cursor to before the "ret" instruction
-			c.GotoNext(MoveType.AfterLabel, i => i.MatchRet());
+			c.GotoNext(MoveType.Before, i => i.MatchRet());
 			c.Index--;
 
 			ILLabel afterIfBlockLabel = c.DefineLabel();
@@ -105,7 +105,7 @@ namespace CosmivengeonMod.Items.Draek{
 				int prevIndex;
 				int section = 1;
 
-				ILCursor c = new ILCursor(il);
+				ILCursor c = new ILCursor(il).Goto(0);
 
 				LogJumpMovementBefore(c);
 
@@ -116,7 +116,7 @@ namespace CosmivengeonMod.Items.Draek{
 				 *		|| jumpAgainFart
 				 */
 
-				if(!c.TryGotoNext(MoveType.AfterLabel, i => i.MatchLdfld(typeof(Terraria.Player), nameof(Terraria.Player.jumpAgainBlizzard))))
+				if(!c.TryGotoNext(MoveType.Before, i => i.MatchLdfld(typeof(Terraria.Player), nameof(Terraria.Player.jumpAgainBlizzard))))
 					return;
 
 				prevIndex = c.Index;
@@ -140,7 +140,7 @@ namespace CosmivengeonMod.Items.Draek{
 
 				BeginLogInstructions(writer, section++);
 
-				if(!c.TryGotoNext(MoveType.AfterLabel, i => i.MatchStloc(13)))	//stloc.s flag7
+				if(!c.TryGotoNext(MoveType.Before, i => i.MatchStloc(13)))		//stloc.s flag7
 					return;														//This instruction is the first one of this type and parameter,
 																				// so we don't need to check its relative position
 				prevIndex = c.Index;
@@ -163,7 +163,7 @@ namespace CosmivengeonMod.Items.Draek{
 				//Loop through found instances of the opcode we want until we find the right one
 				bool correctOpCodeFound = false;
 				while(!correctOpCodeFound){
-					if(c.TryGotoNext(MoveType.AfterLabel, i => i.MatchLdarg(0))){
+					if(c.TryGotoNext(MoveType.Before, i => i.MatchLdarg(0))){
 						Instruction ins = c.Prev.Previous.Previous.Previous.Previous;
 						if(ins.MatchStloc(10))
 							correctOpCodeFound = true;
@@ -186,7 +186,7 @@ namespace CosmivengeonMod.Items.Draek{
 				c.Emit(OpCodes.Br_S, ifBlockEndLabel);
 				c.MarkLabel(elseContinueLabel);
 
-				c.TryGotoNext(MoveType.AfterLabel, i => i.MatchStfld(typeof(Terraria.Player), nameof(Terraria.Player.canRocket)));
+				c.TryGotoNext(MoveType.Before, i => i.MatchStfld(typeof(Terraria.Player), nameof(Terraria.Player.canRocket)));
 				c.Index -= 2;	//move back two instructions
 				c.MarkLabel(ifBlockEndLabel);
 

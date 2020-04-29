@@ -14,10 +14,10 @@ namespace CosmivengeonMod.Items.Draek{
 			item.width = 20;
 			item.height = 20;
 			item.maxStack = 99;
-			item.rare = 5;
+			item.rare = ItemRarityID.Pink;
 			item.useAnimation = 45;
 			item.useTime = 45;
-			item.useStyle = 4;
+			item.useStyle = ItemUseStyleID.HoldingUp;
 			item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0);
 			item.consumable = true;
 		}

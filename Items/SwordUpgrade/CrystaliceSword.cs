@@ -29,7 +29,7 @@ namespace CosmivengeonMod.Items.SwordUpgrade{
 			item.rare = ItemRarityID.Blue;
 			item.UseSound = SoundID.Item1;
 			item.autoReuse = false;
-			item.shoot = 10;
+			item.shoot = ProjectileID.PurificationPowder;
 			item.shootSpeed = 10f;
 		}
 

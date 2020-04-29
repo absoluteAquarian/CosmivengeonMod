@@ -17,7 +17,7 @@ namespace CosmivengeonMod.Items.Frostbite{
 			item.rare = ItemRarityID.Green;
 			item.useAnimation = 45;
 			item.useTime = 45;
-			item.useStyle = 4;
+			item.useStyle = ItemUseStyleID.HoldingUp;
 			item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0);
 			item.consumable = true;
 		}

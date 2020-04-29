@@ -3,6 +3,7 @@ using CosmivengeonMod.Items.Frostbite;
 using CosmivengeonMod.Items.Masks;
 using Microsoft.Xna.Framework;
 using System;
+using System.IO;
 using System.Linq;
 using Terraria;
 using Terraria.ID;
@@ -201,11 +202,50 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 		private bool noTargetsAlive = false;
 		private bool startDespawn = false;
 
+		private bool forceSpriteTurn = false;
+
+		public override void SendExtraAI(BinaryWriter writer){
+			BitsByte flag = new BitsByte(switchSubPhase, noTargetsAlive, startDespawn, forceSpriteTurn);
+
+			writer.Write(flag);
+			writer.Write((byte)Target.whoAmI);
+			writer.Write((byte)Phase);
+			writer.Write((byte)CurrentSubphase);
+			writer.Write(AI_Timer);
+			writer.Write(AI_AnimationTimer);
+			writer.Write((byte)AI_AttackProgress);
+			writer.Write(AI_WaitTimer);
+			writer.Write((byte)spriteDir);
+			writer.Write((byte)curMaxSpeed);
+			writer.Write((byte)subphaseIndex);
+		}
+
+		public override void ReceiveExtraAI(BinaryReader reader){
+			BitsByte flag = reader.ReadByte();
+			flag.Retrieve(ref switchSubPhase, ref noTargetsAlive, ref startDespawn, ref forceSpriteTurn);
+			Target = Main.player[reader.ReadByte()];
+			Phase = reader.ReadByte();
+			CurrentSubphase = reader.ReadByte();
+			AI_Timer = reader.ReadInt32();
+			AI_AnimationTimer = reader.ReadInt32();
+			AI_AttackProgress = reader.ReadByte();
+			AI_WaitTimer = reader.ReadInt32();
+			spriteDir = reader.ReadByte();
+			curMaxSpeed = reader.ReadByte();
+			subphaseIndex = reader.ReadByte();
+		}
+
 		public override void AI(){
 			//AI:  https://docs.google.com/document/d/1B7liHxU-65k_f8eXlC6-M4HLMx9Xu5d5LQWFIznylv8
 
+			int prevTarget = npc.target;
+			forceSpriteTurn = false;
+
 			npc.TargetClosest(true);
 			Target = Main.player[npc.target];
+
+			if(npc.target != prevTarget)
+				npc.netUpdate = true;
 
 			noTargetsAlive = Target.dead || !Target.active;
 			CheckTargetIsDead();
@@ -222,9 +262,11 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				return;
 
 			if(Phase == Phase_1){
-				if(CurrentSubphase == AI_Attack_Walk && AI_WaitTimer < 0)
+				if(CurrentSubphase == AI_Attack_Walk && AI_WaitTimer < 0){
 					AI_WaitTimer = (int)(GetWaitBetweenSubphases * 60);
-				else if(CurrentSubphase == AI_Attack_Walk && AI_WaitTimer >= 0){
+
+					npc.netUpdate = true;
+				}else if(CurrentSubphase == AI_Attack_Walk && AI_WaitTimer >= 0){
 					if(AI_WaitTimer == 0)
 						switchSubPhase = true;
 					int speed = CosmivengeonUtils.GetModeChoice(3, 5, 0);
@@ -295,8 +337,10 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			//If Frostbite is charging/breathing frost, don't update the direction
 			if(AI_WaitTimer < 0 && CurrentSubphase == AI_Attack_Charge && AI_AttackProgress < 3)
 				npc.spriteDirection = spriteDir;
-			else
-				npc.spriteDirection = (Target.Center.X > npc.Center.X) ? 1 : -1;
+			else if(!forceSpriteTurn){
+				int sign = Math.Sign(npc.velocity.X);
+				npc.spriteDirection = sign == 0 ? npc.spriteDirection : sign;
+			}
 
 			if(AI_Timer >= 0)
 				AI_Timer--;
@@ -308,6 +352,10 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 
 			if(CurrentSubphase != AI_Attack_Stomp)
 				npc.velocity.Y += 16f / 60f;
+
+			//Increased friction when turning around
+			if(Math.Sign(npc.Center.X - Target.Center.X) == Math.Sign(npc.velocity.X))
+				npc.velocity.X *= 0.9742f;
 
 			npc.velocity.X.Clamp(-curMaxSpeed, curMaxSpeed);
 		}
@@ -331,6 +379,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 					startDespawn = true;
 					npc.noTileCollide = true;
 					npc.timeLeft = (int)(0.5f * 60);
+
+					npc.netUpdate = true;
 				}
 
 				if(npc.timeLeft == 0)
@@ -341,9 +391,6 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 		}
 
 		private void CheckPhaseChange(){
-			if(Main.raining && CosmivengeonWorld.desoMode)
-				Main.rainTime = 60;
-
 			if(!Main.expertMode && !CosmivengeonWorld.desoMode){
 				if(npc.life / (float)npc.lifeMax < 0.5f && Phase == Phase_1){
 					Phase++;
@@ -360,6 +407,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 						AI_Attack_Walk,
 						AI_Enrage_Smash
 					};
+
+					npc.netUpdate = true;
 				}
 			}else if(Main.expertMode && !CosmivengeonWorld.desoMode){
 				if(npc.life / (float)npc.lifeMax < 0.7f && Phase == Phase_1){
@@ -381,6 +430,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 						AI_Attack_Walk,
 						AI_Expert_SnowCloud
 					};
+
+					npc.netUpdate = true;
 				}
 			}else{
 				if(Phase == Phase_1){
@@ -405,6 +456,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 						AI_Attack_Walk,
 						AI_Expert_SnowCloud
 					};
+
+					npc.netUpdate = true;
 				}
 			}
 		}
@@ -420,6 +473,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			AI_Timer = -1;
 			AI_WaitTimer = -1;
 			switchSubPhase = false;
+
+			npc.netUpdate = true;
 		}
 
 		private void CheckFallThroughPlatforms(){
@@ -434,9 +489,10 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			
 			for(int x = tileStartX; x <= tileEndX; x++){
 				Tile tile = Main.tile[x, tileY];
-				//If this tile isn't a platform, re-enable tile collision
+				//If this tile isn't a platform and is solid, re-enable tile collision
 				if(CosmivengeonUtils.TileIsSolidOrPlatform(x, tileY) && tile.type != TileID.Platforms){
 					npc.noTileCollide = false;
+					npc.netUpdate = true;
 					return;
 				}
 			}
@@ -451,6 +507,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 
 			//Finally, we just have platforms under us.  Disable tile collision
 			npc.noTileCollide = true;
+
+			npc.netUpdate = true;
 		}
 
 		private void CheckTileStep(){
@@ -465,7 +523,11 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 
 		private void AI_Walk(int speed, float acceleration){
 			curMaxSpeed = speed;
-			npc.velocity.X += acceleration * npc.spriteDirection;
+			npc.velocity.X += acceleration * (npc.Center.X < Target.Center.X ? 1 : -1);
+
+			int nextSubPhase = Subphases[(subphaseIndex + 1) % Subphases.Length];
+			if(Math.Sign(npc.velocity.X) == Math.Sign(npc.Center.X - Target.Center.X) && (nextSubPhase == AI_Attack_Flick || nextSubPhase == AI_Attack_Stomp))
+				AI_WaitTimer++;
 		}
 
 		private void AI_Charge_BreatheFrost(int chargeSpeed, int chargeFrames, float breathSpeed, float breathAngle, float maxFlamesShot, float breathTime){
@@ -493,6 +555,7 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 					AI_AttackProgress++;
 					AI_Timer = -1;
 					Main.PlaySound(new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0), npc.Center);
+					npc.netUpdate = true;
 				}
 			}else if(AI_AttackProgress == 2){
 				//The direction has been set.  Ram towards where the player was
@@ -503,11 +566,18 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				if(AI_Timer == 0){
 					AI_AttackProgress++;
 					AI_Timer = -1;
+					npc.netUpdate = true;
 				}
 			}
 		}
 
 		private void AI_BreatheFrost(float speed, float angle, float flamesPerSecond, float breatheTime){
+			if(Main.netMode == NetmodeID.MultiplayerClient)
+				return;
+
+			npc.spriteDirection = npc.Center.X < Target.Center.X ? 1 : -1;
+			forceSpriteTurn = true;
+
 			//Get the point and direction the frost breath should go towards
 			Vector2 start = (npc.spriteDirection == 1) ? npc.Right - new Vector2(45, 0) : npc.Left + new Vector2(45, 0);
 			//Then, get the maximum amount of flames Frostbite will shoot
@@ -576,7 +646,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 					new Vector2(speedX + speedXFactor * curIcicle, speedY),
 					ModContent.ProjectileType<Projectiles.Frostbite.FrostbiteIcicle>(),
 					48,
-					3f
+					3f,
+					Main.myPlayer
 				);
 
 				AI_AttackProgress++;

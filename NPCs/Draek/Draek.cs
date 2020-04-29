@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using CosmivengeonMod.Projectiles.Draek;
 
 using Summon = CosmivengeonMod.NPCs.Draek.DraekWyrmSummon_Head;
+using System.IO;
 
 namespace CosmivengeonMod.NPCs.Draek{
 	[AutoloadBossHead]
@@ -91,6 +92,57 @@ namespace CosmivengeonMod.NPCs.Draek{
 			}
 		}
 
+		public override void SendExtraAI(BinaryWriter writer){
+			BitsByte flag = new BitsByte();
+			flag[0] = ForceFastCharge;
+			flag[1] = FastCharge_SwordActive;
+			flag[2] = FastChargeStarted;
+			flag[3] = FastChargeEnded;
+			flag[4] = preDash;
+			flag[5] = preDashWait;
+			flag[6] = noTargetsAlive;
+			flag[7] = dashing;
+
+			BitsByte flag2 = new BitsByte();
+			flag2[0] = dashWait;
+			flag2[1] = startDespawn;
+			flag2[2] = hasSpawned;
+			flag2[3] = switchPhases;
+			flag2[4] = switchSubPhases;
+			flag2[5] = throwingSword;
+			flag2[6] = delayPhaseChange;
+
+			writer.Write(flag);
+			writer.Write(flag2);
+			writer.Write((byte)CurrentPhase);
+			writer.Write((byte)afterImageLength);
+			writer.Write(preFastChargeAI[0]);
+			writer.Write(preFastChargeAI[1]);
+			writer.Write(preFastChargeAI[2]);
+			writer.Write(preFastChargeAI[3]);
+			writer.Write((byte)playerTarget.whoAmI);
+			writer.Write((byte)SummonedWyrms);
+			writer.Write((byte)animationOffset);
+		}
+
+		public override void ReceiveExtraAI(BinaryReader reader){
+			BitsByte flag = reader.ReadByte();
+			flag.Retrieve(ref ForceFastCharge, ref FastCharge_SwordActive, ref FastChargeStarted, ref FastChargeEnded, ref preDash, ref preDashWait, ref noTargetsAlive, ref dashing);
+
+			BitsByte flag2 = reader.ReadByte();
+			flag2.Retrieve(ref dashWait, ref startDespawn, ref hasSpawned, ref switchPhases, ref switchSubPhases, ref throwingSword, ref delayPhaseChange);
+
+			CurrentPhase = reader.ReadByte();
+			afterImageLength = reader.ReadByte();
+			preFastChargeAI[0] = reader.ReadSingle();
+			preFastChargeAI[1] = reader.ReadSingle();
+			preFastChargeAI[2] = reader.ReadSingle();
+			preFastChargeAI[3] = reader.ReadSingle();
+			playerTarget = Main.player[reader.ReadByte()];
+			SummonedWyrms = reader.ReadByte();
+			animationOffset = reader.ReadByte();
+		}
+
 #region AI Properties
 		//consts for showing what ai[] slot does what
 		private const int AI_Timer_Slot = 0;
@@ -169,10 +221,10 @@ namespace CosmivengeonMod.NPCs.Draek{
 		private bool switchSubPhases = false;
 		private bool throwingSword = false;
 		private bool delayPhaseChange = false;
-		private const int P1_subphase0_Attacks = 8;
-		private const int P1_subphase2_Attacks = 10;
-		private const int P1_Enrage_subphase0_Attacks = 8;
-		private const int P1_Enrage_subphase2_Attacks = 16;
+		private const int P1_subphase0_Attacks = 6;
+		private const int P1_subphase2_Attacks = 9;
+		private const int P1_Enrage_subphase0_Attacks = 7;
+		private const int P1_Enrage_subphase2_Attacks = 10;
 		private const int Phase_1 = 0;
 		private const int Phase_1_Enrage = 1;
 
@@ -283,7 +335,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		public override void OnHitPlayer(Player target, int damage, bool crit){
-			target.AddBuff(ModContent.BuffType<Buffs.PrimordialWrath>(), 150);
+			if(CosmivengeonWorld.desoMode)
+				target.AddBuff(ModContent.BuffType<Buffs.PrimordialWrath>(), 150);
 		}
 
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
@@ -355,7 +408,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 				hasSpawned = true;
 				AI_Attack = Attack_Shoot;
 				CurrentPhase = Phase_1;
-				Main.NewText("So, a new challenger has arisen to take my domain, hm?", TextColour);
+				CosmivengeonUtils.SendMessage("So, a new challenger has arisen to take my domain, hm?", TextColour);
 
 				//Spawn the additional hurtbox
 				int newNPC = NPC.NewNPC((int)npc.Center.X, (int)npc.Center.Y, ModContent.NPCType<DraekP1ExtraHurtbox>(), ai0: npc.whoAmI);
@@ -366,10 +419,13 @@ namespace CosmivengeonMod.NPCs.Draek{
 				//Spawn the lasting projectile
 				npc.SpawnProjectile(npc.Center, Vector2.Zero, ModContent.ProjectileType<DraekP1ExtraProjectile>(),
 					npc.damage, 6f, Main.myPlayer, npc.whoAmI);
+
+				npc.netUpdate = true;
 			}
 
 			if(npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead){
 				npc.TargetClosest(true);
+				npc.netUpdate = true;
 			}
 
 			playerTarget = Main.player[npc.target];
@@ -378,6 +434,11 @@ namespace CosmivengeonMod.NPCs.Draek{
 			
 			if(noTargetsAlive)
 				return;
+
+			SummonedWyrms = UpdateWyrmCount();
+
+			if(SummonedWyrms > 0)
+				npc.GetGlobalNPC<CosmivengeonGlobalNPC>().endurance += CosmivengeonWorld.desoMode ? 0.5f : 0.25f;
 
 			if(!dashing){
 				npc.spriteDirection = (npc.Center.X > Main.player[npc.target].Center.X) ? 1 : -1;
@@ -389,19 +450,33 @@ namespace CosmivengeonMod.NPCs.Draek{
 			if(npc.life < npc.lifeMax / 2f && !switchPhases && CurrentPhase == Phase_1){
 				switchPhases = true;
 
-				Main.NewText("You're stronger than I expected, aren't you?  No matter.", TextColour);
+				CosmivengeonUtils.SendMessage("You're stronger than I expected, aren't you?  No matter.", TextColour);
 
 				AI_Timer = 120;
 				delayPhaseChange = true;
 
 				npc.dontTakeDamage = true;
+
+				if(ForceFastCharge){
+					FastChargeEnded = false;
+					ForceFastCharge = false;
+					FastChargeStarted = false;
+					AI_Timer = preFastChargeAI[0];
+					AI_Attack = preFastChargeAI[1];
+					AI_Attack_Progress = preFastChargeAI[2];
+					AI_Animation_Counter = preFastChargeAI[3];
+					dashing = preDash;
+					dashWait = preDashWait;
+
+					npc.netUpdate = true;
+				}
 			}
 
 			AI_Check_Phase_Switch();
 
 			afterImageLength.Clamp(0, npc.oldPos.Length * 2);
 
-			if(ForceFastCharge){
+			if(CosmivengeonWorld.desoMode && ForceFastCharge){
 				if(!FastChargeStarted){
 					FastChargeStarted = true;
 					preFastChargeAI[0] = AI_Timer;
@@ -418,13 +493,17 @@ namespace CosmivengeonMod.NPCs.Draek{
 					dashing = false;
 					dashWait = true;
 
-					string text = Main.rand.Next(new string[]{
-						"Get back here, coward!",
-						"Where do you think you're going?",
-						"You won't get away that easily!"
-					});
+					if(Main.netMode != NetmodeID.MultiplayerClient){
+						string text = Main.rand.Next(new string[]{
+							"Get back here, coward!",
+							"Where do you think you're going?",
+							"You won't get away that easily!"
+						});
 
-					Main.NewText(text, TextColour);
+						CosmivengeonUtils.SendMessage(text, TextColour);
+					}
+
+					npc.netUpdate = true;
 				}
 
 				AI_Dash(16.5f, 1, 60, 0, true);
@@ -439,19 +518,21 @@ namespace CosmivengeonMod.NPCs.Draek{
 					AI_Animation_Counter = preFastChargeAI[3];
 					dashing = preDash;
 					dashWait = preDashWait;
+
+					npc.netUpdate = true;
 				}
 				return;
 			}
 
 			if(CurrentPhase == Phase_1){
 				if(AI_Attack == Attack_Shoot){
-					AI_Hover_Shoot(CosmivengeonUtils.GetModeChoice(60, 50, 45), P1_subphase0_Attacks + CosmivengeonUtils.GetModeChoice(0, 0, 6));
+					AI_Hover_Shoot(CosmivengeonUtils.GetModeChoice(60, 42, 28), P1_subphase0_Attacks + CosmivengeonUtils.GetModeChoice(0, 0, 9));
 				}else if(AI_Attack == Attack_Throw_Sword){
 					AI_Hover_Throw_Sword(1, 60);
 				}else if(AI_Attack == Attack_Shoot_No_Sword){
-					int maxXY = CosmivengeonUtils.GetModeChoice(3, 5, 6);
-					AI_Charge_Shoot(CosmivengeonUtils.GetModeChoice(40, 35, 30),
-						P1_subphase2_Attacks + CosmivengeonUtils.GetModeChoice(0, 0, 8),
+					float maxXY = CosmivengeonUtils.GetModeChoice(4f, 5.55f, 6.375f);
+					AI_Charge_Shoot(CosmivengeonUtils.GetModeChoice(40, 25, 15),
+						P1_subphase2_Attacks + CosmivengeonUtils.GetModeChoice(0, 0, 12),
 						maxXY, maxXY
 					);
 				}else if(AI_Attack == Attack_Dash){
@@ -463,13 +544,13 @@ namespace CosmivengeonMod.NPCs.Draek{
 				}
 			}else if(CurrentPhase == Phase_1_Enrage){
 				if(AI_Attack == Attack_Shoot){
-					AI_Hover_Shoot(CosmivengeonUtils.GetModeChoice(40, 36, 32), P1_Enrage_subphase0_Attacks + CosmivengeonUtils.GetModeChoice(0, 2, 6));
+					AI_Hover_Shoot(CosmivengeonUtils.GetModeChoice(40, 28, 20), P1_Enrage_subphase0_Attacks + CosmivengeonUtils.GetModeChoice(0, 2, 11));
 				}else if(AI_Attack == Attack_Throw_Sword){
 					AI_Hover_Throw_Sword(3, 45);
 				}else if(AI_Attack == Attack_Shoot_No_Sword){
-					int maxXY = CosmivengeonUtils.GetModeChoice(5, 7, 9);
-					AI_Charge_Shoot(CosmivengeonUtils.GetModeChoice(20, 18, 17),
-						P1_Enrage_subphase2_Attacks + CosmivengeonUtils.GetModeChoice(0, 0, 4),
+					float maxXY = CosmivengeonUtils.GetModeChoice(5.85f, 8.325f, 10.75f);
+					AI_Charge_Shoot(CosmivengeonUtils.GetModeChoice(20, 16, 10),
+						P1_Enrage_subphase2_Attacks + CosmivengeonUtils.GetModeChoice(0, 0, 17),
 						maxXY, maxXY
 					);
 				}else if(AI_Attack == Attack_Dash){
@@ -675,6 +756,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 				AI_Attack_Progress = 0;
 				AI_Attack = Attack_Shoot;
 				CurrentPhase++;
+
+				npc.netUpdate = true;
 			}
 
 			if(switchSubPhases){
@@ -690,18 +773,24 @@ namespace CosmivengeonMod.NPCs.Draek{
 				AI_Attack++;
 				if((CurrentPhase == Phase_1 || CurrentPhase == Phase_1_Enrage) && AI_Attack > Attack_Retrieve_Sword)	//Repeat P1 subphases
 					AI_Attack = Attack_Shoot;
+
+				npc.netUpdate = true;
 			}
 
-			if(ForceFastCharge || AI_Attack == Attack_Retrieve_Sword)
+			if(!CosmivengeonWorld.desoMode || ForceFastCharge || AI_Attack == Attack_Retrieve_Sword || delayPhaseChange)
 				return;
 
 			float maxDistance = 70 * 16;
 			if((AI_Attack == Attack_Shoot || (AI_Attack == Attack_Throw_Sword && !throwingSword)) && npc.Distance(playerTarget.Center) > maxDistance){
 				ForceFastCharge = true;
 				FastCharge_SwordActive = true;
+
+				npc.netUpdate = true;
 			}else if((AI_Attack == Attack_Dash || AI_Attack == Attack_Shoot_No_Sword) && npc.Distance(playerTarget.Center) > maxDistance){
 				ForceFastCharge = true;
 				FastCharge_SwordActive = false;
+
+				npc.netUpdate = true;
 			}
 		}
 
@@ -725,6 +814,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 				if(!startDespawn){
 					startDespawn = true;
 					npc.timeLeft = (int)(0.5f * 60);
+
+					npc.netUpdate = true;
 				}
 			}
 		}
@@ -740,60 +831,40 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npcTarget.Y += -12 * 16;
 
 			if(Vector2.Distance(npcTarget, npc.Center) > 16)	//If the boss isn't near the target point
-				npc.velocity += Vector2.Normalize(npcTarget - npc.Center) * new Vector2(0.8f, 0.8f);
+				npc.velocity += Vector2.Normalize(npcTarget - npc.Center) * 0.8f;
 			else
 				npc.velocity = Vector2.Zero;
 			
-			npc.velocity.X.Clamp(-8, 8);
-			npc.velocity.Y.Clamp(-10, 10);
+			float clampVal = CosmivengeonUtils.GetModeChoice(8f, 10f, 13f);
+			npc.velocity.X.Clamp(-clampVal, clampVal);
+			npc.velocity.Y.Clamp(-clampVal, clampVal);
 		}
 
 		private void AI_Shoot_Laser(int delay, int times){
 			AI_Timer++;
 
-			Vector2 positionOffset = new Vector2(Main.rand.NextFloat(-1, 1), Main.rand.NextFloat(-1, 1)) * 48f;
-			Vector2 spreadOrigin = playerTarget.Center;
+			Vector2 positionOffset = new Vector2(Main.rand.NextFloat(-1, 1), Main.rand.NextFloat(-1, 1)) * 4f * 16;
 
 			int npcDamage = npc.damage;
 			npc.damage = 0;
 
 			int laserDamage = 20 + CosmivengeonUtils.GetModeChoice(0, 20, 30);
 
-			if(AI_Timer % delay == 0){
-				//20% chance for attack to be a "shotgun" variant
-				if(Main.expertMode && Main.rand.NextFloat() < CosmivengeonUtils.GetModeChoice(0f, 0.4f, 0.3333f)){
-					for(int i = 0; i < 5; i++){
-						npc.SpawnProjectile(npc.Center.X,
-							npc.Bottom.Y - (0.667f * npc.height),
-							0f,
-							0f,
-							ModContent.ProjectileType<DraekLaser>(),
-							laserDamage,
-							6f,
-							Main.myPlayer,
-							spreadOrigin.X + positionOffset.X,
-							spreadOrigin.Y + positionOffset.Y
-						);
-
-						positionOffset = new Vector2(Main.rand.NextFloat(-1, 1), Main.rand.NextFloat(-1, 1)) * 48f;
-					}
-					AI_Attack_Progress += 3;
-				}else{
-					npc.SpawnProjectile(npc.Center.X,
-						npc.Bottom.Y - (0.667f * npc.height),
-						0f,
-						0f,
-						ModContent.ProjectileType<DraekLaser>(),
-						laserDamage,
-						6f,
-						Main.myPlayer,
-						playerTarget.Center.X + positionOffset.X,
-						playerTarget.Center.Y + positionOffset.Y
-					);
-					AI_Attack_Progress++;
-				}
+			if(AI_Timer % delay == 0 && Main.netMode != NetmodeID.MultiplayerClient){
+				npc.SpawnProjectile(npc.Center.X,
+					npc.Bottom.Y - (0.667f * npc.height),
+					0f,
+					0f,
+					ModContent.ProjectileType<DraekLaser>(),
+					laserDamage,
+					6f,
+					Main.myPlayer,
+					playerTarget.Center.X + positionOffset.X,
+					playerTarget.Center.Y + positionOffset.Y
+				);
+				AI_Attack_Progress++;
 				//Play "boss laser" sound effect
-				Main.PlaySound(SoundID.Item33, npc.position);
+				Main.PlaySound(SoundID.Item33, npc.Bottom - new Vector2(0, 0.667f * npc.height));
 			}
 
 			npc.damage = npcDamage;
@@ -845,9 +916,9 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 						//Summon wyrms if he's thrown all swords and we're not in Normal Mode
 						if(CosmivengeonWorld.desoMode)
-							AI_Summon(6, true);
+							AI_Summon(6);
 						else if(Main.expertMode)
-							AI_Summon(2, true);
+							AI_Summon(2);
 					}
 				}
 			}
@@ -871,7 +942,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.velocity *= 0.86f;
 
 			if(Vector2.Distance(playerTarget.Center, npc.Center) > 16)		//If the boss isn't near the target
-				npc.velocity += Vector2.Normalize(playerTarget.Center - npc.Center) * new Vector2(0.7f, 0.7f);
+				npc.velocity += Vector2.Normalize(playerTarget.Center - npc.Center) * 0.7f;
 			else
 				npc.velocity = Vector2.Zero;
 					
@@ -958,21 +1029,15 @@ namespace CosmivengeonMod.NPCs.Draek{
 				switchSubPhases = true;
 		}
 
-		private void AI_Summon(int times, bool randomAngle, params float[] angles){
-			SummonedWyrms = UpdateWyrmCount();
-
-			while(SummonedWyrms < times){
-				float rotation;
+		private void AI_Summon(int times){
+			while(SummonedWyrms < times && Main.netMode != NetmodeID.MultiplayerClient){
 				Vector2 range = npc.Center + new Vector2(Main.rand.NextFloat(-8 * 16, 8 * 16), Main.rand.NextFloat(-8 * 16, 8 * 16));
 			
-				if(randomAngle)
-					rotation = Main.rand.NextFloat(0, 2 * MathHelper.Pi);
-				else
-					rotation = angles[SummonedWyrms];
-			
-				NPC.NewNPC((int)range.X, (int)range.Y, ModContent.NPCType<Summon>(), ai1: npc.whoAmI, ai2: rotation);
+				NPC.NewNPC((int)range.X, (int)range.Y, ModContent.NPCType<Summon>(), ai2: npc.whoAmI);
 			
 				SummonedWyrms++;
+
+				npc.netUpdate = true;
 			}
 		}
 
@@ -980,7 +1045,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			int wyrms = 0;
 			
 			for(int i = 0; i < Main.npc.Length; i++){
-				if(Main.npc[i].active && Main.npc[i].type == ModContent.NPCType<Summon>() && (int)Main.npc[i].ai[1] == npc.whoAmI)
+				if(Main.npc[i].active && Main.npc[i].type == ModContent.NPCType<Summon>() && (int)Main.npc[i].ai[2] == npc.whoAmI)
 					wyrms++;
 			}
 			

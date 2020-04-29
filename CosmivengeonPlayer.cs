@@ -13,9 +13,12 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.GameInput;
 using Terraria.DataStructures;
+using Terraria.ModLoader.IO;
 
 namespace CosmivengeonMod{
 	public class CosmivengeonPlayer : ModPlayer{
+		public List<int> BossesKilled;
+
 		//Debuffs
 		public bool primordialWrath;
 
@@ -40,6 +43,10 @@ namespace CosmivengeonMod{
 		public bool frostHorn_Broken;
 		public bool equipped_EyeOfTheBlizzard;
 		public bool abilityActive_EyeOfTheBlizzard;
+		public bool doubleTapUp;
+		public bool tapUp;
+		private int doubleTapUpOldTime = -1;
+		private int doubleTapUpNewTime = -1;
 
 		//Set bonus flags
 		public bool setBonus_Rockserpent;
@@ -49,9 +56,15 @@ namespace CosmivengeonMod{
 		public override void Initialize(){
 			stamina = new Stamina(player);
 			energizedParticles = new List<EnergizedParticle>();
+			BossesKilled = new List<int>();
 		}
 
 		public override void ResetEffects(){
+			doubleTapUpNewTime = player.doubleTapCardinalTimer[1];
+			tapUp = player.controlUp && player.releaseUp;
+
+			doubleTapUp = doubleTapUpOldTime > doubleTapUpNewTime && tapUp;
+
 			primordialWrath = false;
 			doubleJump_JewelOfOronitus = false;
 			babySnek = false;
@@ -62,6 +75,16 @@ namespace CosmivengeonMod{
 			frostHorn_Broken = false;
 			setBonus_Rockserpent = false;
 			stamina.Reset();
+		}
+
+		public override TagCompound Save() => new TagCompound(){
+			["bosses"] = BossesKilled,
+			["stamina"] = stamina.GetTagCompound()
+		};
+
+		public override void Load(TagCompound tag){
+			BossesKilled = tag.GetList<int>("bosses").ToList();
+			stamina.ParseCompound(tag.GetCompound("stamina"));
 		}
 
 		public override void UpdateBadLifeRegen(){
@@ -88,10 +111,15 @@ namespace CosmivengeonMod{
 				for(int i = 0; i < crystals.Count; i++)
 					crystals[i].active = false;
 			}
+
+			stamina.Update();
 		}
 
 		public override void PostUpdate(){
-			stamina.Update();
+			if(tapUp)
+				doubleTapUpOldTime = player.doubleTapCardinalTimer[1];
+			else if(player.doubleTapCardinalTimer[1] == 0)
+				doubleTapUpOldTime = -1;
 		}
 
 		public override void ProcessTriggers(TriggersSet triggersSet){
@@ -100,13 +128,31 @@ namespace CosmivengeonMod{
 			}
 		}
 
+		public override void clientClone(ModPlayer clientClone){
+			CosmivengeonPlayer clone = clientClone as CosmivengeonPlayer;
+
+			clone.stamina.Clone(stamina);
+		}
+
 		public override void SyncPlayer(int toWho, int fromWho, bool newPlayer){
 			ModPacket packet = mod.GetPacket();
 			packet.Write((byte)CosmivengeonModMessageType.SyncPlayer);
 			packet.Write(player.whoAmI);
-			packet.Write(stamina.Value);
+			stamina.SendData(packet);
 			
 			packet.Send(toWho, fromWho);
+		}
+
+		public override void SendClientChanges(ModPlayer clientPlayer){
+			CosmivengeonPlayer clone = clientPlayer as CosmivengeonPlayer;
+
+			if(clone.stamina.Value != stamina.Value){
+				ModPacket packet = mod.GetPacket();
+				packet.Write((byte)CosmivengeonModMessageType.StaminaChanged);
+				packet.Write(player.whoAmI);
+				stamina.SendData(packet);
+				packet.Send();
+			}
 		}
 
 		public override void UpdateDead(){
@@ -117,14 +163,15 @@ namespace CosmivengeonMod{
 			stamina.Active = false;
 			abilityActive_EyeOfTheBlizzard = false;
 			stamina.ResetValue();
+			doubleTapUpOldTime = -1;
+			doubleTapUpNewTime = -1;
 		}
 
 		public override void OnHitNPC(Item item, NPC target, int damage, float knockback, bool crit){
 			if(equipped_SnowscaleCoat && Main.rand.NextFloat() < 0.075f)
 				target.AddBuff(BuffID.Frostburn, 5 * 60);
 
-			if(setBonus_Rockserpent)
-				target.AddBuff(BuffID.Poisoned, 8 * 60);
+			OnHitNPCWithAnything(target, damage, knockback, crit);
 		}
 
 		public override void PostItemCheck(){
@@ -141,6 +188,10 @@ namespace CosmivengeonMod{
 			if(equipped_SnowscaleCoat && Main.rand.NextFloat() < 0.075f)
 				target.AddBuff(BuffID.Frostburn, 5 * 60);
 
+			OnHitNPCWithAnything(target, damage, knockback, crit);
+		}
+
+		private void OnHitNPCWithAnything(NPC target, int damage, float knockback, bool crit){
 			if(setBonus_Rockserpent)
 				target.AddBuff(BuffID.Poisoned, 8 * 60);
 		}
@@ -225,7 +276,7 @@ namespace CosmivengeonMod{
 		}
 
 		public static readonly PlayerLayer EnergizedParticles = new PlayerLayer("CosmivengeonMod", "Energized Buff Particles", PlayerLayer.MiscEffectsFront, delegate(PlayerDrawInfo drawInfo){
-			if(drawInfo.shadow != 0)
+			if(drawInfo.shadow != 0 || !CosmivengeonWorld.desoMode)
 				return;
 
 			CosmivengeonPlayer modPlayer = drawInfo.drawPlayer.GetModPlayer<CosmivengeonPlayer>();
@@ -256,7 +307,7 @@ namespace CosmivengeonMod{
 		private const int ExhaustionAnimation11 = ExhaustionAnimation10 + 20;
 
 		public static readonly PlayerLayer ExhaustionAnimation = new PlayerLayer("CosmivengeonMod", "Exhaustion Animation", PlayerLayer.MiscEffectsFront, delegate(PlayerDrawInfo drawInfo){
-			if(drawInfo.shadow != 0)
+			if(drawInfo.shadow != 0 || !CosmivengeonWorld.desoMode)
 				return;
 
 			CosmivengeonPlayer modPlayer = drawInfo.drawPlayer.GetModPlayer<CosmivengeonPlayer>();

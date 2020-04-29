@@ -1,4 +1,7 @@
 ﻿using System;
+using CosmivengeonMod.Items.Frostbite;
+using CosmivengeonMod.NPCs.Draek;
+using CosmivengeonMod.Projectiles.Frostbite;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -37,6 +40,16 @@ namespace CosmivengeonMod{
 
 		public override void ModifyHitByProjectile(NPC npc, Projectile projectile, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
 			damage = (int)(Math.Max(1 - endurance, 0.01) * damage);
+		}
+
+		public override void OnHitByItem(NPC npc, Player player, Item item, int damage, float knockback, bool crit){
+			if(npc.life <= 0 && item.modItem is SubZero){
+				//Spawn some projectiles
+				int numProjs = 20;
+				for(int i = 0; i < 20; i++){
+					Projectile.NewProjectile(npc.Center, new Vector2(-9, 0).RotateDegrees(360f / numProjs * i, 180f / numProjs), ModContent.ProjectileType<FrostbiteBreath>(), item.damage, 3f, player.whoAmI, 0f, 4f);
+				}
+			}
 		}
 	}
 }

@@ -29,11 +29,23 @@ namespace CosmivengeonMod.Projectiles.Frostbite{
 				projectile.hostile = projectile.ai[1] == 0f;
 				projectile.friendly = projectile.ai[1] != 0f;
 
-				//If this projectile was fired from the weapon, make it pierce some
-				if(projectile.friendly && !projectile.hostile){
+				//If this projectile was fired from a weapon, make it pierce some
+				if(projectile.ai[1] != 4f && projectile.friendly && !projectile.hostile){
 					projectile.penetrate = 3;
 					projectile.usesLocalNPCImmunity = true;
 					projectile.localNPCHitCooldown = -1;  //Force only one hit per NPC
+				}
+
+				//Sub-Zero projectile spawn
+				//Make it a melee projectile
+				if(projectile.ai[1] == 4f){
+					projectile.melee = true;
+					projectile.magic = false;
+					projectile.ranged = false;
+					projectile.thrown = false;
+					projectile.minion = false;
+
+					projectile.timeLeft = 18;
 				}
 			}
 
