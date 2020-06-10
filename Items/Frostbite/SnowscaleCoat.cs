@@ -9,7 +9,7 @@ namespace CosmivengeonMod.Items.Frostbite{
 			DisplayName.SetDefault("Snowscale Coat");
 			Tooltip.SetDefault("Grants 6 defense and increases damage by 5% while in the snow biome" +
 				"\nGrants an immunity to the [c/0099ff:Chilled] debuff" +
-				"\nAll attacks have a small chance to inflict [c/00ffff:Frostburn]");
+				"\nAll attacks have a small chance to inflict [c/6fa8dc:Frostburn]");
 		}
 
 		public override void SetDefaults(){

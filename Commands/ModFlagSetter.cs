@@ -25,6 +25,7 @@ namespace CosmivengeonMod.Commands{
 
 			if(args.Length < 2){
 				caller.Reply("Parameter list was too small.", Color.Red);
+				caller.Reply(Usage);
 				return;
 			}
 

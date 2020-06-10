@@ -27,7 +27,7 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			npc.defense = 8;
 			npc.lifeMax = 2000;
 			npc.HitSound = SoundID.NPCHit11;	//Snow NPC hit sound
-			npc.noGravity = false;
+			npc.DeathSound = SoundID.NPCDeath27;
 			npc.knockBackResist = 0f;	//100% kb resist
 			npc.npcSlots = 30f;
 			npc.boss = true;
@@ -92,7 +92,7 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 		private const int AI_Expert_Snowball = 5;
 		private const int AI_Expert_SnowCloud = 6;
 
-		private float GetWaitBetweenSubphases
+		private float GetWaitBetweenSubphases()
 			=> Main.rand.NextFloat(CosmivengeonUtils.GetModeChoice(5, 3, 2), CosmivengeonUtils.GetModeChoice(6, 4, 3));
 
 		public override void NPCLoot(){
@@ -235,6 +235,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			subphaseIndex = reader.ReadByte();
 		}
 
+		public bool CanSeeTarget => Target != null && Collision.CanHit(npc.position, npc.width, npc.height, Target.position, Target.width, Target.height);
+
 		public override void AI(){
 			//AI:  https://docs.google.com/document/d/1B7liHxU-65k_f8eXlC6-M4HLMx9Xu5d5LQWFIznylv8
 
@@ -255,15 +257,25 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			
 			CheckSubPhaseChange();
 			CheckPhaseChange();
-			CheckFallThroughPlatforms();
-			CheckTileStep();
 
 			if(switchSubPhase)
 				return;
 
+			CheckFallThroughPlatforms(out bool checkFailed);
+
+			if(checkFailed && !CanSeeTarget && Collision.SolidCollision(npc.position + npc.velocity, npc.width, npc.height) && CurrentSubphase == AI_Attack_Walk){
+				PhaseFloat();
+
+				goto skipAI;
+			}
+
+			npc.noGravity = false;
+
+			CheckTileStep();
+
 			if(Phase == Phase_1){
 				if(CurrentSubphase == AI_Attack_Walk && AI_WaitTimer < 0){
-					AI_WaitTimer = (int)(GetWaitBetweenSubphases * 60);
+					AI_WaitTimer = (int)(GetWaitBetweenSubphases() * 60);
 
 					npc.netUpdate = true;
 				}else if(CurrentSubphase == AI_Attack_Walk && AI_WaitTimer >= 0){
@@ -297,7 +309,7 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 					AI_Snowball(20, 10f);
 			}else if(Phase == Phase_2){
 				if(CurrentSubphase % 2 == 0 && AI_WaitTimer < 0)
-					AI_WaitTimer = (int)(GetWaitBetweenSubphases * 60);
+					AI_WaitTimer = (int)(GetWaitBetweenSubphases() * 60);
 				else if(CurrentSubphase == AI_Attack_Walk && AI_WaitTimer >= 0){
 					if(AI_WaitTimer == 0)
 						switchSubPhase = true;
@@ -334,6 +346,18 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 					AI_SummonCloud();
 			}
 
+			if(AI_Timer >= 0)
+				AI_Timer--;
+
+			if(AI_WaitTimer >= 0)
+				AI_WaitTimer--;
+
+			//Extra gravity when not stomping
+			if(CurrentSubphase != AI_Attack_Stomp)
+				npc.velocity.Y += 16f / 60f;
+
+skipAI:
+			
 			//If Frostbite is charging/breathing frost, don't update the direction
 			if(AI_WaitTimer < 0 && CurrentSubphase == AI_Attack_Charge && AI_AttackProgress < 3)
 				npc.spriteDirection = spriteDir;
@@ -342,22 +366,39 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				npc.spriteDirection = sign == 0 ? npc.spriteDirection : sign;
 			}
 
-			if(AI_Timer >= 0)
-				AI_Timer--;
-			
 			AI_AnimationTimer++;
-			
-			if(AI_WaitTimer >= 0)
-				AI_WaitTimer--;
-
-			if(CurrentSubphase != AI_Attack_Stomp)
-				npc.velocity.Y += 16f / 60f;
 
 			//Increased friction when turning around
 			if(Math.Sign(npc.Center.X - Target.Center.X) == Math.Sign(npc.velocity.X))
 				npc.velocity.X *= 0.9742f;
 
 			npc.velocity.X.Clamp(-curMaxSpeed, curMaxSpeed);
+		}
+
+		private void PhaseFloat(){
+			npc.noTileCollide = true;
+			npc.noGravity = true;
+
+			int speed = CosmivengeonUtils.GetModeChoice(5, 7, 8);
+			float acceleration = CosmivengeonUtils.GetModeChoice(2.25f, 5.635f, 8.15f);
+			AI_Walk(speed, acceleration / 60f);
+
+			float targetY = Target.Bottom.Y - npc.height / 2f - 4;
+			float epsilon = 2;
+			float diffY = npc.Center.Y - targetY;
+
+			if(Math.Sign(npc.velocity.Y) == Math.Sign(diffY))
+				npc.velocity.Y *= 1f - 8.35f / 60f;
+
+			if(Math.Abs(diffY) < epsilon){
+				Vector2 v = npc.Center;
+				v.Y = targetY;
+				npc.Center = v;
+				npc.velocity.Y = 0;
+			}else
+				npc.velocity.Y += -Math.Sign(diffY) * 9.75f / 60f;
+
+			npc.velocity.Y.Clamp(-6, 6);
 		}
 
 		private void CheckTargetIsDead(){
@@ -477,9 +518,24 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			npc.netUpdate = true;
 		}
 
-		private void CheckFallThroughPlatforms(){
-			if(CurrentSubphase == AI_Attack_Walk || CurrentSubphase == AI_Attack_Stomp)
+		private void CheckFallThroughPlatforms(out bool checkFailed){
+			checkFailed = true;
+
+			if(CurrentSubphase != AI_Attack_Walk || CurrentSubphase == AI_Attack_Stomp)
 				return;
+
+			//If the player is too far away, don't do the platform checks
+			float dist = 40 * 16;
+			if(npc.DistanceSQ(Target.Center) > dist * dist)
+				return;
+
+			//If we can't see the player, don't do the platform checks
+			if(!CanSeeTarget){
+				npc.noTileCollide = false;
+				return;
+			}
+
+			checkFailed = false;
 
 			//First, check if the tiles directly beneath Frostbite
 			// are platforms/air.  If they are, disable tile collision
@@ -488,9 +544,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			int tileY = (int)((npc.Bottom.Y + 8f) / 16f);
 			
 			for(int x = tileStartX; x <= tileEndX; x++){
-				Tile tile = Main.tile[x, tileY];
 				//If this tile isn't a platform and is solid, re-enable tile collision
-				if(CosmivengeonUtils.TileIsSolidOrPlatform(x, tileY) && tile.type != TileID.Platforms){
+				if(CosmivengeonUtils.TileIsSolidNotPlatform(x, tileY)){
 					npc.noTileCollide = false;
 					npc.netUpdate = true;
 					return;
@@ -499,7 +554,7 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			
 			//Next, if we're in line with the player target or they're above us,
 			// don't do anything
-			//Set tile collision to true just in case though
+			//Enable tile collision just in case though
 			if(Target.Top.Y <= npc.Bottom.Y){
 				npc.noTileCollide = false;
 				return;
@@ -507,7 +562,6 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 
 			//Finally, we just have platforms under us.  Disable tile collision
 			npc.noTileCollide = true;
-
 			npc.netUpdate = true;
 		}
 
@@ -594,15 +648,11 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				//Get the speed vector based on this angle
 				Vector2 flameSpeed = angle.ToRotationVector2() * speed;
 				//Finally, spawn the projectile
-				npc.SpawnProjectile(
-					start,
+				CosmivengeonUtils.SpawnProjectileSynced(start,
 					flameSpeed.RotatedByRandom(MathHelper.ToRadians(3)),
 					ModContent.ProjectileType<Projectiles.Frostbite.FrostbiteBreath>(),
 					30,
-					2f,
-					Main.myPlayer,
-					0f,
-					0f
+					2f
 				);
 
 				AI_AttackProgress++;
@@ -641,13 +691,11 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				Vector2 spawn = npc.spriteDirection == -1 ? npc.TopRight : npc.position;
 
 				//Spawn the icicles
-				npc.SpawnProjectile(
-					spawn,
+				CosmivengeonUtils.SpawnProjectileSynced(spawn,
 					new Vector2(speedX + speedXFactor * curIcicle, speedY),
 					ModContent.ProjectileType<Projectiles.Frostbite.FrostbiteIcicle>(),
 					48,
-					3f,
-					Main.myPlayer
+					3f
 				);
 
 				AI_AttackProgress++;
@@ -680,15 +728,12 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				Main.PlaySound(SoundID.Item14.WithVolume(0.75f), npc.Bottom);
 
 				for(int i = 0; i < 30; i++){
-					npc.SpawnProjectile(
-						npc.Bottom,
+					CosmivengeonUtils.SpawnProjectileSynced(npc.Bottom,
 						new Vector2(0, -8).RotatedByRandom(MathHelper.ToRadians(45)),
 						ModContent.ProjectileType<Projectiles.Frostbite.FrostbiteBreath>(),
 						30,
 						2f,
-						Main.myPlayer,
-						1f,
-						0f
+						1f
 					);
 				}
 
@@ -709,7 +754,7 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 
 				for(int i = 0; i < 2; i++){
 					Vector2 offset = Target.Top + new Vector2(i == 0 ? 10 * 16f : -10 * 16f, -2 * 16);
-					NPC.NewNPC((int)offset.X, (int)offset.Y, ModContent.NPCType<FrostbiteWall>(), 0, wallTimeLeft, 80, wallsShootBolts ? 1 : 0);
+					CosmivengeonUtils.SpawnNPCSynced(offset, ModContent.NPCType<FrostbiteWall>(), wallTimeLeft, 80, wallsShootBolts ? 1 : 0);
 				}
 			}else if(AI_AttackProgress == 1 && AI_Timer == 0){
 				AI_AttackProgress++;
@@ -736,13 +781,11 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				Vector2 speedToTarget = Vector2.Normalize(Target.Center - start) * speed;
 
 				//Spawn the snowball
-				npc.SpawnProjectile(
-					start,
+				CosmivengeonUtils.SpawnProjectileSynced(start,
 					speedToTarget,
 					ModContent.ProjectileType<Projectiles.Frostbite.FrostbiteRock>(),
 					70,
 					6f,
-					Main.myPlayer,
 					npc.target,
 					speed
 				);
@@ -777,15 +820,7 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				Vector2 initialSpeed = angle.ToRotationVector2() * (FrostCloud.TargetSpeed + 8);
 				initialSpeed = initialSpeed.RotatedByRandom(MathHelper.ToRadians(5f));
 
-				NPC.NewNPC(
-					(int)spawn.X,
-					(int)spawn.Y,
-					ModContent.NPCType<FrostCloud>(),
-					0,
-					npc.whoAmI,
-					initialSpeed.X,
-					initialSpeed.Y
-				);
+				CosmivengeonUtils.SpawnNPCSynced(spawn, ModContent.NPCType<FrostCloud>(), npc.whoAmI, initialSpeed.X, initialSpeed.Y);
 
 				AI_AttackProgress++;
 				AI_Timer = 20;

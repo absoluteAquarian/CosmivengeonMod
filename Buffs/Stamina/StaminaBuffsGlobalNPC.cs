@@ -8,11 +8,17 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Buffs.Stamina{
 	public class StaminaBuffsGlobalNPC : GlobalNPC{
-		public static Dictionary<int, bool> BossKilled;
+		public static List<int> BossIDs;
 		public static Dictionary<int, Action<Stamina>> BuffActions;
 		public static Dictionary<int, string> OnKillMessages;
 
+		public static Dictionary<int, List<string>> BossNames;
+
 		public override void NPCLoot(NPC npc){
+			//If we're not in Desolation mode, don't do anything
+			if(!Main.expertMode || !CosmivengeonWorld.desoMode)
+				return;
+
 			//If this NPC is a boss and it's a separating segment of a worm boss, force the type to be the head segment
 			int type = npc.type;
 			if(type == NPCID.EaterofWorldsBody || type == NPCID.EaterofWorldsTail)
@@ -26,7 +32,7 @@ namespace CosmivengeonMod.Buffs.Stamina{
 
 					CosmivengeonPlayer mp = Main.player[i].GetModPlayer<CosmivengeonPlayer>();
 					//Only do the stamina buff checks on bosses that exist in the predefined Dictionaries
-					if(npc.boss && !npc.friendly && !mp.BossesKilled.Contains(type) && BossKilled.ContainsKey(type)){
+					if(npc.boss && !npc.friendly && !mp.BossesKilled.Contains(type) && BossIDs.Contains(type)){
 						//It's a boss and it's dead; add it to the list if it's not there already and print the message for it
 						mp.BossesKilled.Add(type);
 						var lines = OnKillMessages[type].Split('\n');
@@ -38,7 +44,7 @@ namespace CosmivengeonMod.Buffs.Stamina{
 				//This hook only runs for the server and in singleplayer, so we can be certain than this game isn't a multiplayer client here
 				CosmivengeonPlayer mp = Main.LocalPlayer.GetModPlayer<CosmivengeonPlayer>();
 				//Only do the stamina buff checks on bosses that exist in the predefined Dictionaries
-				if(npc.boss && !npc.friendly && !mp.BossesKilled.Contains(type) && BossKilled.ContainsKey(type)){
+				if(npc.boss && !npc.friendly && !mp.BossesKilled.Contains(type) && BossIDs.Contains(type)){
 					//It's a boss and it's dead; add it to the list if it's not there already and print the message for it
 					mp.BossesKilled.Add(type);
 					var lines = OnKillMessages[type].Split('\n');

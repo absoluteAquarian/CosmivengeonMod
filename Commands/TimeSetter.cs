@@ -68,18 +68,21 @@ namespace CosmivengeonMod.Commands{
 				usedKeyword = true;
 			}else if(args.Length < 2){
 				caller.Reply("Parameter list was too small.", Color.Red);
+				caller.Reply(Usage);
 				return;
 			}
 
 			//Check if the time format (AM/PM) is correct
 			if(tickTime < 0 && !(args[1] == "PM" || args[1] == "AM")){
 				caller.Reply("Time format was invalid.", Color.Red);
+				caller.Reply(Usage);
 				return;
 			}
 
 			//Check if the time value is valid (only digits and ":")
 			if(tickTime < 0 && !IsValidTime(args[0])){
 				caller.Reply("Time format was invalid.", Color.Red);
+				caller.Reply(Usage);
 				return;
 			}
 

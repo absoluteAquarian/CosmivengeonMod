@@ -25,7 +25,7 @@ namespace CosmivengeonMod.Items.Draek{
 			item.value = Item.sellPrice(gold: 1, silver: 50);
 			item.buffType = ModContent.BuffType<Buffs.BabyBasiliskBuff>();
 			item.mana = 12;
-			item.damage = 15;
+			item.damage = 23;
 			item.knockBack = 2f;
 			item.summon = true;
 		}
@@ -34,6 +34,7 @@ namespace CosmivengeonMod.Items.Draek{
 			ModRecipe recipe = new ModRecipe(mod);
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
 			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);
+			recipe.AddIngredient(ModContent.ItemType<RaechonShell>());
 			recipe.AddTile(TileID.Anvils);
 			recipe.SetResult(this);
 			recipe.AddRecipe();

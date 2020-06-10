@@ -7,6 +7,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.ModLoader.Config;
 
 namespace CosmivengeonMod{
 	public static class CosmivengeonUtils{
@@ -24,6 +25,7 @@ namespace CosmivengeonMod{
 				&& !player.ZoneUndergroundDesert
 				&& !player.ZoneGlowshroom
 				&& !player.ZoneMeteor
+				&& !player.ZoneBeach
 				&& player.ZoneOverworldHeight;
 		}
 
@@ -71,9 +73,15 @@ namespace CosmivengeonMod{
 		/// <returns></returns>
 		public static float ToTerrariaAngle(float angle) => (angle - MathHelper.Pi) % MathHelper.TwoPi;
 
+		public static bool TileIsSolidNotPlatform(Vector2 pos) => TileIsSolidNotPlatform((int)pos.X >> 4, (int)pos.Y >> 4);
+
+		public static bool TileIsSolidNotPlatform(int x, int y) => TileIsSolidOrPlatform(x, y) && Main.tile[x, y].type != TileID.Platforms;
+
+		public static bool TileIsSolidOrPlatform(Vector2 pos) => TileIsSolidOrPlatform((int)pos.X >> 4, (int)pos.Y >> 4);
+
 		public static bool TileIsSolidOrPlatform(int x, int y){
-			Tile tile = Main.tile[x, y];
-			return tile != null && (tile.nactive() && (Main.tileSolid[tile.type] || Main.tileSolidTop[tile.type] && tile.frameY == 0) || tile.liquid > 64);
+			Tile tile = Framing.GetTileSafely(x, y);
+			return tile.nactive() && (Main.tileSolid[tile.type] || Main.tileSolidTop[tile.type] && tile.frameY == 0) || tile.liquid > 64;
 		}
 
 		private static double Average(params double[] values) => values.Average();
@@ -122,36 +130,43 @@ namespace CosmivengeonMod{
 		public static T GetModeChoice<T>(T normal, T expert, T desolation)
 			=> CosmivengeonWorld.desoMode ? desolation : (Main.expertMode ? expert : normal);
 
-		/// <summary>
-		/// I forgot why I made this, but it works.  Seems pointless but it's best to just keep it here.
-		/// </summary>
-		public static int SpawnProjectile(this NPC npc, Vector2 position, Vector2 velocity, int type, int damage, float knockback, int owner = 255, float ai0 = 0f, float ai1 = 0f){
-			int npcDamage = npc.damage;
-			npc.damage = 0;
+		public static void SpawnProjectileSynced(Vector2 position, Vector2 velocity, int type, int damage, float knockback, float ai0 = 0f, float ai1 = 0f, int owner = 255){
+			if(owner == 255)
+				owner = Main.myPlayer;
 
-			int proj = Projectile.NewProjectile(position, velocity, type, TrueDamage(damage), knockback, owner, ai0, ai1);
+			if(Main.netMode != NetmodeID.MultiplayerClient){
+				int proj = Projectile.NewProjectile(position, velocity, type, TrueDamage(damage), knockback, owner, ai0, ai1);
 
-			npc.damage = npcDamage;
-			return proj;
+				NetMessage.SendData(MessageID.SyncProjectile, number: proj);
+			}
 		}
 
-		public static int SpawnProjectile(this NPC npc, float spawnX, float spawnY, float velocityX, float velocityY, int type, int damage, float knockback, int owner = 255, float ai0 = 0f, float ai1 = 0f)
-			=> npc.SpawnProjectile(new Vector2(spawnX, spawnY), new Vector2(velocityX, velocityY), type, damage, knockback, owner, ai0, ai1);
+		public static void SpawnNPCSynced(Vector2 spawn, int type, float ai0 = 0f, float ai1 = 0f, float ai2 = 0f, float ai3 = 0f){
+			if(Main.netMode != NetmodeID.MultiplayerClient){
+				int npc = NPC.NewNPC((int)spawn.X, (int)spawn.Y, type, 0, ai0, ai1, ai2, ai3, 255);
+
+				NetMessage.SendData(MessageID.SyncNPC, number: npc);
+			}
+		}
 
 		public static void PlayMusic(ModNPC modNPC, CosmivengeonBoss boss){
 			float songChance = Main.rand.NextFloat();
 
-			if(boss == CosmivengeonBoss.Draek){
-				if(songChance < 0.01)
-					modNPC.music = ModContent.GetInstance<CosmivengeonMod>().GetSoundSlot(SoundType.Music, "Sounds/Music/successor_of_the_kazoo");
-				else if(songChance < 0.06)
-					modNPC.music = ModContent.GetInstance<CosmivengeonMod>().GetSoundSlot(SoundType.Music, "Sounds/Music/RETRO_SuccessorOfTheJewel");
-				else
-					modNPC.music = ModContent.GetInstance<CosmivengeonMod>().GetSoundSlot(SoundType.Music, "Sounds/Music/Successor_of_the_Jewel");
-			}else if(boss == CosmivengeonBoss.Frostbite)
-				modNPC.music = ModContent.GetInstance<CosmivengeonMod>().GetSoundSlot(SoundType.Music, "Sounds/Music/Frigid_Feud");
+			CosmivengeonMod modInstance = ModContent.GetInstance<CosmivengeonMod>();
 
-			modNPC.musicPriority = MusicPriority.BossLow;
+			if(boss == CosmivengeonBoss.Draek){
+				/*	1% chance - kazoo theme
+				 *	5% chance - retro theme
+				 *	94% chance - current theme
+				 */
+				if(songChance < 0.01)
+					modNPC.music = modInstance.GetSoundSlot(SoundType.Music, "Sounds/Music/successor_of_the_kazoo");
+				else if(songChance < 0.06)
+					modNPC.music = modInstance.GetSoundSlot(SoundType.Music, "Sounds/Music/RETRO_SuccessorOfTheJewel");
+				else
+					modNPC.music = modInstance.GetSoundSlot(SoundType.Music, "Sounds/Music/Successor_of_the_Jewel");
+			}else if(boss == CosmivengeonBoss.Frostbite)
+				modNPC.music = modInstance.GetSoundSlot(SoundType.Music, "Sounds/Music/Frigid_Feud");
 		}
 
 		/// <summary>
@@ -364,6 +379,30 @@ namespace CosmivengeonMod{
 			for(int i = 0; i < size; i++)
 				arr[i] = defaultValue;
 			return arr;
+		}
+
+		public static float RotationFromVelocity(float velocityComponent, float velocityRange, float degrees)
+			=> Math.Min(Math.Max(-velocityRange, velocityComponent), velocityRange) / velocityRange * MathHelper.ToRadians(degrees);
+
+		public static bool WithinDistance(this Entity ent, Vector2 pos, float distance)
+			=> ent.DistanceSQ(pos) < distance * distance;
+
+		public static void SmoothStep(this Entity entity, ref Vector2 pos, int width = -1, int height = -1){
+			//Smooth steps down/up slopes
+			if(entity is NPC npc){
+				if(npc.velocity.Y == 0f)
+					Collision.StepDown(ref npc.position, ref npc.velocity, npc.width, npc.height, ref npc.stepSpeed, ref npc.gfxOffY);
+				if(npc.velocity.Y >= 0)
+					Collision.StepUp(ref npc.position, ref npc.velocity, npc.width, npc.height, ref npc.stepSpeed, ref npc.gfxOffY, specialChecksMode: 1);
+			}else if(entity is Projectile proj){
+				width = width == -1 ? proj.width : width;
+				height = height == -1 ? proj.height : height;
+
+				if(proj.velocity.Y == 0f)
+					Collision.StepDown(ref pos, ref proj.velocity, width, height, ref proj.stepSpeed, ref proj.gfxOffY);
+				if(proj.velocity.Y >= 0)
+					Collision.StepUp(ref pos, ref proj.velocity, width, height, ref proj.stepSpeed, ref proj.gfxOffY, specialChecksMode: 1);
+			}
 		}
 	}
 

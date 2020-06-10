@@ -17,8 +17,6 @@ namespace CosmivengeonMod.Items.Frostbite{
 			item.value = Item.sellPrice(0, 0, 1, 75);
 		}
 
-		public override bool CanUseItem(Player player){
-			return false;
-		}
+		public override bool CanUseItem(Player player) => false;
 	}
 }

@@ -1,14 +1,12 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Projectiles.Draek;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-
-using CosmivengeonMod.Projectiles.Draek;
-
 using Summon = CosmivengeonMod.NPCs.Draek.DraekWyrmSummon_Head;
-using System.IO;
 
 namespace CosmivengeonMod.NPCs.Draek{
 	[AutoloadBossHead]
@@ -44,6 +42,14 @@ namespace CosmivengeonMod.NPCs.Draek{
 			NPCID.Sets.TrailingMode[npc.type] = 0;
 		}
 
+		public int HealthThreshold;
+
+		public static readonly int BaseHealth = 2500;
+
+		// Expert:   +30% base max per player
+		// Desomode: +60% base max per player
+		public static float GetHealthAugmentation() => CosmivengeonUtils.GetModeChoice(0, 0.3f, 0.6f);
+
 		public override void SetDefaults(){
 			npc.scale = 1f;
 			//Draek frame dimentions:  186x290px
@@ -52,7 +58,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.aiStyle = -1;	//-1 means that this enemy has a unique AI; don't copy an existing style
 			npc.damage = 45;
 			npc.defense = 18;
-			npc.lifeMax = 3000;
+			npc.lifeMax = BaseHealth;
 			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
 			npc.noGravity = true;
 			npc.knockBackResist = 0f;	//100% kb resist
@@ -80,13 +86,12 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		public override void ScaleExpertStats(int numPlayers, float bossLifeScale){
-			npc.lifeMax /= 2;	//Negate vanilla health bonus
+			//Health increase handled in DetourNPC
+
 			if(!CosmivengeonWorld.desoMode){
-				npc.lifeMax += (int)(npc.lifeMax / 2f) * (numPlayers + 1);
 				npc.damage = 55;
 				npc.defense = 22;
 			}else{
-				npc.lifeMax += (int)(npc.lifeMax * 2f / 3f) * (numPlayers + 1);
 				npc.damage = 80;
 				npc.defense = 26;
 			}
@@ -374,29 +379,31 @@ namespace CosmivengeonMod.NPCs.Draek{
 			return Vector2.Distance(npc.Center, playerTarget.Center) > 200 * 16;
 		}
 
-		public override bool CheckDead(){
-			int newNPC = NPC.NewNPC((int)(npc.Center.X), (int)(npc.Center.Y), ModContent.NPCType<DraekP2Head>());
-			Main.npc[newNPC].modNPC.music = music;
-			Main.npc[newNPC].modNPC.musicPriority = musicPriority;
-			
-			//Spawn 8 gores, 4 per arm
-			Vector2 goreTop = npc.Center;
-			goreTop.X += (npc.TopLeft.X - npc.Center.X) / 2f;
-			goreTop.Y += 20f;
-			for(int i = 0; i < 4; i++){
-				int gore = Gore.NewGore(goreTop + new Vector2(0, 16 * i), new Vector2(Main.rand.NextFloat(-2, 2), Main.rand.NextFloat(-3, 5)), mod.GetGoreSlot("Gores/DraekArm"));
-				Main.gore[gore].numFrames = 3;
-				Main.gore[gore].frame = (byte)Main.rand.Next(3);
-			}
-			goreTop.X = npc.Center.X;
-			goreTop.X += (npc.TopRight.X - npc.Center.X) / 2f;
-			for(int i = 0; i < 4; i++){
-				int gore = Gore.NewGore(goreTop + new Vector2(0, 16 * i), new Vector2(Main.rand.NextFloat(-2, 2), Main.rand.NextFloat(-3, 5)), mod.GetGoreSlot("Gores/DraekArm"));
-				Main.gore[gore].numFrames = 3;
-				Main.gore[gore].frame = (byte)Main.rand.Next(3);
-			}
+		public override void HitEffect(int hitDirection, double damage){
+			if(npc.life < HealthThreshold){
+				npc.life = 0;
 
-			return true;
+				int newNPC = NPC.NewNPC((int)npc.Center.X, (int)npc.Center.Y, ModContent.NPCType<DraekP2Head>());
+				Main.npc[newNPC].modNPC.music = music;
+				Main.npc[newNPC].modNPC.musicPriority = musicPriority;
+			
+				//Spawn 8 gores, 4 per arm
+				Vector2 goreTop = npc.Center;
+				goreTop.X += (npc.TopLeft.X - npc.Center.X) / 2f;
+				goreTop.Y += 20f;
+				for(int i = 0; i < 4; i++){
+					int gore = Gore.NewGore(goreTop + new Vector2(0, 16 * i), new Vector2(Main.rand.NextFloat(-2, 2), Main.rand.NextFloat(-3, 5)), mod.GetGoreSlot("Gores/DraekArm"));
+					Main.gore[gore].numFrames = 3;
+					Main.gore[gore].frame = (byte)Main.rand.Next(3);
+				}
+				goreTop.X = npc.Center.X;
+				goreTop.X += (npc.TopRight.X - npc.Center.X) / 2f;
+				for(int i = 0; i < 4; i++){
+					int gore = Gore.NewGore(goreTop + new Vector2(0, 16 * i), new Vector2(Main.rand.NextFloat(-2, 2), Main.rand.NextFloat(-3, 5)), mod.GetGoreSlot("Gores/DraekArm"));
+					Main.gore[gore].numFrames = 3;
+					Main.gore[gore].frame = (byte)Main.rand.Next(3);
+				}
+			}
 		}
 
 		public override void AI(){
@@ -417,8 +424,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 				Child = Main.npc[newNPC].modNPC as DraekP1ExtraHurtbox;
 
 				//Spawn the lasting projectile
-				npc.SpawnProjectile(npc.Center, Vector2.Zero, ModContent.ProjectileType<DraekP1ExtraProjectile>(),
-					npc.damage, 6f, Main.myPlayer, npc.whoAmI);
+				CosmivengeonUtils.SpawnProjectileSynced(npc.Center, Vector2.Zero, ModContent.ProjectileType<DraekP1ExtraProjectile>(),
+					npc.damage, 6f, npc.whoAmI);
 
 				npc.netUpdate = true;
 			}
@@ -447,7 +454,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 			AI_Animation_Counter++;
 
-			if(npc.life < npc.lifeMax / 2f && !switchPhases && CurrentPhase == Phase_1){
+			if(npc.life - HealthThreshold < (npc.lifeMax - HealthThreshold) / 2f && !switchPhases && CurrentPhase == Phase_1){
 				switchPhases = true;
 
 				CosmivengeonUtils.SendMessage("You're stronger than I expected, aren't you?  No matter.", TextColour);
@@ -851,14 +858,11 @@ namespace CosmivengeonMod.NPCs.Draek{
 			int laserDamage = 20 + CosmivengeonUtils.GetModeChoice(0, 20, 30);
 
 			if(AI_Timer % delay == 0 && Main.netMode != NetmodeID.MultiplayerClient){
-				npc.SpawnProjectile(npc.Center.X,
-					npc.Bottom.Y - (0.667f * npc.height),
-					0f,
-					0f,
+				CosmivengeonUtils.SpawnProjectileSynced(npc.Bottom - new Vector2(0, 0.667f * npc.height),
+					Vector2.Zero,
 					ModContent.ProjectileType<DraekLaser>(),
 					laserDamage,
 					6f,
-					Main.myPlayer,
 					playerTarget.Center.X + positionOffset.X,
 					playerTarget.Center.Y + positionOffset.Y
 				);
@@ -894,12 +898,11 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 					int swordDamage = 35 + CosmivengeonUtils.GetModeChoice(0, 20, 55);
 
-					npc.SpawnProjectile(dir,
+					CosmivengeonUtils.SpawnProjectileSynced(dir,
 						Vector2.Zero,
 						ModContent.ProjectileType<DraekSword>(),
 						swordDamage,
 						12f,
-						Main.myPlayer,
 						npc.target,
 						CosmivengeonWorld.desoMode ? ((CurrentPhase == Phase_1) ? 2 : 3) : 0
 					);

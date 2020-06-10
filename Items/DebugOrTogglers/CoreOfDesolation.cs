@@ -47,10 +47,13 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 		}
 
 		public override bool CanUseItem(Player player){
-			//If the game is in multiplayer, only allow the host to use the item
+			//If the game is in multiplayer, only allow the host to use the item OR if this game is using a dedicated server, prevent the item's use entirely
 			// TODO: Make sure that this actually works
-			if(Main.netMode != NetmodeID.SinglePlayer && !Netplay.Clients[Main.myPlayer].Socket.GetRemoteAddress().IsLocalHost()){
+			if(Main.netMode != NetmodeID.SinglePlayer && !Main.dedServ && !Netplay.Clients[Main.myPlayer].Socket.GetRemoteAddress().IsLocalHost()){
 				Main.NewText("Only the server host can use this item!", Color.Red);
+				return false;
+			}else if(Main.dedServ){
+				Main.NewText("This item cannot be used on dedicated servers!  Get the server owner to enable Desolation mode through the server's console.", Color.Red);
 				return false;
 			}
 

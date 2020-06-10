@@ -7,7 +7,7 @@ namespace CosmivengeonMod.Items.Frostbite{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Crystalice Bow");
 			Tooltip.SetDefault("A sleek, frozen bow." +
-				"\nCauses all arrows fired from it to inflict Frostburn.");
+				"\nCauses all arrows fired from it to inflict [c/6fa8dc:Frostburn].");
 		}
 
 		public override void SetDefaults(){

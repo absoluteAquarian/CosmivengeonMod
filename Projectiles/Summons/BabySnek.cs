@@ -1,286 +1,301 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Summons{
-	public class BabySnek : ModProjectile{
-		public override void SetStaticDefaults(){
+	public class BabySnek : Summon{
+		public override void ExtraStaticDefaults(){
 			DisplayName.SetDefault("Yamanu");
-			Main.projFrames[projectile.type] = Main.projFrames[ProjectileID.BabySlime];
-			Main.projPet[projectile.type] = true;
-			ProjectileID.Sets.MinionTargettingFeature[projectile.type] = true; //This is necessary for right-click targeting
-			ProjectileID.Sets.MinionSacrificable[projectile.type] = true;  //Required to have multiple of the same summon
+			Main.projFrames[projectile.type] = 11;
 		}
 
-		public override void SetDefaults(){
-			//Copied from Projectile.SetDefaults()
-			projectile.netImportant = true;
+		public override void ExtraDefaults(){
 			projectile.scale = 0.8f;
-			projectile.width = 50;
-			projectile.height = 60;
-			projectile.penetrate = -1;
-			projectile.timeLeft *= 5;
-			projectile.minion = true;
-			projectile.minionSlots = 1f;
-			projectile.tileCollide = true;
-			projectile.friendly = true;
-			projectile.hostile = false;
+			projectile.width = 66;
+			projectile.height = 62;
 
-			drawOriginOffsetY = 8;
+			drawOffsetX = -8;
+			drawOriginOffsetY = -4;
 		}
 
-		public bool Fly{
-			get;
-			internal set;
-		} = false;
-		public float DistanceToTarget => CosmivengeonUtils.fSqrt(xDistanceToTarget * xDistanceToTarget + yDistanceToTarget + yDistanceToTarget);
-		private float xDistanceToTarget = 0f;
-		private float yDistanceToTarget = 0f;
-		private int SmallHopTimer = 0;
-		private int BigHopTimer = 0;
+		private bool inLine = false;
+		private bool farAbove = false;
+		private bool slightlyAbove = false;
 
-		private bool YTruncatedToZero = false;
+		private int timer_SmallHop = 0;
+		private int timer_BigHop = 0;
+		private int timer_DoorStuck = 0;
+		private const int JumpDelayMax = 12;
+		private int timer_jumpDelay = JumpDelayMax;
 
-		private bool YVelocityIsZero => projectile.velocity.Y == 0 && projectile.oldVelocity.Y == 0;
+		private readonly float vel_SmallHop = -9f;
+		private readonly float vel_BigHop = -13.2f;
+		private int jumpTries = 0;
 
-//		private int DebugTimer = 0;
+		private static readonly int max_SmallHop = 24;
+		private static readonly int max_BigHop = 60;
 
-		private const int MAX_TARGET_DISTANCE = 60 * 16;
-		private int MAX_PLAYER_DISTANCE => 7 * 16 * (projectile.minionPos + 1);
-		private const int MAX_PLAYER_FLY_DISTANCE = 30 * 16;
-		private Vector2 Player_StandBehind_Distance => new Vector2(3 * 16, 0) * (projectile.minionPos + 1);
+		private const int IdleOffset = 0;	//1 frame
+		private const int MoveOffset = 1;	//3 frames
+		private const int JumpOffset = 4;	//2 frames
+		private const int FlyOffset = 6;	//5 frames
 
-		private Player ownerPlayer = null;
-		private CosmivengeonPlayer modPlayer = null;
-		private NPC npcTarget = null;
+		private int animTimer_Idle = 0;
+		private int animTimer_Move = 0;
+		private int animTimer_Fly = 0;
 
-		public override bool MinionContactDamage() => npcTarget != null;
+		private readonly int animDelay_Idle = 12;
+		private readonly int animDelay_Move = 15;
+		private readonly int animDelay_Fly = 12;
 
-		public override void AI(){
-			ownerPlayer = Main.player[projectile.owner];
-			modPlayer = ownerPlayer.GetModPlayer<CosmivengeonPlayer>();
+		private readonly int animFactor_Move = 8;
 
+		private Rectangle BetterHitbox;
+
+		public override void ModifyDamageHitbox(ref Rectangle hitbox){
+			Rectangle rect = BetterHitbox;
+			
+			//Resize the hitbox and update its position
+			rect.X = (int)(rect.X * projectile.scale + projectile.position.X);
+			rect.Y = (int)(rect.Y * projectile.scale + projectile.position.Y);
+			rect.Width = (int)(rect.Width * projectile.scale);
+			rect.Height = (int)(rect.Height * projectile.scale);
+
+			hitbox = rect;
+		}
+
+		private bool firstTick = true;
+		private bool onGround;
+
+		public override void UpdateTime(){
 			if(ownerPlayer.dead)
 				modPlayer.babySnek = false;
 			if(modPlayer.babySnek)
 				projectile.timeLeft = 2;
-			
-			//First, check if the player is flying or the summon is too far away from the player (60 tiles).
-			//If either are true, then set "fly" to true and force the summon to fly back to the player
-			if(((ownerPlayer.rocketDelay2 > 0 || ownerPlayer.wingTime > 0) && Vector2.Distance(projectile.Center, ownerPlayer.Center) > MAX_PLAYER_FLY_DISTANCE) || Vector2.Distance(projectile.Center, ownerPlayer.Center) > MAX_TARGET_DISTANCE){
-				Fly = true;
-				projectile.tileCollide = false;
-			}else if(Vector2.Distance(projectile.Center, ownerPlayer.Center) < MAX_PLAYER_DISTANCE && Fly && !(ownerPlayer.mount.Active && ownerPlayer.mount.CanFly)){
-				Fly = false;
-				projectile.tileCollide = true;
-				projectile.rotation = 0;
+		}
+
+		public override void PostCheckTooFarFromPlayer(){
+			if(onGround && npcTarget != null){
+				inLine = npcTarget.Bottom.Y >= projectile.Center.Y && projectile.Center.Y >= npcTarget.Top.Y;
+				farAbove = !inLine && npcTarget.Bottom.Y < projectile.Center.Y - 6 * 16;
+				slightlyAbove = !farAbove && npcTarget.Bottom.Y < projectile.Center.Y;
+
+				if(AnimationState == AnimationStates.Jumping)
+					AnimationState = AnimationStates.Moving;
+			}
+		}
+
+		public override void Behaviour_AttackNPC(){
+			if(Math.Abs(npcTarget.Center.X - projectile.Center.X) > 12){
+				//Friction
+				projectile.velocity.X *= 1 - 1.25f / 60;
+
+				float acceleration = projectile.velocity.Y != 0 || projectile.oldVelocity.Y != 0 ? 11.35f : 8.95f;
+
+				projectile.velocity.X += (npcTarget.Center.X >= projectile.Center.X).ToDirectionInt() * acceleration / 60;
 			}
 
-			if(Fly){
-				AI_Fly();
-			}else{
-				TryTargetNPC();
+			//If the NPC is in line with the minion, just move towards it (do nothing; reset the timers)
+			//Otherwise, if it's barely above the minion, start doing the small hops
+			//Otherwise, if it's far above the minion, start doing the big hops
+			//Only do the hops if the NPC is close enough
+			bool closeEnough = npcTarget.Left.X - 5 * 16 < projectile.Center.X && projectile.Center.X < npcTarget.Right.X + 5 * 16;
 
-				MoveToOwnerOrNPC();
+			if(onGround && (inLine || !closeEnough)){
+				timer_BigHop = max_BigHop * 2 / 3;
+				timer_SmallHop = max_SmallHop / 2;
+				AnimationState = AnimationStates.Moving;
+				timer_jumpDelay = JumpDelayMax;
+			}else if(slightlyAbove){
+				JumpHelper(vel_SmallHop, ref timer_SmallHop, max_SmallHop, true, ref onGround);
+			}else if(farAbove){
+				JumpHelper(vel_BigHop, ref timer_BigHop, max_BigHop, false, ref onGround);
+			}
 
-				//First, check to see if the projectile can't move due to tiles
-				//If this is the case, then do a small hop to try and get over the tile
-				if(BigHopTimer < 0 && SmallHopTimer < 0 && projectile.position == projectile.oldPosition && DistanceToTarget > 1f){
-					projectile.velocity.Y = -6f;
-					SmallHopTimer = Main.rand.Next((int)(0.5f * 60), 2 * 60);
+			projectile.rotation = 0f;
+
+			Do_SmoothStep();
+		}
+
+		public override void ClampWalkSpeed(){
+			projectile.velocity.X.Clamp(-animFactor_Move, animFactor_Move);
+		}
+
+		public override void PreCheckPlayerState(){
+			onGround = projectile.velocity.Y == 0 && projectile.oldVelocity.Y >= 0;
+		}
+
+		public override void UpdateGravity(){
+			projectile.velocity.Y += 18.45f / 60;
+			if(projectile.velocity.Y > 16)
+				projectile.velocity.Y = 16;
+		}
+
+		public override void UpdateAnimation(){
+			DoAnimation(onGround);
+		}
+
+		public override void PostUpdate(){
+			projectile.velocity.X.Clamp(-16, 16);
+			projectile.velocity.Y.Clamp(-16, 16);
+
+			UpdateHitbox();
+
+			if(firstTick)
+				firstTick = false;
+		}
+
+		private void JumpHelper(float velocity, ref int timer, int timerMax, bool smallHop, ref bool onGround){
+			if(smallHop)
+				timer_BigHop = max_BigHop * 2 / 3;
+			else
+				timer_SmallHop = max_SmallHop / 2;
+
+			timer--;
+
+			if(onGround && timer < 0){
+				timer_jumpDelay--;
+				AnimationState = AnimationStates.Jumping;
+
+				if(timer_jumpDelay <= 0){
+					timer = timerMax;
+					timer_jumpDelay = JumpDelayMax;
+					projectile.velocity.Y = velocity * Main.rand.NextFloat(0.875f, 1.225f);
+					onGround = false;
+					projectile.netUpdate = true;
 				}
+			}else if(onGround){
+				AnimationState = AnimationStates.Moving;
+			}
+		}
 
-				//Apply gravity
-				projectile.velocity.Y += (20f / 60f);
-
-				NoFly_ChangeFrame();
-
-				projectile.velocity.Y.Clamp(-30f, 30f);
-
-				if(YVelocityIsZero)
-					projectile.velocity.Y = -3f;
+		private void UpdateHitbox(){
+			switch(projectile.frame){
+				case IdleOffset:
+					BetterHitbox = new Rectangle(12, 14, 32, 47);
+					break;
+				case MoveOffset:
+					BetterHitbox = new Rectangle(0, 48, 66, 13);
+					break;
+				case MoveOffset + 1:
+					BetterHitbox = new Rectangle(0, 46, 62, 16);
+					break;
+				case MoveOffset + 2:
+					BetterHitbox = new Rectangle(0, 44, 60, 18);
+					break;
+				case JumpOffset:
+					BetterHitbox = new Rectangle(12, 24, 36, 38);
+					break;
+				case JumpOffset + 1:
+					BetterHitbox = new Rectangle(12, 0, 28, 62);
+					break;
+				case FlyOffset:
+					BetterHitbox = new Rectangle(0, 28, 66, 14);
+					break;
+				case FlyOffset + 1:
+					BetterHitbox = new Rectangle(0, 26, 66, 18);
+					break;
+				case FlyOffset + 2:
+					BetterHitbox = new Rectangle(0, 28, 66, 14);
+					break;
+				case FlyOffset + 3:
+					BetterHitbox = new Rectangle(0, 26, 66, 18);
+					break;
+				case FlyOffset + 4:
+					BetterHitbox = new Rectangle(0, 26, 66, 16);
+					break;
+				default:
+					goto case IdleOffset;
 			}
 
-			YTruncatedToZero = false;
+			if(projectile.spriteDirection == -1)
+				BetterHitbox.X = 66 - BetterHitbox.X - BetterHitbox.Width;
+		}
 
-			//Apply friction
-			projectile.velocity.X *= 0.72f;
+		private void DoAnimation(bool onGround){
+			if(AnimationState == AnimationStates.Flying){
+				UpdateAnimation(ref animTimer_Fly, 5, animDelay_Fly, FlyOffset);
+				animTimer_Idle = 0;
+				animTimer_Move = 0;
+			}else if(AnimationState == AnimationStates.Jumping){
+				projectile.frame = JumpOffset + (!onGround ? 1 : 0);
+				animTimer_Idle = 0;
+				animTimer_Move = 0;
+				animTimer_Fly = 0;
+			}else if(AnimationState == AnimationStates.Moving){
+				int timerAdd = (int)(3 * Utils.Clamp(Math.Abs(projectile.velocity.X), 0, animFactor_Move) / animFactor_Move);
+				UpdateAnimation(ref animTimer_Move, 4, animDelay_Move, MoveOffset, timerAdd);
+				if(projectile.frame == MoveOffset + 3)
+					projectile.frame = MoveOffset + 1;
 
-			projectile.velocity.X.Clamp(-10f, 10f);
-			projectile.velocity.Y.Clamp(-15f, 15f);
-
-			if(Math.Abs(projectile.velocity.X) < 6f / 60f){
-				projectile.velocity.X = 0f;
+				animTimer_Idle = 0;
+				animTimer_Fly = 0;
+			}else if(AnimationState == AnimationStates.Idle){
+				UpdateAnimation(ref animTimer_Idle, 1, animDelay_Idle, IdleOffset);
+				animTimer_Move = 0;
+				animTimer_Fly = 0;
 			}
-			if(Math.Abs(projectile.velocity.Y) < 6f / 60f){
-				projectile.velocity.Y = 0f;
-				YTruncatedToZero = true;
+		}
+
+		private void UpdateAnimation(ref int timer, int frameCount, int delay, int offset, int extraAdd = 0){
+			timer += 1 + extraAdd;
+
+			projectile.frame = timer % (frameCount * delay) / delay + offset;
+		}
+
+		public override bool OnTileCollide(Vector2 oldVelocity){
+			Vector2 nextTL = projectile.TopLeft + oldVelocity - new Vector2(4f, 0f);
+			Vector2 nextTR = projectile.TopRight + oldVelocity + new Vector2(4f, 0f);
+			Vector2 nextBL = projectile.BottomLeft + oldVelocity - new Vector2(4f, 0f);
+			Vector2 nextBR = projectile.BottomRight + oldVelocity + new Vector2(4f, 0f);
+
+			if(projectile.velocity.X == 0 && projectile.velocity.Y == 0 && (oldVelocity.X < 0 && (CosmivengeonUtils.TileIsSolidNotPlatform(nextTL) || CosmivengeonUtils.TileIsSolidNotPlatform(nextBL)) || (oldVelocity.X > 0 && (CosmivengeonUtils.TileIsSolidNotPlatform(nextTR) || CosmivengeonUtils.TileIsSolidNotPlatform(nextBR))))){
+				timer_DoorStuck++;
+
+				//We've been touching a wall for 35 ticks
+				if(timer_DoorStuck >= 35){
+					float vel = jumpTries < 4 ? vel_SmallHop : vel_SmallHop * 1.212f;
+					int nextJumpsCount = jumpTries + 1;
+
+					if(timer_jumpDelay > 0){
+						timer_jumpDelay--;
+						projectile.frame = JumpOffset;
+					}else{
+						timer_DoorStuck = 0;
+						projectile.velocity.Y = vel;
+						jumpTries = nextJumpsCount;
+						projectile.frame = JumpOffset + 1;
+					}
+
+					AnimationState = AnimationStates.Jumping;
+
+					UpdateHitbox();
+				}
+			}else if(projectile.velocity.X != 0 && timer_DoorStuck > 0){
+				timer_DoorStuck = 0;
+				timer_jumpDelay = JumpDelayMax;
+				jumpTries = 0;
 			}
 
-			projectile.spriteDirection = (projectile.velocity.X >= 0) ? 1 : -1;
+			Do_SmoothStep();
 
-			if(SmallHopTimer >= 0)
-				SmallHopTimer--;
-			if(BigHopTimer >= 0)
-				BigHopTimer--;
+			return false;
+		}
 
-			/*		DEBUG SHIT
-			if(DebugTimer % 60 == 0 && npcTarget != null)
-				Main.NewText($"Baby Snek - npcTarget: {npcTarget.whoAmI}, Name: {npcTarget.GivenOrTypeName}");
-			else if(DebugTimer % 60 == 0 && npcTarget is null)
-				Main.NewText("Baby Snek - Not currently targeting a hostile NPC.");
-
-			DebugTimer++;
-			*/
+		public override void SpawnFlyDust() {
+			Dust dust = Dust.NewDustDirect(projectile.Center, 6, 6, 66);
+			dust.noGravity = true;
 		}
 
 		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough){
-			if(ownerPlayer != null)
-				fallThrough = projectile.Bottom.Y < ownerPlayer.Top.Y && npcTarget is null;
-			return base.TileCollideStyle(ref width, ref height, ref fallThrough);
-		}
-
-		private void AI_Fly(){
-			float acceleration = 1.5f;
-
-			//If the pet should fly back to the player, create a reference position behind the character and make the summon target it
-			Vector2 direction =
-				-Vector2.Normalize(projectile.Center - (ownerPlayer.Center - (ownerPlayer.direction * Player_StandBehind_Distance)));
-			direction *= acceleration;
-
-			if(Math.Abs(direction.X) < acceleration / 2f)
-				direction.X = acceleration * (direction.X < 0 ? -1 : 1) / 2f;
-
-			projectile.velocity += direction;
-
-			projectile.velocity.Y.Clamp(-5f, 5f);
-
-			projectile.rotation = projectile.velocity.X * 0.08f;
-				
-			int dust = Dust.NewDust(projectile.Bottom, 6, 6, 66);
-			Main.dust[dust].noGravity = true;
-
-			//Change the animation frame every 10 frames
-			if(++projectile.frameCounter >= 10){
-				projectile.frameCounter = 0;
-				projectile.frame = ++projectile.frame % Main.projFrames[projectile.type];
-				if(projectile.frame == 0)
-					projectile.frame = 2;
-			}
-
-			yDistanceToTarget = Math.Abs(ownerPlayer.Center.X - projectile.Center.X);
-			yDistanceToTarget = Math.Abs(ownerPlayer.Center.Y - projectile.Center.Y);
-		}
-
-		private void TryTargetNPC(){
-			npcTarget = null;
-
-			//If we're using the right-click feature, then target that NPC
-			if(ownerPlayer.HasMinionAttackTargetNPC){
-				npcTarget = Main.npc[ownerPlayer.MinionAttackTargetNPC];
-				return;
-			}
-
-			//Target the closest enemy to the player
-			for(int n = 0; n < Main.npc.Length; n++){
-				NPC npc = Main.npc[n];
-
-				//Ignore any NPCs further away than 60 blocks
-				if(npc.active && Vector2.Distance(npc.Center, projectile.Center) > MAX_TARGET_DISTANCE)
-					continue;
-
-				//If we haven't set a target and this NPC is hostile, set the target to this
-				if(npcTarget == null && npc.active && (!npc.friendly || npc.boss) && Vector2.Distance(npc.Center, ownerPlayer.Center) < MAX_TARGET_DISTANCE && npc.lifeMax > 5){
-					npcTarget = npc;
-					continue;
-				}
-
-				//If the current target is further away than this "npc" and it's hostile, then make this "npc" the new target
-				//Also ignore critters, which for some reason pass this check
-				if(npcTarget != null && npc.active && Vector2.Distance(npc.Center, ownerPlayer.Center) < Vector2.Distance(npcTarget.Center, ownerPlayer.Center) && (!npc.friendly || npc.boss) && npc.lifeMax > 5)
-					npcTarget = npc;
-			}
-		}
-
-		private void MoveToOwnerOrNPC(){
-			//If we have a valid target, then move towards it
-			if(npcTarget != null){
-				//First, check if the enemy is above this projectile.  if it is, then attempt to jump at it if the projectile's within 3 tiles horizontally of the enemy's center
-				//This projectile can only jump if it is not moving vertically
-				if(!YTruncatedToZero && BigHopTimer < 0 && YVelocityIsZero && npcTarget.Bottom.Y < projectile.Bottom.Y && xDistanceToTarget <= 3 * 16){
-					projectile.frame = 1;
-					projectile.velocity.Y = -10f;
-					BigHopTimer = Main.rand.Next(1 * 60, (int)(2.5f * 60));
-				}
-
-				xDistanceToTarget = Math.Abs(npcTarget.Center.X - projectile.Center.X);
-				yDistanceToTarget = Math.Abs(npcTarget.Center.Y - projectile.Center.Y);
-
-				float ratio = xDistanceToTarget / MAX_PLAYER_DISTANCE;
-				ratio.Clamp(0.9f, 1.3f);
-				ratio *= (7f / 60f);
-
-				Vector2 acceleration = -Vector2.Normalize(projectile.Center - npcTarget.Center) * ratio;
-
-				if(xDistanceToTarget > 1.5f * 16 && Math.Abs(acceleration.X) < 3f)
-					acceleration.X = 3f * (acceleration.X >= 0 ? 1 : -1);
-
-				projectile.velocity.X += acceleration.X;
-
-				if(xDistanceToTarget <= 1.5f * 16)
-					projectile.velocity.X *= 0.86f;
-			}else{
-				//Otherwise, there aren't any hostile entities nearby.  Move to behind the player
-				Vector2 targetPos = ownerPlayer.Center - ownerPlayer.direction * Player_StandBehind_Distance;
-				xDistanceToTarget = Math.Abs(targetPos.X - projectile.Center.X);
-				yDistanceToTarget = Math.Abs(targetPos.Y - projectile.Center.Y);
-
-				if(DistanceToTarget > 1 * 16){
-					float ratio = DistanceToTarget / Player_StandBehind_Distance.X / 2f;
-					ratio.Clamp(0.9f, 1.3f);
-					ratio *= (7f / 60f);
-
-					Vector2 acceleration =
-						-Vector2.Normalize(projectile.Center - (ownerPlayer.Center - ownerPlayer.direction * Player_StandBehind_Distance)) * ratio;
-
-					if(xDistanceToTarget > 1.5f * 16 && Math.Abs(acceleration.X) < 3f)
-						acceleration.X = 3f * (acceleration.X >= 0 ? 1 : -1);
-
-					projectile.velocity.X += acceleration.X;
-				}
-
-				//Finally, if the projectile is beneath the player, try to jump to the player
-				//Don't jump if the player is flying or if they're in a flying mount
-				if(BigHopTimer < 0 && !YTruncatedToZero && !(ownerPlayer.rocketDelay2 > 0 || ownerPlayer.wingTime > 0) && projectile.Top.Y > ownerPlayer.Bottom.Y && !(ownerPlayer.mount.Active && ownerPlayer.mount.CanFly)){
-					projectile.frame = 1;
-					projectile.velocity.Y = -10f;
-					BigHopTimer = Main.rand.Next((int)(1f * 60), (int)(1.75f * 60));
-				}
-			}
-		}
-
-		private void NoFly_ChangeFrame(){
-			//Change the animation frame depending on how the summon is moving
-			if(!YVelocityIsZero)
-				projectile.frame = 1;
-			else if(Math.Abs(projectile.velocity.X) < 5f){
-				if(++projectile.frameCounter >= 10){
-					projectile.frameCounter = 0;
-					projectile.frame = ++projectile.frame % Main.projFrames[projectile.type];
-					if(projectile.frame == 2)
-						projectile.frame = 0;
-				}
-			}else{
-				if(++projectile.frameCounter >= 20){
-					projectile.frameCounter = 0;
-					projectile.frame = ++projectile.frame % Main.projFrames[projectile.type];
-					if(projectile.frame == 2)
-						projectile.frame = 0;
-				}
-			}
+			//(value < null) and (null > value) will always be false, so no need to check for the things being not null first
+			fallThrough = npcTarget?.Bottom.Y > projectile.Bottom.Y + 16 || (npcTarget is null && projectile.Bottom.Y < ownerPlayer?.Top.Y);
+			return true;
 		}
 	}
 }

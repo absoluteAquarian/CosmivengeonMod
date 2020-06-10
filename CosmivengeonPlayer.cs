@@ -30,6 +30,7 @@ namespace CosmivengeonMod{
 
 		//Summon buffs
 		public bool babySnek;
+		public bool babyProwler;
 
 		//Pet buffs
 		public bool cloudPet;
@@ -43,13 +44,11 @@ namespace CosmivengeonMod{
 		public bool frostHorn_Broken;
 		public bool equipped_EyeOfTheBlizzard;
 		public bool abilityActive_EyeOfTheBlizzard;
-		public bool doubleTapUp;
-		public bool tapUp;
-		private int doubleTapUpOldTime = -1;
-		private int doubleTapUpNewTime = -1;
+		public bool DoubleTapUp => player.doubleTapCardinalTimer[1] < 15 && player.controlUp && player.releaseUp;
 
 		//Set bonus flags
 		public bool setBonus_Rockserpent;
+		public bool setBonus_Crystalice;
 
 		private List<EnergizedParticle> energizedParticles;
 
@@ -60,20 +59,24 @@ namespace CosmivengeonMod{
 		}
 
 		public override void ResetEffects(){
-			doubleTapUpNewTime = player.doubleTapCardinalTimer[1];
-			tapUp = player.controlUp && player.releaseUp;
-
-			doubleTapUp = doubleTapUpOldTime > doubleTapUpNewTime && tapUp;
-
 			primordialWrath = false;
+			
 			doubleJump_JewelOfOronitus = false;
+			
 			babySnek = false;
+			babyProwler = false;
+
 			cloudPet = false;
+			
 			equipped_SnowscaleCoat = false;
 			equipped_FrostHorn = false;
 			equipped_EyeOfTheBlizzard = false;
+			
 			frostHorn_Broken = false;
+
 			setBonus_Rockserpent = false;
+			setBonus_Crystalice = false;
+
 			stamina.Reset();
 		}
 
@@ -113,13 +116,6 @@ namespace CosmivengeonMod{
 			}
 
 			stamina.Update();
-		}
-
-		public override void PostUpdate(){
-			if(tapUp)
-				doubleTapUpOldTime = player.doubleTapCardinalTimer[1];
-			else if(player.doubleTapCardinalTimer[1] == 0)
-				doubleTapUpOldTime = -1;
 		}
 
 		public override void ProcessTriggers(TriggersSet triggersSet){
@@ -163,15 +159,13 @@ namespace CosmivengeonMod{
 			stamina.Active = false;
 			abilityActive_EyeOfTheBlizzard = false;
 			stamina.ResetValue();
-			doubleTapUpOldTime = -1;
-			doubleTapUpNewTime = -1;
 		}
 
 		public override void OnHitNPC(Item item, NPC target, int damage, float knockback, bool crit){
 			if(equipped_SnowscaleCoat && Main.rand.NextFloat() < 0.075f)
 				target.AddBuff(BuffID.Frostburn, 5 * 60);
 
-			OnHitNPCWithAnything(target, damage, knockback, crit);
+			OnHitNPCWithAnything(target);
 		}
 
 		public override void PostItemCheck(){
@@ -188,12 +182,14 @@ namespace CosmivengeonMod{
 			if(equipped_SnowscaleCoat && Main.rand.NextFloat() < 0.075f)
 				target.AddBuff(BuffID.Frostburn, 5 * 60);
 
-			OnHitNPCWithAnything(target, damage, knockback, crit);
+			OnHitNPCWithAnything(target);
 		}
 
-		private void OnHitNPCWithAnything(NPC target, int damage, float knockback, bool crit){
+		private void OnHitNPCWithAnything(NPC target){
 			if(setBonus_Rockserpent)
 				target.AddBuff(BuffID.Poisoned, 8 * 60);
+			if(setBonus_Crystalice)
+				target.AddBuff(BuffID.Frostburn, 6 * 60);
 		}
 
 		public override bool PreKill(double damage, int hitDirection, bool pvp, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource){

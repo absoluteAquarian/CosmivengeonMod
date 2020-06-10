@@ -105,12 +105,11 @@ namespace CosmivengeonMod.NPCs.Draek{
 			//Occasionally spit acid
 			if(CosmivengeonWorld.desoMode){
 				if(AcidSpitTimer < 0){
-					npc.SpawnProjectile(npc.position,
+					CosmivengeonUtils.SpawnProjectileSynced(npc.position,
 						Vector2.Zero,
 						ModContent.ProjectileType<Projectiles.Draek.DraekAcidSpit>(),
 						20,
 						3f,
-						Main.myPlayer,
 						Main.player[npc.target].Center.X,
 						Main.player[npc.target].Center.Y
 					);

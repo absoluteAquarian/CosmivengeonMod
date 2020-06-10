@@ -20,6 +20,7 @@ using Terraria.ModLoader;
 using Terraria.GameContent.UI;
 using CosmivengeonMod.NPCs.Frostbite;
 using CosmivengeonMod.NPCs.Draek;
+using CosmivengeonMod.Detours;
 
 namespace CosmivengeonMod{
 	public class CosmivengeonMod : Mod{
@@ -70,6 +71,11 @@ namespace CosmivengeonMod{
 		private StaminaUI staminaUI;
 		private UserInterface userInterface;
 
+		/// <summary>
+		/// "Cosmivengeon: Evil Drops" - "Any Shadow Scale"
+		/// </summary>
+		public static readonly string RecipeGroup_EvilDrops = "Cosmivengeon: Evil Drops";
+
 		public CosmivengeonMod(){ }
 
 		public override object Call(params object[] args){
@@ -105,19 +111,29 @@ namespace CosmivengeonMod{
 
 				userInterface = new UserInterface();
 				userInterface.SetState(staminaUI);
+
+				//Add music boxes
+				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/Frigid_Feud"), ModContent.ItemType<Items.MusicBoxes.FrostbiteBox>(), ModContent.TileType<Tiles.FrostbiteBox>());
+				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/Successor_of_the_Jewel"), ModContent.ItemType<Items.MusicBoxes.DraekBox>(), ModContent.TileType<Tiles.DraekBox>());
 			}
+
+			DetourNPC.Load();
 		}
 
 		public override void Unload(){
 			StaminaHotKey = null;
 			staminaUI = null;
 			userInterface = null;
+			
 			calamityInstance = null;
 			calamityInstanceLoadAttempted = false;
 			bossCheckListInstance = null;
 			bossCheckListInstanceLoadAttempted = false;
-			StaminaBuffsGlobalNPC.BossKilled = null;
+
+			StaminaBuffsGlobalNPC.BossIDs = null;
 			StaminaBuffsGlobalNPC.BuffActions = null;
+			StaminaBuffsGlobalNPC.OnKillMessages = null;
+			StaminaBuffsGlobalNPC.BossNames = null;
 		}
 
 		public override void PostSetupContent(){
@@ -222,20 +238,21 @@ namespace CosmivengeonMod{
 				[ModContent.NPCType<DraekP2Head>()] = false
 			};
 	*/
-			StaminaBuffsGlobalNPC.BossKilled = new Dictionary<int, bool>();
+			StaminaBuffsGlobalNPC.BossIDs = new List<int>();
 			StaminaBuffsGlobalNPC.BuffActions = new Dictionary<int, Action<Stamina>>();
 			StaminaBuffsGlobalNPC.OnKillMessages = new Dictionary<int, string>();
+			SetBossNamesDictionary();
 
 			//Vanilla bosses
 			AddStaminaBossBuff(NPCID.KingSlime,
 				"Defeating the monarch of slime has loosened up your muscles, allowing you to use Stamina for longer and recover from Exhaustion faster." +
-					"\nIdle increase rate: +10%, Exhausted increase rate: +6%, Active use rate: -3.5%, Maximum Stamina: +1000 units",
+					"\nIdle increase rate: +10%, Exhaustion increase rate: +6%, Active use rate: -3.5%, Maximum Stamina: +1000 units",
 				stamina => {
 					stamina.AddEffects(incMult: 0.1f, exIncMult: 0.06f, decMult: -0.035f, maxAdd: 1000);
 				});
 			AddStaminaBossBuff(NPCID.EyeofCthulhu,
 				"Defeating the master observer of the night has honed your senses, allowing you to move and attack faster while in the Active state." +
-					"\nActive attack speed rate: -8%, Active move acceleration rate: +6%, Active max move speed: +5%",
+					"\nActive attack speed rate: +8%, Active move acceleration rate: +6%, Active max move speed: +5%",
 				stamina => {
 					stamina.AttackSpeedBuffMultiplier += 0.08f;
 					stamina.MoveSpeedBuffMultiplier += 0.06f;
@@ -252,7 +269,7 @@ namespace CosmivengeonMod{
 				});
 			AddStaminaBossBuff(NPCID.BrainofCthulhu,
 				"Defeating the Crimson's mastermind has sharpened your wits, letting you react faster to your surroundings." +
-					"\nActive attack speed rate: -6.5%, Active move acceleration rate: +7%, Active max move speed: +4%",
+					"\nActive attack speed rate: +6.5%, Active move acceleration rate: +7%, Active max move speed: +4%",
 				stamina => {
 					stamina.AttackSpeedBuffMultiplier += 0.065f;
 					stamina.MoveSpeedBuffMultiplier += 0.07f;
@@ -260,7 +277,7 @@ namespace CosmivengeonMod{
 				});
 			AddStaminaBossBuff(NPCID.SkeletronHead,
 				"Defeating the cursed guardian of the Dungeon has further increased your control over your Stamina." +
-					"\nAll Active buffs: +5% (-5% for attack rate), All Exhaustion debuffs: +3.125%, Idle increase rate: +22.5%, Active use rate: -6%, Maximum Stamina: +2500 units",
+					"\nAll Active buffs: +5%, All Exhaustion debuffs: +3.125%, Idle increase rate: +22.5%, Active use rate: -6%, Maximum Stamina: +2500 units",
 				stamina => {
 					stamina.AddEffects(incMult: 0.225f, exIncMult: 0.08f, decMult: -0.06f, maxAdd: 2500);
 					stamina.AttackSpeedBuffMultiplier += 0.05f;
@@ -285,7 +302,7 @@ namespace CosmivengeonMod{
 				});
 			AddStaminaBossBuff(ModContent.NPCType<DraekP2Head>(),
 				"Defeating the serpentine master of the Forest has taught you to steady your form, allowing you to use your Stamina for longer and slightly increasing its benefits." +
-					"\nIdle increase rate: +18%, Active use rate: -7.5%, All Active buffs: +2% (-2% for attack rate), Maximum Stamina: +1500 units",
+					"\nIdle increase rate: +18%, Active use rate: -7.5%, All Active buffs: +2%, Maximum Stamina: +1500 units",
 				stamina => {
 					stamina.AddEffects(incMult: 0.18f, decMult: -0.075f, maxAdd: 1500);
 					stamina.AttackSpeedBuffMultiplier += 0.02f;
@@ -295,8 +312,39 @@ namespace CosmivengeonMod{
 			// TODO: add the rest of the Cosmivengeon boss stuff
 		}
 
+		private static void SetBossNamesDictionary(){
+			StaminaBuffsGlobalNPC.BossNames = new Dictionary<int, List<string>>(){
+				//Vanilla bosses
+				[NPCID.KingSlime] =         new List<string>(){ "King Slime", "Slime King", "KS", "SK" },
+				[NPCID.EyeofCthulhu] =      new List<string>(){ "Eye of Cthulhu", "EoC" },
+				[NPCID.EaterofWorldsHead] = new List<string>(){ "Eater of Worlds", "EoW" },
+				[NPCID.QueenBee] =          new List<string>(){ "Queen Bee", "Bee Queen", "QB", "BQ" },
+				[NPCID.SkeletronHead] =     new List<string>(){ "Skeletron", "Skele", "Skelebutt", "Sans" },
+				[NPCID.WallofFlesh] =       new List<string>(){ "Wall of Flesh", "Wall of Meat", "WoF" },
+				[NPCID.Retinazer] =         new List<string>(){ "The Twins", "Retinazer", "Spazmatism" },
+				[NPCID.TheDestroyer] =      new List<string>(){ "The Destroyer", "Destroyer" },
+				[NPCID.SkeletronPrime] =    new List<string>(){ "Skeletron Prime", "SkelePrime", "Sans Prime" },
+				[NPCID.Plantera] =          new List<string>(){ "Plantera", "Plant" },
+				[NPCID.Golem] =             new List<string>(){ "Golem" },
+				[NPCID.CultistBoss] =       new List<string>(){ "Lunatic Cultist", "Cultist", "CultistBoss", "Cultist Boss" },
+				[NPCID.MoonLordCore] =      new List<string>(){ "Moon Lord", "The Moon Lord" },
+				//Vanilla minibosses
+				[NPCID.DD2DarkMageT1] =     new List<string>(){ "Dark Mage", "DD2 Mage", "DD2 Dark Mage" },
+				[NPCID.DD2OgreT2] =         new List<string>(){ "Ogre", "DD2 Ogre" },
+				[NPCID.DD2Betsy] =          new List<string>(){ "Betsy", "DD2 Betsy" },
+				[NPCID.MourningWood] =      new List<string>(){ "Mourning Wood", "Morning Wood", "Pumpkin Tree" },
+				[NPCID.Pumpking] =          new List<string>(){ "Pumpking" },
+				[NPCID.Everscream] =        new List<string>(){ "Everscream", "Frost Tree" },
+				[NPCID.SantaNK1] =          new List<string>(){ "Santa-NK1", "SantaNK1", "Mecha Santa", "Santa Boss" },
+				[NPCID.IceQueen] =          new List<string>(){ "Ice Queen" },
+				//Cosmivengeon bosses
+				[ModContent.NPCType<Frostbite>()] =   new List<string>(){ "Frostbite" },
+				[ModContent.NPCType<DraekP2Head>()] = new List<string>(){ "Draek" }
+			};
+		}
+
 		private static void AddStaminaBossBuff(int type, string message, Action<Stamina> action){
-			StaminaBuffsGlobalNPC.BossKilled.Add(type, false);
+			StaminaBuffsGlobalNPC.BossIDs.Add(type);
 			StaminaBuffsGlobalNPC.BuffActions.Add(type, action);
 			StaminaBuffsGlobalNPC.OnKillMessages.Add(type, message);
 		}
@@ -345,7 +393,7 @@ namespace CosmivengeonMod{
 		}
 
 		public override void AddRecipeGroups(){
-			RecipeGroup.RegisterGroup("Cosmivengeon: Evil Drops",
+			RecipeGroup.RegisterGroup(RecipeGroup_EvilDrops,
 				new RecipeGroup(() => $"{Language.GetTextValue("LegacyMisc.37")} {Lang.GetItemNameValue(ItemID.ShadowScale)}",
 					new int[]{ ItemID.ShadowScale, ItemID.TissueSample }));
 		}

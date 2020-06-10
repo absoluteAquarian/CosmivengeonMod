@@ -42,7 +42,9 @@ namespace CosmivengeonMod.Items.Draek{
 		public override void AddRecipes(){
 			ModRecipe recipe = new ModRecipe(mod);
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
+			recipe.AddIngredient(ItemID.Cobweb, 12);
 			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);
+			recipe.AddIngredient(ModContent.ItemType<RaechonShell>());
 			recipe.AddTile(TileID.Anvils);
 			recipe.SetResult(this);
 			recipe.AddRecipe();

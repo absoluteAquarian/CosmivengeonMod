@@ -97,7 +97,7 @@ namespace CosmivengeonMod.Items.Frostbite{
 				abilityTimer = -1;
 			}
 
-			if(Crystal != null && abilityTimer < 0 && !player.mount?.Active == true && !player.mount?.CanFly == true && !player.HasBuff(ModContent.BuffType<Buffs.EyeOfTheBlizzard_Cooldown>()) && mp.doubleTapUp){
+			if(Crystal != null && abilityTimer < 0 && !((player.mount?.Active ?? false) && player.mount.CanFly) && !player.HasBuff(ModContent.BuffType<Buffs.EyeOfTheBlizzard_Cooldown>()) && mp.DoubleTapUp){
 				int amount = (int)(player.statLifeMax2 * 0.1f);
 				player.statLife += amount;
 				player.HealEffect(amount);

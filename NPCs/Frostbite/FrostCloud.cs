@@ -99,11 +99,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 					npc.velocity = Vector2.Normalize(npc.velocity) * TargetSpeed;
 
 				if(Math.Abs(npc.Center.X - TargetPosition.X) < 2 * 16f && AI_Timer % 20 == 0){
-					npc.SpawnProjectile(
-						npc.Center.X + Main.rand.NextFloat(-24, 24),
-						npc.Center.Y,
-						0f,
-						0f,
+					CosmivengeonUtils.SpawnProjectileSynced(npc.Center + new Vector2(Main.rand.NextFloat(-24, 24), 0),
+						Vector2.Zero,
 						ModContent.ProjectileType<Projectiles.Frostbite.FrostbiteIcicle>(),
 						20,
 						4f

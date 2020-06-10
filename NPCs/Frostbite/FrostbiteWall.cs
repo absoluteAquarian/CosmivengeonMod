@@ -57,13 +57,12 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				}else if(AI_Timer == 0){
 					//Spawn some Frostbite ice projectiles (the breath ones)
 					for(int i = 0; i < 6; i++){
-						npc.SpawnProjectile(
+						CosmivengeonUtils.SpawnProjectileSynced(
 							npc.Top + new Vector2(0, 16),
 							new Vector2(0, -8).RotatedByRandom(MathHelper.ToRadians(15)),
 							ModContent.ProjectileType<Projectiles.Frostbite.FrostbiteBreath>(),
 							30,
 							2f,
-							Main.myPlayer,
 							1f
 						);
 					}
