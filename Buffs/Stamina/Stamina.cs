@@ -297,7 +297,7 @@ End:
 			if(!CosmivengeonWorld.desoMode || Empty)
 				return;
 
-			Parent.moveSpeed *= ApplyExhaustionDebuffs ? MoveSpeedDebuffMultiplier * DefaultMoveSpeedDebuff : (Active ? MoveSpeedBuffMultiplier * DefaultMoveSpeedBuff : 1f);
+			Parent.runAcceleration *= ApplyExhaustionDebuffs ? MoveSpeedDebuffMultiplier * DefaultMoveSpeedDebuff : (Active ? MoveSpeedBuffMultiplier * DefaultMoveSpeedBuff : 1f);
 
 			float runSpeedMult = ApplyExhaustionDebuffs ? MaxMoveSpeedDebuffMultiplier * DefaultMaxMoveSpeedDebuff : (Active ? MaxMoveSpeedBuffMultiplier * DefaultMaxMoveSpeedBuff : 1f);
 			Parent.maxRunSpeed *= runSpeedMult;

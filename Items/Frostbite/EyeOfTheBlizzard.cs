@@ -65,6 +65,16 @@ namespace CosmivengeonMod.Items.Frostbite{
 				return;
 			}
 
+			bool equipped = false;
+			for(int i = 3; i < 8 + player.extraAccessorySlots; i++){
+				if(player.armor[i].type == item.type)
+					equipped = true;
+			}
+			if(!equipped){
+				UpdateInventory(player);
+				return;
+			}
+
 			List<Projectile> crystals = Main.projectile.Where(p => p?.active == true && p.modProjectile is EyeOfTheBlizzardCrystal && p.owner == player.whoAmI).ToList();
 			if(crystals.Any()){
 				Crystal = crystals.First();

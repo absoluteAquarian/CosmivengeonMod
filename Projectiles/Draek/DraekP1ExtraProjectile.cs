@@ -1,10 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Draek{
 	public class DraekP1ExtraProjectile : ModProjectile{
-		public override string Texture => "CosmivengeonMod/Projectiles/Draek/DraekAcidSpit";
+		public override string Texture => "CosmivengeonMod/NPCs/Empty";
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Forsaken Oronoblade");
@@ -23,6 +24,8 @@ namespace CosmivengeonMod.Projectiles.Draek{
 
 		private bool spawned = false;
 		private NPCs.Draek.Draek Parent = null;
+
+		public override bool PreDraw(SpriteBatch spriteBatch, Color drawColor) => false;
 
 		public override void AI(){
 			if(projectile.width == 0 || projectile.height == 0)

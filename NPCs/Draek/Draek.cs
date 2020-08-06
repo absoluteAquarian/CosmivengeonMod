@@ -34,7 +34,6 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 		private DraekP1ExtraHurtbox Child;
 		
-#region Defaults
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Draek");
 			Main.npcFrameCount[npc.type] = 4;
@@ -79,7 +78,6 @@ namespace CosmivengeonMod.NPCs.Draek{
 			RealFrame.Width = RealTexture.Frame(4, 4).Width;
 			RealFrame.Height = RealTexture.Frame(4, 4).Height;
 		}
-#endregion
 
 		public override bool PreNPCLoot(){
 			return false;	//First phase shouldn't drop anything
@@ -148,7 +146,6 @@ namespace CosmivengeonMod.NPCs.Draek{
 			animationOffset = reader.ReadByte();
 		}
 
-#region AI Properties
 		//consts for showing what ai[] slot does what
 		private const int AI_Timer_Slot = 0;
 		private const int AI_Attack_Slot = 1;
@@ -164,42 +161,12 @@ namespace CosmivengeonMod.NPCs.Draek{
 		private const int Attack_Retrieve_Sword = 5;
 
 		//properties for ai[]
-		public float AI_Timer{
-			get{
-				return npc.ai[AI_Timer_Slot];
-			}
-			set{
-				npc.ai[AI_Timer_Slot] = value;
-			}
-		}
-		public float AI_Attack{
-			get{
-				return npc.ai[AI_Attack_Slot];
-			}
-			set{
-				npc.ai[AI_Attack_Slot] = value;
-			}
-		}
-		public float AI_Attack_Progress{
-			get{
-				return npc.ai[AI_Attack_Progress_Slot];
-			}
-			set{
-				npc.ai[AI_Attack_Progress_Slot] = value;
-			}
-		}
-		public float AI_Animation_Counter{
-			get{
-				return npc.ai[AI_Animation_Counter_Slot];
-			}
-			set{
-				npc.ai[AI_Animation_Counter_Slot] = value;
-			}
-		}
-#endregion
+		public ref float AI_Timer => ref npc.ai[AI_Timer_Slot];
+		public ref float AI_Attack => ref npc.ai[AI_Attack_Slot];
+		public ref float AI_Attack_Progress => ref npc.ai[AI_Attack_Progress_Slot];
+		public ref float AI_Animation_Counter => ref npc.ai[AI_Animation_Counter_Slot];
 
-#region Animation Constants
-		//consts for animation frames
+		//Consts for animation frames
 		private const int Idle_Sword_0 = 0;
 		private const int Idle_Sword_1 = 1;
 		private const int Idle_Sword_2 = 2;
@@ -216,9 +183,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 		private const int Retrieve_Sword_1 = 13;
 		private const int Retrieve_Sword_2 = 14;
 		private const int Retrieve_Sword_3 = 15;
-		#endregion
 
-#region Other Variables
+		//Variables
 		private int CurrentPhase = Phase_1;
 		private int afterImageLength = 0;
 		private bool hasSpawned = false;
@@ -242,18 +208,13 @@ namespace CosmivengeonMod.NPCs.Draek{
 		public bool preDash = false;
 		public bool preDashWait = true;
 		
-		public static Color TextColour{
-			get{
-				return new Color(55, 148, 107);
-			}
-		}
+		public static Color TextColour = new Color(55, 148, 107);
 
 		private bool noTargetsAlive;
 		
 		private Player playerTarget;
 
 		private int SummonedWyrms = 0;
-#endregion
 		
 		public override void FindFrame(int frameHeight){
 			int CounterMod30 = (int)(AI_Animation_Counter % 30);
@@ -380,7 +341,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		public override void HitEffect(int hitDirection, double damage){
-			if(npc.life < HealthThreshold){
+			if(npc.life - damage < HealthThreshold){
 				npc.life = 0;
 
 				int newNPC = NPC.NewNPC((int)npc.Center.X, (int)npc.Center.Y, ModContent.NPCType<DraekP2Head>());

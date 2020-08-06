@@ -1,8 +1,10 @@
 author = absoluteAquarian
-version = 0.0.8.1
+version = 0.0.9
 displayName = Cosmivengeon Mod
 homepage = https://forums.terraria.org/index.php?threads/cosmivengeon-mod.84905/
 buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*, Properties\*, README.md, .gitattributes, .gitignore
 includePDB = true
-hideCode = true
+hideCode = false
 hideResources = true
+sortAfter = BossChecklist
+dllReferences = MMHOOK_BossChecklist_v1.1.3

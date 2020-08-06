@@ -40,7 +40,7 @@ namespace CosmivengeonMod.Items.Frostbite{
 			recipe.AddIngredient(ItemID.SnowBlock, 10);
 			recipe.AddIngredient(ItemID.IceBlock, 10);
 			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this);
+			recipe.SetResult(this, 100);
 			recipe.AddRecipe();
 		}
 	}

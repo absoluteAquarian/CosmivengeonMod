@@ -36,16 +36,16 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 		}
 
 		public override bool UseItem(Player player){
-			if(!CosmivengeonMod.CalamityActive)
+			if(!ModReferences.CalamityActive)
 				Main.NewText("Calamity is not enabled.", Color.Red);
 			else{
 				bool state;
 				string name;
 				if(player.altFunctionUse == 2){		//Right click
-					state = (bool)CosmivengeonMod.CalamityInstance.Call("Difficulty", "Death");
+					state = (bool)ModReferences.Calamity.Call("Difficulty", "Death");
 					name = "[c/ac00ff:Death]";
 				}else{
-					state = (bool)CosmivengeonMod.CalamityInstance.Call("Difficulty", "Rev");
+					state = (bool)ModReferences.Calamity.Call("Difficulty", "Rev");
 					name = "[c/ff0000:Revengeance]";
 				}
 				Main.NewText($"{name}: {state}");

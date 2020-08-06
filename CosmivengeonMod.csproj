@@ -13,4 +13,13 @@
   <ItemGroup>
     <PackageReference Include="tModLoader.CodeAssist" Version="0.1.*" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Effects\" />
+    <Folder Include="lib\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="MMHOOK_BossChecklist_v1.1.3">
+      <HintPath>lib\MMHOOK_BossChecklist_v1.1.3.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

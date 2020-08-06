@@ -9,25 +9,17 @@ namespace CosmivengeonMod.Items.Tools{
 		}
 
 		public override void SetDefaults(){
-			//Halfway between Gold Pickaxe and Platinum Pickaxe for most stats
-			Item goldPickaxe = new Item();
-			goldPickaxe.CloneDefaults(ItemID.GoldPickaxe);
-			Item platinumPickaxe = new Item();
-			platinumPickaxe.CloneDefaults(ItemID.PlatinumPickaxe);
+			//Slightly better than Silver
+			item.CloneDefaults(ItemID.SilverPickaxe);
 
-			item.damage = CosmivengeonUtils.Average(goldPickaxe.damage, platinumPickaxe.damage);
-			item.melee = true;
+			item.damage++;
 			item.width = 38;
 			item.height = 38;
-			item.useTime = CosmivengeonUtils.Average(goldPickaxe.useTime, platinumPickaxe.useTime);
-			item.useAnimation = CosmivengeonUtils.Average(goldPickaxe.useAnimation, platinumPickaxe.useAnimation);
-			item.pick = CosmivengeonUtils.Average(goldPickaxe.pick, platinumPickaxe.pick);
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.knockBack = CosmivengeonUtils.Average(goldPickaxe.knockBack, platinumPickaxe.knockBack);
-			item.value = Item.sellPrice(silver: 25);
+			item.useTime--;
+			item.useAnimation -= 2;
+			item.pick += 2;
+			item.value = Item.sellPrice(silver: 3);
 			item.rare = ItemRarityID.Blue;
-			item.UseSound = SoundID.Item1;
-			item.autoReuse = true;
 		}
 
 		public override void AddRecipes(){

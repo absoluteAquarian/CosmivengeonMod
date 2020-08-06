@@ -379,10 +379,12 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 			attackTimer++;
 
-			SpawnChargeDusts = (!Main.expertMode && !CosmivengeonWorld.desoMode && attackPhase == Mega_Charge)
-				|| (Main.expertMode && !CosmivengeonWorld.desoMode && attackPhase == Enraged_Mega_Charge)
-				|| (Main.expertMode && CosmivengeonWorld.desoMode && (attackPhase == DesoMode_Mega_Charge || attackPhase == DesoMode_Berserker || attackPhase == DesoMode_Berserker_Lasers || attackPhase == DesoMode_Berserker_Constant))
-				&& speed > 1;
+			bool normalModeChargeAttack = !Main.expertMode && !CosmivengeonWorld.desoMode && attackPhase == Mega_Charge;
+			bool expertModeChargeAttack = Main.expertMode && !CosmivengeonWorld.desoMode && attackPhase == Enraged_Mega_Charge;
+			bool desoModeAttackMatches = attackPhase != DesoMode_subphase0 && attackPhase != DesoMode_Try_Land_Explosion;
+			bool desoModeChargeAttack = Main.expertMode && CosmivengeonWorld.desoMode && desoModeAttackMatches;
+
+			SpawnChargeDusts = (normalModeChargeAttack || expertModeChargeAttack || desoModeChargeAttack) && speed > 1;
 
 			if(SpawnChargeDusts)
 				SpawnDust(npc);
@@ -395,7 +397,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 		}
 
 		private void TryForceDesoModeSubphaseChange(){
-			//Don't run this method if we're not in Desolation Mode and the "desoModeSubphases" array hasn't been set yet
+			//Don't run this method if we're not in Desolation Mode or the "desoModeSubphases" array hasn't been set yet
 			if(!CosmivengeonWorld.desoMode || desoModeSubphases.Length == 0)
 				return;
 

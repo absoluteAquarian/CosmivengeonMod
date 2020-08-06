@@ -217,7 +217,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 					if(delay > 20.0)
 						delay = 20f;
 					projectile.soundDelay = (int)delay;
-					Main.PlaySound(15, (int)projectile.position.X, (int)projectile.position.Y, 1);
+					Main.PlaySound(SoundID.Roar, (int)projectile.position.X, (int)projectile.position.Y, 1);
 				}
 			}
 		}

@@ -57,8 +57,8 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 				return false;
 			}
 
-			bool calamityRevengeance = (bool?)CosmivengeonMod.CalamityInstance?.Call("Difficulty", "Rev") ?? false;
-			bool calamityDeath = (bool?)CosmivengeonMod.CalamityInstance?.Call("Difficulty", "Death") ?? false;
+			bool calamityRevengeance = (bool?)ModReferences.Calamity?.Call("Difficulty", "Rev") ?? false;
+			bool calamityDeath = (bool?)ModReferences.Calamity?.Call("Difficulty", "Death") ?? false;
 
 			if(player.GetModPlayer<CosmivengeonPlayer>().stamina.Active || player.GetModPlayer<CosmivengeonPlayer>().stamina.Exhaustion)
 				return false;

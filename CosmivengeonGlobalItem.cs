@@ -17,13 +17,13 @@ namespace CosmivengeonMod{
 
 		public override bool CanUseItem(Item item, Player player){
 			//Check if this item is from Calamity
-			if(CosmivengeonMod.CalamityActive && item.modItem?.mod == CosmivengeonMod.CalamityInstance){
-				ModItem revengeanceItem = CosmivengeonMod.CalamityInstance.GetItem("Revenge");
-				ModItem deathItem = CosmivengeonMod.CalamityInstance.GetItem("Death");
+			if(ModReferences.CalamityActive && item.modItem?.mod == ModReferences.Calamity){
+				ModItem revengeanceItem = ModReferences.Calamity.GetItem("Revenge");
+				ModItem deathItem = ModReferences.Calamity.GetItem("Death");
 
 				//If the item is either of these types, disable Desolation mode if it is active
 				//However, if the item is Death and revengeance isn't active, don't do anything
-				if(item.type == deathItem.item.type && !(bool)CosmivengeonMod.CalamityInstance.Call("Difficulty", "Rev"))
+				if(item.type == deathItem.item.type && !(bool)ModReferences.Calamity.Call("Difficulty", "Rev"))
 					return false;
 				if(CosmivengeonWorld.desoMode && item.type == revengeanceItem.item.type || item.type == deathItem.item.type)
 					CosmivengeonWorld.desoMode = false;

@@ -13,7 +13,7 @@ namespace CosmivengeonMod.Items.Frostbite{
 			DisplayName.SetDefault("Frostfire's Breath");
 			Tooltip.SetDefault("Shoots Frostburn-inflicing flames at a quick rate." +
 				"\nUses [c/00dddd:Ice Blocks] for ammo." +
-				"\nHas a 50% chance to not consume ammo.");
+				"\nHas a 35% chance to not consume ammo.");
 		}
 
 		public override void SetDefaults(){
@@ -21,7 +21,7 @@ namespace CosmivengeonMod.Items.Frostbite{
 			item.height = 24;
 			item.ranged = true;
 			item.noMelee = true;
-			item.damage = 8;
+			item.damage = 9;
 			item.knockBack = 2.6f;
 			item.useStyle = ItemUseStyleID.HoldingOut;
 			item.useAmmo = ItemID.IceBlock;
@@ -36,7 +36,7 @@ namespace CosmivengeonMod.Items.Frostbite{
 		}
 
 		public override bool ConsumeAmmo(Player player)
-			=> Main.rand.NextBool(2);
+			=> Main.rand.NextFloat() < 0.35f;
 
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
 			Vector2 newVelocity = new Vector2(speedX, speedY).RotatedByRandom(MathHelper.ToRadians(2f));
@@ -59,10 +59,6 @@ namespace CosmivengeonMod.Items.Frostbite{
 			);
 			
 			return false;
-		}
-
-		public override void ModifyTooltips(List<TooltipLine> tooltips){
-			
 		}
 
 		public override Vector2? HoldoutOffset() => new Vector2(-6, 2);

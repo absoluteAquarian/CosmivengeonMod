@@ -1,4 +1,5 @@
-﻿using Terraria;
+﻿using Microsoft.Xna.Framework;
+using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -12,8 +13,8 @@ namespace CosmivengeonMod.Items.Frostbite{
 
 		public override void SetDefaults(){
 			item.ranged = true;
-			item.damage = 18;
-			item.knockBack = 4f;
+			item.damage = 8;
+			item.knockBack = 2.8f;
 			item.useTime = 25;
 			item.useAnimation = 25;
 			item.useStyle = ItemUseStyleID.HoldingOut;
@@ -23,7 +24,7 @@ namespace CosmivengeonMod.Items.Frostbite{
 			item.noMelee = true;
 			item.useAmmo = AmmoID.Arrow;
 			item.shoot = ProjectileID.PurificationPowder;
-			item.shootSpeed = 10f;
+			item.shootSpeed = 7.3f;
 			item.UseSound = SoundID.Item5;
 			item.value = Item.sellPrice(silver: 1, copper: 75);
 		}
@@ -36,6 +37,12 @@ namespace CosmivengeonMod.Items.Frostbite{
 			recipe.AddTile(TileID.WorkBenches);
 			recipe.SetResult(this);
 			recipe.AddRecipe();
+		}
+
+		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
+			Projectile proj = Main.projectile[Projectile.NewProjectile(position, new Vector2(speedX, speedY), type, damage, knockBack, player.whoAmI)];
+			proj.GetGlobalProjectile<CosmivengeonGlobalProjectile>().shotFromCrystaliceBow = true;
+			return false;
 		}
 	}
 }

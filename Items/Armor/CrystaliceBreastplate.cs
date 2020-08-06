@@ -23,6 +23,7 @@ namespace CosmivengeonMod.Items.Armor{
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>(), 4);
 			recipe.AddIngredient(ItemID.IceBlock, 20);
 			recipe.AddIngredient(ItemID.SnowBlock, 20);
+			recipe.AddTile(TileID.WorkBenches);
 			recipe.SetResult(this);
 			recipe.AddRecipe();
 		}

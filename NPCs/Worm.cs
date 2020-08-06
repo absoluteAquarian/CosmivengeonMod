@@ -25,7 +25,7 @@ namespace CosmivengeonMod.NPCs{
 		/// <summary>
 		/// How far away the worm can be (in pixels) before it starts ignoring tile collision.  Used in a rectangle whose dimensions are this measurement * 2 in length and width.
 		/// </summary>
-		public int maxDigDistance;
+		public int maxDigDistance = 1000;
 		public float speed;
 		public float turnSpeed;
 		/// <summary>
@@ -80,15 +80,14 @@ namespace CosmivengeonMod.NPCs{
 					// Here we determine the length of the worm.
 					int randomWormLength = Main.rand.Next(minLength, maxLength + 1);
 
-					int distance = randomWormLength - 1;
-
-					distance--;
+					int distance = randomWormLength - 2;
 
 					if(customBodySegments)
 						latestNPC = SetCustomBodySegments(distance);
 					else{
 						while(distance > 0){
 							latestNPC = NewBodySegment(bodyType, latestNPC);
+							distance--;
 						}
 					}
 					// When we're out of that loop, we want to 'close' the worm with a tail part!
@@ -99,8 +98,8 @@ namespace CosmivengeonMod.NPCs{
 					//Set the Segments list
 					for(int i = 0; i < Main.npc.Length; i++){
 						NPC n = Main.npc[i];
-						if(n?.active == true && n.realLife == npc.whoAmI && n.modNPC is Worm)
-							Segments.Add(n.modNPC as Worm);
+						if(n?.active == true && n.realLife == npc.whoAmI && n.modNPC is Worm worm)
+							Segments.Add(worm);
 					}
  
 					// We're setting npc.ai[0] to 1, so that this 'if' is not triggered again.
@@ -221,7 +220,7 @@ namespace CosmivengeonMod.NPCs{
 					if(num1 > 20.0)
 						num1 = 20f;
 					npc.soundDelay = (int)num1;
-					Main.PlaySound(15, (int)npc.position.X, (int)npc.position.Y, 1);
+					Main.PlaySound(SoundID.Roar, (int)npc.position.X, (int)npc.position.Y, 1);
 				}
 				float absDirX = Math.Abs(dirX);
 				float absDirY = Math.Abs(dirY);

@@ -26,6 +26,7 @@ namespace CosmivengeonMod{
 				&& !player.ZoneGlowshroom
 				&& !player.ZoneMeteor
 				&& !player.ZoneBeach
+				&& !player.ZoneDesert
 				&& player.ZoneOverworldHeight;
 		}
 
@@ -152,7 +153,7 @@ namespace CosmivengeonMod{
 		public static void PlayMusic(ModNPC modNPC, CosmivengeonBoss boss){
 			float songChance = Main.rand.NextFloat();
 
-			CosmivengeonMod modInstance = ModContent.GetInstance<CosmivengeonMod>();
+			CosmivengeonMod modInstance = CosmivengeonMod.Instance;
 
 			if(boss == CosmivengeonBoss.Draek){
 				/*	1% chance - kazoo theme
@@ -404,6 +405,8 @@ namespace CosmivengeonMod{
 					Collision.StepUp(ref pos, ref proj.velocity, width, height, ref proj.stepSpeed, ref proj.gfxOffY, specialChecksMode: 1);
 			}
 		}
+
+		public static void SetImmune(this NPC npc, int type) => npc.buffImmune[type] = true;
 	}
 
 	public enum CosmivengeonBoss{

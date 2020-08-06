@@ -97,6 +97,11 @@ namespace CosmivengeonMod {
 			obtainedLore_FrostbiteBoss = flags[5];
 		}
 
+		public override void PreUpdate(){
+			if(!NPC.AnyNPCs(NPCID.EyeofCthulhu) && FilterCollection.Screen_EoC.Active)
+				FilterCollection.Screen_EoC.Deactivate();
+		}
+
 		public static void CheckWorldFlagUpdate(string flag){
 			FieldInfo field = typeof(CosmivengeonWorld).GetField(flag, BindingFlags.Public | BindingFlags.Static);
 			bool currentValue = (bool)field.GetValue(null);

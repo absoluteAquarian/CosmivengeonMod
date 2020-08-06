@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using Terraria;
 using Terraria.ID;
 using Microsoft.Xna.Framework;
@@ -17,13 +16,17 @@ using CosmivengeonMod.Items.Draek;
 using Terraria.Localization;
 using System.IO;
 using Terraria.ModLoader;
-using Terraria.GameContent.UI;
 using CosmivengeonMod.NPCs.Frostbite;
 using CosmivengeonMod.NPCs.Draek;
 using CosmivengeonMod.Detours;
+using Terraria.Graphics.Effects;
+using Terraria.Graphics.Shaders;
+using CosmivengeonMod.ModEdits;
 
 namespace CosmivengeonMod{
 	public class CosmivengeonMod : Mod{
+		public static CosmivengeonMod Instance => ModContent.GetInstance<CosmivengeonMod>();
+
 		public static bool debug_toggleDesoMode;
 		public static bool debug_canUseExpertModeToggle;
 		public static bool debug_canUsePotentiometer;
@@ -40,32 +43,6 @@ namespace CosmivengeonMod{
 
 		//Stamina use hotkey
 		public static ModHotKey StaminaHotKey;
-
-		//Mod instance properties
-		private static bool bossCheckListInstanceLoadAttempted = false;
-		private static Mod bossCheckListInstance;
-		private static bool calamityInstanceLoadAttempted = false;
-		private static Mod calamityInstance;
-		public static Mod BossChecklistInstance{
-			get{
-				if(!bossCheckListInstanceLoadAttempted){
-					bossCheckListInstanceLoadAttempted = true;
-					bossCheckListInstance = ModLoader.GetMod("BossChecklist");
-				}
-				return bossCheckListInstance;
-			}
-		}
-		public static Mod CalamityInstance{
-			get{
-				if(!calamityInstanceLoadAttempted){
-					calamityInstanceLoadAttempted = true;
-					calamityInstance = ModLoader.GetMod("CalamityMod");
-				}
-				return calamityInstance;
-			}
-		}
-		public static bool BossChecklistActive => BossChecklistInstance != null;
-		public static bool CalamityActive => CalamityInstance != null;
 
 		//UI
 		private StaminaUI staminaUI;
@@ -90,12 +67,10 @@ namespace CosmivengeonMod{
 			}else if(args.Length == 3
 					&& (string)args[0] == "SetDifficulty"
 					&& new string[]{ "desolation", "desomode", "deso" }.Contains(((string)args[1]).ToLower())){
-				bool value = bool.TryParse((string)args[2], out bool valid);
-				if(valid){
+				if(bool.TryParse((string)args[2], out bool value)){
 					CosmivengeonWorld.desoMode = value;
 					return value;
 				}
-				return null;
 			}
 
 			return null;
@@ -105,7 +80,7 @@ namespace CosmivengeonMod{
 			StaminaHotKey = RegisterHotKey("Toggle Stamina Use", "G");
 
 			//Only run this segment if we're not loading on a server
-			if(!Main.dedServ){
+			if(!Main.dedServ && Main.netMode != NetmodeID.Server){
 				staminaUI = new StaminaUI();
 				staminaUI.Activate();
 
@@ -115,9 +90,16 @@ namespace CosmivengeonMod{
 				//Add music boxes
 				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/Frigid_Feud"), ModContent.ItemType<Items.MusicBoxes.FrostbiteBox>(), ModContent.TileType<Tiles.FrostbiteBox>());
 				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/Successor_of_the_Jewel"), ModContent.ItemType<Items.MusicBoxes.DraekBox>(), ModContent.TileType<Tiles.DraekBox>());
+
+				Ref<Effect> eocEffect = new Ref<Effect>(GetEffect("Effects/screen_eoc"));
+
+				FilterCollection.Screen_EoC = new Filter(new ScreenShaderData(eocEffect, "ScreenDarken"), EffectPriority.High);
 			}
 
 			DetourNPC.Load();
+
+			//Load mod edits for the BossChecklist mod
+			BossChecklist.Load();
 		}
 
 		public override void Unload(){
@@ -125,31 +107,39 @@ namespace CosmivengeonMod{
 			staminaUI = null;
 			userInterface = null;
 			
-			calamityInstance = null;
-			calamityInstanceLoadAttempted = false;
-			bossCheckListInstance = null;
-			bossCheckListInstanceLoadAttempted = false;
+			ModReferences.Unload();
 
 			StaminaBuffsGlobalNPC.BossIDs = null;
 			StaminaBuffsGlobalNPC.BuffActions = null;
 			StaminaBuffsGlobalNPC.OnKillMessages = null;
 			StaminaBuffsGlobalNPC.BossNames = null;
+
+			DetourNPC.Unload();
+
+			//Restore the original setting for the buffs
+			Main.buffNoTimeDisplay[BuffID.Slimed] = true;
+			Main.buffNoTimeDisplay[BuffID.Obstructed] = true;
+
+			if(FilterCollection.Screen_EoC.Active)
+				FilterCollection.Screen_EoC.Deactivate();
+
+			BossChecklist.Unload();
 		}
 
 		public override void PostSetupContent(){
 			//Set the boss's position in BossChecklist if the mod is active
 			//see:  https://github.com/JavidPack/BossChecklist/wiki/Support-using-Mod-Call
 
-			if(BossChecklistActive){
+			if(ModReferences.BossChecklistActive){
 				//2.7f ==> just before Eater of Worlds
-				BossChecklistInstance.Call("AddBoss",
+				ModReferences.BossChecklist.Call("AddBoss",
 					2.7f,
 					new List<int>(){
-						ModContent.NPCType<NPCs.Draek.Draek>(),
-						ModContent.NPCType<NPCs.Draek.DraekP2Head>()
+						ModContent.NPCType<Draek>(),
+						ModContent.NPCType<DraekP2Head>()
 					},
 					this,
-					$"${ModContent.GetInstance<NPCs.Draek.Draek>().DisplayName.Key}",
+					$"${ModContent.GetInstance<Draek>().DisplayName.Key}",
 					(Func<bool>)(() => CosmivengeonWorld.downedDraekBoss),
 					ModContent.ItemType<DraekSummon>(),
 					new List<int>(){
@@ -175,11 +165,11 @@ namespace CosmivengeonMod{
 				);
 
 				//1.5f ==> between Slime King and Eye of Cthulhu
-				BossChecklistInstance.Call("AddBoss",
+				ModReferences.BossChecklist.Call("AddBoss",
 					1.5f,
-					ModContent.NPCType<NPCs.Frostbite.Frostbite>(),
+					ModContent.NPCType<Frostbite>(),
 					this,
-					$"${ModContent.GetInstance<NPCs.Frostbite.Frostbite>().DisplayName.Key}",
+					$"${ModContent.GetInstance<Frostbite>().DisplayName.Key}",
 					(Func<bool>)(() => CosmivengeonWorld.downedFrostbiteBoss),
 					ModContent.ItemType<IcyLure>(),
 					new List<int>(){
@@ -275,6 +265,15 @@ namespace CosmivengeonMod{
 					stamina.MoveSpeedBuffMultiplier += 0.07f;
 					stamina.MaxMoveSpeedBuffMultiplier += 0.04f;
 				});
+			AddStaminaBossBuff(NPCID.QueenBee,
+				"Defeating the monarch of the jungle has improved your resilience to Exhaustion and your overall abilities while in the Active state." +
+					"\nActive attack speed rate: +4%, Active move acceleration rate: +3%, Exhaustion move acceleration rate: +1.5%, Exhaustion attack speed rate: +2%",
+				stamina => {
+					stamina.AttackSpeedBuffMultiplier += 0.04f;
+					stamina.MoveSpeedBuffMultiplier += 0.03f;
+					stamina.MoveSpeedDebuffMultiplier += 0.015f;
+					stamina.AttackSpeedDebuffMultiplier += 0.02f;
+				});
 			AddStaminaBossBuff(NPCID.SkeletronHead,
 				"Defeating the cursed guardian of the Dungeon has further increased your control over your Stamina." +
 					"\nAll Active buffs: +5%, All Exhaustion debuffs: +3.125%, Idle increase rate: +22.5%, Active use rate: -6%, Maximum Stamina: +2500 units",
@@ -310,6 +309,11 @@ namespace CosmivengeonMod{
 					stamina.MaxMoveSpeedBuffMultiplier += 0.02f;
 				});
 			// TODO: add the rest of the Cosmivengeon boss stuff
+			// TODO: add cross-mod support
+
+			//Make certain debuffs show the time remaining
+			Main.buffNoTimeDisplay[BuffID.Slimed] = false;
+			Main.buffNoTimeDisplay[BuffID.Obstructed] = false;
 		}
 
 		private static void SetBossNamesDictionary(){
@@ -350,23 +354,23 @@ namespace CosmivengeonMod{
 		}
 
 		public static void DeactivateCalamityRevengeance(){
-			if(!CalamityActive)
+			if(!ModReferences.CalamityActive)
 				return;
 
-			if(CalamityInstance.Version >= new Version("1.4.2.108"))
-				CalamityInstance.Call("SetDifficulty", "Rev", false);
+			if(ModReferences.Calamity.Version >= new Version("1.4.2.108"))
+				ModReferences.Calamity.Call("SetDifficulty", "Rev", false);
 			else
-				CalamityInstance.GetModWorld("CalamityWorld").GetType().GetField("revenge", BindingFlags.Public | BindingFlags.Static).SetValue(null, false);
+				ModReferences.Calamity.GetModWorld("CalamityWorld").GetType().GetField("revenge", BindingFlags.Public | BindingFlags.Static).SetValue(null, false);
 		}
 
 		public static void DeactivateCalamityDeath(){
-			if(!CalamityActive)
+			if(!ModReferences.CalamityActive)
 				return;
 
-			if(CalamityInstance.Version >= new Version("1.4.2.108"))
-				CalamityInstance.Call("SetDifficulty", "Death", false);
+			if(ModReferences.Calamity.Version >= new Version("1.4.2.108"))
+				ModReferences.Calamity.Call("SetDifficulty", "Death", false);
 			else
-				CalamityInstance.GetModWorld("CalamityWorld").GetType().GetField("death", BindingFlags.Public | BindingFlags.Static).SetValue(null, false);
+				ModReferences.Calamity.GetModWorld("CalamityWorld").GetType().GetField("death", BindingFlags.Public | BindingFlags.Static).SetValue(null, false);
 		}
 
 		public override void UpdateUI(GameTime gameTime){

@@ -1,13 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.NPCs.Draek{
 	public class DraekP1ExtraHurtbox : ModNPC{
-		public override string Texture => "CosmivengeonMod/NPCs/Draek/Draek";
+		public override string Texture => "CosmivengeonMod/NPCs/Empty";
 
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Draek");
+			DisplayName.SetDefault("Draek Extra Hurtbox");
 		}
 
 		public override void SetDefaults(){
@@ -15,6 +16,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 			npc.alpha = 255;
 			npc.dontCountMe = true;
 		}
+
+		public override bool PreDraw(SpriteBatch spriteBatch, Color drawColor) => false;
 
 		private bool spawned = false;
 		private Draek Parent = null;
@@ -26,7 +29,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 			}
 
 			//kill this NPC if the boss it's attached to has died or despawned
-			if(Parent?.npc.active != true || Main.npc[Parent.npc.whoAmI].type != Parent.npc.type){
+			if(Parent?.npc.active != true || Parent.npc.type != ModContent.NPCType<Draek>()){
 				npc.active = false;
 				return;
 			}

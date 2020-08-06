@@ -23,7 +23,7 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			npc.height = 80;
 			npc.width = 250;
 			npc.aiStyle = -1;
-			npc.damage = 30;
+			npc.damage = 26;
 			npc.defense = 8;
 			npc.lifeMax = 2000;
 			npc.HitSound = SoundID.NPCHit11;	//Snow NPC hit sound
@@ -70,11 +70,11 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			npc.lifeMax /= 2;	//Negate vanilla health buff
 			if(!CosmivengeonWorld.desoMode){
 				npc.ScaleHealthBy(3f / 5f, numPlayers);
-				npc.damage = 48;
+				npc.damage = 40;
 				npc.defense = 11;
 			}else{
 				npc.ScaleHealthBy(3f / 4f, numPlayers);
-				npc.damage = 62;
+				npc.damage = 55;
 				npc.defense = 14;
 			}
 		}
@@ -191,10 +191,10 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 
 		private const int normal_icicle_count = 7;
 		private const int normal_icicle_wait = 45;
-		private const int enraged_icicle_count = 10;
+		private const int enraged_icicle_count = 6;
 		private const int enraged_icicle_wait = 30;
 		private const int expert_icicle_count = 11;
-		private const int expert_enraged_icicle_count = 16;
+		private const int expert_enraged_icicle_count = 8;
 
 		private int subphaseIndex = 0;
 		private int[] Subphases;
@@ -331,7 +331,7 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 						breathTime
 					);
 				}else if(CurrentSubphase == AI_Attack_Flick){
-					int count = CosmivengeonUtils.GetModeChoice(enraged_icicle_count, expert_enraged_icicle_count, expert_enraged_icicle_count + 5);
+					int count = CosmivengeonUtils.GetModeChoice(enraged_icicle_count, expert_enraged_icicle_count, expert_enraged_icicle_count + 4);
 					AI_Flick(25f * 16f / 60f, count, MathHelper.ToRadians(15f));
 				}else if(CurrentSubphase == AI_Attack_Stomp){
 					float initialYVel = CosmivengeonUtils.GetModeChoice(13f, 14f, 15f);
@@ -684,9 +684,10 @@ skipAI:
 				//Calculate the Y-velocity the middle projectile needs to move at,
 				// then just add/subtract some from the X-velocity to make the spread
 				//Yes fuck you I'm stealing Cyrogen's attack.  Bite me
+				//Why did i make that comment ^
 				float speedY = 1.5f * -Math.Abs(speedX);
 
-				float speedXFactor = 0.35f;
+				float speedXFactor = 0.7f;
 
 				Vector2 spawn = npc.spriteDirection == -1 ? npc.TopRight : npc.position;
 
@@ -694,7 +695,7 @@ skipAI:
 				CosmivengeonUtils.SpawnProjectileSynced(spawn,
 					new Vector2(speedX + speedXFactor * curIcicle, speedY),
 					ModContent.ProjectileType<Projectiles.Frostbite.FrostbiteIcicle>(),
-					48,
+					CosmivengeonUtils.GetModeChoice(16, 28, 35),
 					3f
 				);
 

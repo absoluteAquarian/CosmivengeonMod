@@ -245,7 +245,7 @@ namespace CosmivengeonMod.Items.Draek{
 				c.Emit(OpCodes.Ldarg_0);
 				c.EmitDelegate<Action<Player>>(player => {
 					player.GetModPlayer<CosmivengeonPlayer>().dJumpEffect_JewelOfOronitus = true;
-					Main.PlaySound(16, (int)player.position.X, (int)player.position.Y);
+					Main.PlaySound(SoundID.DoubleJump, (int)player.position.X, (int)player.position.Y);
 					player.velocity.Y = (0f - Player.jumpSpeed) * player.gravDir;
 					player.jump = (int)(Player.jumpHeight * 1.5f);
 				});

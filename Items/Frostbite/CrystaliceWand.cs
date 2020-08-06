@@ -14,21 +14,21 @@ namespace CosmivengeonMod.Items.Frostbite{
 
 		public override void SetDefaults(){
 			item.magic = true;
-			item.damage = 15;
+			item.damage = 12;
 			item.knockBack = 5f;
 			item.value = Item.sellPrice(silver: 5, copper: 25);
 			item.width = 42;
 			item.height = 42;
 			item.scale = 0.8f;
-			item.useTime = 18;
-			item.useAnimation = 18;
+			item.useTime = 16;
+			item.useAnimation = 16;
 			item.autoReuse = false;
 			item.useStyle = ItemUseStyleID.HoldingOut;
 			item.noMelee = true;
 			item.UseSound = SoundID.Item28;
 			item.rare = ItemRarityID.Blue;
-			item.mana = 13;
-			item.shootSpeed = 7f;
+			item.mana = 10;
+			item.shootSpeed = 8.2f;
 			item.shoot = ModContent.ProjectileType<Projectiles.Weapons.Frostbite.CrystaliceWandProjectile>();
 		}
 

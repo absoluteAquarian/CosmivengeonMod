@@ -23,8 +23,8 @@ namespace CosmivengeonMod.Items.Frostbite{
 			item.UseSound = SoundID.Item40;
 			item.shootSpeed = 14f;	//actual speed: 28px/frame
 			item.useStyle = ItemUseStyleID.HoldingOut;
-			item.damage = 46;
-			item.knockBack = 10f;
+			item.damage = 32;
+			item.knockBack = 8.7f;
 			item.value = Item.sellPrice(silver: 5);
 			item.rare = ItemRarityID.Blue;
 		}

@@ -1,10 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Projectiles.SwordUpgrade;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
-	public class CrystaliceWandProjectile : SwordUpgrade.CrystaliceSwordProjectile{
+	public class CrystaliceWandProjectile : CrystaliceSwordProjectile{
 		public override void SetDefaults(){
 			base.SetDefaults();
 			projectile.timeLeft = 3600;  //Default timeLeft
@@ -28,9 +29,9 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 					projectile.Center,
 					projectile.velocity.RotatedByRandom(MathHelper.ToRadians(30f)).RotatedBy(MathHelper.ToRadians(60f * i)),
 					ModContent.ProjectileType<CrystaliceShardFragmentProjectile>(),
-					(int)(projectile.damage * 0.6f),
+					(int)(projectile.damage * 0.8f),
 					projectile.knockBack * 0.75f,
-					Main.myPlayer,
+					projectile.owner,
 					1f,
 					2f
 				);

@@ -14,10 +14,14 @@ using Terraria.ModLoader;
 using Terraria.GameInput;
 using Terraria.DataStructures;
 using Terraria.ModLoader.IO;
+using CosmivengeonMod.Items.DebugOrTogglers;
 
 namespace CosmivengeonMod{
 	public class CosmivengeonPlayer : ModPlayer{
 		public List<int> BossesKilled;
+
+		//Core of Desolation check
+		public bool hasGottenCore;
 
 		//Debuffs
 		public bool primordialWrath;
@@ -88,6 +92,12 @@ namespace CosmivengeonMod{
 		public override void Load(TagCompound tag){
 			BossesKilled = tag.GetList<int>("bosses").ToList();
 			stamina.ParseCompound(tag.GetCompound("stamina"));
+		}
+
+		public override void SetupStartInventory(IList<Item> items, bool mediumcoreDeath){
+			Item item = new Item();
+			item.SetDefaults(ModContent.ItemType<CoreOfDesolation>());
+			items.Add(item);
 		}
 
 		public override void UpdateBadLifeRegen(){
