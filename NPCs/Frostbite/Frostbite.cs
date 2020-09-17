@@ -2,6 +2,7 @@
 using CosmivengeonMod.Items.Frostbite;
 using CosmivengeonMod.Items.Masks;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.IO;
 using System.Linq;
@@ -18,10 +19,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 		}
 
 		public override void SetDefaults(){
-			npc.scale = 1f;
-			//frame dimensions:  82x246px
 			npc.height = 80;
-			npc.width = 250;
+			npc.width = 180;
 			npc.aiStyle = -1;
 			npc.damage = 26;
 			npc.defense = 8;
@@ -69,14 +68,22 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 		public override void ScaleExpertStats(int numPlayers, float bossLifeScale){
 			npc.lifeMax /= 2;	//Negate vanilla health buff
 			if(!CosmivengeonWorld.desoMode){
-				npc.ScaleHealthBy(3f / 5f, numPlayers);
+				npc.ScaleHealthBy(0.8f);
 				npc.damage = 40;
 				npc.defense = 11;
 			}else{
-				npc.ScaleHealthBy(3f / 4f, numPlayers);
+				npc.ScaleHealthBy(0.875f);
 				npc.damage = 55;
 				npc.defense = 14;
 			}
+		}
+
+		public override bool PreDraw(SpriteBatch spriteBatch, Color drawColor){
+			Texture2D texture = Main.npcTexture[npc.type];
+
+			spriteBatch.Draw(texture, npc.Center - Main.screenPosition, npc.frame, drawColor, 0f, npc.frame.Size() / 2f, npc.scale, npc.spriteDirection == -1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
+
+			return false;
 		}
 
 		private const int Walk_Frames_Max = 6;
@@ -204,6 +211,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 
 		private bool forceSpriteTurn = false;
 
+		private int timePhasing = 0;
+
 		public override void SendExtraAI(BinaryWriter writer){
 			BitsByte flag = new BitsByte(switchSubPhase, noTargetsAlive, startDespawn, forceSpriteTurn);
 
@@ -218,6 +227,7 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			writer.Write((byte)spriteDir);
 			writer.Write((byte)curMaxSpeed);
 			writer.Write((byte)subphaseIndex);
+			writer.Write(timePhasing);
 		}
 
 		public override void ReceiveExtraAI(BinaryReader reader){
@@ -233,9 +243,26 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			spriteDir = reader.ReadByte();
 			curMaxSpeed = reader.ReadByte();
 			subphaseIndex = reader.ReadByte();
+			timePhasing = reader.ReadInt32();
 		}
 
-		public bool CanSeeTarget => Target != null && Collision.CanHit(npc.position, npc.width, npc.height, Target.position, Target.width, Target.height);
+		public bool CanSeeTarget() => Target != null && Collision.CanHit(npc.position, npc.width, npc.height, Target.position, Target.width, Target.height);
+
+		public bool AnyActiveTilesInHitbox(){
+			Vector2 ahead = npc.DirectionTo(Target.Center) * 16;
+
+			Point tileTL = (npc.position + ahead).ToTileCoordinates();
+			Point tileBR = (npc.BottomRight + ahead).ToTileCoordinates();
+
+			for(int x = tileTL.X; x < tileBR.X; x++){
+				for(int y = tileTL.Y; y < tileBR.Y; y++){
+					if(CosmivengeonUtils.TileIsSolidNotPlatform(x, y))
+						return true;
+				}
+			}
+
+			return false;
+		}
 
 		public override void AI(){
 			//AI:  https://docs.google.com/document/d/1B7liHxU-65k_f8eXlC6-M4HLMx9Xu5d5LQWFIznylv8
@@ -261,17 +288,18 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			if(switchSubPhase)
 				return;
 
-			CheckFallThroughPlatforms(out bool checkFailed);
+			CheckFallThroughPlatforms(out _);
 
-			if(checkFailed && !CanSeeTarget && Collision.SolidCollision(npc.position + npc.velocity, npc.width, npc.height) && CurrentSubphase == AI_Attack_Walk){
+			if(AnyActiveTilesInHitbox() && CurrentSubphase == AI_Attack_Walk){
+				timePhasing++;
+
 				PhaseFloat();
 
 				goto skipAI;
-			}
+			}else
+				timePhasing = 0;
 
 			npc.noGravity = false;
-
-			CheckTileStep();
 
 			if(Phase == Phase_1){
 				if(CurrentSubphase == AI_Attack_Walk && AI_WaitTimer < 0){
@@ -356,6 +384,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			if(CurrentSubphase != AI_Attack_Stomp)
 				npc.velocity.Y += 16f / 60f;
 
+			CheckTileStep();
+
 skipAI:
 			
 			//If Frostbite is charging/breathing frost, don't update the direction
@@ -372,7 +402,8 @@ skipAI:
 			if(Math.Sign(npc.Center.X - Target.Center.X) == Math.Sign(npc.velocity.X))
 				npc.velocity.X *= 0.9742f;
 
-			npc.velocity.X.Clamp(-curMaxSpeed, curMaxSpeed);
+			if(timePhasing == 0)
+				npc.velocity.X.Clamp(-curMaxSpeed, curMaxSpeed);
 		}
 
 		private void PhaseFloat(){
@@ -398,7 +429,10 @@ skipAI:
 			}else
 				npc.velocity.Y += -Math.Sign(diffY) * 9.75f / 60f;
 
-			npc.velocity.Y.Clamp(-6, 6);
+			float cap = 6 + (1.125f / 60f) * timePhasing;
+
+			npc.velocity.X.Clamp(-cap, cap);
+			npc.velocity.Y.Clamp(-cap, cap);
 		}
 
 		private void CheckTargetIsDead(){
@@ -530,7 +564,7 @@ skipAI:
 				return;
 
 			//If we can't see the player, don't do the platform checks
-			if(!CanSeeTarget){
+			if(!CanSeeTarget()){
 				npc.noTileCollide = false;
 				return;
 			}
@@ -569,10 +603,7 @@ skipAI:
 			if(CurrentSubphase == AI_Attack_Stomp)
 				return;
 
-			if(npc.velocity.Y == 0f)
-				Collision.StepDown(ref npc.position, ref npc.velocity, npc.width, npc.height, ref npc.stepSpeed, ref npc.gfxOffY);
-			if(npc.velocity.Y >= 0)
-				Collision.StepUp(ref npc.position, ref npc.velocity, npc.width, npc.height, ref npc.stepSpeed, ref npc.gfxOffY, specialChecksMode: 1);
+			Collision.StepUp(ref npc.position, ref npc.velocity, npc.width, npc.height, ref npc.stepSpeed, ref npc.gfxOffY, specialChecksMode: 1);
 		}
 
 		private void AI_Walk(int speed, float acceleration){

@@ -8,7 +8,10 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 	public class ExpertToggleItem : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Expert Mode Toggler");
-			Tooltip.SetDefault("Wait is \"toggler\" even a word?\nNevermind.\nAnyway, this item toggles expert mode.");
+			Tooltip.SetDefault(CosmivengeonMod.DebugItemDescription +
+				"\nWait is \"toggler\" even a word?" +
+				"\nNevermind." +
+				"\nAnyway, this item toggles expert mode.");
 		}
 
 		public override void SetDefaults(){

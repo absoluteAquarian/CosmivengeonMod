@@ -9,7 +9,8 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 	public class CrazyDiamondHand : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Crazy Diamond's Hand");
-			Tooltip.SetDefault("WOAH IS THAT A JOJO'S REFERENCE??!?" +
+			Tooltip.SetDefault(CosmivengeonMod.DebugItemDescription +
+				"\nWOAH IS THAT A JOJO'S REFERENCE??!?" +
 				"\nJokes aside, this weapon will increase the user's" +
 				"\nhealth by 25% of max HP per second." +
 				"\nPress right click while hovering over an NPC to" +

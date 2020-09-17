@@ -12,7 +12,7 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Core of Desolation");
 			Tooltip.SetDefault("Activates Desolation Mode." +
-				$"\nEnables the \"Stamina\" effect, which can be toggled using \"G\"" +
+				"\nEnables the \"Stamina\" effect, which can be toggled using \"G\"" +
 				"\nStamina increases move and attack speed while active," +
 				"\nthough getting Exhausted will cause you to move and attack slower." +
 				"\nDesolation Mode unleashes hell upon this world, causing all" +
@@ -48,17 +48,16 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 
 		public override bool CanUseItem(Player player){
 			//If the game is in multiplayer, only allow the host to use the item OR if this game is using a dedicated server, prevent the item's use entirely
-			// TODO: Make sure that this actually works
-			if(Main.netMode != NetmodeID.SinglePlayer && !Main.dedServ && !Netplay.Clients[Main.myPlayer].Socket.GetRemoteAddress().IsLocalHost()){
+			if(Main.netMode != NetmodeID.SinglePlayer && !Main.dedServ && CosmivengeonUtils.ClientIsLocalHost(Main.myPlayer)){
 				Main.NewText("Only the server host can use this item!", Color.Red);
 				return false;
 			}else if(Main.dedServ){
-				Main.NewText("This item cannot be used on dedicated servers!  Get the server owner to enable Desolation mode through the server's console.", Color.Red);
+				Main.NewText("This item cannot be used on dedicated servers!  Get the server owner to toggle Desolation mode through the server's console.", Color.Red);
 				return false;
 			}
 
-			bool calamityRevengeance = (bool?)ModReferences.Calamity?.Call("Difficulty", "Rev") ?? false;
-			bool calamityDeath = (bool?)ModReferences.Calamity?.Call("Difficulty", "Death") ?? false;
+			bool calamityRevengeance = (bool?)ModReferences.Calamity.Call("Difficulty", "Rev") ?? false;
+			bool calamityDeath = (bool?)ModReferences.Calamity.Call("Difficulty", "Death") ?? false;
 
 			if(player.GetModPlayer<CosmivengeonPlayer>().stamina.Active || player.GetModPlayer<CosmivengeonPlayer>().stamina.Exhaustion)
 				return false;

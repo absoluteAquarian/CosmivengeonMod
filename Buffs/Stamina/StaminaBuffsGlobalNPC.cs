@@ -32,7 +32,7 @@ namespace CosmivengeonMod.Buffs.Stamina{
 
 					CosmivengeonPlayer mp = Main.player[i].GetModPlayer<CosmivengeonPlayer>();
 					//Only do the stamina buff checks on bosses that exist in the predefined Dictionaries
-					if(npc.boss && !npc.friendly && !mp.BossesKilled.Contains(type) && BossIDs.Contains(type)){
+					if(npc.boss && !npc.friendly && npc.playerInteraction[i] && !mp.BossesKilled.Contains(type) && BossIDs.Contains(type)){
 						//It's a boss and it's dead; add it to the list if it's not there already and print the message for it
 						mp.BossesKilled.Add(type);
 						var lines = OnKillMessages[type].Split('\n');
@@ -44,7 +44,7 @@ namespace CosmivengeonMod.Buffs.Stamina{
 				//This hook only runs for the server and in singleplayer, so we can be certain than this game isn't a multiplayer client here
 				CosmivengeonPlayer mp = Main.LocalPlayer.GetModPlayer<CosmivengeonPlayer>();
 				//Only do the stamina buff checks on bosses that exist in the predefined Dictionaries
-				if(npc.boss && !npc.friendly && !mp.BossesKilled.Contains(type) && BossIDs.Contains(type)){
+				if(npc.boss && !npc.friendly && npc.playerInteraction[Main.myPlayer] && !mp.BossesKilled.Contains(type) && BossIDs.Contains(type)){
 					//It's a boss and it's dead; add it to the list if it's not there already and print the message for it
 					mp.BossesKilled.Add(type);
 					var lines = OnKillMessages[type].Split('\n');

@@ -1,7 +1,9 @@
 ﻿using CosmivengeonMod.Buffs.Stamina;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
+using Terraria.ModLoader;
 using Terraria.UI;
 
 namespace CosmivengeonMod.UI{
@@ -17,11 +19,38 @@ namespace CosmivengeonMod.UI{
 
 		protected override void DrawSelf(SpriteBatch spriteBatch){
 			CosmivengeonPlayer modPlayer = Main.LocalPlayer.GetModPlayer<CosmivengeonPlayer>();
-			Texture2D texture = IsBar ? modPlayer.stamina.GetBarTexture() : modPlayer.stamina.GetBackTexture();
-			Vector2 drawPos = IsBar ? Stamina.BarDrawPos : Stamina.BackDrawPos;
-			Rectangle? drawRect = IsBar ? (Rectangle?)modPlayer.stamina.GetBarRect() : null;
+			Stamina stamina = modPlayer.stamina;
 
-			spriteBatch.Draw(texture, drawPos, drawRect, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0);
+			Texture2D texture = IsBar ? stamina.GetBarTexture() : stamina.GetBackTexture();
+			Vector2 drawPos = IsBar ? Stamina.BarDrawPos : Stamina.BackDrawPos;
+			Rectangle? sourceRect = IsBar ? (Rectangle?)stamina.GetBarRect() : null;
+
+			Rectangle rect = new Rectangle((int)drawPos.X, (int)drawPos.Y, texture.Width, texture.Height);
+			if(IsBar){
+				rect.Width -= 4;
+				rect.Height -= 4;
+
+				rect.Width = (int)(rect.Width * (float)stamina.Value / stamina.MaxValue);
+				sourceRect = new Rectangle(sourceRect.Value.X, sourceRect.Value.Y, rect.Width, rect.Height);
+			}
+
+			spriteBatch.Draw(texture, rect, sourceRect, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0);
+
+			if(!IsBar){
+				Texture2D energy = stamina.GetIconTexture();
+
+				float scale = 1f;
+				if(stamina.UnderThreshold && !stamina.Exhaustion)
+					scale = 1f + 0.75f * (1f - (float)stamina.Value / stamina.MaxValue / Stamina.FlashThreshold);
+
+				spriteBatch.Draw(energy, drawPos + new Vector2(18, 14) + energy.Size() / 2f, null, Color.White, 0f, energy.Size() / 2f, scale, SpriteEffects.None, 0);
+
+				if(stamina.BumpTimer > 0){
+					stamina.BumpTimer--;
+
+					spriteBatch.Draw(energy, drawPos + new Vector2(18, 14) + energy.Size() / 2f, null, Color.White * 0.65f, 0f, energy.Size() / 2f, 1f + 0.75f * (float)Math.Sin((1f - stamina.BumpTimer / 20f) * MathHelper.Pi), SpriteEffects.None, 0);
+				}
+			}
 
 			if(ContainsPoint(Main.MouseScreen))
 				Main.hoverItemName = Main.LocalPlayer.GetModPlayer<CosmivengeonPlayer>().stamina.GetHoverText();

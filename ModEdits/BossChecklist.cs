@@ -1,9 +1,7 @@
-﻿using Microsoft.Xna.Framework;
-using Mono.Cecil.Cil;
+﻿using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour.HookGen;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Terraria;
 using Terraria.ID;
@@ -13,8 +11,12 @@ namespace CosmivengeonMod.ModEdits{
 		private static Type BossRadarUI;
 		private static MethodInfo BossRadarUI_SetDrawPos;
 
+#pragma warning disable CS0162
 		public static void Load(){
-			if(ModReferences.BossChecklistActive){
+			//IL code no longer required.  I'm keeping the code here though so I have it as a reference for later
+			return;
+
+			if(ModReferences.BossChecklist.Active){
 				BossRadarUI = null;
 				Assembly assembly = ModReferences.BossChecklist.GetType().Assembly;
 
@@ -35,8 +37,10 @@ namespace CosmivengeonMod.ModEdits{
 				//And patch the method
 				if(BossRadarUI_SetDrawPos != null)
 					ModifySetDrawPos += PatchSetDrawPos;
-			}
+			}else
+				CosmivengeonMod.Instance.Logger.Error("Unable to patch BossChecklist since it doesn't exist.");
 		}
+#pragma warning restore CS0162
 
 		private static void PatchSetDrawPos(ILContext il){
 			//Reflection stuff to make this easier
@@ -78,6 +82,8 @@ bad_il:
 		public static void Unload(){
 			if(BossRadarUI_SetDrawPos != null)
 				ModifySetDrawPos -= PatchSetDrawPos;
+
+			BossRadarUI = null;
 		}
 
 		//The method manipulators

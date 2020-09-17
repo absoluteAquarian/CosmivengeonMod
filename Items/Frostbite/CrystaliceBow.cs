@@ -13,8 +13,8 @@ namespace CosmivengeonMod.Items.Frostbite{
 
 		public override void SetDefaults(){
 			item.ranged = true;
-			item.damage = 8;
-			item.knockBack = 2.8f;
+			item.damage = 12;
+			item.knockBack = 3.1f;
 			item.useTime = 25;
 			item.useAnimation = 25;
 			item.useStyle = ItemUseStyleID.HoldingOut;
@@ -24,7 +24,7 @@ namespace CosmivengeonMod.Items.Frostbite{
 			item.noMelee = true;
 			item.useAmmo = AmmoID.Arrow;
 			item.shoot = ProjectileID.PurificationPowder;
-			item.shootSpeed = 7.3f;
+			item.shootSpeed = 8f;
 			item.UseSound = SoundID.Item5;
 			item.value = Item.sellPrice(silver: 1, copper: 75);
 		}

@@ -9,7 +9,7 @@ using Terraria.ModLoader;
 namespace CosmivengeonMod.Detours{
 	public static partial class DesolationModeBossAI{
 		/// <summary>
-		/// Runs a modified AI forthe Eye of Cthulhu.
+		/// Runs a modified AI for the Eye of Cthulhu.
 		/// </summary>
 		public static void AI_EyeOfCthulhu(NPC npc){
 			/*    NOTES

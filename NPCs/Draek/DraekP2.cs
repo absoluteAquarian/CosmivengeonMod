@@ -28,7 +28,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 		// Expert:   +37.5% base max per player
 		// Desomode: +10% base max per player
-		public static float GetHealthAugmentation() => CosmivengeonUtils.GetModeChoice(0, 0.375f, 0.1f);
+		public static float GetHealthAugmentation() => CosmivengeonUtils.GetModeChoice(0, 0.6875f, 0.55f);
 		
 		public override void SetDefaults(){
 			head = true;

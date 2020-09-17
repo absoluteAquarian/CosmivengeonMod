@@ -250,7 +250,7 @@ namespace CosmivengeonMod.Detours{
 					//ai[0] == 0 or 1: normal jump
 					//Desolation mode AI:
 					//ai[0] == 3: big jump
-					//ai[0] == 2: small jumps while helper's GeneralTimer3 > 0 (if health is less than 300, only do small hops)
+					//ai[0] == 2: small jumps while helper's Timer3 > 0 (if health is less than 300, only do small hops)
 					//ai[0] == 0 or 1: normal jump (immediately jumps to ai[0] = 2 if health is < 33% max)
 					if(npc.ai[0] >= 0f){
 						npc.netUpdate = true;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using CosmivengeonMod.Projectiles.Desomode;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Terraria;
@@ -30,6 +31,19 @@ namespace CosmivengeonMod {
 		}
 
 		public override TagCompound Save(){
+			//Stop all custom sounds
+			for(int i = 0; i < Main.maxProjectiles; i++){
+				Projectile proj = Main.projectile[i];
+
+				if(!proj.active)
+					continue;
+
+				if(proj.modProjectile is BrainPsychicMine mine)
+					mine.teleport?.Stop();
+				else if(proj.modProjectile is BrainPsychicLightning lightning)
+					lightning.zap?.Stop();
+			}
+
 			List<string> downed = new List<string>();
 
 			if(downedDraekBoss)
@@ -116,16 +130,19 @@ namespace CosmivengeonMod {
 		private void SetModFlags(){
 			//Mod Flags
 			CosmivengeonMod.debug_toggleDesoMode = true;
-			CosmivengeonMod.debug_canUseExpertModeToggle = false;
-			CosmivengeonMod.debug_canUsePotentiometer = false;
-			CosmivengeonMod.debug_canUseCrazyHand = true;
-			CosmivengeonMod.debug_canUseCalamityChecker = false;
-			CosmivengeonMod.debug_canClearBossIDs = true;
+			CosmivengeonMod.debug_showEoWOutlines = false;
 
-			CosmivengeonMod.allowModFlagEdit = true;
-			CosmivengeonMod.allowWorldFlagEdit = false;
-			CosmivengeonMod.allowTimeEdit = true;
-			CosmivengeonMod.allowStaminaNoDecay = false;
+			CosmivengeonMod.debug_canUseExpertModeToggle =	!CosmivengeonMod.Release;
+			CosmivengeonMod.debug_canUsePotentiometer =		!CosmivengeonMod.Release;
+			CosmivengeonMod.debug_canUseCrazyHand =			!CosmivengeonMod.Release;
+			CosmivengeonMod.debug_canUseCalamityChecker =	!CosmivengeonMod.Release;
+			CosmivengeonMod.debug_canClearBossIDs =			!CosmivengeonMod.Release;
+			CosmivengeonMod.debug_canShowEoWOutlines =		!CosmivengeonMod.Release;
+
+			CosmivengeonMod.allowModFlagEdit =				!CosmivengeonMod.Release;
+			CosmivengeonMod.allowWorldFlagEdit =			!CosmivengeonMod.Release;
+			CosmivengeonMod.allowTimeEdit =					!CosmivengeonMod.Release;
+			CosmivengeonMod.allowStaminaNoDecay =			!CosmivengeonMod.Release;
 		}
 	}
 }

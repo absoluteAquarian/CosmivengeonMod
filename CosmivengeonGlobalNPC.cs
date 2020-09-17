@@ -1,4 +1,5 @@
 ﻿using System;
+using CosmivengeonMod.Buffs;
 using CosmivengeonMod.Items.Frostbite;
 using CosmivengeonMod.NPCs.Draek;
 using CosmivengeonMod.Projectiles.Frostbite;
@@ -12,11 +13,13 @@ namespace CosmivengeonMod{
 		public override bool InstancePerEntity => true;
 
 		public bool primordialWrath;
+
 		public float endurance;
+		public float baseEndurance = 0f;
 
 		public override void ResetEffects(NPC npc){
 			primordialWrath = false;
-			endurance = 0f;
+			endurance = baseEndurance;
 		}
 
 		public override void UpdateLifeRegen(NPC npc, ref int damage){

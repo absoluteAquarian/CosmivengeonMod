@@ -10,7 +10,8 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Potentiometer");
-			Tooltip.SetDefault("Click to show the angle from the player's center\nto the mouse position.");
+			Tooltip.SetDefault(CosmivengeonMod.DebugItemDescription +
+				"\nClick to show the angle from the player's center to the mouse position.");
 		}
 
 		public override void SetDefaults(){

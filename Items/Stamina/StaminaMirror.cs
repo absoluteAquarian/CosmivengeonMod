@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Commands;
+using Microsoft.Xna.Framework;
 using System;
 using Terraria;
 using Terraria.ID;
@@ -28,10 +29,17 @@ namespace CosmivengeonMod.Items.Stamina{
 				return false;
 
 			//Get a copy of this player's Stamina and use it
+			CosmivengeonPlayer mp = player.GetModPlayer<CosmivengeonPlayer>();
 			StaminaAbility stamina = new StaminaAbility(player);
-			stamina.Clone(player.GetModPlayer<CosmivengeonPlayer>().stamina);
+			stamina.Clone(mp.stamina);
 			stamina.Reset();
 			stamina.ApplyEffects();
+
+			string bosses = "";
+			foreach(int id in mp.BossesKilled){
+				bosses += $"\"{ClearBossKilledCommand.GetBossNameFromDictionary(ClearBossKilledCommand.ConvertIDToTypeInDictionary(id))}\", ";
+			}
+			bosses = bosses.Remove(bosses.Length - 2, 2);
 
 			string[] lines = ($"Stamina Stats for \"{player.name}\":" +
 				$"\nMaximum:  {GetUnitsDiffString((int)(StaminaAbility.DefaultMaxValue * 10000), stamina.MaxValue)}" +
@@ -45,7 +53,8 @@ namespace CosmivengeonMod.Items.Stamina{
 				$"\n  Active - Max Move Speed: {GetPercentDiffString(StaminaAbility.DefaultMaxMoveSpeedBuff, stamina.MaxMoveSpeedBuffMultiplier)}" +
 				$"\n  Exhausted - Attack Speed: {GetPercentDiffString(StaminaAbility.DefaultAttackSpeedDebuff, stamina.AttackSpeedDebuffMultiplier)}" +
 				$"\n  Exhausted - Move Acceleration: {GetPercentDiffString(StaminaAbility.DefaultMoveSpeedDebuff, stamina.MoveSpeedDebuffMultiplier)}" +
-				$"\n  Exhausted - Max Move Speed: {GetPercentDiffString(StaminaAbility.DefaultMaxMoveSpeedDebuff, stamina.MaxMoveSpeedDebuffMultiplier)}"
+				$"\n  Exhausted - Max Move Speed: {GetPercentDiffString(StaminaAbility.DefaultMaxMoveSpeedDebuff, stamina.MaxMoveSpeedDebuffMultiplier)}" +
+				$"\nDefeated Bosses: {bosses}"
 			).Split('\n');
 
 			foreach(string line in lines)

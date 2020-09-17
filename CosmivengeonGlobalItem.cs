@@ -17,9 +17,9 @@ namespace CosmivengeonMod{
 
 		public override bool CanUseItem(Item item, Player player){
 			//Check if this item is from Calamity
-			if(ModReferences.CalamityActive && item.modItem?.mod == ModReferences.Calamity){
-				ModItem revengeanceItem = ModReferences.Calamity.GetItem("Revenge");
-				ModItem deathItem = ModReferences.Calamity.GetItem("Death");
+			if(ModReferences.Calamity.Active && item.modItem?.mod == ModReferences.Calamity){
+				ModItem revengeanceItem = ModReferences.Calamity.Instance.GetItem("Revenge");
+				ModItem deathItem = ModReferences.Calamity.Instance.GetItem("Death");
 
 				//If the item is either of these types, disable Desolation mode if it is active
 				//However, if the item is Death and revengeance isn't active, don't do anything

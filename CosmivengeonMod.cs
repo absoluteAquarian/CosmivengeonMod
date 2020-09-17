@@ -1,31 +1,42 @@
-using System;
-using Terraria;
-using Terraria.ID;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System.Linq;
-using System.Reflection;
-using System.Collections.Generic;
-using Terraria.UI;
 using CosmivengeonMod.Buffs.Stamina;
-using CosmivengeonMod.UI;
-using CosmivengeonMod.Items.Frostbite;
-using CosmivengeonMod.Items.Masks;
+using CosmivengeonMod.Detours;
 using CosmivengeonMod.Items.Boss_Bags;
 using CosmivengeonMod.Items.Draek;
-using Terraria.Localization;
-using System.IO;
-using Terraria.ModLoader;
-using CosmivengeonMod.NPCs.Frostbite;
+using CosmivengeonMod.Items.Frostbite;
+using CosmivengeonMod.Items.Masks;
+using CosmivengeonMod.ModEdits;
+using CosmivengeonMod.NPCs.Desomode;
 using CosmivengeonMod.NPCs.Draek;
-using CosmivengeonMod.Detours;
+using CosmivengeonMod.NPCs.Frostbite;
+using CosmivengeonMod.UI;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using Terraria;
 using Terraria.Graphics.Effects;
 using Terraria.Graphics.Shaders;
-using CosmivengeonMod.ModEdits;
+using Terraria.ID;
+using Terraria.Localization;
+using Terraria.ModLoader;
+using Terraria.UI;
 
 namespace CosmivengeonMod{
 	public class CosmivengeonMod : Mod{
 		public static CosmivengeonMod Instance => ModContent.GetInstance<CosmivengeonMod>();
+
+		/// <summary>
+		/// Whether or not the mod will log its IL edits.  Disable this flag to make the mod load faster!
+		/// </summary>
+		public static readonly bool LogILEdits = false;
+
+		/// <summary>
+		/// Whether or not this version of the mod is a public release or a test build.
+		/// </summary>
+		public static readonly bool Release = true;
 
 		public static bool debug_toggleDesoMode;
 		public static bool debug_canUseExpertModeToggle;
@@ -33,13 +44,23 @@ namespace CosmivengeonMod{
 		public static bool debug_canUseCrazyHand;
 		public static bool debug_canUseCalamityChecker;
 		public static bool debug_canClearBossIDs;
+		public static bool debug_showEoWOutlines;
+		public static bool debug_canShowEoWOutlines;
 
 		public static bool allowModFlagEdit;
 		public static bool allowWorldFlagEdit;
 		public static bool allowTimeEdit;
 		public static bool allowStaminaNoDecay;
 
-		public static string PlaceHolderDescription => "Description to be added...";
+		/// <summary>
+		/// "Description to be added..."
+		/// </summary>
+		public static readonly string PlaceHolderDescription = "Description to be added...";
+
+		/// <summary>
+		/// "THIS IS A DEBUG ITEM"
+		/// </summary>
+		public static readonly string DebugItemDescription = "[c/555555:THIS IS A DEBUG ITEM]";
 
 		//Stamina use hotkey
 		public static ModHotKey StaminaHotKey;
@@ -52,6 +73,8 @@ namespace CosmivengeonMod{
 		/// "Cosmivengeon: Evil Drops" - "Any Shadow Scale"
 		/// </summary>
 		public static readonly string RecipeGroup_EvilDrops = "Cosmivengeon: Evil Drops";
+
+		public static BasicEffect PrimitivesEffect{ get; private set; }
 
 		public CosmivengeonMod(){ }
 
@@ -96,10 +119,19 @@ namespace CosmivengeonMod{
 				FilterCollection.Screen_EoC = new Filter(new ScreenShaderData(eocEffect, "ScreenDarken"), EffectPriority.High);
 			}
 
-			DetourNPC.Load();
+			ILHelper.InitMonoModDumps();
 
-			//Load mod edits for the BossChecklist mod
-			BossChecklist.Load();
+			DetourNPC.Load();
+			DetourPlayer.Load();
+
+			ModReferences.Load();
+
+			//IL for BossChecklist isn't required anymore
+			//ModEdits.BossChecklist.Load();
+			ModEdits.CheatSheet.Load();
+			ModEdits.Vanilla.Load();
+
+			ILHelper.DeInitMonoModDumps();
 		}
 
 		public override void Unload(){
@@ -120,17 +152,22 @@ namespace CosmivengeonMod{
 			Main.buffNoTimeDisplay[BuffID.Slimed] = true;
 			Main.buffNoTimeDisplay[BuffID.Obstructed] = true;
 
-			if(FilterCollection.Screen_EoC.Active)
+			if(FilterCollection.Screen_EoC?.Active ?? false)
 				FilterCollection.Screen_EoC.Deactivate();
 
-			BossChecklist.Unload();
+			ModEdits.BossChecklist.Unload();
+			ModEdits.CheatSheet.Unload();
 		}
 
 		public override void PostSetupContent(){
 			//Set the boss's position in BossChecklist if the mod is active
 			//see:  https://github.com/JavidPack/BossChecklist/wiki/Support-using-Mod-Call
 
-			if(ModReferences.BossChecklistActive){
+			PrimitivesEffect = new BasicEffect(Main.graphics.GraphicsDevice){
+				VertexColorEnabled = true
+			};
+
+			if(ModReferences.BossChecklist.Active){
 				//2.7f ==> just before Eater of Worlds
 				ModReferences.BossChecklist.Call("AddBoss",
 					2.7f,
@@ -322,6 +359,7 @@ namespace CosmivengeonMod{
 				[NPCID.KingSlime] =         new List<string>(){ "King Slime", "Slime King", "KS", "SK" },
 				[NPCID.EyeofCthulhu] =      new List<string>(){ "Eye of Cthulhu", "EoC" },
 				[NPCID.EaterofWorldsHead] = new List<string>(){ "Eater of Worlds", "EoW" },
+				[NPCID.BrainofCthulhu] =    new List<string>(){ "Brain of Cthulhu" , "Brain", "BoC"},
 				[NPCID.QueenBee] =          new List<string>(){ "Queen Bee", "Bee Queen", "QB", "BQ" },
 				[NPCID.SkeletronHead] =     new List<string>(){ "Skeletron", "Skele", "Skelebutt", "Sans" },
 				[NPCID.WallofFlesh] =       new List<string>(){ "Wall of Flesh", "Wall of Meat", "WoF" },
@@ -354,23 +392,23 @@ namespace CosmivengeonMod{
 		}
 
 		public static void DeactivateCalamityRevengeance(){
-			if(!ModReferences.CalamityActive)
+			if(!ModReferences.Calamity.Active)
 				return;
 
-			if(ModReferences.Calamity.Version >= new Version("1.4.2.108"))
+			if(ModReferences.Calamity.Instance.Version >= new Version("1.4.2.108"))
 				ModReferences.Calamity.Call("SetDifficulty", "Rev", false);
 			else
-				ModReferences.Calamity.GetModWorld("CalamityWorld").GetType().GetField("revenge", BindingFlags.Public | BindingFlags.Static).SetValue(null, false);
+				ModReferences.Calamity.Instance.GetModWorld("CalamityWorld").GetType().GetField("revenge", BindingFlags.Public | BindingFlags.Static).SetValue(null, false);
 		}
 
 		public static void DeactivateCalamityDeath(){
-			if(!ModReferences.CalamityActive)
+			if(!ModReferences.Calamity.Active)
 				return;
 
-			if(ModReferences.Calamity.Version >= new Version("1.4.2.108"))
+			if(ModReferences.Calamity.Instance.Version >= new Version("1.4.2.108"))
 				ModReferences.Calamity.Call("SetDifficulty", "Death", false);
 			else
-				ModReferences.Calamity.GetModWorld("CalamityWorld").GetType().GetField("death", BindingFlags.Public | BindingFlags.Static).SetValue(null, false);
+				ModReferences.Calamity.Instance.GetModWorld("CalamityWorld").GetType().GetField("death", BindingFlags.Public | BindingFlags.Static).SetValue(null, false);
 		}
 
 		public override void UpdateUI(GameTime gameTime){
@@ -424,6 +462,10 @@ namespace CosmivengeonMod{
 						packet.Send(-1, clientWhoAmI);
 					}
 					break;
+				case CosmivengeonModMessageType.SyncEoWGrab:
+					DetourNPCHelper.EoW_GrabbingNPC = reader.ReadInt32();
+					DetourNPCHelper.EoW_GrabbedPlayer = reader.ReadInt32();
+					break;
 				default:
 					Logger.WarnFormat("CosmivengeonMod: Unknown message type: {0}", message);
 					break;
@@ -433,6 +475,7 @@ namespace CosmivengeonMod{
 
 	internal enum CosmivengeonModMessageType : byte{
 		SyncPlayer,
-		StaminaChanged
+		StaminaChanged,
+		SyncEoWGrab
 	}
 }

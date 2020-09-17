@@ -49,29 +49,36 @@ namespace CosmivengeonMod.Items.Frostbite{
 				return;
 			}
 
+			if(Equipped(player))
+				return;
+
 			List<Projectile> crystals = Main.projectile.Where(p => p?.active == true && p.modProjectile is EyeOfTheBlizzardCrystal && p.owner == player.whoAmI).ToList();
 
 			for(int i = 0; i < crystals.Count; i++)
-				crystals[i].active = false;
+				crystals[i].Kill();
 
 			player.GetModPlayer<CosmivengeonPlayer>().equipped_EyeOfTheBlizzard = false;
 		}
 
-		public override void UpdateAccessory(Player player, bool hideVisual){
-			if(player.dead || !player.active){
-				passiveHealTimer = 0;
-				abilityTimer = -1;
-				Crystal = null;
-				return;
-			}
-
-			bool equipped = false;
+		private bool Equipped(Player player){
 			for(int i = 3; i < 8 + player.extraAccessorySlots; i++){
 				if(player.armor[i].type == item.type)
-					equipped = true;
+					return true;
 			}
-			if(!equipped){
-				UpdateInventory(player);
+			return false;
+		}
+
+		private void DespawnCrystal(){
+			passiveHealTimer = 0;
+			abilityTimer = -1;
+
+			Crystal?.Kill();
+			Crystal = null;
+		}
+
+		public override void UpdateAccessory(Player player, bool hideVisual){
+			if(player.dead || !player.active){
+				DespawnCrystal();
 				return;
 			}
 

@@ -1,4 +1,5 @@
-﻿using CosmivengeonMod.Projectiles.Weapons.Frostbite;
+﻿using CosmivengeonMod.Items.Frostbite;
+using CosmivengeonMod.Projectiles.Weapons.Frostbite;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -47,7 +48,17 @@ namespace CosmivengeonMod.Projectiles.Summons{
 			}
 
 			if(Parent.dead || !Parent.active || !Parent.GetModPlayer<CosmivengeonPlayer>().equipped_EyeOfTheBlizzard){
-				projectile.active = false;
+				projectile.Kill();
+				return;
+			}
+
+			bool equippedAccessory = false;
+			for(int i = 3; i < 8 + Parent.extraAccessorySlots; i++){
+				if(Parent.armor[i].type == ModContent.ItemType<EyeOfTheBlizzard>())
+					equippedAccessory = true;
+			}
+			if(!equippedAccessory){
+				projectile.Kill();
 				return;
 			}
 

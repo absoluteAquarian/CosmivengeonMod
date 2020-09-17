@@ -1,5 +1,6 @@
 ﻿using CosmivengeonMod.Buffs.Stamina;
 using Microsoft.Xna.Framework;
+using System;
 using System.Linq;
 using Terraria;
 using Terraria.ID;
@@ -56,7 +57,7 @@ namespace CosmivengeonMod.Commands{
 				return;
 			}
 
-			int dictID = ConvertIDToNameInDictionary(id);
+			int dictID = ConvertIDToTypeInDictionary(id);
 
 			if(!StaminaBuffsGlobalNPC.BossIDs.Contains(dictID)){
 				if(StaminaBuffsGlobalNPC.BossNames.ContainsKey(dictID))
@@ -78,14 +79,15 @@ namespace CosmivengeonMod.Commands{
 			else if(!mp.BossesKilled.Contains(id))
 				mp.BossesKilled.Add(id);
 
+			string bossName = GetBossNameFromDictionary(dictID);
 			string npcNameWithVerb = dictID == NPCID.Retinazer
-				? Language.GetTextValue("Enemies.TheTwins") + "\" have"
-				: "the NPC of name \"" + Lang.GetNPCNameValue(id) + "\" has";
+				? $"\"{bossName}\" have"
+				: $"\"{bossName}\" has";
 
 			caller.Reply($"Boss killed flag for {npcNameWithVerb} been set to \"{flag.ToString().ToLower()}\".");
 		}
 
-		private int ConvertIDToNameInDictionary(int id){
+		public static int ConvertIDToTypeInDictionary(int id){
 			if(id == NPCID.EaterofWorldsBody || id == NPCID.EaterofWorldsTail)
 				return NPCID.EaterofWorldsHead;
 			if(id == NPCID.TheDestroyerBody || id == NPCID.TheDestroyerTail)
@@ -94,5 +96,8 @@ namespace CosmivengeonMod.Commands{
 				return NPCID.Retinazer;
 			return id;
 		}
+
+		public static string GetBossNameFromDictionary(int dictID)
+			=> dictID == NPCID.Retinazer ? Language.GetTextValue("Enemies.TheTwins") : Lang.GetNPCNameValue(dictID);
 	}
 }

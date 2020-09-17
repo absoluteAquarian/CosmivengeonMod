@@ -70,11 +70,11 @@ namespace CosmivengeonMod.Buffs.Stamina{
 
 		private const int RegenDelay = 45;
 		private int RegenDelayTimer;
-		private bool StartRegen;
+		private bool startRegen;
 
 		private int FlashTimer;
-		private const float FlashThreshold = 0.2f;
-		private const int FlashCycle = 20;
+		public const float FlashThreshold = 0.2f;
+		public const int FlashCycle = 20;
 		private int FlashDelay{
 			get{
 				float curRatio = value / FlashThreshold;
@@ -84,19 +84,18 @@ namespace CosmivengeonMod.Buffs.Stamina{
 			}
 		}
 
-		public Texture2D BackGreen{ get; private set; }
-		public Texture2D BackYellow{ get; private set; }
-		public Texture2D BackRed{ get; private set; }
-		public Texture2D BackGray{ get; private set; }
-		public Texture2D BarGreen{ get; private set; }
-		public Texture2D BarYellow{ get; private set; }
-		public Texture2D BarRed{ get; private set; }
-		public Texture2D BarGray{ get; private set; }
+		public bool UnderThreshold => value < FlashThreshold;
 
 		public static Vector2 BackDrawPos => new Vector2(Main.screenWidth - 650, 30);
 		public static Vector2 BarDrawPos => BackDrawPos + new Vector2(58, 14);
 
 		public readonly bool Empty = false;
+
+		public float AttackPunishment{ get; private set; }
+
+		public bool Recharging => startRegen;
+
+		public int BumpTimer = 20;
 
 		public Stamina(Player player = null){
 			if(player is null){
@@ -114,19 +113,10 @@ namespace CosmivengeonMod.Buffs.Stamina{
 			Exhaustion = false;
 			ExhaustionEffectsWornOff = false;
 			RegenDelayTimer = RegenDelay;
-			StartRegen = false;
+			startRegen = false;
 			IncreaseRate = DefaultIncreaseRate;
 			ExhaustionIncreaseRate = DefaultExhaustionIncreaseRate;
 			DecreaseRate = DefaultDecreaseRate;
-
-			BackGreen = ModContent.GetTexture("CosmivengeonMod/Buffs/Stamina/UIBack_Green");
-			BackYellow = ModContent.GetTexture("CosmivengeonMod/Buffs/Stamina/UIBack_Yellow");
-			BackRed = ModContent.GetTexture("CosmivengeonMod/Buffs/Stamina/UIBack_Red");
-			BackGray = ModContent.GetTexture("CosmivengeonMod/Buffs/Stamina/UIBack_Gray");
-			BarGreen = ModContent.GetTexture("CosmivengeonMod/Buffs/Stamina/UIBar_Green");
-			BarYellow = ModContent.GetTexture("CosmivengeonMod/Buffs/Stamina/UIBar_Yellow");
-			BarRed = ModContent.GetTexture("CosmivengeonMod/Buffs/Stamina/UIBar_Red");
-			BarGray = ModContent.GetTexture("CosmivengeonMod/Buffs/Stamina/UIBar_Gray");
 		}
 
 		public void Clone(Stamina other){
@@ -140,7 +130,7 @@ namespace CosmivengeonMod.Buffs.Stamina{
 			ExhaustionEffectsWornOff = other.ExhaustionEffectsWornOff;
 			maxValue = other.maxValue;
 			NoDecay = other.NoDecay;
-			StartRegen = other.StartRegen;
+			startRegen = other.startRegen;
 			RegenDelayTimer = other.RegenDelayTimer;
 			Parent = other.Parent;
 			Multipliers = other.Multipliers;
@@ -151,7 +141,7 @@ namespace CosmivengeonMod.Buffs.Stamina{
 			if(Empty)
 				return;
 
-			BitsByte flag = new BitsByte(Active, oldActive, Exhaustion, ExhaustionEffectsWornOff, NoDecay, StartRegen);
+			BitsByte flag = new BitsByte(Active, oldActive, Exhaustion, ExhaustionEffectsWornOff, NoDecay, startRegen);
 
 			packet.Write(value);
 			packet.Write(maxValue);
@@ -169,7 +159,7 @@ namespace CosmivengeonMod.Buffs.Stamina{
 			RegenDelayTimer = reader.ReadInt32();
 
 			BitsByte flag = reader.ReadByte();
-			flag.Retrieve(ref Active, ref oldActive, ref Exhaustion, ref ExhaustionEffectsWornOff, ref NoDecay, ref StartRegen);
+			flag.Retrieve(ref Active, ref oldActive, ref Exhaustion, ref ExhaustionEffectsWornOff, ref NoDecay, ref startRegen);
 
 			Parent = Main.player[reader.ReadByte()];
 		}
@@ -201,11 +191,13 @@ namespace CosmivengeonMod.Buffs.Stamina{
 
 			ApplyEffects();
 
+			CapPunishment();
+
 			if(NoDecay){
 				value = maxValue;
 				Exhaustion = false;
 				ExhaustionEffectsWornOff = true;
-				StartRegen = false;
+				startRegen = false;
 				goto End;
 			}
 
@@ -216,29 +208,34 @@ namespace CosmivengeonMod.Buffs.Stamina{
 				value = 0f;
 			}
 
-			if(oldActive != Active) {
+			if(oldActive != Active){
 				RegenDelayTimer = RegenDelay;
-				StartRegen = false;
+				startRegen = false;
 			}
 
 			//Cap value at maxValue and deactivate Exhaustion if active
+			float oldValue = value;
+
 			if((!Active || Exhaustion) && value + GetIncreaseRate() > maxValue){
 				Exhaustion = false;
-				StartRegen = false;
+				startRegen = false;
 				ExhaustionEffectsWornOff = false;
 				value = maxValue;
+
+				if(oldValue < maxValue)
+					BumpTimer = 20;
 			}
 
 			//Check which decrease to use, increase otherwise
 			if(Active && !Exhaustion)
 				value -= DecreaseRate;
-			else if(!Active && StartRegen)
+			else if(!Active && startRegen)
 				value += GetIncreaseRate();
 
-			if(!StartRegen && !Active && value < maxValue)
+			if(!startRegen && !Active && value < maxValue)
 				RegenDelayTimer--;
-			if(RegenDelayTimer == 0 && !StartRegen)
-				StartRegen = true;
+			if(RegenDelayTimer == 0 && !startRegen)
+				startRegen = true;
 			FlashTimer++;
 
 			if(ApplyExhaustionDebuffs && value > 0.175f * maxValue)
@@ -255,37 +252,56 @@ End:
 
 			if(value > maxValue)
 				value = maxValue;
+
+			//-0.035 per second
+			if(AttackPunishment > 0)
+				AttackPunishment -= (Active ? 0.01f : 0.035f) / 60f;
 		}
 
 		public Texture2D GetBackTexture(){
 			if(Empty)
 				return Main.magicPixel;
 
-			if(Exhaustion)
-				return BackGray;
-			else if(value > FlashThreshold)
-				return BackGreen;
-			else if(FlashTimer % FlashDelay < FlashDelay / 2f)
-				return BackYellow;
-			return BackRed;
+			return ModContent.GetTexture("CosmivengeonMod/Buffs/Stamina/BarFrame");
 		}
 
 		public Texture2D GetBarTexture(){
 			if(Empty)
 				return Main.magicPixel;
 
-			if(Exhaustion)
-				return BarGray;
-			else if(value > FlashThreshold)
-				return BarGreen;
-			else if(FlashTimer % FlashDelay < FlashDelay / 2f)
-				return BarYellow;
-			return BarRed;
+			return ModContent.GetTexture("CosmivengeonMod/Buffs/Stamina/Bar");
 		}
 
-		public Rectangle GetBarRect() => Empty ? Rectangle.Empty : new Rectangle(0, 0, (int)(GetBarTexture().Width * (value / maxValue)), GetBarTexture().Height);
+		public Texture2D GetIconTexture(){
+			if(Empty)
+				return Main.magicPixel;
 
-		public string GetHoverText() => Empty ? "0/0" : $"{Value:D5}/{MaxValue}";
+			string name;
+			if(Exhaustion)
+				name = "_Gray";
+			else if(value > FlashThreshold)
+				name = "";
+			else{
+				if(FlashTimer % FlashDelay > FlashDelay / 2)
+					name = "_Yellow";
+				else
+					name = "_Red";
+			}
+
+			return ModContent.GetTexture($"CosmivengeonMod/Buffs/Stamina/BarFrameEnergyIcon{name}");
+		}
+
+		/// <summary>
+		/// Returns a 0 for Red and a 1 for Yellow
+		/// </summary>
+		public int GetFlashType() => FlashTimer % FlashDelay > FlashDelay / 2 ? 1 : 0;
+
+		public Rectangle GetBarRect(){
+			Texture2D bar = GetBarTexture();
+			return Empty ? Rectangle.Empty : new Rectangle(2, 2, bar.Width - 4, bar.Height - 4);
+		}
+
+		public string GetHoverText() => Empty ? "0/0 (0%)" : $"{Value:D5}/{MaxValue} ({(1f - AttackPunishment) * 100 :N1}%)";
 
 		public float UseTimeMultiplier()
 			=> CosmivengeonWorld.desoMode && !Empty ? (ApplyExhaustionDebuffs ? AttackSpeedDebuffMultiplier * DefaultAttackSpeedDebuff : (Active ? AttackSpeedBuffMultiplier * DefaultAttackSpeedBuff : 1f)) : 1f;
@@ -302,6 +318,10 @@ End:
 			float runSpeedMult = ApplyExhaustionDebuffs ? MaxMoveSpeedDebuffMultiplier * DefaultMaxMoveSpeedDebuff : (Active ? MaxMoveSpeedBuffMultiplier * DefaultMaxMoveSpeedBuff : 1f);
 			Parent.maxRunSpeed *= runSpeedMult;
 			Parent.accRunSpeed *= runSpeedMult;
+
+			//If the player is exhausted, cap the horizontal speed
+			if(ApplyExhaustionDebuffs)
+				Parent.velocity.X.Clamp(-9f, 9f);
 		}
 
 		/// <summary>
@@ -381,8 +401,25 @@ End:
 			ExhaustionIncreaseRate = ExhaustionIncreaseRate * Multipliers[1] + Adders[1];
 			DecreaseRate = DecreaseRate * Multipliers[2] + Adders[2];
 			maxValue = maxValue * Multipliers[3] + Adders[3];
+
+			//Apply the punishment
+			IncreaseRate *= 1f - AttackPunishment;
+			ExhaustionIncreaseRate *= 1f - AttackPunishment;
 		}
 
 		public float GetIncreaseRate() => Empty ? 0f : (Exhaustion ? ExhaustionIncreaseRate : IncreaseRate);
+
+		public void AddAttackPunishment(int amount){
+			AttackPunishment += amount * 0.05f;
+
+			CapPunishment();
+		}
+
+		private void CapPunishment(){
+			if(AttackPunishment > 0.75f)
+				AttackPunishment = 0.75f;
+			if(AttackPunishment < 0)
+				AttackPunishment = 0;
+		}
 	}
 }

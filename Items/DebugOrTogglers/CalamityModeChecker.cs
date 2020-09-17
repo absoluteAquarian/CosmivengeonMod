@@ -7,7 +7,8 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 	public class CalamityModeChecker : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Calamity Mod Checker");
-			Tooltip.SetDefault("This item can be used to check the state of" +
+			Tooltip.SetDefault(CosmivengeonMod.DebugItemDescription +
+				"\nThis item can be used to check the state of" +
 				"\nCalamity's two custom modes:  [c/ff0000:Revengeange] and [c/ac00ff:Death]." +
 				"\nLeft click to print [c/ff0000:Revengeance]'s state to the chat." +
 				"\nRight click to print [c/ac00ff:Death]'s state to the chat.");
@@ -36,7 +37,7 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 		}
 
 		public override bool UseItem(Player player){
-			if(!ModReferences.CalamityActive)
+			if(!ModReferences.Calamity.Active)
 				Main.NewText("Calamity is not enabled.", Color.Red);
 			else{
 				bool state;

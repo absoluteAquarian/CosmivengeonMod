@@ -1,4 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -74,11 +76,14 @@ namespace CosmivengeonMod{
 		/// <returns></returns>
 		public static float ToTerrariaAngle(float angle) => (angle - MathHelper.Pi) % MathHelper.TwoPi;
 
-		public static bool TileIsSolidNotPlatform(Vector2 pos) => TileIsSolidNotPlatform((int)pos.X >> 4, (int)pos.Y >> 4);
+		public static bool TileIsSolidNotPlatform(Vector2 pos)
+			=> TileIsSolidNotPlatform((int)pos.X >> 4, (int)pos.Y >> 4);
 
-		public static bool TileIsSolidNotPlatform(int x, int y) => TileIsSolidOrPlatform(x, y) && Main.tile[x, y].type != TileID.Platforms;
+		public static bool TileIsSolidNotPlatform(int x, int y)
+			=> TileIsSolidOrPlatform(x, y) && (Main.tile[x, y].type != TileID.Platforms || !TileID.Sets.Platforms[Main.tile[x, y].type]);
 
-		public static bool TileIsSolidOrPlatform(Vector2 pos) => TileIsSolidOrPlatform((int)pos.X >> 4, (int)pos.Y >> 4);
+		public static bool TileIsSolidOrPlatform(Vector2 pos)
+			=> TileIsSolidOrPlatform((int)pos.X >> 4, (int)pos.Y >> 4);
 
 		public static bool TileIsSolidOrPlatform(int x, int y){
 			Tile tile = Framing.GetTileSafely(x, y);
@@ -131,23 +136,25 @@ namespace CosmivengeonMod{
 		public static T GetModeChoice<T>(T normal, T expert, T desolation)
 			=> CosmivengeonWorld.desoMode ? desolation : (Main.expertMode ? expert : normal);
 
-		public static void SpawnProjectileSynced(Vector2 position, Vector2 velocity, int type, int damage, float knockback, float ai0 = 0f, float ai1 = 0f, int owner = 255){
-			if(owner == 255)
+		public static int SpawnProjectileSynced(Vector2 position, Vector2 velocity, int type, int damage, float knockback, float ai0 = 0f, float ai1 = 0f, int owner = -1){
+			if(owner == -1)
 				owner = Main.myPlayer;
 
-			if(Main.netMode != NetmodeID.MultiplayerClient){
-				int proj = Projectile.NewProjectile(position, velocity, type, TrueDamage(damage), knockback, owner, ai0, ai1);
-
+			int proj = Projectile.NewProjectile(position, velocity, type, TrueDamage(damage), knockback, owner, ai0, ai1);
+			if(Main.netMode != NetmodeID.SinglePlayer)
 				NetMessage.SendData(MessageID.SyncProjectile, number: proj);
-			}
+
+			return proj;
 		}
 
-		public static void SpawnNPCSynced(Vector2 spawn, int type, float ai0 = 0f, float ai1 = 0f, float ai2 = 0f, float ai3 = 0f){
+		public static int SpawnNPCSynced(Vector2 spawn, int type, float ai0 = 0f, float ai1 = 0f, float ai2 = 0f, float ai3 = 0f){
+			int npc = Main.maxNPCs;
 			if(Main.netMode != NetmodeID.MultiplayerClient){
-				int npc = NPC.NewNPC((int)spawn.X, (int)spawn.Y, type, 0, ai0, ai1, ai2, ai3, 255);
+				npc = NPC.NewNPC((int)spawn.X, (int)spawn.Y, type, 0, ai0, ai1, ai2, ai3, 255);
 
 				NetMessage.SendData(MessageID.SyncNPC, number: npc);
 			}
+			return npc;
 		}
 
 		public static void PlayMusic(ModNPC modNPC, CosmivengeonBoss boss){
@@ -326,16 +333,44 @@ namespace CosmivengeonMod{
 			=> $"CosmivengeonMod/Items/PlaceHolder{name}";
 
 		/// <summary>
-		/// Scales this <paramref name="npc"/>'s health by the scale <paramref name="factor"/> and <paramref name="numPlayers"/> provided.
-		/// <list type="bullet">
-		/// <item><description>Formula: <paramref name="npc"/>.lifeMax += <paramref name="npc"/>.lifeMax * <paramref name="factor"/> * (<paramref name="numPlayers"/> + 1)</description></item>
-		/// </list>
+		/// Scales this <paramref name="npc"/>'s health by the scale <paramref name="factor"/> provided.
 		/// </summary>
 		/// <param name="npc">The NPC instance.</param>
 		/// <param name="factor">The scale factor that this <paramref name="npc"/>'s health is scaled by.</param>
-		/// <param name="numPlayers">The number of players present.  In singleplayer, <paramref name="numPlayers"/> is 0.  In multiplayer, <paramref name="numPlayers"/> is the amount of players present that aren't this game's client.</param>
-		public static void ScaleHealthBy(this NPC npc, float factor, int numPlayers)
-			=> npc.lifeMax += (int)(npc.lifeMax * factor * (numPlayers + 1));
+		public static void ScaleHealthBy(this NPC npc, float factor){
+			float bossScale = CalculateBossHealthScale(out _);
+
+			npc.lifeMax = (int)(npc.lifeMax * Main.expertLife);
+			npc.lifeMax = (int)(npc.lifeMax * factor * bossScale);
+		}
+
+		public static float CalculateBossHealthScale(out int playerCount){
+			//This is what vanila does
+			playerCount = 0;
+			float healthFactor = 1f;
+			float component = 0.35f;
+
+			if(Main.netMode == NetmodeID.SinglePlayer){
+				playerCount = 1;
+				return 1f;
+			}
+
+			for(int i = 0; i < Main.maxPlayers; i++)
+				if(Main.player[i].active)
+					playerCount++;
+
+			for(int i = 0; i < playerCount; i++){
+				healthFactor += component;
+				component += (1f - component) / 3f;
+			}
+
+			if(healthFactor > 8f)
+				healthFactor = (healthFactor * 2f + 8f) / 3f;
+			if(healthFactor > 1000f)
+				healthFactor = 1000f;
+
+			return healthFactor;
+		}
 
 		public static void TryDecrementAlpha(this Projectile proj, int amount){
 			if(proj.alpha > 0)
@@ -407,6 +442,51 @@ namespace CosmivengeonMod{
 		}
 
 		public static void SetImmune(this NPC npc, int type) => npc.buffImmune[type] = true;
+
+		public static Vector3 ScreenCoord(this Vector2 vector)
+			=> new Vector3(-1 + vector.X / Main.screenWidth * 2, (-1 + vector.Y / Main.screenHeight * 2f) * -1, 0);
+		public static Vector3 ScreenCoord(this Vector3 vector)
+			=> new Vector3(-1 + vector.X / Main.screenWidth * 2, (-1 + vector.Y / Main.screenHeight * 2f) * -1, 0);
+
+		public static SoundEffectInstance PlayCustomSound(this Mod mod, Vector2 position, string file)
+			=> Main.PlaySound(SoundLoader.customSoundType, (int)position.X, (int)position.Y, mod.GetSoundSlot(SoundType.Custom, $"Sounds/Custom/{file}"));
+
+		public static void PrepareToDrawPrimitives(int capacity, out VertexBuffer buffer){
+			buffer = new VertexBuffer(Main.graphics.GraphicsDevice, typeof(VertexPositionColor), capacity, BufferUsage.WriteOnly);
+
+			Main.graphics.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+		}
+
+		public static void DrawPrimitives(VertexPositionColor[] draws, VertexBuffer buffer){
+			Main.graphics.GraphicsDevice.SetVertexBuffer(null);
+			buffer.SetData(draws);
+
+			Main.graphics.GraphicsDevice.SetVertexBuffer(buffer);
+			Main.graphics.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+
+			foreach(EffectPass currentTechniquePass in CosmivengeonMod.PrimitivesEffect.CurrentTechnique.Passes){
+				currentTechniquePass.Apply();
+					
+				Main.graphics.GraphicsDevice.DrawPrimitives(PrimitiveType.LineList, 0, draws.Length / 2);
+			}
+		}
+
+		/// <summary>
+		/// Returns if this game is the local host in a multiplayer instance.  If the game is a singleplayer game, this method returns false.
+		/// </summary>
+		public static bool ClientIsLocalHost(int whoAmI){
+			if(whoAmI < 0 || whoAmI > Main.maxPlayers)
+				return false;
+
+			if(Main.netMode == NetmodeID.SinglePlayer)
+				return false;
+
+			if(Main.netMode == NetmodeID.MultiplayerClient)
+				return Netplay.Connection.Socket.GetRemoteAddress().IsLocalHost();
+
+			RemoteClient client = Netplay.Clients[whoAmI];
+			return client.State == 10 && client.Socket.GetRemoteAddress().IsLocalHost();
+		}
 	}
 
 	public enum CosmivengeonBoss{
