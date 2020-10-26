@@ -41,6 +41,8 @@ namespace CosmivengeonMod.Detours{
 				npc.ai[0] = 1f;
 			}
 
+			bool sendGlobalNPCData = false;
+
 			bool onlyDoFastCharges = false;
 			//This flag used to indicate the panic phase.  Let's override its use for the new attack instead!
 			bool desomodePanicPhase = false;
@@ -88,9 +90,11 @@ namespace CosmivengeonMod.Detours{
 			if(!targetIsDead){
 				//If the player isn't moving, then update one of the timer array members at random
 				//Otherwise, update the corresponding timer
-				if(npc.Target().velocity.X == 0)
+				if(npc.Target().velocity.X == 0){
 					npc.Helper().EoC_PlayerTargetMovementTimers[Main.rand.Next(2)]++;
-				else if(npc.Target().velocity.X < 0)
+
+					sendGlobalNPCData = true;
+				}else if(npc.Target().velocity.X < 0)
 					npc.Helper().EoC_PlayerTargetMovementTimers[0]++;
 				else
 					npc.Helper().EoC_PlayerTargetMovementTimers[1]++;
@@ -237,7 +241,8 @@ namespace CosmivengeonMod.Detours{
 					npc.velocity.X = 0f;
 				if(Math.Abs(npc.velocity.Y) < 0.1f){
 					npc.velocity.Y = 0f;
-					return;
+
+					goto sendData;
 				}
 			}else if(npc.ai[0] != 6f){
 				//Vanilla Phase 2: No iris and no longer spawns minions (desomode does keep spawning them though)
@@ -574,6 +579,8 @@ namespace CosmivengeonMod.Detours{
 							if(Main.netMode != NetmodeID.Server && !FilterCollection.Screen_EoC.Active){
 								Filters.Scene.Activate(FilterCollection.Name_Screen_EoC);
 								npc.Helper().EoC_UsingShader = true;
+
+								sendGlobalNPCData = true;
 							}
 						}
 					}else if(npc.ai[1] == 2f){
@@ -602,6 +609,8 @@ namespace CosmivengeonMod.Detours{
 					if(npc.ai[1] == 0f){
 						//Determine the relative height to charge from and which direction
 						npc.Helper().EoC_TargetHeight = Main.rand.Next(-150, 151);
+
+						sendGlobalNPCData = true;
 
 						npc.Helper().EoC_PlayerTargetMovementDirection = (npc.Helper().EoC_PlayerTargetMovementTimers[0] > npc.Helper().EoC_PlayerTargetMovementTimers[1]) ? -1 : 1;
 						npc.Helper().EoC_PlayerTargetMovementTimers = new int[2];
@@ -707,6 +716,13 @@ namespace CosmivengeonMod.Detours{
 				npc.Helper().Timer = 0;
 				EyeOfCthulhu_SpawnSummon(npc, npc.Center, npc.DirectionTo(npc.Target().Center) * 3f);
 			}
+
+			if(sendGlobalNPCData)
+				goto sendData;
+
+			return;
+sendData:
+			DetourNPCHelper.SendData(npc.whoAmI);
 		}
 
 		private static void EyeOfCthulhu_SpawnBloodDustWalls(NPC npc){

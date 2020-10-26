@@ -17,7 +17,8 @@ namespace CosmivengeonMod{
 
 		public override bool CanUseItem(Item item, Player player){
 			//Check if this item is from Calamity
-			if(ModReferences.Calamity.Active && item.modItem?.mod == ModReferences.Calamity){
+			bool disableModeDisabler = true;
+			if(!disableModeDisabler && ModReferences.Calamity.Active && item.modItem?.mod == ModReferences.Calamity){
 				ModItem revengeanceItem = ModReferences.Calamity.Instance.GetItem("Revenge");
 				ModItem deathItem = ModReferences.Calamity.Instance.GetItem("Death");
 

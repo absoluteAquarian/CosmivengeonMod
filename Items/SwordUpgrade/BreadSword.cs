@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Buffs;
+using Microsoft.Xna.Framework;
 using System;
 using Terraria;
 using Terraria.ID;
@@ -10,12 +11,12 @@ namespace CosmivengeonMod.Items.SwordUpgrade{
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Terracrust Blade");
-			Tooltip.SetDefault("Fires a triple spread of earthen beams with slight homing affinities." +
-				"\nAttacks have a guaranteed chance to poison enemies.");
+			Tooltip.SetDefault("Attacks have a guaranteed chance to [c/274e13:Poison] enemies and only a" +
+				"\nslight chance to inflict [c/00dddd:Frostburn] and [c/aa3300:Primordial Wrath].");
 		}
 
 		public override void SetDefaults(){
-			item.damage = 43;
+			item.damage = 30;
 			item.melee = true;
 			item.useTurn = false;
 			item.width = 58;
@@ -23,13 +24,13 @@ namespace CosmivengeonMod.Items.SwordUpgrade{
 			item.useTime = 36;
 			item.useAnimation = 26;
 			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.knockBack = 7f;
+			item.knockBack = 5.5f;
 			item.value = Item.sellPrice(gold: 3);
 			item.rare = ItemRarityID.Blue;
 			item.UseSound = SoundID.Item1;
 			item.autoReuse = true;
-			item.shoot = ProjectileID.PurificationPowder;
-			item.shootSpeed = 12f;
+		//	item.shoot = ProjectileID.PurificationPowder;
+		//	item.shootSpeed = 12f;
 		}
 
 		public override void AddRecipes(){
@@ -43,6 +44,9 @@ namespace CosmivengeonMod.Items.SwordUpgrade{
 		}
 
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
+			//Leaving this code here in case I want to revert the changes
+			//Still won't get called lmao
+
 			type = ModContent.ProjectileType<Projectiles.SwordUpgrade.BreadSwordProjectile>();
 			damage = (int)(item.damage * 0.6667f);
 
@@ -54,8 +58,18 @@ namespace CosmivengeonMod.Items.SwordUpgrade{
 			return false;
 		}
 
-		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit){
+		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit) {
 			target.AddBuff(BuffID.Poisoned, 8 * 60);
+
+			if(Main.rand.NextFloat() < 0.125f)
+				target.AddBuff(BuffID.Frostburn, 3 * 60);
+
+			if(Main.rand.NextFloat() < 0.05f)
+				target.AddBuff(ModContent.BuffType<PrimordialWrath>(), 2 * 60);
+
+			var stamina = player.GetModPlayer<CosmivengeonPlayer>().stamina;
+			if(!stamina.Active)
+				stamina.Add(200, true);
 		}
 	}
 }

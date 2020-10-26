@@ -26,7 +26,7 @@ namespace CosmivengeonMod.Projectiles.Desomode{
 		public const int FinalHeight = 120 * 16;
 
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault(" ");
+			DisplayName.SetDefault("Psychic Lightning");
 		}
 
 		public override void SetDefaults(){

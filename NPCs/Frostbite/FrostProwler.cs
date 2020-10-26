@@ -28,6 +28,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 		public override void NPCLoot(){
 			if(Main.rand.NextFloat() < 0.4f)
 				Item.NewItem(npc.Hitbox, ModContent.ItemType<FrostCrystal>(), Main.rand.Next(1, 4));
+			if(Main.rand.NextFloat() < 0.1f)
+				Item.NewItem(npc.Hitbox, ModContent.ItemType<ProwlerFang>());
 		}
 
 		public override float SpawnChance(NPCSpawnInfo spawnInfo){

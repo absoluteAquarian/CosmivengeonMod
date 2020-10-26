@@ -5,18 +5,17 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Items.SwordUpgrade{
 	public class CrystaliceSword : ModItem{
-		public static float SlowChance => 0.1428f;
+		public static float SlowChance => 0.5f;
 
 		public override bool OnlyShootOnSwing => true;
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Crystalice Sword");
-			Tooltip.SetDefault("Occasionally fires a slow-moving ice bolt with high damage." +
-				"\nHas a chance to inflict frostburn.");
+			Tooltip.SetDefault("Has a chance to inflict [c/00dddd:Frostburn].");
 		}
 
 		public override void SetDefaults(){
-			item.damage = 21;
+			item.damage = 15;
 			item.melee = true;
 			item.useTurn = false;
 			item.width = 50;
@@ -24,13 +23,13 @@ namespace CosmivengeonMod.Items.SwordUpgrade{
 			item.useTime = 40;
 			item.useAnimation = 28;
 			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.knockBack = 5f;
+			item.knockBack = 4.3f;
 			item.value = Item.sellPrice(silver: 50);
 			item.rare = ItemRarityID.Blue;
 			item.UseSound = SoundID.Item1;
 			item.autoReuse = false;
-			item.shoot = ProjectileID.PurificationPowder;
-			item.shootSpeed = 10f;
+		//	item.shoot = ProjectileID.PurificationPowder;
+		//	item.shootSpeed = 10f;
 		}
 
 		public override void AddRecipes(){
@@ -49,6 +48,9 @@ namespace CosmivengeonMod.Items.SwordUpgrade{
 		}
 
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
+			//Leaving this code here in case I want to revert the changes
+			//Still won't get called lmao
+
 			type = ModContent.ProjectileType<Projectiles.SwordUpgrade.CrystaliceSwordProjectile>();
 			damage = (int)(item.damage * 1.5f);
 			return true;

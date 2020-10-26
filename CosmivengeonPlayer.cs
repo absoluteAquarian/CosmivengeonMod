@@ -173,6 +173,10 @@ namespace CosmivengeonMod{
 			}
 		}
 
+		public override void OnEnterWorld(Player player) {
+			Main.NewText("Thank you for using Cosmivengeon Mod! Please know that this mod is not responsible for any issues that might occur when using Desolation Mode with any other mod's difficulty mode.", Color.Purple);
+		}
+
 		public override void UpdateDead(){
 			primordialWrath = false;
 			doubleJump_JewelOfOronitus = false;

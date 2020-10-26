@@ -23,7 +23,7 @@ namespace CosmivengeonMod.Projectiles.Desomode{
 		public SoundEffectInstance teleport;
 
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault(" ");
+			DisplayName.SetDefault("Psychic Explosion");
 		}
 
 		public override void SetDefaults(){

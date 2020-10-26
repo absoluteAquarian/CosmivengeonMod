@@ -1,6 +1,7 @@
 ﻿using CosmivengeonMod.Detours;
 using CosmivengeonMod.Players;
 using Microsoft.Xna.Framework;
+using System.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -18,6 +19,8 @@ namespace CosmivengeonMod.NPCs.Desomode{
 		/// <item>EoC - timer for spawning minions in Phase 2</item>
 		/// <item>EoW - timer for head segements; used to make the head "bite" the player it's grabbed</item>
 		/// <item>BoC - timer for the mine psychic attacks</item>
+		/// <item>QB - timer for the aura wobbling</item>
+		/// <item>Skeletron Hand - timer for shooting bones</item>
 		/// </list>
 		/// </summary>
 		public int Timer;
@@ -25,6 +28,7 @@ namespace CosmivengeonMod.NPCs.Desomode{
 		/// A generic timer.
 		/// <list type="bullet">
 		/// <item>KS - timer max for how long the small hops last for</item>
+		/// <item>QB - timer for the wait after getting enraged</item>
 		/// </list>
 		/// </summary>
 		public int Timer2;
@@ -33,6 +37,7 @@ namespace CosmivengeonMod.NPCs.Desomode{
 		/// <list type="bullet">
 		/// <item>KS - timer for the small hops</item>
 		/// <item>BoC - timer for the lightning psychic attacks</item>
+		/// <item>QB - timer for automatic charges</item>
 		/// </list>
 		/// </summary>
 		public int Timer3;
@@ -46,6 +51,7 @@ namespace CosmivengeonMod.NPCs.Desomode{
 		/// <list type="bullet">
 		/// <item>EoC - whether the boss has done the immediate transition to Phase 2</item>
 		/// <item>EoW - if the NPC is underground (only set for head segments)</item>
+		/// <item>QB - if the NPC should be drawn with a red hue and wobbling aura</item>
 		/// </list>
 		/// </summary>
 		public bool Flag;
@@ -53,6 +59,7 @@ namespace CosmivengeonMod.NPCs.Desomode{
 		/// A generic flag.
 		/// <list type="bullet">
 		/// <item>EoC - whether the boss has done the transition to Phase 3</item>
+		/// <item>QB - if the first charge attack has happened</item>
 		/// </list>
 		/// </summary>
 		public bool Flag2;
@@ -97,7 +104,7 @@ namespace CosmivengeonMod.NPCs.Desomode{
 			if(player.mount != null)
 				player.mount._active = false;
 
-			if(Main.netMode != NetmodeID.MultiplayerClient)
+			if(Main.netMode != NetmodeID.Server)
 				return;
 
 			NetMessage.SendData(MessageID.SyncNPC, number: npc.whoAmI);
@@ -125,7 +132,7 @@ namespace CosmivengeonMod.NPCs.Desomode{
 			player.velocity.X = npc.velocity.X >= 0 ? 8 : -8;
 			player.velocity.Y = -15;
 
-			if(Main.netMode != NetmodeID.MultiplayerClient)
+			if(Main.netMode != NetmodeID.Server)
 				return;
 
 			NetMessage.SendData(MessageID.SyncNPC, number: npc.whoAmI);
@@ -155,6 +162,8 @@ namespace CosmivengeonMod.NPCs.Desomode{
 
 					grabbed.immune = false;
 					grabbed.immuneTime = 0;
+
+					SendData(npc.whoAmI);
 				}else if(npc.Helper().Timer == -1){
 					npc.damage = 0;
 					npc.Helper().Timer = 150;
@@ -166,6 +175,109 @@ namespace CosmivengeonMod.NPCs.Desomode{
 					grabbed.immuneTime = 2;
 				}
 			}
+		}
+
+		public static void ReceiveData(BinaryReader reader){
+			NPC npc = Main.npc[reader.ReadInt32()];
+			DetourNPCHelper helper = npc.Helper();
+			DesomodeNPC desomode = npc.Desomode();
+			CosmivengeonGlobalNPC global = npc.GetGlobalNPC<CosmivengeonGlobalNPC>();
+
+			helper.Timer = reader.ReadInt32();
+			helper.Timer2 = reader.ReadInt32();
+			helper.Timer3 = reader.ReadInt32();
+			helper.Timer4 = reader.ReadInt32();
+
+			helper.Flag = reader.ReadBoolean();
+			helper.Flag2 = reader.ReadBoolean();
+			helper.Flag3 = reader.ReadBoolean();
+
+			helper.EoC_PhaseTransitionVelocityLength = reader.ReadSingle();
+			helper.EoC_TargetHeight = reader.ReadInt32();
+			helper.EoC_UsingShader = reader.ReadBoolean();
+			helper.EoC_PlayerTargetMovementDirection = reader.ReadInt32();
+			helper.EoC_PlayerTargetMovementTimers[0] = reader.ReadInt32();
+			helper.EoC_PlayerTargetMovementTimers[1] = reader.ReadInt32();
+			helper.EoC_FadePositionOffset.X = reader.ReadSingle();
+			helper.EoC_FadePositionOffset.Y = reader.ReadSingle();
+			helper.EoC_TimerTarget = reader.ReadInt32();
+			EoC_FirstBloodWallNPC = reader.ReadByte();
+
+			helper.EoW_SegmentType = reader.ReadByte();
+			EoW_GrabbingNPC = reader.ReadByte();
+			EoW_grabbingNPCPrevDamage = reader.ReadInt32();
+			EoW_GrabbedPlayer = reader.ReadByte();
+
+			desomode.EoW_Spawn = reader.ReadBoolean();
+			desomode.EoW_WormSegmentsCount = reader.ReadByte();
+			float targetX = reader.ReadSingle();
+			float targetY = reader.ReadSingle();
+			if(targetX != -1000 && targetY != -1000)
+				desomode.EoW_GrabTarget = new Vector2(targetX, targetY);
+			else
+				desomode.EoW_GrabTarget = null;
+
+			desomode.QB_baseScale = reader.ReadSingle();
+			desomode.QB_baseSize.X = reader.ReadSingle();
+			desomode.QB_baseSize.Y = reader.ReadSingle();
+
+			global.primordialWrath = reader.ReadBoolean();
+			global.baseEndurance = reader.ReadSingle();
+			global.endurance = reader.ReadSingle();
+		}
+
+		public static void SendData(int whoAmI){
+			if(Main.netMode != NetmodeID.Server)
+				return;
+
+			NPC npc = Main.npc[whoAmI];
+			DetourNPCHelper helper = npc.Helper();
+			DesomodeNPC desomode = npc.Desomode();
+			CosmivengeonGlobalNPC global = npc.GetGlobalNPC<CosmivengeonGlobalNPC>();
+
+			ModPacket packet = ModContent.GetInstance<CosmivengeonMod>().GetPacket();
+			packet.Write((byte)CosmivengeonModMessageType.SyncGlobalNPCBossData);
+			packet.Write(whoAmI);
+
+			packet.Write(helper.Timer);
+			packet.Write(helper.Timer2);
+			packet.Write(helper.Timer3);
+			packet.Write(helper.Timer4);
+			
+			packet.Write(helper.Flag);
+			packet.Write(helper.Flag2);
+			packet.Write(helper.Flag3);
+			
+			packet.Write(helper.EoC_PhaseTransitionVelocityLength);
+			packet.Write(helper.EoC_TargetHeight);
+			packet.Write(helper.EoC_UsingShader);
+			packet.Write(helper.EoC_PlayerTargetMovementDirection);
+			packet.Write(helper.EoC_PlayerTargetMovementTimers[0]);
+			packet.Write(helper.EoC_PlayerTargetMovementTimers[1]);
+			packet.Write(helper.EoC_FadePositionOffset.X);
+			packet.Write(helper.EoC_FadePositionOffset.Y);
+			packet.Write(helper.EoC_TimerTarget);
+			packet.Write((byte)EoC_FirstBloodWallNPC);
+
+			packet.Write((byte)helper.EoW_SegmentType);
+			packet.Write((byte)EoW_GrabbingNPC);
+			packet.Write(EoW_grabbingNPCPrevDamage);
+			packet.Write((byte)EoW_GrabbedPlayer);
+
+			packet.Write(desomode.EoW_Spawn);
+			packet.Write((byte)desomode.EoW_WormSegmentsCount);
+			packet.Write(desomode.EoW_GrabTarget?.X ?? -1000);
+			packet.Write(desomode.EoW_GrabTarget?.Y ?? -1000);
+
+			packet.Write(desomode.QB_baseScale);
+			packet.Write(desomode.QB_baseSize.X);
+			packet.Write(desomode.QB_baseSize.Y);
+
+			packet.Write(global.primordialWrath);
+			packet.Write(global.baseEndurance);
+			packet.Write(global.endurance);
+
+			packet.Send();
 		}
 	}
 }

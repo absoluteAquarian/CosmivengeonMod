@@ -20,7 +20,7 @@ namespace CosmivengeonMod.Items.Draek{
 				"\nof ripping apart the planet itself if used in the right hands.  How" +
 				"\nDraek managed to stumble across something this powerful is unknown," +
 				"\nbut if it were to ever be combined with the others of its class..." +
-				"\nDesolation Mode Item");
+				"\n[c/dddddd:Desolation Mode Item]");
 		}
 
 		private const int PRIMARY_DAMAGE = 7;

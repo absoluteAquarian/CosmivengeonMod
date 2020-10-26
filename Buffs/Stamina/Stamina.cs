@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Terraria;
@@ -97,6 +98,8 @@ namespace CosmivengeonMod.Buffs.Stamina{
 
 		public int BumpTimer = 20;
 
+		private readonly List<(uint, bool)> queuedAdds;
+
 		public Stamina(Player player = null){
 			if(player is null){
 				Empty = true;
@@ -117,6 +120,8 @@ namespace CosmivengeonMod.Buffs.Stamina{
 			IncreaseRate = DefaultIncreaseRate;
 			ExhaustionIncreaseRate = DefaultExhaustionIncreaseRate;
 			DecreaseRate = DefaultDecreaseRate;
+
+			queuedAdds = new List<(uint, bool)>();
 		}
 
 		public void Clone(Stamina other){
@@ -192,6 +197,8 @@ namespace CosmivengeonMod.Buffs.Stamina{
 			ApplyEffects();
 
 			CapPunishment();
+
+			HandleAdds();
 
 			if(NoDecay){
 				value = maxValue;
@@ -420,6 +427,26 @@ End:
 				AttackPunishment = 0.75f;
 			if(AttackPunishment < 0)
 				AttackPunishment = 0;
+		}
+
+		public void Add(uint amount, bool doScaleWithMax = false){
+			queuedAdds.Add((amount, doScaleWithMax));
+		}
+
+		private void HandleAdds(){
+			foreach(var tuple in queuedAdds){
+				float calculated = tuple.Item1 / (DefaultMaxValue * 10000);
+				//Scale it with the max
+				if(tuple.Item2)
+					calculated *= maxValue;
+
+				value += calculated;
+
+				if(value > maxValue)
+					value = maxValue;
+			}
+
+			queuedAdds.Clear();
 		}
 	}
 }

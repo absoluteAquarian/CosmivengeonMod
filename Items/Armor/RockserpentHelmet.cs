@@ -7,7 +7,7 @@ namespace CosmivengeonMod.Items.Armor{
 	[AutoloadEquip(EquipType.Head)]
 	public class RockserpentHelmet : ModItem{
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Rockserpent Helm");
+			DisplayName.SetDefault("Rockserpent Helmet");
 			Tooltip.SetDefault("Damage increased by 5%" +
 				"\n+2 summon slots");
 		}

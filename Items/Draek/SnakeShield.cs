@@ -31,8 +31,7 @@ namespace CosmivengeonMod.Items.Draek{
 			item.value = Item.sellPrice(gold: 2, silver: 15);
 		}
 
-		public override void UpdateAccessory(Player player, bool hideVisual)
-		{
+		public override void UpdateAccessory(Player player, bool hideVisual){
 			SnakeShieldPlayer mp = player.GetModPlayer<SnakeShieldPlayer>();
 
 			//If the dash is not active, immediately return so we don't do any of the logic for it
@@ -88,8 +87,7 @@ namespace CosmivengeonMod.Items.Draek{
 		}
 	}
 
-	public class SnakeShieldPlayer : ModPlayer
-	{
+	public class SnakeShieldPlayer : ModPlayer{
 		//These indicate what direction is what in the timer arrays used
 		public static readonly int DashRight = 2;
 		public static readonly int DashLeft = 3;
@@ -110,8 +108,7 @@ namespace CosmivengeonMod.Items.Draek{
 
 		public int HitNPCIndex = -1;
 
-		public override void ResetEffects()
-		{
+		public override void ResetEffects(){
 			//ResetEffects() is called not long after player.doubleTapCardinalTimer's values have been set
 			
 			//Check if the ExampleDashAccessory is equipped and also check against this priority:
@@ -121,8 +118,7 @@ namespace CosmivengeonMod.Items.Draek{
 			bool dashAccessoryEquipped = false;
 
 			//This is the loop used in vanilla to update/check the not-vanity accessories
-			for(int i = 3; i < 8 + player.extraAccessorySlots; i++)
-			{
+			for(int i = 3; i < 8 + player.extraAccessorySlots; i++){
 				Item item = player.armor[i];
 
 				//Set the flag for the ExampleDashAccessory being equipped if we have it equipped OR immediately return if any of the accessories are
@@ -144,14 +140,17 @@ namespace CosmivengeonMod.Items.Draek{
 				DashDir = DashRight;
 			else if(player.controlLeft && player.releaseLeft && player.doubleTapCardinalTimer[DashLeft] < 15)
 				DashDir = DashLeft;
-			else
+			else{
+				DashDir = 0;
 				return;	 //No dash was activated, return
+			}
 
 			DashActive = true;
 
 			//Here you'd be able to set an effect that happens when the dash first activates
 			//Some examples include:  the larger smoke effect from the Master Ninja Gear and Tabi
 			player.dash = 0;
+			player.ChangeDir(DashDir == DashRight ? 1 : -1);
 		}
 
 		//Copy of the SoC's code in Player.DashMovement(), but changed to fit this accessory

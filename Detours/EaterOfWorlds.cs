@@ -102,9 +102,11 @@ namespace CosmivengeonMod.Detours{
 					npc.WormFollower().ai[1] = npc.whoAmI;
 					npc.WormFollower().ai[2] = npc.ai[2] - 1f;
 					npc.netUpdate = true;
+
+					DetourNPCHelper.SendData(npc.whoAmI);
 				}
 
-				if(!npc.WormFollowing().active && !npc.WormFollower().active){
+				if(!npc.Following().active && !npc.WormFollower().active){
 					npc.life = 0;
 					npc.HitEffect(0, 10.0);
 					npc.checkDead();
@@ -120,7 +122,7 @@ namespace CosmivengeonMod.Detours{
 					NetMessage.SendData(MessageID.StrikeNPC, number: npc.whoAmI);
 				}
 					
-				if(npc.type == NPCID.EaterofWorldsTail && !npc.WormFollowing().active){
+				if(npc.type == NPCID.EaterofWorldsTail && !npc.Following().active){
 					npc.life = 0;
 					npc.HitEffect(0, 10.0);
 					npc.checkDead();
@@ -128,7 +130,7 @@ namespace CosmivengeonMod.Detours{
 					NetMessage.SendData(MessageID.StrikeNPC, number: npc.whoAmI);
 				}
 
-				if(npc.type == NPCID.EaterofWorldsBody && (!npc.WormFollowing().active || npc.WormFollowing().aiStyle != npc.aiStyle)){
+				if(npc.type == NPCID.EaterofWorldsBody && (!npc.Following().active || npc.Following().aiStyle != npc.aiStyle)){
 					npc.type = NPCID.EaterofWorldsHead;
 					int whoAmI = npc.whoAmI;
 					float num25 = npc.life / (float)npc.lifeMax;
@@ -261,8 +263,8 @@ namespace CosmivengeonMod.Detours{
 			if(npc.ai[1] > 0f && npc.ai[1] < Main.npc.Length){
 				try{
 					vector2 = new Vector2(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-					num40 = npc.WormFollowing().position.X + npc.WormFollowing().width / 2 - vector2.X;
-					num41 = npc.WormFollowing().position.Y + npc.WormFollowing().height / 2 - vector2.Y;
+					num40 = npc.Following().position.X + npc.Following().width / 2 - vector2.X;
+					num41 = npc.Following().position.Y + npc.Following().height / 2 - vector2.Y;
 				}catch{ }
 
 				npc.rotation = (float)Math.Atan2(num41, num40) + 1.57f;
@@ -446,13 +448,13 @@ namespace CosmivengeonMod.Detours{
 				headSegment = npc;
 			}else{
 				//Loop until the following is a head segment
-				NPC following = npc.WormFollowing();
+				NPC following = npc.Following();
 				if(following.type == NPCID.EaterofWorldsHead)
 					segments = 2;
 				else{
 					while(following.active && following.type != NPCID.EaterofWorldsHead){
 						segments++;
-						following = following.WormFollowing();
+						following = following.Following();
 					}
 
 					segments++;
@@ -469,6 +471,8 @@ namespace CosmivengeonMod.Detours{
 				follower.Desomode().EoW_WormSegmentsCount = segments;
 				follower = follower.WormFollower();
 			}
+
+			DetourNPCHelper.SendData(npc.whoAmI);
 		}
 	}
 }

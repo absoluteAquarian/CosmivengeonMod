@@ -1,4 +1,5 @@
-﻿using CosmivengeonMod.NPCs.Draek;
+﻿using CosmivengeonMod.Buffs.Stamina;
+using CosmivengeonMod.NPCs.Draek;
 using System;
 using System.Linq;
 using Terraria;
@@ -7,25 +8,28 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Detours{
 	public static class DetourNPC{
-		public static int[] BossTypes;
+		public static int[] DesomodeAITypes;
 
 		public static void Load(){
 			On.Terraria.NPC.SetDefaults += HookSetDefaults;
 			On.Terraria.NPC.VanillaAI += HookVanillaAI;
 			On.Terraria.NPC.GetBossHeadTextureIndex += HookGetBossHeadTextureIndex;
 
-			BossTypes = new int[]{
+			DesomodeAITypes = new int[]{
 				NPCID.KingSlime,
 				NPCID.EyeofCthulhu,
 				NPCID.EaterofWorldsHead,
 				NPCID.EaterofWorldsBody,
 				NPCID.EaterofWorldsTail,
-				NPCID.BrainofCthulhu
+				NPCID.BrainofCthulhu,
+				NPCID.QueenBee,
+				NPCID.SkeletronHead,
+				NPCID.SkeletronHand
 			};
 		}
 
 		public static void Unload(){
-			BossTypes = null;
+			DesomodeAITypes = null;
 		}
 
 		public static void HookSetDefaults(On.Terraria.NPC.orig_SetDefaults orig, NPC self, int Type, float scaleOverride){
@@ -57,7 +61,18 @@ namespace CosmivengeonMod.Detours{
 				self.life = curMax;
 			}
 
+			//Errors can happen from FKBossHealthBar on this line.  Just ignore it.
 			self.GetGlobalNPC<CosmivengeonGlobalNPC>().baseEndurance = self.GetGlobalNPC<CosmivengeonGlobalNPC>().endurance;
+
+			//World is in Desolation Mode and the boss is a boss (wow)
+			if(CosmivengeonWorld.desoMode && self.boss){
+				float normalFactor = 5f;
+				float expertFactor = 2.5f;
+				self.value *= normalFactor / expertFactor;
+			}
+
+			self.Desomode().QB_baseScale = self.scale;
+			self.Desomode().QB_baseSize = self.Size;
 		}
 
 		public static int HookGetBossHeadTextureIndex(On.Terraria.NPC.orig_GetBossHeadTextureIndex orig, NPC self){
@@ -77,7 +92,7 @@ namespace CosmivengeonMod.Detours{
 
 		public static void HookVanillaAI(On.Terraria.NPC.orig_VanillaAI orig, NPC self){
 			//Desolation mode AI changes
-			if(CosmivengeonWorld.desoMode && BossTypes.Contains(self.type)){
+			if(CosmivengeonWorld.desoMode && DesomodeAITypes.Contains(self.type)){
 				switch(self.type){
 					case NPCID.KingSlime:
 						DesolationModeBossAI.AI_KingSlime(self);
@@ -92,6 +107,15 @@ namespace CosmivengeonMod.Detours{
 						break;
 					case NPCID.BrainofCthulhu:
 						DesolationModeBossAI.AI_BrainOfCthulhu(self);
+						break;
+					case NPCID.QueenBee:
+						DesolationModeBossAI.AI_QueenBee(self);
+						break;
+					case NPCID.SkeletronHead:
+						DesolationModeBossAI.AI_SkeletronHead(self);
+						break;
+					case NPCID.SkeletronHand:
+						DesolationModeBossAI.AI_SkeletronHand(self);
 						break;
 				}
 			}else

@@ -18,6 +18,6 @@ namespace CosmivengeonMod.Detours{
 		/// <summary>
 		/// Shorthand for <c>Main.npc[(int)npc.ai[1]]</c>
 		/// </summary>
-		public static NPC WormFollowing(this NPC npc) => Main.npc[(int)npc.ai[1]];
+		public static NPC Following(this NPC npc) => Main.npc[(int)npc.ai[1]];
 	}
 }

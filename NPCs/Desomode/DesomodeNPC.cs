@@ -2,6 +2,7 @@
 using CosmivengeonMod.Detours;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -13,6 +14,9 @@ namespace CosmivengeonMod.NPCs.Desomode{
 		public bool EoW_Spawn;
 		public int EoW_WormSegmentsCount;
 		public Vector2? EoW_GrabTarget;
+
+		public float QB_baseScale;
+		public Vector2 QB_baseSize;
 
 		public override void OnHitByProjectile(NPC npc, Projectile projectile, int damage, float knockback, bool crit){
 			//Desolation mode Eater of Worlds head segment destroys any piercing projectiles that hit it
@@ -39,6 +43,21 @@ namespace CosmivengeonMod.NPCs.Desomode{
 
 				if(npc.type == NPCID.EaterofWorldsHead && DetourNPCHelper.EoW_GrabbingNPC == -1)
 					DetourNPCHelper.EoW_SetGrab(npc, target);
+			}else if(npc.type == NPCID.SkeletronHead){
+				//Stunlocking is cringe!
+				//Knockback has already been set, so let's just increase its strength
+				if(!target.noKnockback && (!target.mount.Active || !target.mount.Cart))
+					target.velocity = Vector2.Normalize(target.velocity) * (target.velocity.Length() + 20f);
+			}else if(npc.type == NPCID.SkeletronHand){
+				//Increase the knockback received based on the hand's velocity
+				if(!target.noKnockback && (!target.mount.Active || !target.mount.Cart)){
+					//Slap velocity goes up to 22f
+					float kbBase = 12f * npc.velocity.Length() / 22f;
+					if(kbBase > 12f)
+						kbBase = 12f;
+
+					target.velocity = Vector2.Normalize(target.velocity) * (target.velocity.Length() + kbBase);
+				}
 			}
 		}
 
@@ -75,6 +94,26 @@ namespace CosmivengeonMod.NPCs.Desomode{
 					EoW_DrawOutline(spriteBatch, npc, "body");
 				else if(npc.type == NPCID.EaterofWorldsTail)
 					EoW_DrawOutline(spriteBatch, npc, "tail");
+			}else if(npc.type == NPCID.QueenBee && npc.Helper().Flag){
+				drawColor = Color.Red;
+
+				float offset = ((float)Math.Sin(MathHelper.ToRadians(npc.Helper().Timer * 2.5f * 6f)) + 1f) / 2f;
+				offset *= 32f;
+
+				//Draw the auras
+				Texture2D texture = Main.npcTexture[npc.type];
+				SpriteEffects effects = npc.spriteDirection == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+				Vector2 draw = npc.Top - Main.screenPosition;
+				for(int i = 0; i < 4; i++){
+					Vector2 dir = Vector2.UnitX.RotateDegrees(rotateByDegrees: 90 * i, rotateByRandomDegrees: 0) * offset;
+
+					spriteBatch.Draw(texture, draw + dir, npc.frame, drawColor * 0.5f, npc.rotation, npc.frame.Size() / 2f, npc.scale, effects, 0);
+				}
+
+				//Then the original NPC
+				spriteBatch.Draw(texture, draw, npc.frame, drawColor, npc.rotation, npc.frame.Size() / 2f, npc.scale, effects, 0);
+
+				return false;
 			}
 
 			return true;

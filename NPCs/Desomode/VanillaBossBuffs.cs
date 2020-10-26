@@ -71,6 +71,27 @@ namespace CosmivengeonMod.NPCs.Desomode{
 					npc.defense = 20;
 					npc.damage = 66;
 					break;
+				case NPCID.QueenBee:
+					//Base health: 3400
+					npc.lifeMax = 3400;
+					npc.ScaleHealthBy(0.85f);		//5780 max health for one player
+					npc.defense = 15;
+					npc.damage = 60;
+					break;
+				case NPCID.SkeletronHead:
+					//Base health: 4400
+					npc.lifeMax = 4400;
+					npc.ScaleHealthBy(1.1f);		//9680 max health for one player
+					npc.defense = 15;
+					npc.damage = 90;
+					break;
+				case NPCID.SkeletronHand:
+					//Base health: 600
+					npc.lifeMax = 600;
+					npc.ScaleHealthBy(1.6f);		//1920 max health for one player
+					npc.defense = 20;
+					npc.damage = 100;
+					break;
 			}
 
 			//Minion buffs!

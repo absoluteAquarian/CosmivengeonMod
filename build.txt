@@ -1,6 +1,6 @@
 author = absoluteAquarian
-version = 0.0.10.1
-displayName = Cosmivengeon Mod
+version = 0.1.11
+displayName = Cosmivengeon Mod - Scales and Storm Update
 homepage = https://forums.terraria.org/index.php?threads/cosmivengeon-mod.84905/
 buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*, Properties\*, README.md, .gitattributes, .gitignore
 includePDB = true

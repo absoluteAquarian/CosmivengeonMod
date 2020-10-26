@@ -67,7 +67,8 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 				Main.NewText("Nice try, but the deed has already been done.", CosmivengeonUtils.TausFavouriteColour);
 
 			//Disable Calamity's modes if they are active
-			if(Main.expertMode && (calamityRevengeance || calamityDeath)){
+			bool disableModeDisabler = true;
+			if(!disableModeDisabler && Main.expertMode && (calamityRevengeance || calamityDeath)){
 				CosmivengeonMod.DeactivateCalamityRevengeance();
 				CosmivengeonMod.DeactivateCalamityDeath();
 			}

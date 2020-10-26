@@ -7,7 +7,7 @@ namespace CosmivengeonMod.Items.Armor{
 	[AutoloadEquip(EquipType.Legs)]
 	public class RockserpentLeggings : ModItem{
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Rockserpent Helm");
+			DisplayName.SetDefault("Rockserpent Leggings");
 			Tooltip.SetDefault("Movement speed increased by 10%");
 		}
 

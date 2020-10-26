@@ -7,7 +7,7 @@ namespace CosmivengeonMod.Items.Armor{
 	[AutoloadEquip(EquipType.Body)]
 	public class RockserpentChestplate : ModItem{
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Rockserpent Helm");
+			DisplayName.SetDefault("Rockserpent Chestplate");
 			Tooltip.SetDefault("Makes the wearer immune to [c/274e13:Poisoned]");
 		}
 

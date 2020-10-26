@@ -36,7 +36,7 @@ namespace CosmivengeonMod{
 		/// <summary>
 		/// Whether or not this version of the mod is a public release or a test build.
 		/// </summary>
-		public static readonly bool Release = true;
+		public static readonly bool Release = false;
 
 		public static bool debug_toggleDesoMode;
 		public static bool debug_canUseExpertModeToggle;
@@ -123,6 +123,7 @@ namespace CosmivengeonMod{
 
 			DetourNPC.Load();
 			DetourPlayer.Load();
+			DetourProjectile.Load();
 
 			ModReferences.Load();
 
@@ -466,6 +467,9 @@ namespace CosmivengeonMod{
 					DetourNPCHelper.EoW_GrabbingNPC = reader.ReadInt32();
 					DetourNPCHelper.EoW_GrabbedPlayer = reader.ReadInt32();
 					break;
+				case CosmivengeonModMessageType.SyncGlobalNPCBossData:
+					DetourNPCHelper.ReceiveData(reader);
+					break;
 				default:
 					Logger.WarnFormat("CosmivengeonMod: Unknown message type: {0}", message);
 					break;
@@ -476,6 +480,7 @@ namespace CosmivengeonMod{
 	internal enum CosmivengeonModMessageType : byte{
 		SyncPlayer,
 		StaminaChanged,
-		SyncEoWGrab
+		SyncEoWGrab,
+		SyncGlobalNPCBossData
 	}
 }
