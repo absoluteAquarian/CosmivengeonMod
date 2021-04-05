@@ -54,7 +54,40 @@ namespace CosmivengeonMod.Players{
 			if(!CosmivengeonWorld.desoMode)
 				return;
 
-			if(DetourNPCHelper.EoW_GrabbingNPC == -1)
+			//PreUpdateMovement() is called a bit after the tongued velocity is applied... perfect!
+			if(Main.wof >= 0){
+				//Handle player being too far in front of the WoF
+				float dist = Math.Abs(player.Center.X - Main.npc[Main.wof].Center.X);
+				if(player.position.Y / 16 >= Main.maxTilesY - 200 && dist > 100 * 16){
+					player.tongued = true;
+
+					player.velocity = player.DirectionTo(Main.npc[Main.wof].Center);
+				}
+
+				bool licked = player.tongued || player.HasBuff(BuffID.TheTongue);
+
+				if(licked){
+					//Player velocity is forced to be in front of the mouth... let's speed that up
+					Vector2 dir = Vector2.Normalize(player.velocity);
+					float length = player.velocity.Length();
+
+					float extra;
+					if(dist > 150 * 16)
+						extra = 30;
+					else if(dist > 100 * 16)
+						extra = 20;
+					else if(dist > 50 * 16)
+						extra = 15;
+					else
+						extra = 10;
+
+					float desiredVel = Math.Abs(Main.npc[Main.wof].velocity.X) + extra;
+					if(length < desiredVel)
+						player.velocity = dir * desiredVel;
+				}
+			}
+
+			if(player.tongued || DetourNPCHelper.EoW_GrabbingNPC == -1)
 				return;
 
 			player.velocity.X = 0;

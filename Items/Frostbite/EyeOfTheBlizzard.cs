@@ -6,24 +6,24 @@ using System.Collections.Generic;
 using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Items.Frostbite{
-	public class EyeOfTheBlizzard : ModItem{
+	public class EyeOfTheBlizzard : HidableTooltip{
 		public override bool CloneNewInstances => true;
 
-		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Eye of the Blizzard");
-			Tooltip.SetDefault("Summons an ice crystal that hovers above the player's head" +
+		public override string ItemName => "Eye of the Blizzard";
+
+		public override string FlavourText => "Summons an ice crystal that hovers above the player's head" +
 				"\nThe crystal occasionally shoots icicles at nearby enemies" +
 				"\nThe crystal regenerates <5N> health every 20 seconds" +
 				"\nDouble-tapping the <N> key grants an immediate <10N> health regenerated," +
 				"\na 5% increase in attack speed and an increased crystal shoot speed for 5 seconds" +
-				"\nThe crystal must recharge for 60 seconds until the player can use the ability again");
+				"\nThe crystal must recharge for 60 seconds until the player can use the ability again";
 
+		public override void SafeSetStaticDefaults(){
 			Main.RegisterItemAnimation(item.type, new EyeOfTheBlizzardAnimation());
 		}
 
@@ -129,25 +129,31 @@ namespace CosmivengeonMod.Items.Frostbite{
 			}
 		}
 
-		public override void ModifyTooltips(List<TooltipLine> tooltips){
-			if(tooltips.Any(t => t.Name == "SocialDesc"))
+		public override void SafeModifyTooltips(List<TooltipLine> tooltips){
+			int customIndex = FindCustomTooltipIndex(tooltips);
+
+			if(customIndex < 0 || tooltips.Any(t => t.Name == "SocialDesc"))
 				return;
 
-			TooltipLine health5Line = tooltips.Find(t => t.text.Contains("<5N>"));
-			TooltipLine health10Line = tooltips.Find(t => t.text.Contains("<10N>"));
-			TooltipLine keyLine = tooltips.Find(t => t.text.Contains("<N>"));
+			do{
+				TooltipLine customLine = tooltips[customIndex];
 
-			List<string> text = health5Line.text.Split(new string[]{ "<5N>" }, StringSplitOptions.None).ToList();
-			text.Insert(1, $"{(int)(Main.LocalPlayer.statLifeMax2 * 0.05f)}");
-			health5Line.text = string.Join("", text.ToArray());
+				if(customLine.text.Contains("<5N>")){
+					List<string> text = customLine.text.Split(new string[]{ "<5N>" }, StringSplitOptions.None).ToList();
+					text.Insert(1, $"{(int)(Main.LocalPlayer.statLifeMax2 * 0.05f)}");
+					customLine.text = string.Join("", text.ToArray());
+				}else if(customLine.text.Contains("<10N>")){
+					List<string> text2 = customLine.text.Split(new string[]{ "<10N>" }, StringSplitOptions.None).ToList();
+					text2.Insert(1, $"{(int)(Main.LocalPlayer.statLifeMax2 * 0.1f)}");
+					customLine.text = string.Join("", text2.ToArray());
+				}else if(customLine.text.Contains("<N>")){
+					List<string> text3 = customLine.text.Split(new string[]{ "<N>" }, StringSplitOptions.None).ToList();
+					text3.Insert(1, Language.GetTextValue("Key.UP"));
+					customLine.text = string.Join("", text3.ToArray());
+				}
 
-			List<string> text2 = health10Line.text.Split(new string[]{ "<10N>" }, StringSplitOptions.None).ToList();
-			text2.Insert(1, $"{(int)(Main.LocalPlayer.statLifeMax2 * 0.1f)}");
-			health10Line.text = string.Join("", text2.ToArray());
-
-			List<string> text3 = keyLine.text.Split(new string[]{ "<N>" }, StringSplitOptions.None).ToList();
-			text3.Insert(1, Language.GetTextValue("Key.UP"));
-			keyLine.text = string.Join("", text3.ToArray());
+				customIndex++;
+			}while(tooltips[customIndex].Name.StartsWith("CustomTooltip"));
 		}
 	}
 

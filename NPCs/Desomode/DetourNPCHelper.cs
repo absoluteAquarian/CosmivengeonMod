@@ -21,6 +21,7 @@ namespace CosmivengeonMod.NPCs.Desomode{
 		/// <item>BoC - timer for the mine psychic attacks</item>
 		/// <item>QB - timer for the aura wobbling</item>
 		/// <item>Skeletron Hand - timer for shooting bones</item>
+		/// <item>WoF - timer for shooting demon scythes or imp fireballs in Phase 2</item>
 		/// </list>
 		/// </summary>
 		public int Timer;
@@ -29,6 +30,7 @@ namespace CosmivengeonMod.NPCs.Desomode{
 		/// <list type="bullet">
 		/// <item>KS - timer max for how long the small hops last for</item>
 		/// <item>QB - timer for the wait after getting enraged</item>
+		/// <item>WoF - indicator for what attack the boss is doing during Phase 2</item>
 		/// </list>
 		/// </summary>
 		public int Timer2;
@@ -52,6 +54,7 @@ namespace CosmivengeonMod.NPCs.Desomode{
 		/// <item>EoC - whether the boss has done the immediate transition to Phase 2</item>
 		/// <item>EoW - if the NPC is underground (only set for head segments)</item>
 		/// <item>QB - if the NPC should be drawn with a red hue and wobbling aura</item>
+		/// <item>WoF - if the boss has reached Phase 2</item>
 		/// </list>
 		/// </summary>
 		public bool Flag;
@@ -60,6 +63,7 @@ namespace CosmivengeonMod.NPCs.Desomode{
 		/// <list type="bullet">
 		/// <item>EoC - whether the boss has done the transition to Phase 3</item>
 		/// <item>QB - if the first charge attack has happened</item>
+		/// <item>WoF - mouth was forced within 100 tiles of the target player</item>
 		/// </list>
 		/// </summary>
 		public bool Flag2;

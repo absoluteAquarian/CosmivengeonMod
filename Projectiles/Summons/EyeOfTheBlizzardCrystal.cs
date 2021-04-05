@@ -80,7 +80,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 			projectile.height = (int)(baseHeight * projectile.scale);
 
 			Vector2 floatOffset = new Vector2(0, CosmivengeonUtils.fSin(floatAngle) * 8f);
-			projectile.Center = Parent.Top - new Vector2(0, 48) + floatOffset;
+			projectile.Center = Parent.gravDir > 0 ? Parent.Top - new Vector2(0, 48) + floatOffset : Parent.Bottom + new Vector2(0, 48) - floatOffset;
 
 			if(--timer < 0){
 				List<NPC> closestNPCs = Main.npc.Where(n => n?.CanBeChasedBy() == true && Collision.CanHit(projectile.Center, 0, 0, n.Center, 0, 0) && projectile.Distance(n.Center) < 50 * 16)

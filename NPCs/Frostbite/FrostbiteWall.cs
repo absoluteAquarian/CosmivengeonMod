@@ -59,7 +59,7 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 					for(int i = 0; i < 6; i++){
 						CosmivengeonUtils.SpawnProjectileSynced(
 							npc.Top + new Vector2(0, 16),
-							new Vector2(0, -8).RotatedByRandom(MathHelper.ToRadians(15)),
+							new Vector2(0, -7).RotatedByRandom(MathHelper.ToRadians(15)),
 							ModContent.ProjectileType<Projectiles.Frostbite.FrostbiteBreath>(),
 							30,
 							2f,

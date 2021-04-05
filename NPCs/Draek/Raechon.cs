@@ -40,15 +40,15 @@ namespace CosmivengeonMod.NPCs.Draek{
 			return CosmivengeonUtils.PlayerIsInForest(spawnInfo.player) && Main.dayTime && NPC.downedBoss1 ? 0.05f : 0;
 		}
 
-		public const float vel_CanSee = 5.335f;
+		public const float vel_CanSee = 8.335f;
 
-		public override float JumpStrength => -3.5f;
+		public override float JumpStrength => -5.5f;
 
 		public override float GetWalkSpeed(bool cantSee, bool noTarget) {
 			if(cantSee && noTarget)
-				return 1.35f;
+				return vel_CanSee * 0.62f;
 			if(cantSee && !noTarget)
-				return vel_CanSee * 0.85f;
+				return vel_CanSee * 0.8f;
 			return vel_CanSee;
 		}
 	}

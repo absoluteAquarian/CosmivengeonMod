@@ -1,4 +1,6 @@
-﻿using Terraria;
+﻿using CosmivengeonMod.Players;
+using Microsoft.Xna.Framework;
+using Terraria;
 using Terraria.ID;
 
 namespace CosmivengeonMod.Detours{

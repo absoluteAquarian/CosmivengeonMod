@@ -130,7 +130,7 @@ namespace CosmivengeonMod {
 		private void SetModFlags(){
 			//Mod Flags
 			CosmivengeonMod.debug_toggleDesoMode = true;
-			CosmivengeonMod.debug_showEoWOutlines = false;
+			CosmivengeonMod.debug_showEoWOutlines =         !CosmivengeonMod.Release;
 
 			CosmivengeonMod.debug_canUseExpertModeToggle =	!CosmivengeonMod.Release;
 			CosmivengeonMod.debug_canUsePotentiometer =		!CosmivengeonMod.Release;
@@ -138,6 +138,7 @@ namespace CosmivengeonMod {
 			CosmivengeonMod.debug_canUseCalamityChecker =	!CosmivengeonMod.Release;
 			CosmivengeonMod.debug_canClearBossIDs =			!CosmivengeonMod.Release;
 			CosmivengeonMod.debug_canShowEoWOutlines =		!CosmivengeonMod.Release;
+			CosmivengeonMod.debug_fastDiceOfFateRecharge =  !CosmivengeonMod.Release;
 
 			CosmivengeonMod.allowModFlagEdit =				!CosmivengeonMod.Release;
 			CosmivengeonMod.allowWorldFlagEdit =			!CosmivengeonMod.Release;

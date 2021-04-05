@@ -72,12 +72,15 @@ namespace CosmivengeonMod.Commands{
 				return;
 			}
 
+			string key = GetNPCKeyFromID(dictID);
+			var words = key.Split('.');
+
 			//Input is valid, let's try to use it
 			CosmivengeonPlayer mp = caller.Player.GetModPlayer<CosmivengeonPlayer>();
 			if(!flag)
-				mp.BossesKilled.Remove(id);
-			else if(!mp.BossesKilled.Contains(id))
-				mp.BossesKilled.Add(id);
+				mp.BossesKilled.RemoveAll(words[0], words[1]);
+			else if(!mp.BossesKilled.HasKey(words[0], words[1]))
+				mp.BossesKilled.Add(new StaminaBuffData(words[0], words[1]));
 
 			string bossName = GetBossNameFromDictionary(dictID);
 			string npcNameWithVerb = dictID == NPCID.Retinazer
@@ -99,5 +102,14 @@ namespace CosmivengeonMod.Commands{
 
 		public static string GetBossNameFromDictionary(int dictID)
 			=> dictID == NPCID.Retinazer ? Language.GetTextValue("Enemies.TheTwins") : Lang.GetNPCNameValue(dictID);
+
+		public static string GetNPCKeyFromID(int id){
+			if(id < NPCID.Count)
+				return $"Terraria.{id}";
+			
+			ModNPC mn = ModContent.GetModNPC(id);
+
+			return $"{mn.mod.Name}.{mn.Name}";
+		}
 	}
 }

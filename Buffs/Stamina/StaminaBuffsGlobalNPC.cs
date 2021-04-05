@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Commands;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
@@ -24,6 +25,10 @@ namespace CosmivengeonMod.Buffs.Stamina{
 			if(type == NPCID.EaterofWorldsBody || type == NPCID.EaterofWorldsTail)
 				type = NPCID.EaterofWorldsHead;
 
+			string key = ClearBossKilledCommand.GetNPCKeyFromID(type);
+			var words = key.Split('.');
+			StaminaBuffData data = new StaminaBuffData(words[0], words[1]);
+
 			//If this game is a multiplayer server, handle this effect differently
 			if(Main.netMode == NetmodeID.Server){
 				for(int i = 0; i < Main.maxNetPlayers; i++){
@@ -32,9 +37,9 @@ namespace CosmivengeonMod.Buffs.Stamina{
 
 					CosmivengeonPlayer mp = Main.player[i].GetModPlayer<CosmivengeonPlayer>();
 					//Only do the stamina buff checks on bosses that exist in the predefined Dictionaries
-					if(npc.boss && !npc.friendly && npc.playerInteraction[i] && !mp.BossesKilled.Contains(type) && BossIDs.Contains(type)){
+					if(npc.boss && !npc.friendly && npc.playerInteraction[i] && !mp.BossesKilled.HasKey(words[0], words[1]) && BossIDs.Contains(type)){
 						//It's a boss and it's dead; add it to the list if it's not there already and print the message for it
-						mp.BossesKilled.Add(type);
+						mp.BossesKilled.Add(data);
 						var lines = OnKillMessages[type].Split('\n');
 						foreach(string line in lines)
 							NetMessage.SendChatMessageToClient(NetworkText.FromLiteral(line), Color.HotPink, i);
@@ -44,9 +49,9 @@ namespace CosmivengeonMod.Buffs.Stamina{
 				//This hook only runs for the server and in singleplayer, so we can be certain than this game isn't a multiplayer client here
 				CosmivengeonPlayer mp = Main.LocalPlayer.GetModPlayer<CosmivengeonPlayer>();
 				//Only do the stamina buff checks on bosses that exist in the predefined Dictionaries
-				if(npc.boss && !npc.friendly && npc.playerInteraction[Main.myPlayer] && !mp.BossesKilled.Contains(type) && BossIDs.Contains(type)){
+				if(npc.boss && !npc.friendly && npc.playerInteraction[Main.myPlayer] && !mp.BossesKilled.HasKey(words[0], words[1]) && BossIDs.Contains(type)){
 					//It's a boss and it's dead; add it to the list if it's not there already and print the message for it
-					mp.BossesKilled.Add(type);
+					mp.BossesKilled.Add(data);
 					var lines = OnKillMessages[type].Split('\n');
 					foreach(string line in lines)
 						Main.NewText(line, Color.HotPink);

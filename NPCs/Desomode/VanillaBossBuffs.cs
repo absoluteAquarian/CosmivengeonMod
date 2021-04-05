@@ -92,6 +92,19 @@ namespace CosmivengeonMod.NPCs.Desomode{
 					npc.defense = 20;
 					npc.damage = 100;
 					break;
+				case NPCID.WallofFlesh:
+					npc.lifeMax = 8000;
+					npc.ScaleHealthBy(0.925f);		//14800 max health for one player
+					npc.defense = 9999;
+					npc.damage = 200;
+					npc.GetGlobalNPC<CosmivengeonGlobalNPC>().endurance = 0.99f;
+					break;
+				case NPCID.WallofFleshEye:
+					npc.lifeMax = 8000;
+					npc.ScaleHealthBy(0.925f);		//14800 max health for one player
+					npc.defense = 12;
+					npc.damage = 200;
+					break;
 			}
 
 			//Minion buffs!
@@ -101,6 +114,20 @@ namespace CosmivengeonMod.NPCs.Desomode{
 					npc.damage = 35;
 					npc.defense = 15;
 					npc.GetGlobalNPC<CosmivengeonGlobalNPC>().endurance = 0.08f;
+					npc.knockBackResist = 0.6f;
+					break;
+				case NPCID.TheHungry:
+					npc.lifeMax = 400;
+					npc.defense = 20;
+					npc.damage = 80;
+					npc.GetGlobalNPC<CosmivengeonGlobalNPC>().endurance = 0.05f;
+					npc.knockBackResist = 0.9f;
+					break;
+				case NPCID.TheHungryII:
+					npc.lifeMax = 150;
+					npc.defense = 10;
+					npc.damage = 80;
+					npc.GetGlobalNPC<CosmivengeonGlobalNPC>().endurance = 0.1f;
 					npc.knockBackResist = 0.6f;
 					break;
 			}

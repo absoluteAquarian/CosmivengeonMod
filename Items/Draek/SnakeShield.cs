@@ -31,6 +31,14 @@ namespace CosmivengeonMod.Items.Draek{
 			item.value = Item.sellPrice(gold: 2, silver: 15);
 		}
 
+		public override bool AllowPrefix(int pre)
+			=> pre == PrefixID.Hard || pre == PrefixID.Guarding || pre == PrefixID.Armored || pre == PrefixID.Warding
+				|| pre == PrefixID.Precise || pre == PrefixID.Lucky
+				|| pre == PrefixID.Jagged || pre == PrefixID.Spiked || pre == PrefixID.Angry || pre == PrefixID.Menacing
+				|| pre == PrefixID.Brisk || pre == PrefixID.Hasty || pre == PrefixID.Fleeting || pre == PrefixID.Quick2
+				|| pre == PrefixID.Wild || pre == PrefixID.Rash || pre == PrefixID.Intrepid || pre == PrefixID.Violent
+				|| pre == PrefixID.Arcane;
+
 		public override void UpdateAccessory(Player player, bool hideVisual){
 			SnakeShieldPlayer mp = player.GetModPlayer<SnakeShieldPlayer>();
 

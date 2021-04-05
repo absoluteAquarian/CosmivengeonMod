@@ -36,6 +36,10 @@ namespace CosmivengeonMod.Projectiles.Frostbite{
 					projectile.localNPCHitCooldown = -1;  //Force only one hit per NPC
 				}
 
+				//Make projectiles die quickly when spawned by Frostbite
+				if(projectile.hostile && projectile.ai[0] != 1)
+					projectile.timeLeft = 60;
+
 				//Sub-Zero projectile spawn
 				//Make it a melee projectile
 				if(projectile.ai[1] == 4f){
@@ -51,15 +55,16 @@ namespace CosmivengeonMod.Projectiles.Frostbite{
 
 			//Spawn 9 dusts randomly
 			for(int i = 0; i < 4; i++){
-				if(Main.rand.NextFloat() < 0.2f){
+				if(Main.rand.NextFloat() < 0.8f){
 					Dust dust = Dust.NewDustDirect(projectile.position - new Vector2(2, 2), projectile.width + 2, projectile.height + 2, 92);
 					dust.velocity = Vector2.Zero;
 					dust.noGravity = true;
+					dust.fadeIn = 1.15f;
 				}
 			}
 
 			if(projectile.ai[0] == 1)
-				projectile.velocity.Y += 12f / 60f;
+				projectile.velocity.Y += 16f / 60f;
 		}
 
 		public override void OnHitPlayer(Player target, int damage, bool crit){

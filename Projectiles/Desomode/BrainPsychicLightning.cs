@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Utility;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
@@ -98,7 +99,8 @@ namespace CosmivengeonMod.Projectiles.Desomode{
 			if(!ProjectileIsInScreen())
 				return false;
 
-			List<Vector3> drawPos = PreparePoints(points);
+			for(int i = 0; i < points.Count; i++)
+				points[i] += projectile.position;
 
 			Color color;
 			if(projectile.timeLeft <= Death_Delay)
@@ -106,45 +108,26 @@ namespace CosmivengeonMod.Projectiles.Desomode{
 			else
 				color = colorSwap ? Color.Yellow : Color.DeepPink;
 
-			List<VertexPositionColor> draws = new List<VertexPositionColor>(drawPos.Count);
-			for(int i = 0; i < drawPos.Count; i++)
-				draws.Add(new VertexPositionColor(drawPos[i], color));
+			PrimitivePacket lightning = new PrimitivePacket(PrimitiveType.LineStrip);
+			lightning.AddDraw(PrimitiveDrawing.ToPrimitive(points[0], color), PrimitiveDrawing.ToPrimitive(points[1], color));
+			for(int i = 2; i < points.Count; i++)
+				lightning.AddDraw(PrimitiveDrawing.ToPrimitive(points[i], color));
 
-			CosmivengeonUtils.PrepareToDrawPrimitives(draws.Count, out VertexBuffer buffer);
-
-			CosmivengeonUtils.DrawPrimitives(draws.ToArray(), buffer);
+			PrimitiveDrawing.SubmitPacket(lightning);
 
 			if(projectile.timeLeft > earliestFrame + 30 + Death_Delay){
-				Vector3[] line = new Vector3[2]{
-					(projectile.Top - Main.screenPosition).ScreenCoord(),
-					(projectile.Top + new Vector2(0, FinalHeight) - Main.screenPosition).ScreenCoord()
+				Vector2[] line = new Vector2[2]{
+					projectile.Top,
+					projectile.Top + new Vector2(0, FinalHeight)
 				};
 
-				VertexPositionColor[] drawLine = new VertexPositionColor[2]{
-					new VertexPositionColor(line[0], Color.White),
-					new VertexPositionColor(line[1], Color.White)
-				};
+				PrimitivePacket linePacket = new PrimitivePacket(PrimitiveType.LineStrip);
+				linePacket.AddDraw(PrimitiveDrawing.ToPrimitive(line[0], Color.White), PrimitiveDrawing.ToPrimitive(line[1], Color.White));
 
-				CosmivengeonUtils.PrepareToDrawPrimitives(2, out VertexBuffer buffer2);
-
-				CosmivengeonUtils.DrawPrimitives(drawLine, buffer2);
+				PrimitiveDrawing.SubmitPacket(linePacket);
 			}
 
 			return false;
-		}
-
-		private List<Vector3> PreparePoints(List<Vector2> original){
-			List<Vector2> prepared = new List<Vector2>(original);
-			
-			for(int i = 1; i < prepared.Count - 1; i += 2)
-				prepared.Insert(i, prepared[i]);
-
-			List<Vector3> ret = new List<Vector3>();
-
-			for(int i = 0; i < prepared.Count; i++)
-				ret.Add((prepared[i] + projectile.position - Main.screenPosition).ScreenCoord());
-
-			return ret;
 		}
 
 		private bool ProjectileIsInScreen()

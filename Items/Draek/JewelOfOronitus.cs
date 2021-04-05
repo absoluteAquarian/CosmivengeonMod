@@ -4,25 +4,20 @@ using Terraria;
 using Terraria.ID;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
-using MonoMod.Cil;
-using Mono.Cecil.Cil;
-using System;
-using System.IO;
-using System.Reflection;
 
 namespace CosmivengeonMod.Items.Draek{
 	[AutoloadEquip(EquipType.Neck)]
-	public class JewelOfOronitus : ModItem{
-		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Jewel of Oronitus");
-			//NOTE:  "\nGrants an earth-blessed rock jump" needs to be added after "Fall speed increased by 20%" when the IL code is implemented and works.
-			Tooltip.SetDefault("Damage dealt and damage reduction increased by 5%" +
+	public class JewelOfOronitus : HidableTooltip{
+		public override string ItemName => "Jewel of Oronitus";
+
+		public override string FlavourText => "Damage dealt and damage reduction increased by 5%" +
 				"\nMovement speed increased by 10%" +
 				"\nFall speed increased by 20%" +
 				"\nGrants an earthblessed mid-air jump" +
 				"\nAn ancient artifact, last donned by the rock serpent Draek." +
-				"\nIts original master, Oronitus, was seemingly lost to time many years ago...");
+				"\nIts original master, Oronitus, was seemingly lost to time many years ago...";
 
+		public override void SafeSetStaticDefaults(){
 			Main.RegisterItemAnimation(item.type, new JewelOfOronitusAnimation());
 		}
 

@@ -16,6 +16,7 @@ namespace CosmivengeonMod.Detours{
 			On.Terraria.NPC.GetBossHeadTextureIndex += HookGetBossHeadTextureIndex;
 
 			DesomodeAITypes = new int[]{
+				//Bosses
 				NPCID.KingSlime,
 				NPCID.EyeofCthulhu,
 				NPCID.EaterofWorldsHead,
@@ -24,7 +25,12 @@ namespace CosmivengeonMod.Detours{
 				NPCID.BrainofCthulhu,
 				NPCID.QueenBee,
 				NPCID.SkeletronHead,
-				NPCID.SkeletronHand
+				NPCID.SkeletronHand,
+				NPCID.WallofFlesh,
+				NPCID.WallofFleshEye,
+				//Minions
+				NPCID.TheHungry,
+				NPCID.TheHungryII
 			};
 		}
 
@@ -42,9 +48,10 @@ namespace CosmivengeonMod.Detours{
 			if(self.type == p1){
 				self.lifeMax = Draek.BaseHealth;
 				
-				self.ScaleHealthBy(Draek.GetHealthAugmentation());
+				if(Main.expertMode)
+					self.ScaleHealthBy(Draek.GetHealthAugmentation());
 				
-				int hp = GetDraekMaxHealth(scale);
+				int hp = Main.expertMode ? GetDraekMaxHealth(scale) : Draek.BaseHealth + DraekP2Head.BaseHealth;
 				(self.modNPC as Draek).HealthThreshold = hp - self.lifeMax;
 				self.lifeMax = hp;
 
@@ -52,16 +59,17 @@ namespace CosmivengeonMod.Detours{
 			}else if(self.type == p2){
 				self.lifeMax = DraekP2Head.BaseHealth;
 
-				self.ScaleHealthBy(DraekP2Head.GetHealthAugmentation());
+				if(Main.expertMode)
+					self.ScaleHealthBy(DraekP2Head.GetHealthAugmentation());
 				
 				int curMax = self.lifeMax;
 				(self.modNPC as DraekP2Head).ActualMaxHealth = curMax;
-				self.lifeMax = GetDraekMaxHealth(scale);
+				self.lifeMax = Main.expertMode ? GetDraekMaxHealth(scale) : Draek.BaseHealth + DraekP2Head.BaseHealth;
 				
 				self.life = curMax;
 			}
 
-			//Errors can happen from FKBossHealthBar on this line.  Just ignore it.
+			//FKBossHealthBar can cause this to throw errors for whatever reason.  Cringe!
 			self.GetGlobalNPC<CosmivengeonGlobalNPC>().baseEndurance = self.GetGlobalNPC<CosmivengeonGlobalNPC>().endurance;
 
 			//World is in Desolation Mode and the boss is a boss (wow)
@@ -94,6 +102,7 @@ namespace CosmivengeonMod.Detours{
 			//Desolation mode AI changes
 			if(CosmivengeonWorld.desoMode && DesomodeAITypes.Contains(self.type)){
 				switch(self.type){
+					//Bosses
 					case NPCID.KingSlime:
 						DesolationModeBossAI.AI_KingSlime(self);
 						break;
@@ -116,6 +125,19 @@ namespace CosmivengeonMod.Detours{
 						break;
 					case NPCID.SkeletronHand:
 						DesolationModeBossAI.AI_SkeletronHand(self);
+						break;
+					case NPCID.WallofFlesh:
+						DesolationModeBossAI.AI_WallOfFleshMouth(self);
+						break;
+					case NPCID.WallofFleshEye:
+						DesolationModeBossAI.AI_WallOfFleshEye(self);
+						break;
+					//Minions
+					case NPCID.TheHungry:
+						DesolationModeMonsterAI.AI_TheHungry(self);
+						break;
+					case NPCID.TheHungryII:
+						DesolationModeMonsterAI.AI_TheHungryII(self);
 						break;
 				}
 			}else

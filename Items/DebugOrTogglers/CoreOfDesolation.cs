@@ -8,16 +8,15 @@ using System.Linq;
 using Terraria.DataStructures;
 
 namespace CosmivengeonMod.Items.DebugOrTogglers{
-	public class CoreOfDesolation : ModItem{
-		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Core of Desolation");
-			Tooltip.SetDefault("Activates Desolation Mode." +
-				"\nEnables the \"Stamina\" effect, which can be toggled using \"G\"" +
-				"\nStamina increases move and attack speed while active," +
-				"\nthough getting Exhausted will cause you to move and attack slower." +
-				"\nDesolation Mode unleashes hell upon this world, causing all" +
-				"\nenemies to become stronger.");
-		}
+	public class CoreOfDesolation : HidableTooltip{
+		public override string ItemName => "Core of Desolation";
+
+		public override string FlavourText => "Activates Desolation Mode." +
+			"\nEnables the \"Stamina\" effect, which can be toggled using \"G\"" +
+			"\nStamina increases move and attack speed while active," +
+			"\nthough getting Exhausted will cause you to move and attack slower." +
+			"\nDesolation Mode unleashes hell upon this world, causing all" +
+			"\nenemies to become stronger.";
 
 		public override void SetDefaults(){
 			item.width = 20;
@@ -30,20 +29,29 @@ namespace CosmivengeonMod.Items.DebugOrTogglers{
 			item.consumable = false;
 		}
 
-		public override void ModifyTooltips(List<TooltipLine> tooltips){
-			foreach(TooltipLine line in tooltips){
-				if(line.text != null && line.text.Length >= 7 && line.text.Substring(0, 7) == "Enables"){
-					string hotkey;
+		public override void SafeModifyTooltips(List<TooltipLine> tooltips){
+			int customIndex = FindCustomTooltipIndex(tooltips);
 
-					var hotkeys = CosmivengeonMod.StaminaHotKey.GetAssignedKeys();
-					if(hotkeys.Count > 0)
-						hotkey = hotkeys[0];
-					else
-					   hotkey = "<NOT BOUND>";
+			if(customIndex < 0)
+				return;
 
-					line.text = $"Enables the \"Stamina\" effect, which can be toggled using \"{hotkey}\"";
-				}
-			}
+			do{
+				TooltipLine customLine = tooltips[customIndex];
+
+				customIndex++;
+				if(!customLine.text.Contains("\"G\""))
+					continue;
+
+				string hotkey;
+
+				var hotkeys = CosmivengeonMod.StaminaHotKey.GetAssignedKeys();
+				if(hotkeys.Count > 0)
+					hotkey = hotkeys[0];
+				else
+					hotkey = "<NOT BOUND>";
+
+				customLine.text = customLine.text.Replace("\"G\"", $"\"{hotkey}\"");
+			}while(tooltips[customIndex].Name.StartsWith("CustomTooltip"));
 		}
 
 		public override bool CanUseItem(Player player){

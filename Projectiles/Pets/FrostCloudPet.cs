@@ -34,6 +34,9 @@ namespace CosmivengeonMod.Projectiles.Pets{
 				modPlayer.cloudPet = false;
 			if(modPlayer.cloudPet)
 				projectile.timeLeft = 2;
+
+			if(!projectile.WithinDistance(playerOwner.Center, 300 * 16))
+				projectile.Center = playerOwner.Center;
 		}
 	}
 }

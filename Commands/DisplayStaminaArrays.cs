@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Microsoft.Xna.Framework;
+using System.Linq;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Commands{
@@ -9,6 +10,11 @@ namespace CosmivengeonMod.Commands{
 		public override string Description => "Displays the current values for the Multipliers and Adders arrays for this player's Stamina";
 
 		public override void Action(CommandCaller caller, string input, string[] args){
+			if(CosmivengeonMod.Release){
+				caller.Reply("This command is disabled.", Color.Red);
+				return;
+			}
+
 			CosmivengeonPlayer mp = caller.Player.GetModPlayer<CosmivengeonPlayer>();
 			string mults = string.Join(", ", mp.stamina.Multipliers);
 			caller.Reply($"Multipliers: {mults}");

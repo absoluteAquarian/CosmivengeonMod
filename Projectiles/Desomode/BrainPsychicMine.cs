@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Utility;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -73,7 +74,6 @@ namespace CosmivengeonMod.Projectiles.Desomode{
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
 			int capacity = 64 * 2;
 			List<Vector2> points = new List<Vector2>();
-			List<VertexPositionColor> draws = new List<VertexPositionColor>();
 
 			//Set the points
 			float radiusOuter;
@@ -93,48 +93,30 @@ namespace CosmivengeonMod.Projectiles.Desomode{
 			int halfCapacity = capacity / 2;
 			for(int i = 0; i < halfCapacity; i++){
 				Vector2 vector = Vector2.UnitX.RotatedBy(projectile.rotation + MathHelper.ToRadians(360f / halfCapacity * i)) * (radiusOuter - (i % 2 == 1 ? 8 : 0));
-				points.Add(vector);
-
-				if(i != 0)
-					points.Add(vector);
+				points.Add(vector + projectile.Center);
 			}
-			points.Add(points[0]);
+
+			DrawPrims(points, Color.Pink);
+			points.Clear();
+
 			for(int i = halfCapacity; i < capacity; i++){
 				Vector2 vector = Vector2.UnitX.RotatedBy(projectile.ai[0] + MathHelper.ToRadians(360f / halfCapacity * (i - halfCapacity))) * (radiusInner - (i % 2 == 1 ? 8 : 0));
-				points.Add(vector);
-
-				if(i != halfCapacity)
-					points.Add(vector);
-			}
-			capacity *= 2;
-			halfCapacity *= 2;
-			points.Add(points[halfCapacity]);
-
-			//For each point, convert it from [0, screen dimension] to [-1, 1]
-			List<Vector3> screenPoints = new List<Vector3>();
-			for(int i = 0; i < points.Count; i++){
-				Vector2 screen = points[i] + projectile.Center - Main.screenPosition;
-				screenPoints.Add(screen.ScreenCoord());
+				points.Add(vector + projectile.Center);
 			}
 
-			//Set the outer ring draw data
-			for(int i = 0; i < halfCapacity; i++)
-				draws.Add(new VertexPositionColor(screenPoints[i], Color.Pink));
-
-			CosmivengeonUtils.PrepareToDrawPrimitives(capacity, out VertexBuffer buffer);
-
-			//Draw it
-			CosmivengeonUtils.DrawPrimitives(draws.ToArray(), buffer);
-
-			//Set the inner ring draw data
-			draws.Clear();
-			for(int i = halfCapacity; i < capacity; i++)
-				draws.Add(new VertexPositionColor(screenPoints[i], Color.Purple));
-
-			//Draw it
-			CosmivengeonUtils.DrawPrimitives(draws.ToArray(), buffer);
+			DrawPrims(points, Color.Purple);
 
 			return false;
+		}
+
+		private void DrawPrims(List<Vector2> points, Color color){
+			PrimitivePacket packet = new PrimitivePacket(PrimitiveType.LineStrip);
+
+			packet.AddDraw(PrimitiveDrawing.ToPrimitive(points[0], color), PrimitiveDrawing.ToPrimitive(points[1], color));
+			for(int i = 2; i < points.Count; i++)
+				packet.AddDraw(PrimitiveDrawing.ToPrimitive(points[i], color));
+
+			PrimitiveDrawing.SubmitPacket(packet);
 		}
 	}
 }

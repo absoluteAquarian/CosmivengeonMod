@@ -248,8 +248,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 
 		public bool CanSeeTarget() => Target != null && Collision.CanHit(npc.position, npc.width, npc.height, Target.position, Target.width, Target.height);
 
-		public bool AnyActiveTilesInHitbox(){
-			Vector2 ahead = npc.DirectionTo(Target.Center) * 16;
+		public bool AnyActiveTilesInHitbox(bool doAhead){
+			Vector2 ahead = doAhead ? npc.DirectionTo(Target.Center) * 24 : Vector2.Zero;
 
 			Point tileTL = (npc.position + ahead).ToTileCoordinates();
 			Point tileBR = (npc.BottomRight + ahead).ToTileCoordinates();
@@ -262,6 +262,19 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 			}
 
 			return false;
+		}
+
+		public override void DrawEffects(ref Color drawColor){
+			//Cool effect while phasing through tiles
+			if(timePhasing > 0){
+				drawColor = Color.White * 0.65f;
+
+				for(int i = 0; i < 10; i++){
+					Dust dust = Dust.NewDustDirect(npc.position, npc.width, npc.height, 76);
+					dust.noGravity = true;
+					dust.velocity = Vector2.Zero;
+				}
+			}
 		}
 
 		public override void AI(){
@@ -290,7 +303,7 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 
 			CheckFallThroughPlatforms(out _);
 
-			if(AnyActiveTilesInHitbox() && CurrentSubphase == AI_Attack_Walk){
+			if((AnyActiveTilesInHitbox(doAhead: true) || AnyActiveTilesInHitbox(doAhead: false)) && CurrentSubphase == AI_Attack_Walk){
 				timePhasing++;
 
 				PhaseFloat();
@@ -300,6 +313,8 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				timePhasing = 0;
 
 			npc.noGravity = false;
+
+			float breathAngle = npc.DirectionTo(Target.Center).ToRotation();
 
 			if(Phase == Phase_1){
 				if(CurrentSubphase == AI_Attack_Walk && AI_WaitTimer < 0){
@@ -315,13 +330,13 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				}else if(CurrentSubphase == AI_Attack_Charge){
 					int chargeSpeed = CosmivengeonUtils.GetModeChoice(5, 7, 0);
 					int chargeFrames = CosmivengeonUtils.GetModeChoice(120, 90, 0);
-					float breathSpeed = CosmivengeonUtils.GetModeChoice(5f, 7f, 0);
+					float breathSpeed = CosmivengeonUtils.GetModeChoice(6f, 9f, 0);
 					float breathTime = CosmivengeonUtils.GetModeChoice(1.5f, 1f, 0);
 					AI_Charge_BreatheFrost(
 						chargeSpeed,
 						chargeFrames,
 						breathSpeed,
-						breathAngle: 0f,
+						breathAngle: breathAngle,
 						maxFlamesShot: 40,
 						breathTime
 					);
@@ -347,14 +362,14 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 				}else if(CurrentSubphase == AI_Attack_Charge){
 					int chargeSpeed = CosmivengeonUtils.GetModeChoice(8, 10, 12);
 					int chargeFrames = CosmivengeonUtils.GetModeChoice(90, 75, 60);
-					float breathSpeed = CosmivengeonUtils.GetModeChoice(8f, 10f, 15f);
+					float breathSpeed = CosmivengeonUtils.GetModeChoice(9f, 11f, 13f);
 					int maxFlamesShot = CosmivengeonUtils.GetModeChoice(60, 25, 45);
 					float breathTime = CosmivengeonUtils.GetModeChoice(1f, 0.75f, 0.5f);
 					AI_Charge_BreatheFrost(
 						chargeSpeed,
 						chargeFrames,
 						breathSpeed,
-						breathAngle: 0f,
+						breathAngle: breathAngle,
 						maxFlamesShot,
 						breathTime
 					);
@@ -498,11 +513,14 @@ skipAI:
 						AI_Attack_Flick,
 						AI_Attack_Walk,
 						AI_Attack_Stomp,
+						AI_Attack_Stomp,
 						AI_Attack_Walk,
 						AI_Enrage_Smash,
 						AI_Attack_Walk,
+						AI_Attack_Charge,
 						AI_Expert_Snowball,
 						AI_Attack_Walk,
+						AI_Attack_Flick,
 						AI_Expert_SnowCloud
 					};
 
@@ -510,8 +528,8 @@ skipAI:
 				}
 			}else{
 				if(Phase == Phase_1){
-					if(!Main.raining)
-						Main.raining = true;
+					Main.raining = true;
+					Main.rainTime = 3 * 60 * 60;
 
 					Phase++;
 					subphaseIndex = -1;
@@ -524,11 +542,15 @@ skipAI:
 						AI_Attack_Flick,
 						AI_Attack_Walk,
 						AI_Attack_Stomp,
+						AI_Attack_Stomp,
+						AI_Attack_Stomp,
 						AI_Attack_Walk,
 						AI_Enrage_Smash,
 						AI_Attack_Walk,
+						AI_Attack_Charge,
 						AI_Expert_Snowball,
 						AI_Attack_Walk,
+						AI_Attack_Flick,
 						AI_Expert_SnowCloud
 					};
 
@@ -611,7 +633,7 @@ skipAI:
 			npc.velocity.X += acceleration * (npc.Center.X < Target.Center.X ? 1 : -1);
 
 			int nextSubPhase = Subphases[(subphaseIndex + 1) % Subphases.Length];
-			if(Math.Sign(npc.velocity.X) == Math.Sign(npc.Center.X - Target.Center.X) && (nextSubPhase == AI_Attack_Flick || nextSubPhase == AI_Attack_Stomp))
+			if(Math.Sign(npc.velocity.X) != Math.Sign(Target.Center.X - npc.Center.X) && (nextSubPhase == AI_Attack_Flick || nextSubPhase == AI_Attack_Stomp))
 				AI_WaitTimer++;
 		}
 
@@ -675,7 +697,6 @@ skipAI:
 
 			if(AI_AttackProgress - 3 < maxFlames && AI_Timer == 0){
 				//Get a random angle to add to "angle"; variation is [-3, 3] degrees
-				angle.MirrorAngle(mirrorY: npc.spriteDirection == -1);
 				//Get the speed vector based on this angle
 				Vector2 flameSpeed = angle.ToRotationVector2() * speed;
 				//Finally, spawn the projectile
@@ -743,10 +764,12 @@ skipAI:
 				AI_AttackProgress++;
 				AI_Walk(xVel, walkAccel);
 			}else if(AI_Timer >= 0 && AI_AttackProgress == 1){
-				npc.velocity.X += 8f / 60f * npc.spriteDirection;
 				AI_Walk(xVel, walkAccel);
+
+				if(npc.velocity.X != 0 && Math.Sign(npc.velocity.X) != Math.Sign(Target.Center.X - npc.Center.X))
+					AI_Timer++;
 			}else if(AI_Timer < 0 && AI_AttackProgress == 1){
-				npc.velocity.X += 8f / 60f * npc.spriteDirection;
+				npc.velocity.X += CosmivengeonUtils.GetModeChoice(4f, 6f, 9f) * npc.spriteDirection;
 				npc.velocity.Y = -initialYVel;
 				AI_AttackProgress++;
 			}else if(AI_AttackProgress == 2){
@@ -761,7 +784,7 @@ skipAI:
 
 				for(int i = 0; i < 30; i++){
 					CosmivengeonUtils.SpawnProjectileSynced(npc.Bottom,
-						new Vector2(0, -8).RotatedByRandom(MathHelper.ToRadians(45)),
+						new Vector2(0, -9).RotatedByRandom(MathHelper.ToRadians(60)),
 						ModContent.ProjectileType<Projectiles.Frostbite.FrostbiteBreath>(),
 						30,
 						2f,

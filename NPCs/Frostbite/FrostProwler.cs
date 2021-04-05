@@ -40,14 +40,14 @@ namespace CosmivengeonMod.NPCs.Frostbite{
 
 		public override float JumpStrength => -7.85f;
 
-		public const float vel_CanSee = 5.335f;
+		public const float vel_CanSee = 8.335f;
 
-		public override float GetWalkSpeed(bool cantSee, bool noTarget) {
+		public override float GetWalkSpeed(bool cantSee, bool noTarget){
 			if(cantSee && noTarget)
-				return 2.1f;
+				return vel_CanSee * 0.72f;
 			if(cantSee && !noTarget)
-				return vel_CanSee;
-			return vel_CanSee * 1.3f;
+				return vel_CanSee * 0.9f;
+			return vel_CanSee;
 		}
 	}
 }

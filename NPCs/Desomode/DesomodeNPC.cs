@@ -61,6 +61,22 @@ namespace CosmivengeonMod.NPCs.Desomode{
 			}
 		}
 
+		public override bool PreAI(NPC npc){
+			if(!CosmivengeonWorld.desoMode || Main.wof < 0 || Main.wof >= Main.maxNPCs)
+				return true;
+
+			//If the Wall of Flesh was snapped fowards, keep "The Hungry"s in front of it
+			NPC wof = Main.npc[Main.wof];
+			if(npc.type == NPCID.TheHungry && wof.Helper().Flag2){
+				float targetX = wof.Center.X + wof.direction * 6 * 16;
+
+				if((wof.direction == 1 && npc.Center.X < targetX) || (wof.direction == -1 && npc.Center.X > targetX))
+					npc.Center = new Vector2(targetX, npc.Center.Y);
+			}
+
+			return true;
+		}
+
 		public override bool PreDraw(NPC npc, SpriteBatch spriteBatch, Color drawColor){
 			if(!CosmivengeonWorld.desoMode)
 				return true;

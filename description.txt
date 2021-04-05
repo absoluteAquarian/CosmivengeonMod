@@ -1,13 +1,13 @@
 The official Cosmivengeon mod.
 Please read the thread on our homepage for more info!
 
-(Currently only contains content up to the Eater of Worlds/Brain of Cthulhu progression-wise.)
+(Currently only contains content up to the Wall of Flesh progression-wise.)
 
 This mod adds the following:
 2 Bosses
 Several NPCs
 Several Items
-10 Buffs/Debuffs
+Several Buffs/Debuffs
 1 New game mode (Desolation)
-4 Songs
+5 Songs
 1 new ability (Stamina)

@@ -61,7 +61,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 				animFrame = 0;
 			}
 
-			if(npc.frameCounter > 24){
+			if(npc.frameCounter > 10){
 				npc.frameCounter = 0;
 				animFrame = ++animFrame % Main.npcFrameCount[npc.type];
 			}
@@ -84,6 +84,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 				//Attempt to find a player target
 				//If one is found, set it and update the netcode
 				Target = null;
+				npc.target = -1;
 				for(int i = 0; i < Main.maxPlayers; i++){
 					Player plr = Main.player[i];
 
@@ -107,22 +108,19 @@ namespace CosmivengeonMod.NPCs.Draek{
 				else if(npc.velocity.X < 0)
 					faceDir = -1;
 
-				//Do the movement
-				float vel = 1.35f;
-
 				float walk = GetWalkSpeed(true, true);
 
-				Do_AIState_0_Movement(walk / 0.6667f, vel, vel * 2.1f, true);
+				Do_AIState_0_Movement(walk / 0.6667f, walk, walk * 2.1f, true);
 			}else if(AIState == State_FoundPlayer_CanSee){
 				//If we can no longer see the player, move on to AI state 1 or 2
 				if(InvalidTarget){
 					AIState = State_LookingForPlayers;
-					Reset();
+					Target = null;
+					npc.target = -1;
 					return;
 				}
-				if(!CanSee(Target)){
+				if(Target != null && !CanSee(Target)){
 					AIState = State_FoundPlayer_NoSee;
-					Reset();
 					return;
 				}
 
@@ -134,9 +132,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 				//Basically a copy of AIState 0's movement, but without the waiting and with faster movement
 				Do_AIState_0_Movement(walk / 0.45f, walk, walk, false);
 			}else if(AIState == State_FoundPlayer_NoSee){
-				if(CanSee(Target)){
+				if(Target != null && CanSee(Target)){
 					AIState = State_FoundPlayer_CanSee;
-					Reset();
 					return;
 				}
 
@@ -168,14 +165,17 @@ namespace CosmivengeonMod.NPCs.Draek{
 			AITimerTarget = 0;
 			lookTimer = 0;
 
+			Target = null;
+			npc.target = -1;
+
 			npc.netUpdate = true;
 		}
 
 		private void Do_AIState_0_Movement(float acceleration, float velCap, float anim_target, bool doWait){
 			//Cycles between several substates:
-			//0: Reset wait timer
+			//0: Reset wait timer and turn around
 			//1: Wait until timer has reached the random value from substate 0; apply friction
-			//2: Turn around, reset wait timer
+			//2: Reset wait timer
 			//3: Try to move forwards until the timer has reached the random value from substate 2
 			if(!doWait && AISubstate == 0)
 				AISubstate = 2;
@@ -201,24 +201,24 @@ namespace CosmivengeonMod.NPCs.Draek{
 					npc.velocity.X = 0;
 
 				if(AITimer >= AITimerTarget){
+					//Turn around
+					faceDir *= -1;
+					npc.velocity.X = 0;
+
 					AISubstate = 2;
 					npc.netUpdate = true;
 				}
 			}else if(AISubstate == 2){
-				if(AIState != State_FoundPlayer_CanSee){
-					faceDir *= -1;
-
-					npc.velocity.X = 0;
-				}
-
 				AITimer = 0;
 				AISubstate = 3;
 				npc.netUpdate = true;
 				AITimerTarget = Main.rand.Next(170, 280);
 			}else if(AISubstate == 3){
-				npc.velocity.X += faceDir * acceleration / 60f;
+				if(npc.velocity.Y == 0){
+					npc.velocity.X += faceDir * acceleration / 60f;
 
-				npc.velocity.X.Clamp(-velCap, velCap);
+					npc.velocity.X.Clamp(-velCap, velCap);
+				}
 
 				if(AITimer >= AITimerTarget){
 					AISubstate = 0;
@@ -242,7 +242,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 				if(hopTimer >= 35 && hopCount > 0){
 					//Offset the NPC's position to be slightly away from the wall
-					npc.position.X -= npc.spriteDirection * 8;
+					npc.position.X -= npc.spriteDirection * 4;
 
 					npc.velocity.Y = JumpStrength;
 					hopCount--;
@@ -267,30 +267,48 @@ namespace CosmivengeonMod.NPCs.Draek{
 
 		public override void SendExtraAI(BinaryWriter writer){
 			writer.Write((byte)AIState);
-			writer.Write((byte)(Target?.whoAmI ?? 0));
+			writer.Write((byte)(Target?.whoAmI ?? -1));
 			writer.Write((short)hopTimer);
 			writer.Write((byte)hopCount);
 			writer.Write((short)lookTimer);
 			writer.Write((byte)animFrame);
-			writer.Write((byte)faceDir);
+			writer.Write((sbyte)faceDir);
 		}
 
 		public override void ReceiveExtraAI(BinaryReader reader){
 			byte state = reader.ReadByte();
 			byte plr = reader.ReadByte();
 
-			if(state != State_LookingForPlayers)
+			if(state != State_LookingForPlayers && plr >= 0)
 				Target = Main.player[plr];
 
 			hopTimer = reader.ReadInt16();
 			hopCount = reader.ReadByte();
 			lookTimer = reader.ReadInt16();
 			animFrame = reader.ReadByte();
-			faceDir = reader.ReadByte();
+			faceDir = reader.ReadSByte();
 		}
 
 		public override void FindFrame(int frameHeight){
 			npc.frame.Y = animFrame * frameHeight;
+		}
+
+		public override void OnHitByItem(Player player, Item item, int damage, float knockback, bool crit){
+			TargetPlayer(player);
+		}
+
+		public override void OnHitByProjectile(Projectile projectile, int damage, float knockback, bool crit){
+			TargetPlayer(Main.player[projectile.owner]);
+		}
+
+		private void TargetPlayer(Player player){
+			//Retaliate against that player immediately unless we're already chasing after one
+			if(npc.target != -1 && AIState != State_LookingForPlayers)
+				return;
+
+			Target = player;
+			npc.target = player.whoAmI;
+			AIState = State_FoundPlayer_CanSee;
 		}
 	}
 }

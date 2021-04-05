@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Desolator;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -160,21 +161,7 @@ namespace CosmivengeonMod{
 		public static void PlayMusic(ModNPC modNPC, CosmivengeonBoss boss){
 			float songChance = Main.rand.NextFloat();
 
-			CosmivengeonMod modInstance = CosmivengeonMod.Instance;
-
-			if(boss == CosmivengeonBoss.Draek){
-				/*	1% chance - kazoo theme
-				 *	5% chance - retro theme
-				 *	94% chance - current theme
-				 */
-				if(songChance < 0.01)
-					modNPC.music = modInstance.GetSoundSlot(SoundType.Music, "Sounds/Music/successor_of_the_kazoo");
-				else if(songChance < 0.06)
-					modNPC.music = modInstance.GetSoundSlot(SoundType.Music, "Sounds/Music/RETRO_SuccessorOfTheJewel");
-				else
-					modNPC.music = modInstance.GetSoundSlot(SoundType.Music, "Sounds/Music/Successor_of_the_Jewel");
-			}else if(boss == CosmivengeonBoss.Frostbite)
-				modNPC.music = modInstance.GetSoundSlot(SoundType.Music, "Sounds/Music/Frigid_Feud");
+			modNPC.music = BossPackage.bossInfo?[boss]?.music(songChance) ?? 0;
 		}
 
 		/// <summary>
@@ -192,37 +179,15 @@ namespace CosmivengeonMod{
 		/// </summary>
 		public static bool TrySummonBoss(CosmivengeonBoss boss, Player player){
 			bool canSummonBoss = false;
+			
+			if(!BossPackage.bossInfo.ContainsKey(boss))
+				throw new ArgumentException($"Boss enum value hasn't been assigned to any boss information: CosmivengeonBoss.{boss}");
 
-			int[] bossIDs = new int[]{
-				ModContent.NPCType<NPCs.Draek.Draek>(),
-				ModContent.NPCType<NPCs.Frostbite.Frostbite>()
-			};
-
-			int[] altBossIDs = new int[]{
-				ModContent.NPCType<NPCs.Draek.DraekP2Head>(),
-				int.MinValue
-			};
-
-			string[] badUseMessages = new string[]{
-				"\"The geode was unresponsive.  Maybe I should try using it in the forest?\"",
-				"\"Looks like the lure didn't work.  Maybe it would work better in a colder area?\""
-			};
-
-			bool[] requiredCondition = new bool[]{
-				PlayerIsInForest(player),
-				player.ZoneSnow
-			};
-
-			int givenBoss = (int)boss;
-
-			if(givenBoss < Enum.GetValues(typeof(CosmivengeonBoss)).Cast<int>().Max() + 1){
-				//If the condition is met, summon the boss
-				//Otherwise, make the player say something
-				if(!requiredCondition[givenBoss])
-					Main.NewText(badUseMessages[givenBoss]);
-				else
-					canSummonBoss = !NPC.AnyNPCs(bossIDs[givenBoss]) && !NPC.AnyNPCs(altBossIDs[givenBoss]);
-			}
+			BossPackage package = BossPackage.bossInfo[boss];
+			if(!package.useRequirement(player))
+				Main.NewText($"[n:{player.name}] {package.badSummonUseMessage}");
+			else
+				canSummonBoss = !NPC.AnyNPCs(package.bossID) && (package.altBossID == -1 || !NPC.AnyNPCs(package.altBossID));
 
 			return canSummonBoss;
 		}
@@ -443,33 +408,19 @@ namespace CosmivengeonMod{
 
 		public static void SetImmune(this NPC npc, int type) => npc.buffImmune[type] = true;
 
-		public static Vector3 ScreenCoord(this Vector2 vector)
-			=> new Vector3(-1 + vector.X / Main.screenWidth * 2, (-1 + vector.Y / Main.screenHeight * 2f) * -1, 0);
-		public static Vector3 ScreenCoord(this Vector3 vector)
-			=> new Vector3(-1 + vector.X / Main.screenWidth * 2, (-1 + vector.Y / Main.screenHeight * 2f) * -1, 0);
+		public static Vector3 ScreenCoord(this Vector2 vector){
+			//"vector" is a point on the screen... given the zoom is 1x
+			//Let's correct that
+			Vector2 screenCenter = new Vector2(Main.screenWidth / 2f, Main.screenHeight / 2f);
+			Vector2 diff = vector - screenCenter;
+			diff *= Main.GameZoomTarget;
+			vector = screenCenter + diff;
+
+			return new Vector3(-1 + vector.X / Main.screenWidth * 2, (-1 + vector.Y / Main.screenHeight * 2f) * -1, 0);
+		}
 
 		public static SoundEffectInstance PlayCustomSound(this Mod mod, Vector2 position, string file)
 			=> Main.PlaySound(SoundLoader.customSoundType, (int)position.X, (int)position.Y, mod.GetSoundSlot(SoundType.Custom, $"Sounds/Custom/{file}"));
-
-		public static void PrepareToDrawPrimitives(int capacity, out VertexBuffer buffer){
-			buffer = new VertexBuffer(Main.graphics.GraphicsDevice, typeof(VertexPositionColor), capacity, BufferUsage.WriteOnly);
-
-			Main.graphics.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-		}
-
-		public static void DrawPrimitives(VertexPositionColor[] draws, VertexBuffer buffer){
-			Main.graphics.GraphicsDevice.SetVertexBuffer(null);
-			buffer.SetData(draws);
-
-			Main.graphics.GraphicsDevice.SetVertexBuffer(buffer);
-			Main.graphics.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-
-			foreach(EffectPass currentTechniquePass in CosmivengeonMod.PrimitivesEffect.CurrentTechnique.Passes){
-				currentTechniquePass.Apply();
-					
-				Main.graphics.GraphicsDevice.DrawPrimitives(PrimitiveType.LineList, 0, draws.Length / 2);
-			}
-		}
 
 		/// <summary>
 		/// Returns if this game is the local host in a multiplayer instance.  If the game is a singleplayer game, this method returns false.
@@ -487,6 +438,8 @@ namespace CosmivengeonMod{
 			RemoteClient client = Netplay.Clients[whoAmI];
 			return client.State == 10 && client.Socket.GetRemoteAddress().IsLocalHost();
 		}
+
+		public static DesolatorDamageClass Desolate(this Player player) => player.GetModPlayer<DesolatorDamageClass>();
 	}
 
 	public enum CosmivengeonBoss{

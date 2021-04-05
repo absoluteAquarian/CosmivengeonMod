@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Players;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -200,7 +201,7 @@ namespace CosmivengeonMod.Buffs.Stamina{
 
 			HandleAdds();
 
-			if(NoDecay){
+			if(NoDecay || Parent.GetModPlayer<DicePlayer>().noStaminaDecay){
 				value = maxValue;
 				Exhaustion = false;
 				ExhaustionEffectsWornOff = true;
@@ -400,9 +401,16 @@ End:
 
 			//Apply the boss buffs, if any should be applied
 			CosmivengeonPlayer mp = Parent.GetModPlayer<CosmivengeonPlayer>();
-			foreach(var thing in StaminaBuffsGlobalNPC.BuffActions)
-				if(mp.BossesKilled.Contains(thing.Key))
+			foreach(var thing in StaminaBuffsGlobalNPC.BuffActions){
+				int id = thing.Key;
+				if(id < NPCID.Count && mp.BossesKilled.Any(sbd => int.TryParse(sbd.key, out int i) && i == id))
 					thing.Value(this);
+				else if(id >= NPCID.Count){
+					var mn = ModContent.GetModNPC(id);
+					if(mn != null && mp.BossesKilled.Any(sbd => sbd.mod == mn.mod.Name && sbd.key == mn.Name))
+						thing.Value(this);
+				}
+			}
 
 			IncreaseRate = IncreaseRate * Multipliers[0] + Adders[0];
 			ExhaustionIncreaseRate = ExhaustionIncreaseRate * Multipliers[1] + Adders[1];
@@ -415,6 +423,12 @@ End:
 		}
 
 		public float GetIncreaseRate() => Empty ? 0f : (Exhaustion ? ExhaustionIncreaseRate : IncreaseRate);
+
+		public void ForceExhaustion(){
+			value = 0;
+			Exhaustion = true;
+			Active = false;
+		}
 
 		public void AddAttackPunishment(int amount){
 			AttackPunishment += amount * 0.05f;

@@ -252,6 +252,8 @@ namespace CosmivengeonMod.Detours{
 					//ai[0] == 3: big jump
 					//ai[0] == 2: small jumps while helper's Timer3 > 0 (if health is less than 300, only do small hops)
 					//ai[0] == 0 or 1: normal jump (immediately jumps to ai[0] = 2 if health is < 33% max)
+
+					// EDIT: hop velocities slowed slightly (5/8/6 → 4.35/7.2/5.15)
 					if(npc.ai[0] >= 0f){
 						npc.netUpdate = true;
 						npc.TargetClosest(true);
@@ -259,14 +261,14 @@ namespace CosmivengeonMod.Detours{
 						bool hpLow = npc.life < 300;
 						if(npc.ai[1] == 3f){
 							npc.velocity.Y = -13f;
-							npc.velocity.X += 5f * npc.direction;
+							npc.velocity.X += 4.35f * npc.direction;
 							npc.ai[0] = -200f;
 							npc.ai[1] = 0f;
 						}else if(hpLow || (npc.ai[1] == 2f && npc.Helper().Timer3 > 0)){
 							npc.Helper().Timer3--;
 
 							npc.velocity.Y = -6f;
-							npc.velocity.X = 8f * npc.direction;
+							npc.velocity.X = 7.2f * npc.direction;
 							npc.ai[0] = npc.Helper().Timer3 == 0 ? -120f : 60f;
 
 							if(npc.Helper().Timer3 == 0 && !hpLow)
@@ -275,7 +277,7 @@ namespace CosmivengeonMod.Detours{
 							npc.Helper().Timer3 = npc.Helper().Timer2;
 
 							npc.velocity.Y = -8f;
-							npc.velocity.X += 6f * npc.direction;
+							npc.velocity.X += 5.15f * npc.direction;
 							npc.ai[0] = -120f;
 
 							if(npc.life > npc.lifeMax * 0.3333f)
@@ -303,7 +305,8 @@ namespace CosmivengeonMod.Detours{
 						npc.Helper().Timer++;
 
 					//5 projectiles in a cone above King Slime
-					if(npc.life > 300 && npc.Helper().Timer > 70){
+					// EDIT: timer increased: 70 → 100
+					if(npc.life > 300 && npc.Helper().Timer > 100){
 						npc.Helper().Timer = 0;
 						for(int i = -2; i < 3; i++){
 							Vector2 rotatedVelocity = (-Vector2.UnitY).RotatedBy(MathHelper.ToRadians(20 * i)) * 8f;
@@ -325,7 +328,8 @@ namespace CosmivengeonMod.Detours{
 						npc.Helper().Timer--;
 
 					//Timer used to be 130, now it's 200
-					if(npc.Helper().Timer >= 200){
+					// EDIT: timer increased: 200 → 250
+					if(npc.Helper().Timer >= 250){
 						npc.Helper().Timer = 0;
 
 						Vector2 velocity = Vector2.Zero;

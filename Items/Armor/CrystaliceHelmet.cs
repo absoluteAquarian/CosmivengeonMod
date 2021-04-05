@@ -9,7 +9,7 @@ namespace CosmivengeonMod.Items.Armor{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Crystalice Hood");
 			Tooltip.SetDefault("Damage increased by 10%" +
-				"\n+1 summon slot");
+				"\n+1 minion slot");
 		}
 
 		public override void SetDefaults(){

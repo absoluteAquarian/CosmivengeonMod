@@ -9,7 +9,7 @@ namespace CosmivengeonMod.Items.Armor{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Rockserpent Helmet");
 			Tooltip.SetDefault("Damage increased by 5%" +
-				"\n+2 summon slots");
+				"\n+2 minion slots");
 		}
 
 		public override void SetDefaults(){
@@ -26,7 +26,7 @@ namespace CosmivengeonMod.Items.Armor{
 				&& legs.type == ModContent.ItemType<RockserpentLeggings>();
 
 		public override void UpdateArmorSet(Player player){
-			player.setBonus = "All attacks inflict poison\nAll weapons have a 10% chance to fire a Draek energy blast upon usage";
+			player.setBonus = "Weapons have a chance to inflict Primordial Wrath";
 			player.GetModPlayer<CosmivengeonPlayer>().setBonus_Rockserpent = true;
 		}
 

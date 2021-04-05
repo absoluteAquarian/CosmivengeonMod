@@ -36,10 +36,23 @@ namespace CosmivengeonMod.Items.Stamina{
 			stamina.ApplyEffects();
 
 			string bosses = "";
-			foreach(int id in mp.BossesKilled){
-				bosses += $"\"{ClearBossKilledCommand.GetBossNameFromDictionary(ClearBossKilledCommand.ConvertIDToTypeInDictionary(id))}\", ";
+			foreach(var sbd in mp.BossesKilled){
+				if(sbd.mod == "Terraria")
+					bosses += $"\"{ClearBossKilledCommand.GetBossNameFromDictionary(int.Parse(sbd.key))}\", ";
+				else{
+					var otherMod = ModLoader.GetMod(sbd.mod);
+					//Don't display the name if the mod it's from isn't loaded
+					if(otherMod == null)
+						continue;
+
+					int id = otherMod.NPCType(sbd.key);
+					bosses += $"\"{ClearBossKilledCommand.GetBossNameFromDictionary(id)}\", ";
+				}
 			}
-			bosses = bosses.Remove(bosses.Length - 2, 2);
+			if(bosses != "")
+				bosses = bosses.Remove(bosses.Length - 2, 2);
+			else
+				bosses = null;
 
 			string[] lines = ($"Stamina Stats for \"{player.name}\":" +
 				$"\nMaximum:  {GetUnitsDiffString((int)(StaminaAbility.DefaultMaxValue * 10000), stamina.MaxValue)}" +
@@ -54,7 +67,7 @@ namespace CosmivengeonMod.Items.Stamina{
 				$"\n  Exhausted - Attack Speed: {GetPercentDiffString(StaminaAbility.DefaultAttackSpeedDebuff, stamina.AttackSpeedDebuffMultiplier)}" +
 				$"\n  Exhausted - Move Acceleration: {GetPercentDiffString(StaminaAbility.DefaultMoveSpeedDebuff, stamina.MoveSpeedDebuffMultiplier)}" +
 				$"\n  Exhausted - Max Move Speed: {GetPercentDiffString(StaminaAbility.DefaultMaxMoveSpeedDebuff, stamina.MaxMoveSpeedDebuffMultiplier)}" +
-				$"\nDefeated Bosses: {bosses}"
+				$"\nDefeated Bosses: {bosses ?? "none"}"
 			).Split('\n');
 
 			foreach(string line in lines)

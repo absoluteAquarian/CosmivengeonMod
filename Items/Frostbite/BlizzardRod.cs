@@ -5,8 +5,8 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Items.Frostbite{
 	public class BlizzardRod : ModItem{
-		private int LastCloudSpawnedIndex = -1;
-		public int[] SpawnedClouds = new int[2]{ -1, -1 };
+		private static int LastCloudSpawnedIndex = -1;
+		public static int[] SpawnedClouds = new int[2]{ -1, -1 };
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Blizzard Rod");

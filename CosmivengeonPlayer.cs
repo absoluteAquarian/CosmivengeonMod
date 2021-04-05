@@ -15,10 +15,66 @@ using Terraria.GameInput;
 using Terraria.DataStructures;
 using Terraria.ModLoader.IO;
 using CosmivengeonMod.Items.DebugOrTogglers;
+using CosmivengeonMod.Buffs;
 
 namespace CosmivengeonMod{
+	public struct StaminaBuffData{
+		public string mod;
+		public string key;
+
+		public StaminaBuffData(string mod, string key){
+			this.mod = mod;
+			this.key = key;
+		}
+	}
+
+	public class StaminaBuffCollection : List<StaminaBuffData>{
+		public StaminaBuffCollection() : base(){ }
+
+		public StaminaBuffCollection(int capacity) : base(capacity){ }
+
+		public TagCompound ToTag()
+			=> new TagCompound(){
+				["mods"] = this.Select(sbd => sbd.mod).ToList(),
+				["keys"] = this.Select(sbd => sbd.key).ToList()
+			};
+
+		public static StaminaBuffCollection FromTag(TagCompound tag){
+			StaminaBuffCollection ret = new StaminaBuffCollection();
+			var mods = tag.GetList<string>("mods");
+			var keys = tag.GetList<string>("keys");
+
+			//If one is null, then all are null due to data not being there
+			if(mods is null || keys is null)
+				return ret;
+
+			//Assume length is the same
+			for(int i = 0; i < mods.Count; i++)
+				ret.Add(new StaminaBuffData(mods[i], keys[i]));
+
+			return ret;
+		}
+
+		public void RemoveAll(string mod, string key){
+			for(int i = 0; i < Count; i++){
+				if(this[i].mod == mod && this[i].key == key){
+					RemoveAt(i);
+					i--;
+				}
+			}
+		}
+
+		public bool HasKey(string mod, string key){
+			for(int i = 0; i < Count; i++)
+				if(this[i].mod == mod && this[i].key == key)
+					return true;
+
+			return false;
+		}
+	}
+
 	public class CosmivengeonPlayer : ModPlayer{
-		public List<int> BossesKilled;
+		public StaminaBuffCollection BossesKilled;
 
 		//Core of Desolation check
 		public bool hasGottenCore;
@@ -57,10 +113,13 @@ namespace CosmivengeonMod{
 
 		private List<EnergizedParticle> energizedParticles;
 
+		//Biome indicators
+		public bool hasSeenPrismBiome;
+
 		public override void Initialize(){
 			stamina = new Stamina(player);
 			energizedParticles = new List<EnergizedParticle>();
-			BossesKilled = new List<int>();
+			BossesKilled = new StaminaBuffCollection();
 		}
 
 		public override void ResetEffects(){
@@ -87,12 +146,18 @@ namespace CosmivengeonMod{
 		}
 
 		public override TagCompound Save() => new TagCompound(){
-			["bosses"] = BossesKilled,
+			["bosses"] = BossesKilled.ToTag(),
 			["stamina"] = stamina.GetTagCompound()
 		};
 
 		public override void Load(TagCompound tag){
-			BossesKilled = tag.GetList<int>("bosses").ToList();
+			//Older versions have the "bosses" tag as a List<int>
+			//We need to account for that
+			if(tag["bosses"] is TagCompound bosses)
+				BossesKilled = StaminaBuffCollection.FromTag(bosses);
+			else
+				BossesKilled = new StaminaBuffCollection();
+
 			stamina.ParseCompound(tag.GetCompound("stamina"));
 		}
 
@@ -174,7 +239,7 @@ namespace CosmivengeonMod{
 		}
 
 		public override void OnEnterWorld(Player player) {
-			Main.NewText("Thank you for using Cosmivengeon Mod! Please know that this mod is not responsible for any issues that might occur when using Desolation Mode with any other mod's difficulty mode.", Color.Purple);
+			Main.NewText("Thank you for using Cosmivengeon Mod! Please know that this mod is not responsible for any issues that might occur when using Desolation Mode with any other mod's difficulty mode.", new Color(0xa6, 0x00, 0xcd));
 		}
 
 		public override void UpdateDead(){
@@ -198,11 +263,6 @@ namespace CosmivengeonMod{
 			if(player.HeldItem.IsAir || player.HeldItem.damage <= 0 || player.itemAnimation != player.itemAnimationMax - 1)
 				return;
 
-			if(setBonus_Rockserpent && Main.rand.NextFloat() < 0.1f){
-				Projectile.NewProjectile(player.Center, player.DirectionTo(Main.MouseWorld) * ForsakenOronobladeProjectile.ShootVelocity, ModContent.ProjectileType<ForsakenOronobladeProjectile>(), (int)(player.HeldItem.damage * 0.75f), 5f, player.whoAmI);
-				Main.PlaySound(SoundID.Item43.WithVolume(0.5f), player.Center);
-			}
-
 			//If the stamina is recharging, punish the player for attacking
 			if(stamina.Recharging && stamina.Value < stamina.MaxValue)
 				stamina.AddAttackPunishment(1);
@@ -216,8 +276,8 @@ namespace CosmivengeonMod{
 		}
 
 		private void OnHitNPCWithAnything(NPC target){
-			if(setBonus_Rockserpent)
-				target.AddBuff(BuffID.Poisoned, 8 * 60);
+			if(setBonus_Rockserpent && Main.rand.NextFloat() < 0.02f)
+				target.AddBuff(ModContent.BuffType<PrimordialWrath>(), 2 * 60);
 			if(setBonus_Crystalice)
 				target.AddBuff(BuffID.Frostburn, 6 * 60);
 		}

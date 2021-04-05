@@ -282,8 +282,8 @@ namespace CosmivengeonMod.NPCs.Draek{
 				npc.TargetClosest(true);
 				hasSpawned = true;
 
-				CosmivengeonUtils.SendMessage("MY JEWEL!", Draek.TextColour);
-				CosmivengeonUtils.SendMessage("AARG, YOU'LL PAY FOR THAT, YOU WRETCHED LITTLE WORM!", Draek.TextColour);
+				CosmivengeonUtils.SendMessage("<Draek> MY JEWEL!", Draek.TextColour);
+				CosmivengeonUtils.SendMessage("<Draek> AARG, YOU'LL PAY FOR THAT, YOU WRETCHED LITTLE WORM!", Draek.TextColour);
 
 				if(CosmivengeonWorld.desoMode){
 					CurrentPhase = Phase_2_DesoMode;
@@ -295,7 +295,7 @@ namespace CosmivengeonMod.NPCs.Draek{
 				switchPhases = true;
 				desoMode_enrageTextPrinted = true;
 
-				CosmivengeonUtils.SendMessage("YOU ACCURSED INSECT!  I'LL BURY YOU ALIVE!", Draek.TextColour);
+				CosmivengeonUtils.SendMessage("<Draek> YOU ACCURSED INSECT!  I'LL BURY YOU ALIVE!", Draek.TextColour);
 			}
 
 			//If we're in desolation mode, we want to force the changed Berserker subphase when possible

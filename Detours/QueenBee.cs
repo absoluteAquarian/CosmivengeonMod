@@ -417,7 +417,7 @@ namespace CosmivengeonMod.Detours{
 
 						Vector2 shootTarget = npc.Target().position - vector75 + new Vector2(Main.rand.Next(-80, 81), Main.rand.Next(-40, 41));
 						Vector2 targetVelocity = npc.Target().velocity * 60 * 0.1f;
-						//Make the stingers aim slightly towards where the player will probably be in ~0.5 seconds
+						//Make the stingers aim slightly towards where the player will probably be in ~0.1 seconds
 						shootTarget += targetVelocity;
 						shootTarget = Vector2.Normalize(shootTarget) * num629;
 
