@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Players;
+using CosmivengeonMod.Utility;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ModLoader;
@@ -32,10 +34,10 @@ namespace CosmivengeonMod.UI{
 
 		protected override void DrawSelf(SpriteBatch spriteBatch){
 			Player player = Main.LocalPlayer;
-			CosmivengeonPlayer modPlayer = player.GetModPlayer<CosmivengeonPlayer>();
+			StaminaPlayer modPlayer = player.GetModPlayer<StaminaPlayer>();
 			Vector2 positionOffset = new Vector2(-10, -180);
 			float scale = 2f;
-			Texture2D animationTexture = ModContent.GetTexture("CosmivengeonMod/Buffs/Stamina/ExhaustionAnimation");
+			Texture2D animationTexture = ModContent.GetTexture("CosmivengeonMod/Abilities/ExhaustionAnimation");
 			Vector2 animationCenter = animationTexture.Frame(1, 10).Size() / 2f;
 
 			if(modPlayer.stamina.Exhaustion){
@@ -50,7 +52,7 @@ namespace CosmivengeonMod.UI{
 					frame = 1;
 
 					if(modPlayer.exhaustionAnimationTimer < ExhaustionAnimation2 - 10)
-						shakeOffset = new Vector2(5f * CosmivengeonUtils.fSin(modPlayer.shakeTimer / 5f * MathHelper.TwoPi), 0f);
+						shakeOffset = new Vector2(5f * MiscUtils.fSin(modPlayer.shakeTimer / 5f * MathHelper.TwoPi), 0f);
 				}else if(modPlayer.exhaustionAnimationTimer < ExhaustionAnimation3){
 					modPlayer.shakeTimer = 0;
 					frame = 1;
@@ -59,7 +61,7 @@ namespace CosmivengeonMod.UI{
 					frame = 2;
 
 					if(modPlayer.exhaustionAnimationTimer < ExhaustionAnimation4 - 10)
-						shakeOffset = new Vector2(5f * CosmivengeonUtils.fSin(modPlayer.shakeTimer / 5f * MathHelper.TwoPi), 0f);
+						shakeOffset = new Vector2(5f * MiscUtils.fSin(modPlayer.shakeTimer / 5f * MathHelper.TwoPi), 0f);
 				}else if(modPlayer.exhaustionAnimationTimer < ExhaustionAnimation5){
 					modPlayer.shakeTimer = 0;
 					frame = 2;
@@ -68,7 +70,7 @@ namespace CosmivengeonMod.UI{
 					frame = 3;
 
 					if(modPlayer.exhaustionAnimationTimer < ExhaustionAnimation6 - 10)
-						shakeOffset = new Vector2(5f * CosmivengeonUtils.fSin(modPlayer.shakeTimer / 5f * MathHelper.TwoPi), 0f);
+						shakeOffset = new Vector2(5f * MiscUtils.fSin(modPlayer.shakeTimer / 5f * MathHelper.TwoPi), 0f);
 				}else if(modPlayer.exhaustionAnimationTimer < ExhaustionAnimation7)
 					frame = 3;
 				else if(modPlayer.exhaustionAnimationTimer < ExhaustionAnimation8)

@@ -1,10 +1,10 @@
-﻿using System;
+﻿using CosmivengeonMod.Items.Weapons.Draek;
+using CosmivengeonMod.Utility.Extensions;
 using Microsoft.Xna.Framework;
+using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-
-using CosmivengeonMod.Items.Draek;
 
 namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 	public class BoulderChunkProjectile : ModProjectile{

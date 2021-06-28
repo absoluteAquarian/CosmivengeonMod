@@ -1,4 +1,4 @@
-﻿using CosmivengeonMod.Items.Draek;
+﻿using CosmivengeonMod.Items.Weapons.Draek;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;

@@ -1,11 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Utility.Extensions;
+using Microsoft.Xna.Framework;
 using System;
 using Terraria;
-using Terraria.ID;
-using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Summons{
-	public class BabyIceProwler : Summon{
+	public class BabyIceProwler : WalkingSummon{
 		public override void ExtraStaticDefaults(){
 			Main.projFrames[projectile.type] = 4;
 		}
@@ -19,8 +18,8 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 		public override void UpdateTime(){
 			if(ownerPlayer.dead)
-				modPlayer.babyProwler = false;
-			if(modPlayer.babyProwler)
+				minionOwner.babyProwler = false;
+			if(minionOwner.babyProwler)
 				projectile.timeLeft = 2;
 		}
 

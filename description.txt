@@ -1,13 +1,10 @@
-The official Cosmivengeon mod.
-Please read the thread on our homepage for more info!
+[c/38a58f:The Prism Update]
 
-(Currently only contains content up to the Wall of Flesh progression-wise.)
+The official [c/8a00dd:Cosmivengeon] mod.
 
-This mod adds the following:
-2 Bosses
-Several NPCs
-Several Items
-Several Buffs/Debuffs
-1 New game mode (Desolation)
-5 Songs
-1 new ability (Stamina)
+  As chaos descends onto your world, do you have what it takes to survive?
+
+[c/808080:------------------------------------]
+Please read the thread in our homepage for more information!
+
+[c/aa0000:(Currently only contains content up to the Wall of Flesh progression-wise.)]

@@ -1,8 +1,10 @@
-﻿using CosmivengeonMod.Items.Frostbite;
+﻿using CosmivengeonMod.Buffs.Mechanics;
+using CosmivengeonMod.Items.Equippable.Accessories.Frostbite;
+using CosmivengeonMod.Players;
 using CosmivengeonMod.Projectiles.Weapons.Frostbite;
+using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
@@ -11,10 +13,10 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Summons{
 	public class EyeOfTheBlizzardCrystal : ModProjectile{
-		public override string Texture => "CosmivengeonMod/Items/Frostbite/EyeOfTheBlizzard";
+		public override string Texture => "CosmivengeonMod/Items/Equippable/Accessories/Frostbite/EyeOfTheBlizzard";
 
-		public static readonly int Damage = 35;
-		public static readonly float Knockback = 4f;
+		public static readonly int Damage = 25;
+		public static readonly float Knockback = 2.5f;
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Ice Crystal");
@@ -47,7 +49,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 				baseHeight = projectile.height;
 			}
 
-			if(Parent.dead || !Parent.active || !Parent.GetModPlayer<CosmivengeonPlayer>().equipped_EyeOfTheBlizzard){
+			if(Parent.dead || !Parent.active || !Parent.GetModPlayer<AccessoriesPlayer>().blizzardEye){
 				projectile.Kill();
 				return;
 			}
@@ -62,33 +64,43 @@ namespace CosmivengeonMod.Projectiles.Summons{
 				return;
 			}
 
-			float minScale = 0.675f;
-			float maxScale = 1.2f;
+			float minScale = Main.hardMode ? 0.675f : 0.835f;
+			float maxScale = Main.hardMode ? 1.2f : 1.08f;
 
-			CosmivengeonPlayer mp = Parent.GetModPlayer<CosmivengeonPlayer>();
+			float preWoFShrink = Main.hardMode ? 1f : 0.7f;
 
-			int cooldownDebuff = Parent.FindBuffIndex(ModContent.BuffType<Buffs.EyeOfTheBlizzard_Cooldown>());
+			AccessoriesPlayer mp = Parent.GetModPlayer<AccessoriesPlayer>();
 
-			if(mp.abilityActive_EyeOfTheBlizzard)
-				projectile.scale = baseScale * (minScale + (maxScale - minScale) * projectile.ai[0] / (5 * 60));
+			int cooldownDebuff = Parent.FindBuffIndex(ModContent.BuffType<EyeOfTheBlizzardCooldown>());
+
+			if(mp.activeBlizzardEye)
+				projectile.scale = baseScale * preWoFShrink * (minScale + (maxScale - minScale) * projectile.ai[0] / (5 * 60));
 			else if(cooldownDebuff > -1)
-				projectile.scale = baseScale * (minScale + (1f - minScale) * (1f - Parent.buffTime[cooldownDebuff] / (60f * 60f)));
+				projectile.scale = baseScale * preWoFShrink * (minScale + (1f - minScale) * (1f - Parent.buffTime[cooldownDebuff] / (60f * 60f)));
 			else
-				projectile.scale = baseScale;
+				projectile.scale = baseScale * preWoFShrink;
 
 			projectile.width = (int)(baseWidth * projectile.scale);
 			projectile.height = (int)(baseHeight * projectile.scale);
 
-			Vector2 floatOffset = new Vector2(0, CosmivengeonUtils.fSin(floatAngle) * 8f);
-			projectile.Center = Parent.gravDir > 0 ? Parent.Top - new Vector2(0, 48) + floatOffset : Parent.Bottom + new Vector2(0, 48) - floatOffset;
+			Vector2 floatOffset = new Vector2(0, MiscUtils.fSin(floatAngle) * (Main.hardMode ? 8f : 4f));
+			float offset = Main.hardMode ? 48 : 28;
+			projectile.Center = Parent.gravDir > 0
+				? Parent.Top - new Vector2(0, offset) + floatOffset
+				: Parent.Bottom + new Vector2(0, offset) - floatOffset;
 
-			if(--timer < 0){
+			//Don't shoot projectiles if the player has the cooldown debuff
+			if(--timer < 0 && cooldownDebuff < 0){
 				List<NPC> closestNPCs = Main.npc.Where(n => n?.CanBeChasedBy() == true && Collision.CanHit(projectile.Center, 0, 0, n.Center, 0, 0) && projectile.Distance(n.Center) < 50 * 16)
 					.OrderBy(n => projectile.Distance(n.Center))
 					.ToList();
 				if(closestNPCs.Any()){
-					int randTime = Main.rand.Next(45, 105);
-					timer = mp.abilityActive_EyeOfTheBlizzard ? (int)(randTime * 0.223f) : randTime;
+					int randTime = !Main.hardMode ? Main.rand.Next(120, 241) : Main.rand.Next(75, 167);
+
+					if(!Main.hardMode)
+						timer = mp.activeBlizzardEye ? (int)(randTime * 0.489f) : randTime;
+					else
+						timer = mp.activeBlizzardEye ? (int)(randTime * 0.351f) : randTime;
 
 					NPC closest = closestNPCs.First();
 
@@ -98,8 +110,8 @@ namespace CosmivengeonMod.Projectiles.Summons{
 						projectile.Center,
 						projectile.DirectionTo(closest.Center) * CrystaliceShardProjectile.MAX_VELOCITY,
 						ModContent.ProjectileType<CrystaliceShardProjectile>(),
-						projectile.damage,
-						projectile.knockBack,
+						Main.hardMode ? Damage : Damage / 2,
+						Main.hardMode ? Knockback : Knockback - 1,
 						projectile.owner,
 						1f,
 						1f

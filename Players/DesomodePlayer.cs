@@ -1,6 +1,6 @@
-﻿using CosmivengeonMod.Buffs;
-using CosmivengeonMod.Detours;
-using CosmivengeonMod.NPCs.Desomode;
+﻿using CosmivengeonMod.API.Edits.Detours.Desomode;
+using CosmivengeonMod.Buffs.Harmful;
+using CosmivengeonMod.Worlds;
 using Microsoft.Xna.Framework;
 using System;
 using System.Linq;
@@ -15,7 +15,7 @@ namespace CosmivengeonMod.Players{
 		private bool prevHoneyed = false;
 
 		public override void SetControls(){
-			if(!CosmivengeonWorld.desoMode)
+			if(!WorldEvents.desoMode)
 				return;
 
 			//Player is grabbed by an EoW worm head and isn't underground
@@ -51,7 +51,7 @@ namespace CosmivengeonMod.Players{
 		}
 
 		public override void PreUpdateMovement(){
-			if(!CosmivengeonWorld.desoMode)
+			if(!WorldEvents.desoMode)
 				return;
 
 			//PreUpdateMovement() is called a bit after the tongued velocity is applied... perfect!
@@ -99,7 +99,7 @@ namespace CosmivengeonMod.Players{
 		}
 
 		public override void PostUpdateRunSpeeds(){
-			if(!CosmivengeonWorld.desoMode)
+			if(!WorldEvents.desoMode)
 				return;
 
 			if(player.HasBuff(BuffID.Slimed)){
@@ -115,7 +115,7 @@ namespace CosmivengeonMod.Players{
 		}
 
 		public override void DrawEffects(PlayerDrawInfo drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright){
-			if(!CosmivengeonWorld.desoMode)
+			if(!WorldEvents.desoMode)
 				return;
 
 			if(player.HasBuff(ModContent.BuffType<Sticky>())){
@@ -135,7 +135,7 @@ namespace CosmivengeonMod.Players{
 		}
 
 		public override void ModifyHitByNPC(NPC npc, ref int damage, ref bool crit){
-			if(!CosmivengeonWorld.desoMode)
+			if(!WorldEvents.desoMode)
 				return;
 
 			int[] slimeTypes = new int[]{
@@ -181,7 +181,7 @@ namespace CosmivengeonMod.Players{
 		}
 
 		public override void PreUpdateBuffs(){
-			if(!CosmivengeonWorld.desoMode)
+			if(!WorldEvents.desoMode)
 				return;
 
 			if(NPC.AnyNPCs(NPCID.EyeofCthulhu))

@@ -1,4 +1,7 @@
-﻿using CosmivengeonMod.Utility;
+﻿using CosmivengeonMod.API.Managers;
+using CosmivengeonMod.DataStructures;
+using CosmivengeonMod.Utility;
+using CosmivengeonMod.Utility.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;

@@ -1,4 +1,5 @@
-﻿using CosmivengeonMod.Projectiles.Frostbite;
+﻿using CosmivengeonMod.Projectiles.NPCSpawned.FrostbiteBoss;
+using CosmivengeonMod.Utility.Extensions;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -6,7 +7,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 	public class IceScepterWall : ModProjectile{
-		public override string Texture => "CosmivengeonMod/NPCs/Frostbite/FrostbiteWall";
+		public override string Texture => "CosmivengeonMod/NPCs/Bosses/FrostbiteBoss/Summons/FrostbiteWall";
 
 		public static readonly float Scale = 0.87f;
 
@@ -18,7 +19,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 			projectile.sentry = true;
 			projectile.width = 30;
 			projectile.height = 116;
-			projectile.timeLeft = 15 * 60;
+			projectile.timeLeft = 60 * 60;
 			projectile.scale = Scale;
 			projectile.tileCollide = true;
 		}
@@ -30,13 +31,13 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 
 			//copied from FrostbiteWall AI
 			if(AI_Timer < 0)
-				AI_Timer = Main.rand.Next(60, 120);
+				AI_Timer = Main.rand.Next(48, 90);
 			else if(AI_Timer == 0){
 				//Spawn some Frostbite ice projectiles (the breath ones)
 				for(int i = 0; i < 6; i++){
 					Projectile.NewProjectile(
 						projectile.Top + new Vector2(0, 16),
-						new Vector2(0, -8).RotatedByRandom(MathHelper.ToRadians(15)),
+						new Vector2(0, -12).RotatedByRandom(MathHelper.ToRadians(40)),
 						ModContent.ProjectileType<FrostbiteBreath>(),
 						projectile.damage,
 						2f,

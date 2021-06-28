@@ -1,4 +1,5 @@
-﻿using CosmivengeonMod.Utility;
+﻿using CosmivengeonMod.API.Managers;
+using CosmivengeonMod.Buffs.Harmful;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -72,7 +73,11 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
 			int seconds = target.boss ? 5 : 7;
-			target.AddBuff(ModContent.BuffType<Buffs.PrimordialWrath>(), seconds * 60);
+			target.AddBuff(ModContent.BuffType<PrimordialWrath>(), seconds * 60);
+		}
+
+		public override void OnHitPlayer(Player target, int damage, bool crit){
+			target.AddBuff(ModContent.BuffType<PrimordialWrath>(), 3 * 60);
 		}
 
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){

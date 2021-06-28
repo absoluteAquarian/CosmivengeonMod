@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Utility.Extensions;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -21,20 +22,10 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 			projectile.timeLeft = 45;
 		}
 
-		private bool spawned = false;
-
 		public override void AI(){
-			if(!spawned){
-				spawned = true;
-
-				if(projectile.ai[0] != 0f)
-					projectile.timeLeft = 6 * 60;
-			}
-
 			projectile.TryDecrementAlpha(15);
 
-			if(projectile.ai[1] == 0f)
-				projectile.velocity.Y += 7f / 60f;
+			projectile.velocity.Y += 7f / 60f;
 
 			projectile.rotation = projectile.velocity.ToRotation() + MathHelper.PiOver2;
 
@@ -48,25 +39,6 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 
 		public override void Kill(int timeLeft){
 			Main.PlaySound(SoundID.Item27, projectile.Center);
-
-			//Don't spawn extra projectiles if this wasn't from the throwing weapon
-			if(projectile.ai[0] != 0f)
-				return;
-
-			//Spawn 3 smaller shards in a 30 degree cone
-			// in the direction this projectile was moving
-			for(int i = 0; i < 3; i++){
-				Projectile.NewProjectile(
-					projectile.Center,
-					projectile.velocity.RotatedByRandom(MathHelper.ToRadians(15f)),
-					ModContent.ProjectileType<CrystaliceShardFragmentProjectile>(),
-					(int)(projectile.damage * 0.8f),
-					projectile.knockBack * 0.75f,
-					Main.myPlayer,
-					1f,
-					0f
-				);
-			}
 		}
 	}
 }

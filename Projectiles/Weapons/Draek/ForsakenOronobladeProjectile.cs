@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 	public class ForsakenOronobladeProjectile : ModProjectile{
-		public override string Texture => "CosmivengeonMod/Projectiles/Draek/DraekLaser";
+		public override string Texture => "CosmivengeonMod/Projectiles/NPCSpawned/DraekBoss/DraekLaser";
 
 		public static readonly float ShootVelocity = 8.21f;
 

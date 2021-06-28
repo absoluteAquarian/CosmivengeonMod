@@ -1,8 +1,8 @@
 ﻿using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using CosmivengeonMod.Utility.Extensions;
 
 namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 	public class FrostRifleProjectile : ModProjectile{

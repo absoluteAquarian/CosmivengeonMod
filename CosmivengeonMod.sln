@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.29123.88
+VisualStudioVersion = 16.0.31410.357
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmivengeonMod", "CosmivengeonMod.csproj", "{F3F6B2D6-054A-48AC-B56B-A495FD978492}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CosmivengeonMod", "CosmivengeonMod.csproj", "{E460CB83-520F-405D-B1D4-FAE33A9A4403}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F3F6B2D6-054A-48AC-B56B-A495FD978492}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F3F6B2D6-054A-48AC-B56B-A495FD978492}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F3F6B2D6-054A-48AC-B56B-A495FD978492}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F3F6B2D6-054A-48AC-B56B-A495FD978492}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E460CB83-520F-405D-B1D4-FAE33A9A4403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E460CB83-520F-405D-B1D4-FAE33A9A4403}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E460CB83-520F-405D-B1D4-FAE33A9A4403}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E460CB83-520F-405D-B1D4-FAE33A9A4403}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {4A0544FD-F35D-4182-B9D4-7CED8FCE55F7}
+		SolutionGuid = {6DB83E9D-BACE-46B9-9692-54200BCC8C97}
 	EndGlobalSection
 EndGlobal

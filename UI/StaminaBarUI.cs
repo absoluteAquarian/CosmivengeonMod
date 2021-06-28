@@ -1,4 +1,4 @@
-﻿using CosmivengeonMod.Buffs.Stamina;
+﻿using CosmivengeonMod.Abilities;
 
 namespace CosmivengeonMod.UI{
 	public class StaminaBarUI : StaminaBackUI{

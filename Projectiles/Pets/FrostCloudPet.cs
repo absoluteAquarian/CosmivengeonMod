@@ -1,4 +1,6 @@
-﻿using Terraria;
+﻿using CosmivengeonMod.Players;
+using CosmivengeonMod.Utility.Extensions;
+using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -28,7 +30,7 @@ namespace CosmivengeonMod.Projectiles.Pets{
 
 		public override void AI(){
 			Player playerOwner = Main.player[projectile.owner];
-			CosmivengeonPlayer modPlayer = playerOwner.GetModPlayer<CosmivengeonPlayer>();
+			PetPlayer modPlayer = playerOwner.GetModPlayer<PetPlayer>();
 
 			if(playerOwner.dead)
 				modPlayer.cloudPet = false;

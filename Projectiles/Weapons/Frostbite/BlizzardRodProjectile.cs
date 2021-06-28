@@ -4,7 +4,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 	public class BlizzardRodProjectile : ModProjectile{
-		public override string Texture => "CosmivengeonMod/NPCs/Frostbite/FrostCloud";
+		public override string Texture => "CosmivengeonMod/NPCs/Bosses/FrostbiteBoss/Summons/FrostCloud";
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Blizzard Cloud");

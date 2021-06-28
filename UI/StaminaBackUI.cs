@@ -1,9 +1,9 @@
-﻿using CosmivengeonMod.Buffs.Stamina;
+﻿using CosmivengeonMod.Abilities;
+using CosmivengeonMod.Players;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
-using Terraria.ModLoader;
 using Terraria.UI;
 
 namespace CosmivengeonMod.UI{
@@ -18,7 +18,7 @@ namespace CosmivengeonMod.UI{
 		}
 
 		protected override void DrawSelf(SpriteBatch spriteBatch){
-			CosmivengeonPlayer modPlayer = Main.LocalPlayer.GetModPlayer<CosmivengeonPlayer>();
+			StaminaPlayer modPlayer = Main.LocalPlayer.GetModPlayer<StaminaPlayer>();
 			Stamina stamina = modPlayer.stamina;
 
 			Texture2D texture = IsBar ? stamina.GetBarTexture() : stamina.GetBackTexture();
@@ -53,7 +53,7 @@ namespace CosmivengeonMod.UI{
 			}
 
 			if(ContainsPoint(Main.MouseScreen))
-				Main.hoverItemName = Main.LocalPlayer.GetModPlayer<CosmivengeonPlayer>().stamina.GetHoverText();
+				Main.hoverItemName = Main.LocalPlayer.GetModPlayer<StaminaPlayer>().stamina.GetHoverText();
 		}
 	}
 }

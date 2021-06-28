@@ -1,15 +1,16 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Utility;
+using CosmivengeonMod.Utility.Extensions;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using Terraria;
-using Terraria.ModLoader;
 using Terraria.ID;
-using Microsoft.Xna.Framework.Graphics;
+using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 	public class SlitherWandProjectile_Head : ModProjectile{
-		public override string Texture => "CosmivengeonMod/NPCs/Draek/DraekWyrmSummon_Head";
+		public override string Texture => "CosmivengeonMod/NPCs/Bosses/DraekBoss/Summons/DraekWyrmSummon_Head";
 
 		//Worm AI fields
 		private float speed;
@@ -256,7 +257,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 				//Loop over all tiles going up to down that are solid
 				for(; currentCoordY <= (int)((Main.screenPosition.Y + Main.screenHeight) / 16f); currentCoordY++){
-					if(CosmivengeonUtils.TileIsSolidOrPlatform(currentCoordX, currentCoordY) && Main.tile[currentCoordX, currentCoordY].type != TileID.Platforms){
+					if(MiscUtils.TileIsSolidOrPlatform(currentCoordX, currentCoordY) && Main.tile[currentCoordX, currentCoordY].type != TileID.Platforms){
 						tileCoords.Add(new Point(currentCoordX, currentCoordY));
 						break;
 					}
@@ -273,7 +274,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 	}
 
 	public class SlitherWandProjectile_Body0 : ModProjectile{
-		public override string Texture => "CosmivengeonMod/NPCs/Draek/DraekWyrmSummon_Body0";
+		public override string Texture => "CosmivengeonMod/NPCs/Bosses/DraekBoss/Summons/DraekWyrmSummon_Body0";
 
 		public Projectile Parent;
 
@@ -356,7 +357,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 	}
 
 	public class SlitherWandProjectile_Body1 : SlitherWandProjectile_Body0{
-		public override string Texture => "CosmivengeonMod/NPCs/Draek/DraekWyrmSummon_Body1";
+		public override string Texture => "CosmivengeonMod/NPCs/Bosses/DraekBoss/Summons/DraekWyrmSummon_Body1";
 
 		public override void SetDefaults(){
 			projectile.CloneDefaults(ModContent.ProjectileType<SlitherWandProjectile_Body0>());
@@ -367,7 +368,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 	}
 
 	public class SlitherWandProjectile_Tail : SlitherWandProjectile_Body0{
-		public override string Texture => "CosmivengeonMod/NPCs/Draek/DraekWyrmSummon_Tail";
+		public override string Texture => "CosmivengeonMod/NPCs/Bosses/DraekBoss/Summons/DraekWyrmSummon_Tail";
 
 		public override void SetDefaults(){
 			projectile.CloneDefaults(ModContent.ProjectileType<SlitherWandProjectile_Body0>());

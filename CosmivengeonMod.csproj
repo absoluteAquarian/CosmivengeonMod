@@ -7,26 +7,17 @@
     <PlatformTarget>x86</PlatformTarget>
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
   <Target Name="BuildMod" AfterTargets="Build">
-    <Exec Command="&quot;$(tMLBuildServerPath)&quot; -build $(ProjectDir) -eac $(TargetPath) -define $(DefineConstants) -unsafe $(AllowUnsafeBlocks)" />
+    <Exec Command="&quot;$(tMLBuildServerPath)&quot; -build $(ProjectDir) -eac $(TargetPath) -define &quot;$(DefineConstants)&quot; -unsafe $(AllowUnsafeBlocks)" />
   </Target>
   <ItemGroup>
-    <None Remove="CosmivengeonUtils.cs~RFde88c7d.TMP" />
-    <None Remove="Projectiles\Weapons\Draek\TerraBoltProjectile.cs~RFe108343.TMP" />
+    <None Remove="Utility\Extensions\Extensions.NPC.cs~RFdebe5a1b.TMP" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="tModLoader.CodeAssist" Version="0.1.*" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Effects\" />
-    <Folder Include="lib\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="SubworldLibrary">
-      <HintPath>lib\SubworldLibrary.dll</HintPath>
-    </Reference>
+    <Folder Include="API\Managers\CrossMod\" />
+    <Folder Include="Assets\Chains\" />
   </ItemGroup>
 </Project>

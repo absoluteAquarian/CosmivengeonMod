@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Collections.Generic;
 using Terraria;
-using Terraria.ModLoader;
 using Terraria.ID;
+using Terraria.ModLoader;
 
 namespace CosmivengeonMod.NPCs{
 	/// <summary>
@@ -126,7 +127,7 @@ namespace CosmivengeonMod.NPCs{
 			// This is the initial check for collision with tiles.
 			for(int i = minTilePosX; i < maxTilePosX; ++i){
 				for(int j = minTilePosY; j < maxTilePosY; ++j){
-					if(CosmivengeonUtils.TileIsSolidOrPlatform(i, j)){
+					if(MiscUtils.TileIsSolidOrPlatform(i, j)){
 						Vector2 vector2;
 						vector2.X = (float)(i * 16);
 						vector2.Y = (float)(j * 16);
@@ -364,7 +365,7 @@ namespace CosmivengeonMod.NPCs{
 
 			Vector2 position = npc.Center - Main.screenPosition;
 
-			float rotation = CosmivengeonUtils.ToActualAngle(npc.rotation);
+			float rotation = MiscUtils.ToActualAngle(npc.rotation);
 
 			SpriteEffects effect = SpriteEffects.FlipVertically;
 

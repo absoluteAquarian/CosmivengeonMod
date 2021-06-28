@@ -1,14 +1,12 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Players;
+using CosmivengeonMod.Utility;
+using CosmivengeonMod.Utility.Extensions;
+using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Terraria;
-using Terraria.DataStructures;
-using Terraria.ID;
-using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Summons{
-	public class BabySnek : Summon{
+	public class BabySnek : WalkingSummon{
 		public override void ExtraStaticDefaults(){
 			DisplayName.SetDefault("Yamanu");
 			Main.projFrames[projectile.type] = 11;
@@ -74,8 +72,8 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 		public override void UpdateTime(){
 			if(ownerPlayer.dead)
-				modPlayer.babySnek = false;
-			if(modPlayer.babySnek)
+				minionOwner.babySnek = false;
+			if(minionOwner.babySnek)
 				projectile.timeLeft = 2;
 		}
 
@@ -254,7 +252,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 			Vector2 nextBL = projectile.BottomLeft + oldVelocity - new Vector2(4f, 0f);
 			Vector2 nextBR = projectile.BottomRight + oldVelocity + new Vector2(4f, 0f);
 
-			if(projectile.velocity.X == 0 && projectile.velocity.Y == 0 && (oldVelocity.X < 0 && (CosmivengeonUtils.TileIsSolidNotPlatform(nextTL) || CosmivengeonUtils.TileIsSolidNotPlatform(nextBL)) || (oldVelocity.X > 0 && (CosmivengeonUtils.TileIsSolidNotPlatform(nextTR) || CosmivengeonUtils.TileIsSolidNotPlatform(nextBR))))){
+			if(projectile.velocity.X == 0 && projectile.velocity.Y == 0 && (oldVelocity.X < 0 && (MiscUtils.TileIsSolidNotPlatform(nextTL) || MiscUtils.TileIsSolidNotPlatform(nextBL)) || (oldVelocity.X > 0 && (MiscUtils.TileIsSolidNotPlatform(nextTR) || MiscUtils.TileIsSolidNotPlatform(nextBR))))){
 				timer_DoorStuck++;
 
 				//We've been touching a wall for 35 ticks

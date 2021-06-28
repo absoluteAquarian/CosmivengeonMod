@@ -1,14 +1,13 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Items.Weapons.Frostbite;
+using Microsoft.Xna.Framework;
 using System;
 using Terraria;
-using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.UI;
 
 namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 	public class IceDiskProjectile : ModProjectile{
-		public override string Texture => "CosmivengeonMod/Items/Frostbite/IceDisk";
+		public override string Texture => "CosmivengeonMod/Items/Weapons/Frostbite/IceDisk";
 
 		public static float MaxVelocity = 8.72f;
 		public static float HomingFactor = 2.1153f;
@@ -47,10 +46,10 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 					dust.velocity = Vector2.Zero;
 				}
 
-				if(!Parent.channel || !(Parent.HeldItem.modItem is Items.Frostbite.IceDisk) || projectile.Distance(Main.MouseWorld) < 2.5f * 16)
+				if(!Parent.channel || !(Parent.HeldItem.modItem is IceDisk) || projectile.Distance(Main.MouseWorld) < 2.5f * 16)
 					projectile.ai[0] = 1f;
 			}else if(projectile.ai[0] == 1f){
-				int minTime = 20;
+				int minTime = 35;
 
 				if(timer == 0)
 					projectile.timeLeft = 4 * minTime + 1;

@@ -1,9 +1,7 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Items.Weapons.Frostbite;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Linq;
 using Terraria;
-using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
@@ -20,8 +18,6 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 			projectile.friendly = true;
 			projectile.hostile = false;
 		}
-
-		private int AI_Timer = 0;
 
 		public override void AI(){
 			//Copying AI from Flairon projectile
@@ -45,7 +41,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 				Main.player[projectile.owner].itemRotation = (directionToOwner * -1f * projectile.direction).ToRotation();
 				projectile.spriteDirection = directionToOwner.X <= 0f ? 1 : -1;
 
-				if(projectile.ai[0] == 0f && directionToOwner.Length() > 400f)
+				if(projectile.ai[0] == 0f && directionToOwner.Length() > 550f)
 					projectile.ai[0] = 1f;
 
 				if(projectile.ai[0] == 1f || projectile.ai[0] == 2f){
@@ -55,14 +51,14 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 						return;
 					}
 
-					if(projectileLength > 600f)
+					if(projectileLength > 750f)
 						projectile.ai[0] = 2f;
 
 					projectile.tileCollide = false;
-					float num698 = 20f;
+					float num698 = SnowballFlail.ProjectileVelocity;
 
 					if(projectile.ai[0] == 2f)
-						num698 = 40f;
+						num698 = SnowballFlail.ProjectileVelocity * 2f;
 
 					projectile.velocity = Vector2.Normalize(directionToOwner) * num698;
 
@@ -77,29 +73,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 				if(projectile.ai[1] > 5f){
 					projectile.alpha = 0;
 				}
-
-				if(AI_Timer % 20 == 19 && projectile.owner == Main.myPlayer){
-					for(int i = 0; i < 8; i++){
-						float rangeStart = MathHelper.ToRadians(360f / 8f);
-						Vector2 direction = Main.rand.NextFloat(rangeStart * i, rangeStart * (i + 1)).ToRotationVector2();
-						float speed = Main.rand.NextFloat(3f, 5f);
-						direction *= speed;
-
-						Projectile.NewProjectile(
-							projectile.Center,
-							direction,
-							ModContent.ProjectileType<CrystaliceShardFragmentProjectile>(),
-							(int)(projectile.damage * 0.6667f),
-							3f,
-							Main.myPlayer,
-							0f,
-							1f
-						);
-					}
-				}
 			}
-
-			AI_Timer++;
 		}
 
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
@@ -108,7 +82,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 			Vector2 direction = mountedCenter - projectile.Center;
 			float rotation = direction.ToRotation() - MathHelper.PiOver2;
 
-			Texture2D chain = ModContent.GetTexture("CosmivengeonMod/Chains/SnowballFlail");
+			Texture2D chain = ModContent.GetTexture("CosmivengeonMod/Assets/Chains/SnowballFlail");
 
 			if (projectile.alpha == 0){
 				int num128 = -1;

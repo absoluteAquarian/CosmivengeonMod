@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.API.Commands;
+using Microsoft.Xna.Framework;
 using System;
 using Terraria;
 using Terraria.DataStructures;
@@ -93,7 +94,7 @@ namespace CosmivengeonMod.Players{
 			player.gravDir = -1;
 		}
 
-		public void SetFishModifier(bool detriment, int duration = Commands.TimeSetter._7_30PM_day * 2 + Commands.TimeSetter._4_30AM_night * 2){
+		public void SetFishModifier(bool detriment, int duration = TimeSetter._7_30PM_day * 2 + TimeSetter._4_30AM_night * 2){
 			fishDontWantMe = detriment;
 
 			//Two ingame days' worth of time by default
