@@ -11,7 +11,7 @@ namespace CosmivengeonMod.Tiles.Trophies{
 		protected BaseTrophy(bool b = false){ }
 #pragma warning restore IDE0060
 		
-		public override void SetDefaults() {
+		public override void SetStaticDefaults() {
 			Main.tileFrameImportant[Type] = true;
 			Main.tileLavaDeath[Type] = true;
 			TileID.Sets.FramesOnKillWall[Type] = true; // Necessary since Style3x3Wall uses AnchorWall
@@ -19,8 +19,8 @@ namespace CosmivengeonMod.Tiles.Trophies{
 			TileObjectData.newTile.StyleHorizontal = true;
 			TileObjectData.newTile.StyleWrapLimit = 36;
 			TileObjectData.addTile(Type);
-			dustType = 7;
-			disableSmartCursor = true;
+			DustType = 7;
+			disableSmartCursor/* tModPorter Note: Removed. Use TileID.Sets.DisableSmartCursor instead */ = true;
 			ModTranslation name = CreateMapEntryName();
 			name.SetDefault("Trophy");
 			AddMapEntry(new Color(120, 85, 60), name);

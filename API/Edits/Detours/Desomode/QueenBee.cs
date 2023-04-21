@@ -5,6 +5,7 @@ using CosmivengeonMod.Utility.Extensions;
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Utilities;
@@ -59,7 +60,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			if(npc.life < npc.lifeMax * 0.25f && !npc.Helper().Flag && npc.ai[0] != 0f){
 				npc.Helper().Flag = true;
 
-				Main.PlaySound(SoundID.ForceRoar, npc.Center, 0);
+				SoundEngine.PlaySound(SoundID.ForceRoar, npc.Center);
 
 				npc.Helper().Timer2 = timer2Max;
 
@@ -156,9 +157,9 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 
 						if(!npc.Helper().Flag2){
 							npc.Helper().Flag2 = true;
-							Main.PlaySound(SoundID.Roar, npc.position);
+							SoundEngine.PlaySound(SoundID.WormDig, npc.position);
 						}else
-							Main.PlaySound(SoundID.ForceRoar, npc.position, npc.Helper().Flag ? -1 : 0);
+							SoundEngine.PlaySound(SoundID.ForceRoar, npc.position, npc.Helper().Flag ? -1 : 0);
 
 						return;
 					}
@@ -335,7 +336,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 				//Spawn the bees/hornets
 				//Boss ignores any tile collision checks
 				if(flag36){
-					Main.PlaySound(SoundID.NPCHit, (int)npc.position.X, (int)npc.position.Y);
+					SoundEngine.PlaySound(SoundID.NPCHit1, npc.position);
 
 					if(Main.netMode != NetmodeID.MultiplayerClient){
 						WeightedRandom<int> wRand = new WeightedRandom<int>(Main.rand);
@@ -410,7 +411,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 				//Spawn stingers
 				//Boss ignores any tile collision checks
 				if(flag37 && npc.position.Y + npc.height < npc.Target().position.Y){
-					Main.PlaySound(SoundID.Item17, npc.position);
+					SoundEngine.PlaySound(SoundID.Item17, npc.position);
 					if(Main.netMode != NetmodeID.MultiplayerClient){
 						float num629 = 10f;
 

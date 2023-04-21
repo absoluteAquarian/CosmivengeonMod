@@ -14,10 +14,10 @@ namespace CosmivengeonMod.Items.Tools{
 		public override string FlavourText => GetFlavorText(Main.LocalPlayer);
 
 		public override void SetDefaults(){
-			item.width = 24;
-			item.height = 24;
-			item.value = Item.sellPrice(silver: 2, copper: 35);
-			item.rare = ItemRarityID.Blue;
+			Item.width = 24;
+			Item.height = 24;
+			Item.value = Item.sellPrice(silver: 2, copper: 35);
+			Item.rare = ItemRarityID.Blue;
 		}
 
 		private string GetFlavorText(Player player){
@@ -42,7 +42,7 @@ namespace CosmivengeonMod.Items.Tools{
 					if(otherMod == null)
 						continue;
 
-					int id = otherMod.NPCType(sbd.key);
+					int id = otherMod.Find<ModNPC>(sbd.key).Type;
 					bosses += $"\"{ClearBossKilledCommand.GetBossNameFromDictionary(id)}\", ";
 				}
 			}
@@ -88,14 +88,13 @@ namespace CosmivengeonMod.Items.Tools{
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddRecipeGroup("Wood", 5);
 			recipe.AddRecipeGroup("IronBar", 8);
 			recipe.AddIngredient(ItemID.FallenStar, 2);
 			recipe.AddIngredient(ItemID.Diamond, 1);
 			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 
 		private string GetUnitsDiffString(int original, int current){

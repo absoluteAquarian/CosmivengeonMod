@@ -7,7 +7,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
 namespace CosmivengeonMod.Worlds{
-	public class WorldEvents : ModWorld{
+	public class WorldEvents : ModSystem{
 		public static bool desoMode;
 
 		public static bool downedDraekBoss;
@@ -18,7 +18,7 @@ namespace CosmivengeonMod.Worlds{
 
 		public static bool obtainedDesolator_DraekBoss;
 
-		public override void Initialize(){
+		public override void OnWorldLoad()/* tModPorter Suggestion: Also override OnWorldUnload, and mirror your worldgen-sensitive data initialization in PreWorldGen */{
 			//World flags
 			desoMode = false;
 			downedDraekBoss = false;
@@ -28,7 +28,7 @@ namespace CosmivengeonMod.Worlds{
 			obtainedDesolator_DraekBoss = false;
 		}
 
-		public override TagCompound Save(){
+		public override void SaveWorldData(TagCompound tag)/* tModPorter Suggestion: Edit tag parameter instead of returning new TagCompound */{
 			//Stop all custom sounds
 			if(Main.gameMenu){
 				for(int i = 0; i < Main.maxProjectiles; i++){
@@ -37,9 +37,9 @@ namespace CosmivengeonMod.Worlds{
 					if(!proj.active)
 						continue;
 
-					if(proj.modProjectile is BrainPsychicMine mine)
+					if(proj.ModProjectile is BrainPsychicMine mine)
 						mine.teleport?.Stop();
-					else if(proj.modProjectile is BrainPsychicLightning lightning)
+					else if(proj.ModProjectile is BrainPsychicLightning lightning)
 						lightning.zap?.Stop();
 				}
 			}
@@ -60,7 +60,7 @@ namespace CosmivengeonMod.Worlds{
 			};
 		}
 
-		public override void Load(TagCompound tag){
+		public override void LoadWorldData(TagCompound tag){
 			var downed = tag.GetList<string>("downed");
 			downedDraekBoss = downed.Contains("draek");
 			downedFrostbiteBoss = downed.Contains("frostbite");

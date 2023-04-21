@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -12,11 +13,11 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 		}
 
 		public override void SetDefaults(){
-			projectile.CloneDefaults(ProjectileID.FrostBoltSword);
-			projectile.aiStyle = 28;
-			aiType = ProjectileID.FrostBoltSword;
-			projectile.penetrate = 1;
-			projectile.timeLeft = 3600;  //Default timeLeft
+			Projectile.CloneDefaults(ProjectileID.FrostBoltSword);
+			Projectile.aiStyle = 28;
+			AIType = ProjectileID.FrostBoltSword;
+			Projectile.penetrate = 1;
+			Projectile.timeLeft = 3600;  //Default timeLeft
 		}
 
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
@@ -25,7 +26,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 		}
 
 		public override void Kill(int timeLeft){
-			Main.PlaySound(SoundID.Item27, projectile.Center);
+			SoundEngine.PlaySound(SoundID.Item27, Projectile.Center);
 		}
 	}
 }

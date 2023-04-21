@@ -2,6 +2,7 @@
 using CosmivengeonMod.Projectiles.Weapons.Draek;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -15,36 +16,35 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 		}
 
 		public override void SetDefaults(){
-			item.damage = 58;
-			item.ranged = true;
-			item.width = 66;
-			item.height = 22;
-			item.useTime = 42;
-			item.useAnimation = 42;
-			item.useStyle = ItemUseStyleID.HoldingOut;
-			item.noMelee = true;
-			item.knockBack = 8.7f;
-			item.value = Item.sellPrice(0, 2, 50, 0);
-			item.rare = ItemRarityID.Green;
-			item.UseSound = SoundID.Item41;
-			item.autoReuse = false;
-			item.shoot = ProjectileID.PurificationPowder;  //Vanilla guns have this value, but it really doesn't matter since it's overwritten in Shoot()
-			item.useAmmo = AmmoID.Bullet;
+			Item.damage = 58;
+			Item.DamageType = DamageClass.Ranged;
+			Item.width = 66;
+			Item.height = 22;
+			Item.useTime = 42;
+			Item.useAnimation = 42;
+			Item.useStyle = ItemUseStyleID.Shoot;
+			Item.noMelee = true;
+			Item.knockBack = 8.7f;
+			Item.value = Item.sellPrice(0, 2, 50, 0);
+			Item.rare = ItemRarityID.Green;
+			Item.UseSound = SoundID.Item41;
+			Item.autoReuse = false;
+			Item.shoot = ProjectileID.PurificationPowder;  //Vanilla guns have this value, but it really doesn't matter since it's overwritten in Shoot()
+			Item.useAmmo = AmmoID.Bullet;
 
-			item.crit = 25;  //+25% crit chance
+			Item.crit = 25;  //+25% crit chance
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
 			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);
 			recipe.AddIngredient(ModContent.ItemType<RaechonShell>());
 			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 
-		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback){
 			type = ModContent.ProjectileType<StoneskipperProjectile>();
 			return true;
 		}

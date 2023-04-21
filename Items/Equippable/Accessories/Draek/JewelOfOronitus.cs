@@ -20,20 +20,20 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek{
 				"\nIts original master, Oronitus, was seemingly lost to time many years ago...";
 
 		public override void SafeSetStaticDefaults(){
-			Main.RegisterItemAnimation(item.type, new JewelOfOronitusAnimation());
+			Main.RegisterItemAnimation(Item.type, new JewelOfOronitusAnimation());
 		}
 
 		public override void SetDefaults(){
-			item.width = 26;
-			item.height = 34;
-			item.accessory = true;
-			item.value = Item.sellPrice(gold: 1, silver: 50);
-			item.rare = ItemRarityID.Expert;
-			item.expert = true;
+			Item.width = 26;
+			Item.height = 34;
+			Item.accessory = true;
+			Item.value = Item.sellPrice(gold: 1, silver: 50);
+			Item.rare = ItemRarityID.Expert;
+			Item.expert = true;
 		}
 
 		public override void UpdateAccessory(Player player, bool hideVisual){
-			player.allDamage += 0.05f;
+			player.GetDamage(DamageClass.Generic) += 0.05f;
 			player.endurance += 0.05f;
 			player.moveSpeed *= 1.1f;
 			player.accRunSpeed *= 1.1f;

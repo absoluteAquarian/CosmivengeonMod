@@ -12,12 +12,12 @@ namespace CosmivengeonMod.Items.Bags{
 		}
 
 		public override void SetDefaults(){
-			item.maxStack = 999;
-			item.consumable = true;
-			item.width = 40;
-			item.height = 36;
-			item.rare = ItemRarityID.Expert;
-			item.expert = true;
+			Item.maxStack = 999;
+			Item.consumable = true;
+			Item.width = 40;
+			Item.height = 36;
+			Item.rare = ItemRarityID.Expert;
+			Item.expert = true;
 		}
 
 		public override bool CanRightClick() => true;

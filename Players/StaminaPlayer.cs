@@ -17,7 +17,7 @@ namespace CosmivengeonMod.Players{
 		private List<EnergizedParticle> energizedParticles;
 
 		public override void Initialize(){
-			stamina = new Stamina(player);
+			stamina = new Stamina(Player);
 			energizedParticles = new List<EnergizedParticle>();
 		}
 
@@ -25,12 +25,12 @@ namespace CosmivengeonMod.Players{
 			stamina.Reset();
 		}
 
-		public override TagCompound Save()
+		public override void SaveData(TagCompound tag)/* tModPorter Suggestion: Edit tag parameter instead of returning new TagCompound */
 			=> new TagCompound(){
 				["stamina"] = stamina.GetTagCompound()
 			};
 
-		public override void Load(TagCompound tag){
+		public override void LoadData(TagCompound tag){
 			stamina.ParseCompound(tag.GetCompound("stamina"));
 		}
 
@@ -61,9 +61,9 @@ namespace CosmivengeonMod.Players{
 		}
 
 		public override void SyncPlayer(int toWho, int fromWho, bool newPlayer){
-			ModPacket packet = mod.GetPacket();
+			ModPacket packet = Mod.GetPacket();
 			packet.Write((byte)MessageType.SyncPlayer);
-			packet.Write(player.whoAmI);
+			packet.Write(Player.whoAmI);
 			stamina.SendData(packet);
 			
 			packet.Send(toWho, fromWho);
@@ -73,9 +73,9 @@ namespace CosmivengeonMod.Players{
 			StaminaPlayer clone = clientPlayer as StaminaPlayer;
 
 			if(clone.stamina.Value != stamina.Value){
-				ModPacket packet = mod.GetPacket();
+				ModPacket packet = Mod.GetPacket();
 				packet.Write((byte)MessageType.StaminaChanged);
-				packet.Write(player.whoAmI);
+				packet.Write(Player.whoAmI);
 				stamina.SendData(packet);
 				packet.Send();
 			}
@@ -86,13 +86,13 @@ namespace CosmivengeonMod.Players{
 		}
 
 		public override void PostItemCheck(){
-			if(player.HeldItem.IsAir || player.HeldItem.damage <= 0 || player.itemAnimation != player.itemAnimationMax - 1)
+			if(Player.HeldItem.IsAir || Player.HeldItem.damage <= 0 || Player.itemAnimation != Player.itemAnimationMax - 1)
 				return;
 
 			//If the stamina is recharging, punish the player for attacking
 			//Items that "channel" will apply a lesser penalty during the use
-			if(stamina.Recharging && stamina.Value < stamina.MaxValue && player.HeldItem.channel){
-				float amt = player.HeldItem.useAnimation / 15f;
+			if(stamina.Recharging && stamina.Value < stamina.MaxValue && Player.HeldItem.channel){
+				float amt = Player.HeldItem.useAnimation / 15f;
 
 				stamina.AddAttackPunishment(amt);
 			}
@@ -102,7 +102,7 @@ namespace CosmivengeonMod.Players{
 
 		private int lastUpdate = -1;
 
-		public override void DrawEffects(PlayerDrawInfo drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright){
+		public override void DrawEffects(PlayerDrawSet drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright){
 			if(lastUpdate != Main.GameUpdateCount)
 				particleTimer--;
 
@@ -129,8 +129,8 @@ namespace CosmivengeonMod.Players{
 				if(particleTimer < 0 && lastUpdate != Main.GameUpdateCount){
 					particleTimer = Main.rand.Next(5, 15 + 1);
 					energizedParticles.Add(new EnergizedParticle(
-						player,
-						new Vector2(Main.rand.NextFloat(-6, player.width + 6), Main.rand.NextFloat(4, player.height - 4)),
+						Player,
+						new Vector2(Main.rand.NextFloat(-6, Player.width + 6), Main.rand.NextFloat(4, Player.height - 4)),
 						new Vector2(0, -1.5f * 16f / 60f))
 					);
 				}
@@ -142,7 +142,7 @@ namespace CosmivengeonMod.Players{
 				b = newColor.B / 255f;
 				a = newColor.A / 255f;
 
-				Lighting.AddLight(player.Center, (Stamina.EnergizedColor * 0.85f).ToVector3());
+				Lighting.AddLight(Player.Center, (Stamina.EnergizedColor * 0.85f).ToVector3());
 			}else if(energizedParticles.Count > 0){
 				foreach(EnergizedParticle particle in energizedParticles)
 					particle.Delete();
@@ -181,7 +181,7 @@ namespace CosmivengeonMod.Players{
 			lastUpdate = (int)Main.GameUpdateCount;
 		}
 
-		public static readonly PlayerLayer EnergizedParticles = new PlayerLayer("CosmivengeonMod", "Energized Buff Particles", PlayerLayer.MiscEffectsFront, delegate(PlayerDrawInfo drawInfo){
+		public static readonly PlayerLayer EnergizedParticles = new PlayerLayer("CosmivengeonMod", "Energized Buff Particles", PlayerLayer.MiscEffectsFront, delegate(PlayerDrawSet drawInfo){
 			if(drawInfo.shadow != 0 || !WorldEvents.desoMode)
 				return;
 

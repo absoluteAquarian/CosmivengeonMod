@@ -48,7 +48,7 @@ namespace CosmivengeonMod.API.Commands{
 				0,
 				0,
 				caller.Player.whoAmI);
-			(proj.modProjectile as DiceOfFateD20Dice).random = roll;
+			(proj.ModProjectile as DiceOfFateD20Dice).random = roll;
 		}
 	}
 }

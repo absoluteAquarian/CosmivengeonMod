@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
+using Terraria.Audio;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -20,16 +22,16 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Ice Crystal");
-			Main.projFrames[projectile.type] = 6;
+			Main.projFrames[Projectile.type] = 6;
 		}
 
 		public override void SetDefaults(){
-			projectile.width = 30;
-			projectile.height = 46;
-			projectile.timeLeft = 3600 * 60;
-			projectile.sentry = true;
-			projectile.tileCollide = false;
-			projectile.penetrate = -1;
+			Projectile.width = 30;
+			Projectile.height = 46;
+			Projectile.timeLeft = 3600 * 60;
+			Projectile.sentry = true;
+			Projectile.tileCollide = false;
+			Projectile.penetrate = -1;
 		}
 
 		private bool spawned = false;
@@ -43,14 +45,14 @@ namespace CosmivengeonMod.Projectiles.Summons{
 		public override void AI(){
 			if(!spawned){
 				spawned = true;
-				Parent = Main.player[projectile.owner];
-				baseScale = projectile.scale;
-				baseWidth = projectile.width;
-				baseHeight = projectile.height;
+				Parent = Main.player[Projectile.owner];
+				baseScale = Projectile.scale;
+				baseWidth = Projectile.width;
+				baseHeight = Projectile.height;
 			}
 
 			if(Parent.dead || !Parent.active || !Parent.GetModPlayer<AccessoriesPlayer>().blizzardEye){
-				projectile.Kill();
+				Projectile.Kill();
 				return;
 			}
 
@@ -60,7 +62,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 					equippedAccessory = true;
 			}
 			if(!equippedAccessory){
-				projectile.Kill();
+				Projectile.Kill();
 				return;
 			}
 
@@ -74,25 +76,25 @@ namespace CosmivengeonMod.Projectiles.Summons{
 			int cooldownDebuff = Parent.FindBuffIndex(ModContent.BuffType<EyeOfTheBlizzardCooldown>());
 
 			if(mp.activeBlizzardEye)
-				projectile.scale = baseScale * preWoFShrink * (minScale + (maxScale - minScale) * projectile.ai[0] / (5 * 60));
+				Projectile.scale = baseScale * preWoFShrink * (minScale + (maxScale - minScale) * Projectile.ai[0] / (5 * 60));
 			else if(cooldownDebuff > -1)
-				projectile.scale = baseScale * preWoFShrink * (minScale + (1f - minScale) * (1f - Parent.buffTime[cooldownDebuff] / (60f * 60f)));
+				Projectile.scale = baseScale * preWoFShrink * (minScale + (1f - minScale) * (1f - Parent.buffTime[cooldownDebuff] / (60f * 60f)));
 			else
-				projectile.scale = baseScale * preWoFShrink;
+				Projectile.scale = baseScale * preWoFShrink;
 
-			projectile.width = (int)(baseWidth * projectile.scale);
-			projectile.height = (int)(baseHeight * projectile.scale);
+			Projectile.width = (int)(baseWidth * Projectile.scale);
+			Projectile.height = (int)(baseHeight * Projectile.scale);
 
 			Vector2 floatOffset = new Vector2(0, MiscUtils.fSin(floatAngle) * (Main.hardMode ? 8f : 4f));
 			float offset = Main.hardMode ? 48 : 28;
-			projectile.Center = Parent.gravDir > 0
+			Projectile.Center = Parent.gravDir > 0
 				? Parent.Top - new Vector2(0, offset) + floatOffset
 				: Parent.Bottom + new Vector2(0, offset) - floatOffset;
 
 			//Don't shoot projectiles if the player has the cooldown debuff
 			if(--timer < 0 && cooldownDebuff < 0){
-				List<NPC> closestNPCs = Main.npc.Where(n => n?.CanBeChasedBy() == true && Collision.CanHit(projectile.Center, 0, 0, n.Center, 0, 0) && projectile.Distance(n.Center) < 50 * 16)
-					.OrderBy(n => projectile.Distance(n.Center))
+				List<NPC> closestNPCs = Main.npc.Where(n => n?.CanBeChasedBy() == true && Collision.CanHit(Projectile.Center, 0, 0, n.Center, 0, 0) && Projectile.Distance(n.Center) < 50 * 16)
+					.OrderBy(n => Projectile.Distance(n.Center))
 					.ToList();
 				if(closestNPCs.Any()){
 					int randTime = !Main.hardMode ? Main.rand.Next(120, 241) : Main.rand.Next(75, 167);
@@ -104,15 +106,15 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 					NPC closest = closestNPCs.First();
 
-					Main.PlaySound(SoundID.Item28.WithVolume(0.35f), projectile.Center);
+					SoundEngine.PlaySound(SoundID.Item28.WithVolume(0.35f), Projectile.Center);
 
 					Projectile.NewProjectile(
-						projectile.Center,
-						projectile.DirectionTo(closest.Center) * CrystaliceShardProjectile.MAX_VELOCITY,
+						Projectile.Center,
+						Projectile.DirectionTo(closest.Center) * CrystaliceShardProjectile.MAX_VELOCITY,
 						ModContent.ProjectileType<CrystaliceShardProjectile>(),
 						Main.hardMode ? Damage : Damage / 2,
 						Main.hardMode ? Knockback : Knockback - 1,
-						projectile.owner,
+						Projectile.owner,
 						1f,
 						1f
 					);
@@ -120,9 +122,9 @@ namespace CosmivengeonMod.Projectiles.Summons{
 					timer++;
 			}
 
-			if(projectile.ai[0] > 0f && Main.rand.NextFloat() < 0.375f){
+			if(Projectile.ai[0] > 0f && Main.rand.NextFloat() < 0.375f){
 				Dust dust = Dust.NewDustDirect(
-					projectile.Center - new Vector2(8, 8),
+					Projectile.Center - new Vector2(8, 8),
 					16,
 					16,
 					Main.rand.Next(new int[]{ 74, 107 }),
@@ -133,19 +135,19 @@ namespace CosmivengeonMod.Projectiles.Summons{
 				dust.noGravity = true;
 			}
 
-			Lighting.AddLight(projectile.Center, Color.Cyan.ToVector3() * 2.5f);
+			Lighting.AddLight(Projectile.Center, Color.Cyan.ToVector3() * 2.5f);
 
-			if(++projectile.frameCounter % 9 == 0)
-				projectile.frame = ++projectile.frame % Main.projFrames[projectile.type];
+			if(++Projectile.frameCounter % 9 == 0)
+				Projectile.frame = ++Projectile.frame % Main.projFrames[Projectile.type];
 
 			floatAngle += MathHelper.ToRadians(1.5f * 6f);
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
-			Texture2D texture = Main.projectileTexture[projectile.type];
-			Rectangle frame = texture.Frame(1, 6, 0, projectile.frame);
+		public override bool PreDraw(ref Color lightColor){
+			Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
+			Rectangle frame = texture.Frame(1, 6, 0, Projectile.frame);
 
-			spriteBatch.Draw(texture, projectile.Center - Main.screenPosition, frame, Color.White, 0f, frame.Size() / 2f, projectile.scale, SpriteEffects.None, 0);
+			spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, frame, Color.White, 0f, frame.Size() / 2f, Projectile.scale, SpriteEffects.None, 0);
 
 			return false;
 		}

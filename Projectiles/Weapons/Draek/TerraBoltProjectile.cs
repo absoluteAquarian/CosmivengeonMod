@@ -5,28 +5,30 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 	public class TerraBoltProjectile : ModProjectile{
 		public override void SetStaticDefaults(){
-			Main.projFrames[projectile.type] = 3;
+			Main.projFrames[Projectile.type] = 3;
 		}
 
 		public override void SetDefaults(){
-			projectile.width = 16;
-			projectile.height = 16;
-			projectile.friendly = true;
-			projectile.hostile = false;
-			projectile.penetrate = 5;
-			projectile.timeLeft = 5 * 60;
-			projectile.alpha = 0;
-			projectile.ignoreWater = true;
-			projectile.tileCollide = true;
+			Projectile.width = 16;
+			Projectile.height = 16;
+			Projectile.friendly = true;
+			Projectile.hostile = false;
+			Projectile.penetrate = 5;
+			Projectile.timeLeft = 5 * 60;
+			Projectile.alpha = 0;
+			Projectile.ignoreWater = true;
+			Projectile.tileCollide = true;
 
-			projectile.usesLocalNPCImmunity = true;
-			projectile.localNPCHitCooldown = -1;
+			Projectile.usesLocalNPCImmunity = true;
+			Projectile.localNPCHitCooldown = -1;
 		}
 
 		private bool hasSpawned = false;
@@ -40,21 +42,21 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 		private readonly Queue<Vector2> primAnchors = new Queue<Vector2>(RememberedPrimPoints);
 
-		public ref float ColorFade => ref projectile.ai[0];
+		public ref float ColorFade => ref Projectile.ai[0];
 
 		public override void AI(){
 			if(!hasSpawned){
 				hasSpawned = true;
-				projectile.frame = Main.rand.Next(3);
-				projectile.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+				Projectile.frame = Main.rand.Next(3);
+				Projectile.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
 			}
 			
-			projectile.rotation += (projectile.velocity.X >= 0 ? 1 : -1) * MathHelper.ToRadians((5f + Main.rand.NextFloat(-2f, 2f)) * 360f / 60f);
+			Projectile.rotation += (Projectile.velocity.X >= 0 ? 1 : -1) * MathHelper.ToRadians((5f + Main.rand.NextFloat(-2f, 2f)) * 360f / 60f);
 
 			if(Main.rand.NextFloat() < 0.8f){
-				Dust dust = Dust.NewDustDirect(projectile.width > 4 ? projectile.position + new Vector2(2) : projectile.Center,
-					Math.Max(projectile.width - 4, 0),
-					Math.Max(projectile.height - 4, 0),
+				Dust dust = Dust.NewDustDirect(Projectile.width > 4 ? Projectile.position + new Vector2(2) : Projectile.Center,
+					Math.Max(Projectile.width - 4, 0),
+					Math.Max(Projectile.height - 4, 0),
 					75);
 				dust.noGravity = true;
 				dust.fadeIn = 0.8f;
@@ -80,16 +82,16 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 			target.AddBuff(ModContent.BuffType<PrimordialWrath>(), 3 * 60);
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
+		public override bool PreDraw(ref Color lightColor){
 			//Redraw the projectile with the color not influenced by light
-			Texture2D texture = Main.projectileTexture[projectile.type];
+			Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
 
-			Rectangle drawFrame = new Rectangle(0, texture.Height / Main.projFrames[projectile.type] * projectile.frame, texture.Width, texture.Height / Main.projFrames[projectile.type]);
+			Rectangle drawFrame = new Rectangle(0, texture.Height / Main.projFrames[Projectile.type] * Projectile.frame, texture.Width, texture.Height / Main.projFrames[Projectile.type]);
 			Vector2 drawOrigin = new Vector2(drawFrame.Width * 0.5f, drawFrame.Height * 0.5f);
-			Vector2 drawPos = projectile.Center - Main.screenPosition;
-			Color color = projectile.GetAlpha(lightColor);
+			Vector2 drawPos = Projectile.Center - Main.screenPosition;
+			Color color = Projectile.GetAlpha(lightColor);
 
-			spriteBatch.Draw(texture, drawPos, drawFrame, color, projectile.rotation, drawOrigin, projectile.scale, SpriteEffects.None, 0f);
+			spriteBatch.Draw(texture, drawPos, drawFrame, color, Projectile.rotation, drawOrigin, Projectile.scale, SpriteEffects.None, 0f);
 
 			//Queue the new points
 			QueuePoint(primPoints);
@@ -101,7 +103,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 			if(primAnchors.Count == RememberedPrimPoints)
 				primAnchors.Dequeue();
 
-			primAnchors.Enqueue(projectile.Center);
+			primAnchors.Enqueue(Projectile.Center);
 
 			//Draw some cool primitives effects
 			DrawPrims(primPoints, primAnchors);
@@ -119,7 +121,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 				queue.Dequeue();
 
 			//Get a random point in a box centered on the projectile
-			queue.Enqueue(Vector2.UnitX.RotatedByRandom(MathHelper.Pi) * projectile.width / 2f);
+			queue.Enqueue(Vector2.UnitX.RotatedByRandom(MathHelper.Pi) * Projectile.width / 2f);
 		}
 
 		private void DrawPrims(Queue<Vector2> queue, Queue<Vector2> anchors){
@@ -137,11 +139,11 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 		}
 
 		public override void Kill(int timeLeft){
-			Collision.HitTiles(projectile.position + projectile.velocity, projectile.velocity, projectile.width, projectile.height);
-			Main.PlaySound(SoundID.Item10, projectile.position);
+			Collision.HitTiles(Projectile.position + Projectile.velocity, Projectile.velocity, Projectile.width, Projectile.height);
+			SoundEngine.PlaySound(SoundID.Item10, Projectile.position);
 		}
 
-		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough){
+		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac){
 			width = Math.Min(width, 16);
 			height = Math.Min(height, 16);
 			return base.TileCollideStyle(ref width, ref height, ref fallThrough);

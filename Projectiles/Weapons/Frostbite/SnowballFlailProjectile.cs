@@ -11,87 +11,87 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 		}
 
 		public override void SetDefaults(){
-			projectile.width = 32;
-			projectile.height = 32;
-			projectile.melee = true;
-			projectile.penetrate = -1;
-			projectile.friendly = true;
-			projectile.hostile = false;
+			Projectile.width = 32;
+			Projectile.height = 32;
+			Projectile.DamageType = DamageClass.Melee;
+			Projectile.penetrate = -1;
+			Projectile.friendly = true;
+			Projectile.hostile = false;
 		}
 
 		public override void AI(){
 			//Copying AI from Flairon projectile
-			Vector2 directionToOwner = Main.player[projectile.owner].Center - projectile.Center;
-			projectile.rotation = directionToOwner.ToRotation() - MathHelper.PiOver2;
+			Vector2 directionToOwner = Main.player[Projectile.owner].Center - Projectile.Center;
+			Projectile.rotation = directionToOwner.ToRotation() - MathHelper.PiOver2;
 
-			if (Main.player[projectile.owner].dead){
-				projectile.Kill();
+			if (Main.player[Projectile.owner].dead){
+				Projectile.Kill();
 			}else{
-				Main.player[projectile.owner].itemAnimation = 10;
-				Main.player[projectile.owner].itemTime = 10;
+				Main.player[Projectile.owner].itemAnimation = 10;
+				Main.player[Projectile.owner].itemTime = 10;
 
 				if(directionToOwner.X < 0f){
-					Main.player[projectile.owner].ChangeDir(1);
-					projectile.direction = 1;
+					Main.player[Projectile.owner].ChangeDir(1);
+					Projectile.direction = 1;
 				}else{
-					Main.player[projectile.owner].ChangeDir(-1);
-					projectile.direction = -1;
+					Main.player[Projectile.owner].ChangeDir(-1);
+					Projectile.direction = -1;
 				}
 
-				Main.player[projectile.owner].itemRotation = (directionToOwner * -1f * projectile.direction).ToRotation();
-				projectile.spriteDirection = directionToOwner.X <= 0f ? 1 : -1;
+				Main.player[Projectile.owner].itemRotation = (directionToOwner * -1f * Projectile.direction).ToRotation();
+				Projectile.spriteDirection = directionToOwner.X <= 0f ? 1 : -1;
 
-				if(projectile.ai[0] == 0f && directionToOwner.Length() > 550f)
-					projectile.ai[0] = 1f;
+				if(Projectile.ai[0] == 0f && directionToOwner.Length() > 550f)
+					Projectile.ai[0] = 1f;
 
-				if(projectile.ai[0] == 1f || projectile.ai[0] == 2f){
+				if(Projectile.ai[0] == 1f || Projectile.ai[0] == 2f){
 					float projectileLength = directionToOwner.Length();
 					if(projectileLength > 1500f){
-						projectile.Kill();
+						Projectile.Kill();
 						return;
 					}
 
 					if(projectileLength > 750f)
-						projectile.ai[0] = 2f;
+						Projectile.ai[0] = 2f;
 
-					projectile.tileCollide = false;
+					Projectile.tileCollide = false;
 					float num698 = SnowballFlail.ProjectileVelocity;
 
-					if(projectile.ai[0] == 2f)
+					if(Projectile.ai[0] == 2f)
 						num698 = SnowballFlail.ProjectileVelocity * 2f;
 
-					projectile.velocity = Vector2.Normalize(directionToOwner) * num698;
+					Projectile.velocity = Vector2.Normalize(directionToOwner) * num698;
 
 					if(directionToOwner.Length() < num698){
-						projectile.Kill();
+						Projectile.Kill();
 						return;
 					}
 				}
 
-				projectile.ai[1] += 1f;
+				Projectile.ai[1] += 1f;
 
-				if(projectile.ai[1] > 5f){
-					projectile.alpha = 0;
+				if(Projectile.ai[1] > 5f){
+					Projectile.alpha = 0;
 				}
 			}
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
-			Vector2 mountedCenter = Main.player[projectile.owner].MountedCenter;
-			Vector2 projCenter = projectile.Center;
-			Vector2 direction = mountedCenter - projectile.Center;
+		public override bool PreDraw(ref Color lightColor){
+			Vector2 mountedCenter = Main.player[Projectile.owner].MountedCenter;
+			Vector2 projCenter = Projectile.Center;
+			Vector2 direction = mountedCenter - Projectile.Center;
 			float rotation = direction.ToRotation() - MathHelper.PiOver2;
 
 			Texture2D chain = ModContent.GetTexture("CosmivengeonMod/Assets/Chains/SnowballFlail");
 
-			if (projectile.alpha == 0){
+			if (Projectile.alpha == 0){
 				int num128 = -1;
-				if (projectile.position.X + projectile.width / 2 < mountedCenter.X)
+				if (Projectile.position.X + Projectile.width / 2 < mountedCenter.X)
 					num128 = 1;
-				if (Main.player[projectile.owner].direction == 1)
-					Main.player[projectile.owner].itemRotation = (num128 * direction).ToRotation();
+				if (Main.player[Projectile.owner].direction == 1)
+					Main.player[Projectile.owner].itemRotation = (num128 * direction).ToRotation();
 				else
-					Main.player[projectile.owner].itemRotation = (num128 * direction).ToRotation();
+					Main.player[Projectile.owner].itemRotation = (num128 * direction).ToRotation();
 			}
 
 			bool flag20 = true;

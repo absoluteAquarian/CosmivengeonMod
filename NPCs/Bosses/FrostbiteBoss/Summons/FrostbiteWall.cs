@@ -15,15 +15,15 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons{
 		private int activeTime = 1;
 
 		public override void SetDefaults(){
-			npc.noTileCollide = false;
-			npc.noGravity = false;
-			npc.dontTakeDamage = true;
-			npc.lifeMax = 1;
-			npc.knockBackResist = 0f;
-			npc.width = 30;
-			npc.height = 116;
-			npc.alpha = 255;
-			npc.friendly = false;
+			NPC.noTileCollide = false;
+			NPC.noGravity = false;
+			NPC.dontTakeDamage = true;
+			NPC.lifeMax = 1;
+			NPC.knockBackResist = 0f;
+			NPC.width = 30;
+			NPC.height = 116;
+			NPC.alpha = 255;
+			NPC.friendly = false;
 		}
 
 		private bool spawned = false;
@@ -32,35 +32,35 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons{
 		public override void AI(){
 			if(!spawned){
 				spawned = true;
-				npc.TargetClosest(false);
-				activeTime = (int)npc.ai[0];
-				npc.damage = (int)npc.ai[1];
-				shouldShootBolts = npc.ai[2] == 1;
+				NPC.TargetClosest(false);
+				activeTime = (int)NPC.ai[0];
+				NPC.damage = (int)NPC.ai[1];
+				shouldShootBolts = NPC.ai[2] == 1;
 
-				npc.netUpdate = true;
+				NPC.netUpdate = true;
 			}
 
 			activeTime--;
 			if(activeTime < 0){
-				npc.life = 0;
-				npc.active = false;
+				NPC.life = 0;
+				NPC.active = false;
 			}
 
-			if(npc.alpha > 0)
-				npc.alpha -= 3;
-			else if(npc.alpha < 0)
-				npc.alpha = 0;
+			if(NPC.alpha > 0)
+				NPC.alpha -= 3;
+			else if(NPC.alpha < 0)
+				NPC.alpha = 0;
 
 			if(shouldShootBolts){
 				if(AI_Timer < 0){
 					AI_Timer = Main.rand.Next(60, 120);
 
-					npc.netUpdate = true;
+					NPC.netUpdate = true;
 				}else if(AI_Timer == 0){
 					//Spawn some Frostbite ice projectiles (the breath ones)
 					for(int i = 0; i < 6; i++){
 						MiscUtils.SpawnProjectileSynced(
-							npc.Top + new Vector2(0, 16),
+							NPC.Top + new Vector2(0, 16),
 							new Vector2(0, -7).RotatedByRandom(MathHelper.ToRadians(15)),
 							ModContent.ProjectileType<FrostbiteBreath>(),
 							30,
@@ -71,7 +71,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons{
 				}
 			}
 
-			npc.velocity.Y += 8f / 60f;
+			NPC.velocity.Y += 8f / 60f;
 
 			AI_Timer--;
 		}
@@ -92,7 +92,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons{
 		}
 
 		public override void ModifyHitPlayer(Player target, ref int damage, ref bool crit){
-			if(npc.alpha > 0)
+			if(NPC.alpha > 0)
 				damage = 0;
 		}
 	}

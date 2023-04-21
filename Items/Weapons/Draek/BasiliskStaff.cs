@@ -3,6 +3,7 @@ using CosmivengeonMod.Items.Materials;
 using CosmivengeonMod.Projectiles.Summons;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -14,40 +15,39 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 		}
 
 		public override void SetDefaults(){
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.shoot = ModContent.ProjectileType<BabySnek>();
-			item.scale = 0.6667f;
-			item.width = 80;
-			item.height = 80;
-			item.UseSound = SoundID.Item44;
-			item.useAnimation = 30;
-			item.useTime = 30;
-			item.rare = ItemRarityID.Green;
-			item.noMelee = true;
-			item.value = Item.sellPrice(gold: 1, silver: 50);
-			item.buffType = ModContent.BuffType<BabyBasiliskBuff>();
-			item.mana = 12;
-			item.damage = 23;
-			item.knockBack = 2f;
-			item.summon = true;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.shoot = ModContent.ProjectileType<BabySnek>();
+			Item.scale = 0.6667f;
+			Item.width = 80;
+			Item.height = 80;
+			Item.UseSound = SoundID.Item44;
+			Item.useAnimation = 30;
+			Item.useTime = 30;
+			Item.rare = ItemRarityID.Green;
+			Item.noMelee = true;
+			Item.value = Item.sellPrice(gold: 1, silver: 50);
+			Item.buffType = ModContent.BuffType<BabyBasiliskBuff>();
+			Item.mana = 12;
+			Item.damage = 23;
+			Item.knockBack = 2f;
+			Item.DamageType = DamageClass.Summon;
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
 			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);
 			recipe.AddIngredient(ModContent.ItemType<RaechonShell>());
 			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 
-		public override void UseStyle(Player player){
+		public override void UseStyle(Player player, Rectangle heldItemFrame){
 			if(player.whoAmI == Main.myPlayer && player.itemTime == 0)
-				player.AddBuff(item.buffType, 3600);
+				player.AddBuff(Item.buffType, 3600);
 		}
 
-		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback){
 			position = Main.MouseWorld;  //Make the summon spawn at the cursor
 			return true;
 		}

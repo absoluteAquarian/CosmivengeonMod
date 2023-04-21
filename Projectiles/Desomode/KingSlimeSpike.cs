@@ -12,9 +12,9 @@ namespace CosmivengeonMod.Projectiles.Desomode{
 		}
 
 		public override void SetDefaults(){
-			projectile.CloneDefaults(ProjectileID.SpikedSlimeSpike);
-			projectile.scale = 2f;
-			aiType = ProjectileID.SpikedSlimeSpike;
+			Projectile.CloneDefaults(ProjectileID.SpikedSlimeSpike);
+			Projectile.scale = 2f;
+			AIType = ProjectileID.SpikedSlimeSpike;
 		}
 
 		public override void OnHitPlayer(Player target, int damage, bool crit){

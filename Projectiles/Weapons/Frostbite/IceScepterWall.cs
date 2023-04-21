@@ -2,6 +2,7 @@
 using CosmivengeonMod.Utility.Extensions;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -16,18 +17,18 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 		}
 
 		public override void SetDefaults(){
-			projectile.sentry = true;
-			projectile.width = 30;
-			projectile.height = 116;
-			projectile.timeLeft = 60 * 60;
-			projectile.scale = Scale;
-			projectile.tileCollide = true;
+			Projectile.sentry = true;
+			Projectile.width = 30;
+			Projectile.height = 116;
+			Projectile.timeLeft = 60 * 60;
+			Projectile.scale = Scale;
+			Projectile.tileCollide = true;
 		}
 
 		private int AI_Timer = -1;
 
 		public override void AI(){
-			projectile.TryDecrementAlpha(10);
+			Projectile.TryDecrementAlpha(10);
 
 			//copied from FrostbiteWall AI
 			if(AI_Timer < 0)
@@ -36,29 +37,29 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 				//Spawn some Frostbite ice projectiles (the breath ones)
 				for(int i = 0; i < 6; i++){
 					Projectile.NewProjectile(
-						projectile.Top + new Vector2(0, 16),
+						Projectile.Top + new Vector2(0, 16),
 						new Vector2(0, -12).RotatedByRandom(MathHelper.ToRadians(40)),
 						ModContent.ProjectileType<FrostbiteBreath>(),
-						projectile.damage,
+						Projectile.damage,
 						2f,
 						Main.myPlayer,
 						1f,
 						1f
 					);
 
-					Main.PlaySound(SoundID.Item28.WithVolume(0.6f), projectile.Top);
+					SoundEngine.PlaySound(SoundID.Item28.WithVolume(0.6f), Projectile.Top);
 				}
 			}
 
 			//Make this sentry fall if we couldn't find a tile to place it on beforehand
-			projectile.velocity.Y += 8f / 60f;
+			Projectile.velocity.Y += 8f / 60f;
 
 			AI_Timer--;
 		}
 
 		public override bool OnTileCollide(Vector2 oldVelocity) => false;
 
-		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough){
+		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac){
 			fallThrough = false;
 			return base.TileCollideStyle(ref width, ref height, ref fallThrough);
 		}

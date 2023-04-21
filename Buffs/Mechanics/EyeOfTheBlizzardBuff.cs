@@ -6,7 +6,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Buffs.Mechanics{
 	public class EyeOfTheBlizzardBuff : ModBuff{
-		public override void SetDefaults(){
+		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Eye of the Blizzard");
 			Description.SetDefault("The ice crystal will support you");
 			Main.buffNoSave[Type] = true;

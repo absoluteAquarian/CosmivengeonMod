@@ -11,7 +11,7 @@ namespace CosmivengeonMod.Items.Tools.Dice{
 		}
 
 		public override void SetDefaults(){
-			item.ammo = item.type;
+			Item.ammo = Item.type;
 		}
 	}
 }

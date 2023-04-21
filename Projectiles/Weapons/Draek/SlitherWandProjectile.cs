@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -33,16 +35,16 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 		private int[] SegmentIDs{ get; } = new int[4]{0, 0, 0, 0};
 
 		public override void SetDefaults(){
-			projectile.tileCollide = false;
+			Projectile.tileCollide = false;
 			//These are false until the snake pops up from the ground
-			projectile.friendly = false;
-			projectile.hostile = false;
-			projectile.alpha = 255;
+			Projectile.friendly = false;
+			Projectile.hostile = false;
+			Projectile.alpha = 255;
 
-			projectile.width = 28;
-			projectile.height = 32;
+			Projectile.width = 28;
+			Projectile.height = 32;
 
-			projectile.penetrate = -1;
+			Projectile.penetrate = -1;
 
 			speed = 11f;
 			gravity = 0.53f;
@@ -56,64 +58,64 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 		public override void AI(){
 			bool prevReachedCursor = ReachedCursor;
-			ReachedCursor = Math.Abs(projectile.Center.X - target.X) < 8;
+			ReachedCursor = Math.Abs(Projectile.Center.X - target.X) < 8;
 
 			//If the value has changed, then set the current (X, Y) tile to the "despawn point" location
 			//Also set some other values
 			if(!AllowDespawnDelayDecay && prevReachedCursor != ReachedCursor){
-				DespawnPoint = projectile.position;
+				DespawnPoint = Projectile.position;
 				AllowDespawnDelayDecay = true;
 
-				projectile.alpha = 0;
-				projectile.friendly = true;
+				Projectile.alpha = 0;
+				Projectile.friendly = true;
 			}
 
 			if(!hasSpawned){
 				//Spawn the other segments
 				hasSpawned = true;
 
-				currentX = projectile.Center.X;
+				currentX = Projectile.Center.X;
 				target = Main.MouseWorld;
 
 				finalTileXSmaller = currentX > target.X;
-				projectile.Center = new Vector2(projectile.Center.X - 16f * (finalTileXSmaller ? -5 : 4), projectile.Center.Y);
+				Projectile.Center = new Vector2(Projectile.Center.X - 16f * (finalTileXSmaller ? -5 : 4), Projectile.Center.Y);
 
-				currentX = projectile.Center.X;
+				currentX = Projectile.Center.X;
 
-				projectile.ai = new float[]{0f, 0f};
+				Projectile.ai = new float[]{0f, 0f};
 
 				//Only spawn the segments if we're in a multiplayer server or singleplayer game
 				if(Main.netMode != NetmodeID.MultiplayerClient){
-					SegmentIDs[0] = projectile.whoAmI;
+					SegmentIDs[0] = Projectile.whoAmI;
 					int proj = Projectile.NewProjectile(
-						projectile.Center,
+						Projectile.Center,
 						Vector2.Zero,
 						ModContent.ProjectileType<SlitherWandProjectile_Body0>(),
-						projectile.damage,
-						projectile.knockBack,
-						projectile.owner,
-						projectile.whoAmI,
+						Projectile.damage,
+						Projectile.knockBack,
+						Projectile.owner,
+						Projectile.whoAmI,
 						1
 					);
 					SegmentIDs[1] = proj;
 					proj = Projectile.NewProjectile(
-						projectile.Center,
+						Projectile.Center,
 						Vector2.Zero,
 						ModContent.ProjectileType<SlitherWandProjectile_Body1>(),
-						projectile.damage,
-						projectile.knockBack,
-						projectile.owner,
+						Projectile.damage,
+						Projectile.knockBack,
+						Projectile.owner,
 						proj,
 						1
 					);
 					SegmentIDs[2] = proj;
 					proj = Projectile.NewProjectile(
-						projectile.Center,
+						Projectile.Center,
 						Vector2.Zero,
 						ModContent.ProjectileType<SlitherWandProjectile_Tail>(),
-						projectile.damage,
-						projectile.knockBack,
-						projectile.owner,
+						Projectile.damage,
+						Projectile.knockBack,
+						Projectile.owner,
 						proj,
 						1
 					);
@@ -126,8 +128,8 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 				if(TilesToTarget.Count > 0)
 					previousPoint = TilesToTarget[0];
 				else
-					previousPoint = new Point((int)(Main.player[projectile.owner].Center.X / 16f),
-						(int)(Main.player[projectile.owner].Bottom.Y / 16f) + 1);
+					previousPoint = new Point((int)(Main.player[Projectile.owner].Center.X / 16f),
+						(int)(Main.player[Projectile.owner].Bottom.Y / 16f) + 1);
 			}
 
 			//Wait until we are under the coordinates given by AI
@@ -147,53 +149,53 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 					point = previousPoint;
 
 				if(BurrowTimer % 5 == 0)
-					WorldGen.KillTile((int)(projectile.position.X / 16f), (int)(projectile.position.Y / 16f), true, true, false);
+					WorldGen.KillTile((int)(Projectile.position.X / 16f), (int)(Projectile.position.Y / 16f), true, true, false);
 
 				previousPoint = point;
 
 				BurrowTimer++;
 
-				projectile.position = new Vector2(currentX, point.Y * 16);
+				Projectile.position = new Vector2(currentX, point.Y * 16);
 			}else{
 				playSound = false;
 
 				//Move down if we've reached the initial target
-				if(Math.Abs(projectile.position.Y - target.Y) < 16){
+				if(Math.Abs(Projectile.position.Y - target.Y) < 16){
 					fall = true;
 				}
 
 				//If we've reached the despawn point, kill the projectile
 				if(DespawnDelay == 0 && Main.projectile[SegmentIDs[3]].position.Y > DespawnPoint.Y){
-					projectile.active = false;
+					Projectile.active = false;
 				}
 
 				//We've reached the coordinates.  Jump up, do other things, then despawn
 				AI_Worm_Head();
 			}
 
-			projectile.velocity.Y.Clamp(-speed, speed);
+			Projectile.velocity.Y.Clamp(-speed, speed);
 
 			//Set ai[0] to 0/1 if we have not/have reached the target X
-			projectile.ai[0] = ReachedCursor ? 1 : 0;
+			Projectile.ai[0] = ReachedCursor ? 1 : 0;
 
 			//Set ai[1] to 0 if rising, 1 if falling
-			float oldAI = projectile.ai[1];
-			projectile.ai[1] = projectile.velocity.Y > 0 ? 1 : 0;
+			float oldAI = Projectile.ai[1];
+			Projectile.ai[1] = Projectile.velocity.Y > 0 ? 1 : 0;
 
-			if(oldAI != projectile.ai[1] && projectile.ai[1] == 1){
+			if(oldAI != Projectile.ai[1] && Projectile.ai[1] == 1){
 				//Get the ratio of each segment's position relative to the entire worm
 				float[] ratios = new float[4];
 
 				float entireLength = 0f;
-				float topPos = projectile.position.Y;
+				float topPos = Projectile.position.Y;
 				
 				//Get the length
 				for(int id = 0; id < 4; id++)
-					entireLength += Main.projectileTexture[Main.projectile[SegmentIDs[id]].type].Height;
+					entireLength += TextureAssets.Projectile[Main.projectile[SegmentIDs[id]].type].Value.Height;
 
 				//Get the ratios
 				for(int r = 0; r < 3; r++)
-					ratios[r] = Main.projectileTexture[Main.projectile[SegmentIDs[r]].type].Height / entireLength;
+					ratios[r] = TextureAssets.Projectile[Main.projectile[SegmentIDs[r]].type].Value.Height / entireLength;
 				ratios[3] = 1;
 				ratios[2] += ratios[1] + ratios[0];
 				ratios[1] += ratios[0];
@@ -208,17 +210,17 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 				DespawnDelay--;
 
 			if(playSound){
-				if(projectile.soundDelay == 0){
+				if(Projectile.soundDelay == 0){
 					float targetRoundedPosX = (int)(target.X / 16.0) * 16;
-					float length = targetRoundedPosX - projectile.Center.X;	//Only using x-direction for sound delay
+					float length = targetRoundedPosX - Projectile.Center.X;	//Only using x-direction for sound delay
 
 					float delay = length / 40f;
 					if(delay < 10.0)
 						delay = 10f;
 					if(delay > 20.0)
 						delay = 20f;
-					projectile.soundDelay = (int)delay;
-					Main.PlaySound(SoundID.Roar, (int)projectile.position.X, (int)projectile.position.Y, 1);
+					Projectile.soundDelay = (int)delay;
+					SoundEngine.PlaySound(SoundID.WormDig, Projectile.position);
 				}
 			}
 		}
@@ -226,23 +228,23 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 		private void AI_Worm_Head(){
 			// acceleration is exactly what it sounds like. The speed at which this projectile accelerates.
 			if(fall)
-				projectile.velocity.Y += gravity;
+				Projectile.velocity.Y += gravity;
 			else
-				projectile.velocity.Y = -speed;		//Move upwards at maximum velocity
+				Projectile.velocity.Y = -speed;		//Move upwards at maximum velocity
 
 			// Set the correct rotation for this projectile.
-			projectile.rotation = projectile.velocity.ToRotation();
+			Projectile.rotation = Projectile.velocity.ToRotation();
 
 			//Changed from NPC Worm AI:  "npc.justHit" piece removed
-			if((projectile.velocity.X > 0.0 && projectile.oldVelocity.X < 0.0 || projectile.velocity.X < 0.0 && projectile.oldVelocity.X > 0.0 || (projectile.velocity.Y > 0.0 && projectile.oldVelocity.Y < 0.0 || projectile.velocity.Y < 0.0 && projectile.oldVelocity.Y > 0.0)))
-				projectile.netUpdate = true;
+			if((Projectile.velocity.X > 0.0 && Projectile.oldVelocity.X < 0.0 || Projectile.velocity.X < 0.0 && Projectile.oldVelocity.X > 0.0 || (Projectile.velocity.Y > 0.0 && Projectile.oldVelocity.Y < 0.0 || Projectile.velocity.Y < 0.0 && Projectile.oldVelocity.Y > 0.0)))
+				Projectile.netUpdate = true;
 		}
 
 		private List<Point> GetTiles(){
 			int finalX = (int)(target.X / 16f);
 
 			List<Point> tileCoords = new List<Point>();
-			int currentCoordX = (int)(Main.player[projectile.owner].Center.X / 16f);
+			int currentCoordX = (int)(Main.player[Projectile.owner].Center.X / 16f);
 			int currentCoordY;
 
 			bool finalXSmaller = currentCoordX > finalX;
@@ -257,7 +259,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 				//Loop over all tiles going up to down that are solid
 				for(; currentCoordY <= (int)((Main.screenPosition.Y + Main.screenHeight) / 16f); currentCoordY++){
-					if(MiscUtils.TileIsSolidOrPlatform(currentCoordX, currentCoordY) && Main.tile[currentCoordX, currentCoordY].type != TileID.Platforms){
+					if(MiscUtils.TileIsSolidOrPlatform(currentCoordX, currentCoordY) && Main.tile[currentCoordX, currentCoordY].TileType != TileID.Platforms){
 						tileCoords.Add(new Point(currentCoordX, currentCoordY));
 						break;
 					}
@@ -279,32 +281,32 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 		public Projectile Parent;
 
 		public override void SetDefaults(){
-			projectile.CloneDefaults(ModContent.ProjectileType<SlitherWandProjectile_Head>());
-			projectile.width = 22;
-			projectile.height = 38;
-			drawOriginOffsetY = projectile.width / 2;
+			Projectile.CloneDefaults(ModContent.ProjectileType<SlitherWandProjectile_Head>());
+			Projectile.width = 22;
+			Projectile.height = 38;
+			DrawOriginOffsetY = Projectile.width / 2;
 		}
 
 		internal bool hasSpawned = false;
 		public override void AI(){
 			if(!hasSpawned){
-				Parent = Main.projectile[(int)projectile.ai[0]];
-				projectile.ai[0] = 0;
+				Parent = Main.projectile[(int)Projectile.ai[0]];
+				Projectile.ai[0] = 0;
 				hasSpawned = true;
 			}
 
-			projectile.ai[0] = Parent.ai[0];
-			projectile.ai[1] = Parent.ai[1];
+			Projectile.ai[0] = Parent.ai[0];
+			Projectile.ai[1] = Parent.ai[1];
 
 			//If the head has not reached the target X, then snap this segment's
 			// position to the Parent's position
 			//Otherwise, execute the worm body AI
 			if(Parent.ai[0] == 0){
-				projectile.position = Parent.position;
+				Projectile.position = Parent.position;
 			}else if(Parent.ai[0] == 1){
 				//Make the projectile visible
-				projectile.alpha = 0;
-				projectile.friendly = true;
+				Projectile.alpha = 0;
+				Projectile.friendly = true;
 
 				AI_Worm_BodyTail();
 			}
@@ -316,38 +318,38 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 			//Changed from NPC Worm AI:  removed "hit effect" and "life" setters as they don't exist
 			if(Main.netMode != NetmodeID.MultiplayerClient){
 				if(!Parent.active){
-					projectile.active = false;
+					Projectile.active = false;
 				}
 			}
 
 			if(Parent.whoAmI < (double)Main.projectile.Length){
 				float dirY = Parent.position.Y
-					+ ((Parent.ai[1] == 0) ? Main.projectileTexture[Parent.type].Width : -Main.projectileTexture[projectile.type].Width);
+					+ ((Parent.ai[1] == 0) ? TextureAssets.Projectile[Parent.type].Value.Width : -TextureAssets.Projectile[Projectile.type].Value.Width);
 				
-				projectile.rotation = projectile.position.Y < Parent.position.Y ? MathHelper.PiOver2 : -MathHelper.PiOver2;
+				Projectile.rotation = Projectile.position.Y < Parent.position.Y ? MathHelper.PiOver2 : -MathHelper.PiOver2;
 
 				// Reset the velocity of this Projectile, because we don't want it to move on its own
-				projectile.velocity = Vector2.Zero;
+				Projectile.velocity = Vector2.Zero;
 				// And set this Projectile's position accordingly to that of this Projectle's parent projectile.
-				projectile.position.X = Parent.position.X
-					+ (Main.projectileTexture[Parent.type].Height - Main.projectileTexture[projectile.type].Height) / 2f;
-				projectile.position.Y = dirY;
+				Projectile.position.X = Parent.position.X
+					+ (TextureAssets.Projectile[Parent.type].Value.Height - TextureAssets.Projectile[Projectile.type].Value.Height) / 2f;
+				Projectile.position.Y = dirY;
 			}
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
-			Texture2D texture = Main.projectileTexture[projectile.type];
+		public override bool PreDraw(ref Color lightColor){
+			Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
 
-			Vector2 vector = projectile.Center - Main.screenPosition;
+			Vector2 vector = Projectile.Center - Main.screenPosition;
 
-			if(projectile.alpha == 0)
+			if(Projectile.alpha == 0)
 				spriteBatch.Draw(texture,
 					vector,
 					null,
 					lightColor,
-					projectile.rotation,
+					Projectile.rotation,
 					new Vector2(texture.Width / 2f, texture.Height / 2),
-					projectile.scale,
+					Projectile.scale,
 					SpriteEffects.None,
 					0
 				);
@@ -360,10 +362,10 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 		public override string Texture => "CosmivengeonMod/NPCs/Bosses/DraekBoss/Summons/DraekWyrmSummon_Body1";
 
 		public override void SetDefaults(){
-			projectile.CloneDefaults(ModContent.ProjectileType<SlitherWandProjectile_Body0>());
-			projectile.width = 20;
-			projectile.height = 26;
-			drawOriginOffsetY = projectile.width / 2;
+			Projectile.CloneDefaults(ModContent.ProjectileType<SlitherWandProjectile_Body0>());
+			Projectile.width = 20;
+			Projectile.height = 26;
+			DrawOriginOffsetY = Projectile.width / 2;
 		}
 	}
 
@@ -371,10 +373,10 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 		public override string Texture => "CosmivengeonMod/NPCs/Bosses/DraekBoss/Summons/DraekWyrmSummon_Tail";
 
 		public override void SetDefaults(){
-			projectile.CloneDefaults(ModContent.ProjectileType<SlitherWandProjectile_Body0>());
-			projectile.width = 14;
-			projectile.height = 20;
-			drawOriginOffsetY = projectile.width / 2;
+			Projectile.CloneDefaults(ModContent.ProjectileType<SlitherWandProjectile_Body0>());
+			Projectile.width = 14;
+			Projectile.height = 20;
+			DrawOriginOffsetY = Projectile.width / 2;
 		}
 	}
 }

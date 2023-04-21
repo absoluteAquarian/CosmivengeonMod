@@ -3,6 +3,7 @@ using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -37,7 +38,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 				npc.ai[0]++;
 
 				if(npc.ai[0] == 2f)
-					Main.PlaySound(SoundID.Roar, npc.Center, 0);
+					SoundEngine.PlaySound(SoundID.Roar, npc.Center);
 
 				int num154 = NPC.NewNPC((int)(npc.position.X + npc.width / 2), (int)npc.position.Y + npc.height / 2, 36, npc.whoAmI);
 				Main.npc[num154].ai[0] = -1f;
@@ -76,7 +77,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			//Get A N G E R Y
 			if(Main.dayTime && npc.ai[1] != 3f && npc.ai[1] != 2f){
 				npc.ai[1] = 2f;
-				Main.PlaySound(SoundID.Roar, (int)npc.position.X, (int)npc.position.Y, 0);
+				SoundEngine.PlaySound(SoundID.Roar, npc.position);
 			}
 
 			int num155 = 0;
@@ -179,7 +180,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 				npc.defense -= npc.defDefense;
 				npc.ai[2] += 1f;
 				if(npc.ai[2] == 2f)
-					Main.PlaySound(SoundID.Roar, (int)npc.position.X, (int)npc.position.Y, 0);
+					SoundEngine.PlaySound(SoundID.Roar, npc.position);
 
 				//300 ticks --> 120 ticks
 				if(npc.ai[2] >= 300f - 180f * (1f - (float)npc.life / npc.lifeMax)){
@@ -494,7 +495,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 
 			npc.Helper().Timer--;
 			if(npc.Helper().Timer <= 0){
-				Main.PlaySound(SoundID.NPCHit2, npc.Center);
+				SoundEngine.PlaySound(SoundID.NPCHit2, npc.Center);
 
 				MiscUtils.SpawnProjectileSynced(npc.Center, npc.DirectionTo(npc.Target().Center) * 14f, ModContent.ProjectileType<SkeletronBone>(), 32, 4f);
 

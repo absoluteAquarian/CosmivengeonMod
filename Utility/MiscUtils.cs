@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Terraria;
+using Terraria.Chat;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -20,7 +21,7 @@ namespace CosmivengeonMod.Utility{
 				&& !player.ZoneDungeon
 				&& !player.ZoneCorrupt
 				&& !player.ZoneCrimson
-				&& !player.ZoneHoly
+				&& !player.ZoneHallow
 				&& !player.ZoneSnow
 				&& !player.ZoneUndergroundDesert
 				&& !player.ZoneGlowshroom
@@ -78,14 +79,14 @@ namespace CosmivengeonMod.Utility{
 			=> TileIsSolidNotPlatform((int)pos.X >> 4, (int)pos.Y >> 4);
 
 		public static bool TileIsSolidNotPlatform(int x, int y)
-			=> TileIsSolidOrPlatform(x, y) && (Main.tile[x, y].type != TileID.Platforms || !TileID.Sets.Platforms[Main.tile[x, y].type]);
+			=> TileIsSolidOrPlatform(x, y) && (Main.tile[x, y].TileType != TileID.Platforms || !TileID.Sets.Platforms[Main.tile[x, y].TileType]);
 
 		public static bool TileIsSolidOrPlatform(Vector2 pos)
 			=> TileIsSolidOrPlatform((int)pos.X >> 4, (int)pos.Y >> 4);
 
 		public static bool TileIsSolidOrPlatform(int x, int y){
 			Tile tile = Framing.GetTileSafely(x, y);
-			return tile.nactive() && (Main.tileSolid[tile.type] || Main.tileSolidTop[tile.type] && tile.frameY == 0) || tile.liquid > 64;
+			return tile.HasUnactuatedTile && (Main.tileSolid[tile.TileType] || Main.tileSolidTop[tile.TileType] && tile.TileFrameY == 0) || tile.LiquidAmount > 64;
 		}
 
 		/// <summary>
@@ -167,7 +168,7 @@ namespace CosmivengeonMod.Utility{
 		public static void PlayMusic(ModNPC modNPC, CosmivengeonBoss boss){
 			float songChance = Main.rand.NextFloat();
 
-			modNPC.music = BossPackage.bossInfo?[boss]?.music(songChance) ?? 0;
+			modNPC.Music = BossPackage.bossInfo?[boss]?.music(songChance) ?? 0;
 		}
 
 		/// <summary>
@@ -258,7 +259,7 @@ namespace CosmivengeonMod.Utility{
 			if(Main.netMode == NetmodeID.SinglePlayer)
 				Main.NewText(message, color.Value);
 			else
-				NetMessage.BroadcastChatMessage(NetworkText.FromLiteral(message), color.Value);
+				ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral(message), color.Value);
 		}
 
 		public static T[] CreateArray<T>(T defaultValue, uint size){

@@ -1,41 +1,43 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 	public class EarthBoltProjectile : ModProjectile{
 		public override void SetStaticDefaults(){
-			ProjectileID.Sets.TrailCacheLength[projectile.type] = 5;
-			ProjectileID.Sets.TrailingMode[projectile.type] = 0;
+			ProjectileID.Sets.TrailCacheLength[Projectile.type] = 5;
+			ProjectileID.Sets.TrailingMode[Projectile.type] = 0;
 		}
 
 		public override void SetDefaults(){
-			projectile.width = 16;
-			projectile.height = 16;
-			projectile.aiStyle = 0;
-			projectile.friendly = true;
-			projectile.hostile = false;
-			projectile.magic = true;
-			projectile.penetrate = 4;
-			projectile.timeLeft = 600;
-			projectile.ignoreWater = true;
-			projectile.tileCollide = true;
+			Projectile.width = 16;
+			Projectile.height = 16;
+			Projectile.aiStyle = 0;
+			Projectile.friendly = true;
+			Projectile.hostile = false;
+			Projectile.DamageType = DamageClass.Magic;
+			Projectile.penetrate = 4;
+			Projectile.timeLeft = 600;
+			Projectile.ignoreWater = true;
+			Projectile.tileCollide = true;
 		}
 
 		public override void AI(){
 			//Spawn some dust
-			int dustIndex = Dust.NewDust(projectile.position, projectile.width, projectile.height, 74);
+			int dustIndex = Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, 74);
 
 			Main.dust[dustIndex].velocity = Vector2.Zero;
 
 			//Rotate the sprite
 			//5 rotations per second
-			projectile.rotation += MathHelper.ToRadians(5f * 360f / 60f);
+			Projectile.rotation += MathHelper.ToRadians(5f * 360f / 60f);
 
 			//Add a green light from the projectile
-			Lighting.AddLight(projectile.Center, 0f, 1f, 0f);
+			Lighting.AddLight(Projectile.Center, 0f, 1f, 0f);
 		}
 
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
@@ -44,33 +46,33 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 		public override bool OnTileCollide(Vector2 oldVelocity){
 			//If collide with tile, reduce the penetrate.
-			projectile.penetrate--;
+			Projectile.penetrate--;
 
-			if(projectile.penetrate <= 0){
-				projectile.Kill();
+			if(Projectile.penetrate <= 0){
+				Projectile.Kill();
 			}else{
-				Collision.HitTiles(projectile.position + projectile.velocity, projectile.velocity, projectile.width, projectile.height);
-				Main.PlaySound(SoundID.Item10, projectile.position);
+				Collision.HitTiles(Projectile.position + Projectile.velocity, Projectile.velocity, Projectile.width, Projectile.height);
+				SoundEngine.PlaySound(SoundID.Item10, Projectile.position);
 
-				if(projectile.velocity.X != oldVelocity.X)
-					projectile.velocity.X = -oldVelocity.X;
-				if(projectile.velocity.Y != oldVelocity.Y)
-					projectile.velocity.Y = -oldVelocity.Y;
+				if(Projectile.velocity.X != oldVelocity.X)
+					Projectile.velocity.X = -oldVelocity.X;
+				if(Projectile.velocity.Y != oldVelocity.Y)
+					Projectile.velocity.Y = -oldVelocity.Y;
 			}
 
 			return false;
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+		public override bool PreDraw(ref Color lightColor) {
 			//Redraw the projectile with the color not influenced by light
-			Vector2 drawOrigin = new Vector2(Main.projectileTexture[projectile.type].Width * 0.5f, projectile.height * 0.5f);
-			float scale = projectile.scale;
+			Vector2 drawOrigin = new Vector2(TextureAssets.Projectile[Projectile.type].Value.Width * 0.5f, Projectile.height * 0.5f);
+			float scale = Projectile.scale;
 
-			for (int k = 0; k < projectile.oldPos.Length; k++){
-				Vector2 drawPos = projectile.oldPos[k] - Main.screenPosition + drawOrigin + new Vector2(0f, projectile.gfxOffY);
-				Color color = projectile.GetAlpha(lightColor) * ((float)(projectile.oldPos.Length - k) / (float)projectile.oldPos.Length);
+			for (int k = 0; k < Projectile.oldPos.Length; k++){
+				Vector2 drawPos = Projectile.oldPos[k] - Main.screenPosition + drawOrigin + new Vector2(0f, Projectile.gfxOffY);
+				Color color = Projectile.GetAlpha(lightColor) * ((float)(Projectile.oldPos.Length - k) / (float)Projectile.oldPos.Length);
 				
-				spriteBatch.Draw(Main.projectileTexture[projectile.type], drawPos, null, color, projectile.rotation, drawOrigin, scale, SpriteEffects.None, 0f);
+				spriteBatch.Draw(TextureAssets.Projectile[Projectile.type].Value, drawPos, null, color, Projectile.rotation, drawOrigin, scale, SpriteEffects.None, 0f);
 
 				scale *= 0.9f;
 			}
@@ -80,8 +82,8 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 		public override void Kill(int timeLeft){
 			// This code and the similar code above in OnTileCollide spawn dust from the tiles collided with. SoundID.Item10 is the bounce sound you hear.
-			Collision.HitTiles(projectile.position + projectile.velocity, projectile.velocity, projectile.width, projectile.height);
-			Main.PlaySound(SoundID.Item10, projectile.position);
+			Collision.HitTiles(Projectile.position + Projectile.velocity, Projectile.velocity, Projectile.width, Projectile.height);
+			SoundEngine.PlaySound(SoundID.Item10, Projectile.position);
 		}
 	}
 }

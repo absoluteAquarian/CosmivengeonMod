@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Items.Weapons.UpgradeTree{
 	public class CrystaliceSword : ModItem{
-		public override bool OnlyShootOnSwing => true;
+		public override bool OnlyShootOnSwing/* tModPorter Note: Removed. If you returned true, set Item.useTime to a multiple of Item.useAnimation */ => true;
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Crystalice Sword");
@@ -13,29 +13,28 @@ namespace CosmivengeonMod.Items.Weapons.UpgradeTree{
 		}
 
 		public override void SetDefaults(){
-			item.damage = 15;
-			item.melee = true;
-			item.useTurn = false;
-			item.width = 50;
-			item.height = 50;
-			item.useTime = 40;
-			item.useAnimation = 28;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.knockBack = 4.3f;
-			item.value = Item.sellPrice(silver: 50);
-			item.rare = ItemRarityID.Blue;
-			item.UseSound = SoundID.Item1;
-			item.autoReuse = false;
+			Item.damage = 15;
+			Item.DamageType = DamageClass.Melee/* tModPorter Suggestion: Consider MeleeNoSpeed for no attack speed scaling */;
+			Item.useTurn = false;
+			Item.width = 50;
+			Item.height = 50;
+			Item.useTime = 40;
+			Item.useAnimation = 28;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.knockBack = 4.3f;
+			Item.value = Item.sellPrice(silver: 50);
+			Item.rare = ItemRarityID.Blue;
+			Item.UseSound = SoundID.Item1;
+			Item.autoReuse = false;
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>());
 			recipe.AddIngredient(ItemID.SnowBlock, 10);
 			recipe.AddIngredient(ItemID.IceBlock, 10);
 			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 
 		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit){

@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -80,7 +81,7 @@ namespace CosmivengeonMod.NPCs.Global{
 			return true;
 		}
 
-		public override bool PreDraw(NPC npc, SpriteBatch spriteBatch, Color drawColor){
+		public override bool PreDraw(NPC npc, SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor){
 			if(!WorldEvents.desoMode)
 				return true;
 
@@ -89,7 +90,7 @@ namespace CosmivengeonMod.NPCs.Global{
 				bool panicPhase = npc.ai[0] == 6f && npc.ai[3] == 0f;
 
 				if(prePanicPhaseQuickBackdash || (npc.alpha == 0 && panicPhase)){
-					Texture2D texture = Main.npcTexture[npc.type];
+					Texture2D texture = TextureAssets.Npc[npc.type].Value;
 					int frameCount = Main.npcFrameCount[npc.type];
 					Vector2 animationFrameCenter = new Vector2(texture.Width / 2, texture.Height / frameCount / 2);
 					SpriteEffects spriteEffects = SpriteEffects.None;
@@ -120,7 +121,7 @@ namespace CosmivengeonMod.NPCs.Global{
 				offset *= 32f;
 
 				//Draw the auras
-				Texture2D texture = Main.npcTexture[npc.type];
+				Texture2D texture = TextureAssets.Npc[npc.type].Value;
 				SpriteEffects effects = npc.spriteDirection == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 				Vector2 draw = npc.Top - Main.screenPosition;
 				for(int i = 0; i < 4; i++){

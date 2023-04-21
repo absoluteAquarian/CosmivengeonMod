@@ -59,7 +59,7 @@ namespace CosmivengeonMod.DamageClasses.Desolate{
 			critBonus += CritBonus;
 		}
 
-		public override bool Autoload(ref string name) => false;
+		public override bool IsLoadingEnabled(Mod mod)/* tModPorter Suggestion: If you return false for the purposes of manual loading, use the [Autoload(false)] attribute on your class instead */ => false;
 
 		public override void ModifyValue(ref float valueMult) => valueMult = ValueMultiplier;
 

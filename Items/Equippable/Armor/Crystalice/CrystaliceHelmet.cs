@@ -14,15 +14,15 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Crystalice{
 		}
 
 		public override void SetDefaults(){
-			item.width = 24;
-			item.height = 26;
-			item.defense = 2;
-			item.rare = ItemRarityID.Blue;
-			item.value = Item.sellPrice(silver: 8, copper: 40);
+			Item.width = 24;
+			Item.height = 26;
+			Item.defense = 2;
+			Item.rare = ItemRarityID.Blue;
+			Item.value = Item.sellPrice(silver: 8, copper: 40);
 		}
 
 		public override void UpdateEquip(Player player){
-			player.allDamage += 0.1f;
+			player.GetDamage(DamageClass.Generic) += 0.1f;
 			player.maxMinions++;
 		}
 
@@ -35,13 +35,12 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Crystalice{
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>(), 2);
 			recipe.AddIngredient(ItemID.IceBlock, 10);
 			recipe.AddIngredient(ItemID.SnowBlock, 15);
 			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }

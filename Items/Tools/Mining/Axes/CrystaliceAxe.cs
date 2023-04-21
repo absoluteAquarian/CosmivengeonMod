@@ -11,26 +11,25 @@ namespace CosmivengeonMod.Items.Tools.Mining.Axes{
 
 		public override void SetDefaults(){
 			//Slightly better than Silver
-			item.CloneDefaults(ItemID.SilverAxe);
+			Item.CloneDefaults(ItemID.SilverAxe);
 
-			item.damage++;
-			item.width = 40;
-			item.height = 40;
-			item.useTime -= 3;
-			item.useAnimation -= 2;
-			item.axe++;
-			item.value = Item.sellPrice(silver: 3);
-			item.rare = ItemRarityID.Blue;
+			Item.damage++;
+			Item.width = 40;
+			Item.height = 40;
+			Item.useTime -= 3;
+			Item.useAnimation -= 2;
+			Item.axe++;
+			Item.value = Item.sellPrice(silver: 3);
+			Item.rare = ItemRarityID.Blue;
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>(), 2);
 			recipe.AddIngredient(ItemID.SnowBlock, 15);
 			recipe.AddIngredient(ItemID.IceBlock, 15);
 			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }

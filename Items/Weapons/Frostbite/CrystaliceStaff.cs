@@ -2,6 +2,7 @@
 using CosmivengeonMod.Projectiles.Summons;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -13,29 +14,29 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 		}
 
 		public override void SetDefaults(){
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.shoot = ModContent.ProjectileType<BabyIceProwler>();
-			item.width = 48;
-			item.height = 48;
-			item.UseSound = SoundID.Item44;
-			item.useAnimation = 30;
-			item.useTime = 30;
-			item.rare = ItemRarityID.Green;
-			item.noMelee = true;
-			item.value = Item.sellPrice(silver: 60);
-			item.buffType = ModContent.BuffType<BabyIceProwlerBuff>();
-			item.mana = 8;
-			item.damage = 15;
-			item.knockBack = 1.72f;
-			item.summon = true;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.shoot = ModContent.ProjectileType<BabyIceProwler>();
+			Item.width = 48;
+			Item.height = 48;
+			Item.UseSound = SoundID.Item44;
+			Item.useAnimation = 30;
+			Item.useTime = 30;
+			Item.rare = ItemRarityID.Green;
+			Item.noMelee = true;
+			Item.value = Item.sellPrice(silver: 60);
+			Item.buffType = ModContent.BuffType<BabyIceProwlerBuff>();
+			Item.mana = 8;
+			Item.damage = 15;
+			Item.knockBack = 1.72f;
+			Item.DamageType = DamageClass.Summon;
 		}
 
-		public override void UseStyle(Player player){
+		public override void UseStyle(Player player, Rectangle heldItemFrame){
 			if(player.whoAmI == Main.myPlayer && player.itemTime == 0)
-				player.AddBuff(item.buffType, 3600);
+				player.AddBuff(Item.buffType, 3600);
 		}
 
-		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback){
 			position = Main.MouseWorld;  //Make the summon spawn at the cursor
 			return true;
 		}

@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Chat;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.Localization;
@@ -21,10 +22,10 @@ namespace CosmivengeonMod.Projectiles.Dice{
 		}
 
 		public override void SetDefaults(){
-			projectile.tileCollide = true;
-			projectile.width = 34;
-			projectile.height = 34;
-			projectile.scale = 8f / projectile.width;
+			Projectile.tileCollide = true;
+			Projectile.width = 34;
+			Projectile.height = 34;
+			Projectile.scale = 8f / Projectile.width;
 		}
 
 		internal bool chooseNumber;
@@ -46,40 +47,40 @@ namespace CosmivengeonMod.Projectiles.Dice{
 		}
 
 		public override void AI(){
-			float oldYVel = projectile.velocity.Y;
-			projectile.velocity.Y += 21f / 60f;
+			float oldYVel = Projectile.velocity.Y;
+			Projectile.velocity.Y += 21f / 60f;
 
-			projectile.velocity.X *= 1f - 1.5f / 60f;
+			Projectile.velocity.X *= 1f - 1.5f / 60f;
 
-			if(Math.Abs(projectile.velocity.X) < 0.08f)
-				projectile.velocity.X = 0;
+			if(Math.Abs(Projectile.velocity.X) < 0.08f)
+				Projectile.velocity.X = 0;
 
 			//Keep it alive as long as it hasn't stopped yet
 			if(!chooseNumber){
-				projectile.timeLeft = 60;
-				projectile.netUpdate = true;
+				Projectile.timeLeft = 60;
+				Projectile.netUpdate = true;
 			}
 
 			//Only the server should update the projectile
-			if(Main.myPlayer != projectile.owner || Main.netMode == NetmodeID.MultiplayerClient)
+			if(Main.myPlayer != Projectile.owner || Main.netMode == NetmodeID.MultiplayerClient)
 				return;
 
-			if(projectile.velocity.LengthSquared() > 10 * 10)
-				projectile.velocity = Vector2.Normalize(projectile.velocity) * 10f;
+			if(Projectile.velocity.LengthSquared() > 10 * 10)
+				Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 10f;
 
 			if(!chooseNumber){
-				if(Main.rand.NextFloat() * 5f * (projectile.velocity.Length() / 10f) >= 0.5f){
+				if(Main.rand.NextFloat() * 5f * (Projectile.velocity.Length() / 10f) >= 0.5f){
 					effects = Main.rand.NextBool() ? SpriteEffects.None : SpriteEffects.FlipVertically;
-					projectile.rotation = Main.rand.NextFloat(0, MathHelper.TwoPi);
+					Projectile.rotation = Main.rand.NextFloat(0, MathHelper.TwoPi);
 				}
 			}else{
 				realAlpha += 255f / 90f;
-				projectile.alpha = (int)realAlpha;
+				Projectile.alpha = (int)realAlpha;
 			}
 
-			if(projectile.oldVelocity.X == 0 && projectile.velocity.X == 0f && oldYVel == 0 && !chooseNumber){
+			if(Projectile.oldVelocity.X == 0 && Projectile.velocity.X == 0f && oldYVel == 0 && !chooseNumber){
 				chooseNumber = true;
-				projectile.timeLeft = 90;
+				Projectile.timeLeft = 90;
 
 				//Roll was set by a command if "random" isn't -1
 				if(random == -1){
@@ -89,7 +90,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 						random = Main.rand.Next(1, 21);
 
 					//If the unlucky factor is > 0, then make bad rolls happen more often that good rolls
-					int unlucky = (int)projectile.ai[0];
+					int unlucky = (int)Projectile.ai[0];
 					int maxLuck = GetMaxLuck(unlucky);
 					if(random > maxLuck)
 						random = Main.rand.Next(1, maxLuck + 1);
@@ -103,39 +104,39 @@ namespace CosmivengeonMod.Projectiles.Dice{
 							? CombatText.DamagedHostile
 							: CombatText.LifeRegen));
 
-				CombatText.NewText(new Rectangle((int)projectile.Center.X - 8, (int)projectile.Center.Y - 40, 16, 16), color, random, dramatic: true);
+				CombatText.NewText(new Rectangle((int)Projectile.Center.X - 8, (int)Projectile.Center.Y - 40, 16, 16), color, random, dramatic: true);
 			}
 		}
 
 		public override bool? CanCutTiles() => true;
 
-		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough){
+		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac){
 			fallThrough = false;
 			return true;
 		}
 
 		public override bool OnTileCollide(Vector2 oldVelocity){
-			if(projectile.velocity.Y != oldVelocity.Y){
-				projectile.velocity.Y = (int)(-oldVelocity.Y * (oldVelocity.Y > 0 ? 0.78f : 1f));
+			if(Projectile.velocity.Y != oldVelocity.Y){
+				Projectile.velocity.Y = (int)(-oldVelocity.Y * (oldVelocity.Y > 0 ? 0.78f : 1f));
 
 				//Stop bouncing if the bounce up was too slow
-				if(-0.3f < projectile.velocity.Y && projectile.velocity.Y < 0)
-					projectile.velocity.Y = 0;
+				if(-0.3f < Projectile.velocity.Y && Projectile.velocity.Y < 0)
+					Projectile.velocity.Y = 0;
 			}
-			if(projectile.velocity.X != oldVelocity.X)
-				projectile.velocity.X = (int)(-oldVelocity.X * 0.78f);
+			if(Projectile.velocity.X != oldVelocity.X)
+				Projectile.velocity.X = (int)(-oldVelocity.X * 0.78f);
 
 			return false;
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
+		public override bool PreDraw(ref Color lightColor){
 			Texture2D texture = ModContent.GetTexture(Texture);
-			spriteBatch.Draw(texture, projectile.Center - Main.screenPosition, null, lightColor, projectile.rotation, texture.Size() / 2f, projectile.scale, effects, 0f);
+			spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, lightColor, Projectile.rotation, texture.Size() / 2f, Projectile.scale, effects, 0f);
 			return false;
 		}
 
 		public override void Kill(int timeLeft){
-			Player owner = Main.player[projectile.owner];
+			Player owner = Main.player[Projectile.owner];
 
 			//Stuff should not run on clients other than the one for the owner (or the server)
 			if(Main.myPlayer != owner.whoAmI || Main.netMode == NetmodeID.MultiplayerClient)
@@ -147,7 +148,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 				if(Main.netMode == NetmodeID.SinglePlayer)
 					Main.NewText(toPrint);
 				else if(Main.netMode == NetmodeID.Server)
-					NetMessage.BroadcastChatMessage(NetworkText.FromLiteral(toPrint), Color.White);
+					ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral(toPrint), Color.White);
 			}
 
 			//Effects go from really bad (1) to really good (20), with 10 and 11 being "neutral" effects
@@ -273,7 +274,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 									tries--;
 									if(tries <= 0)
 										break;
-								}while(Framing.GetTileSafely(randX / 16, randY / 16).active());
+								}while(Framing.GetTileSafely(randX / 16, randY / 16).HasTile);
 
 								int hordeType;
 								if(!Main.hardMode)
@@ -682,13 +683,13 @@ namespace CosmivengeonMod.Projectiles.Dice{
 							break;
 						case 2:
 							(int, int) drop = Main.rand.Next(new (int, int)[]{
-								(WorldGen.CopperTierOre == TileID.Copper ? ItemID.CopperBar : ItemID.TinBar,
+								(WorldGen.SavedOreTiers.Copper == TileID.Copper ? ItemID.CopperBar : ItemID.TinBar,
 									Main.rand.Next(1, 6)),
-								(WorldGen.IronTierOre == TileID.Iron ? ItemID.IronBar : ItemID.LeadBar,
+								(WorldGen.SavedOreTiers.Iron == TileID.Iron ? ItemID.IronBar : ItemID.LeadBar,
 									Main.rand.Next(1, 5)),
-								(WorldGen.SilverTierOre == TileID.Silver ? ItemID.SilverBar : ItemID.TungstenBar,
+								(WorldGen.SavedOreTiers.Silver == TileID.Silver ? ItemID.SilverBar : ItemID.TungstenBar,
 									Main.rand.Next(1, 4)),
-								(WorldGen.GoldTierOre == TileID.Gold ? ItemID.GoldBar : ItemID.PlatinumBar,
+								(WorldGen.SavedOreTiers.Gold == TileID.Gold ? ItemID.GoldBar : ItemID.PlatinumBar,
 									Main.rand.Next(1, 3))
 							});
 
@@ -764,13 +765,13 @@ namespace CosmivengeonMod.Projectiles.Dice{
 							break;
 						case 1:
 							(int, int) drop = Main.rand.Next(new (int, int)[]{
-								(WorldGen.CopperTierOre == TileID.Copper ? ItemID.CopperBar : ItemID.TinBar,
+								(WorldGen.SavedOreTiers.Copper == TileID.Copper ? ItemID.CopperBar : ItemID.TinBar,
 									Main.rand.Next(3, 11)),
-								(WorldGen.IronTierOre == TileID.Iron ? ItemID.IronBar : ItemID.LeadBar,
+								(WorldGen.SavedOreTiers.Iron == TileID.Iron ? ItemID.IronBar : ItemID.LeadBar,
 									Main.rand.Next(2, 8)),
-								(WorldGen.SilverTierOre == TileID.Silver ? ItemID.SilverBar : ItemID.TungstenBar,
+								(WorldGen.SavedOreTiers.Silver == TileID.Silver ? ItemID.SilverBar : ItemID.TungstenBar,
 									Main.rand.Next(1, 6)),
-								(WorldGen.GoldTierOre == TileID.Gold ? ItemID.GoldBar : ItemID.PlatinumBar,
+								(WorldGen.SavedOreTiers.Gold == TileID.Gold ? ItemID.GoldBar : ItemID.PlatinumBar,
 									Main.rand.Next(1, 5))
 							});
 
@@ -876,11 +877,11 @@ namespace CosmivengeonMod.Projectiles.Dice{
 							break;
 						case 1:
 							(int, int) drop = Main.rand.Next(new (int, int)[]{
-								(WorldGen.IronTierOre == TileID.Iron ? ItemID.IronBar : ItemID.LeadBar,
+								(WorldGen.SavedOreTiers.Iron == TileID.Iron ? ItemID.IronBar : ItemID.LeadBar,
 									Main.rand.Next(6, 21)),
-								(WorldGen.SilverTierOre == TileID.Silver ? ItemID.SilverBar : ItemID.TungstenBar,
+								(WorldGen.SavedOreTiers.Silver == TileID.Silver ? ItemID.SilverBar : ItemID.TungstenBar,
 									Main.rand.Next(4, 13)),
-								(WorldGen.GoldTierOre == TileID.Gold ? ItemID.GoldBar : ItemID.PlatinumBar,
+								(WorldGen.SavedOreTiers.Gold == TileID.Gold ? ItemID.GoldBar : ItemID.PlatinumBar,
 									Main.rand.Next(4, 9))
 							});
 
@@ -1293,7 +1294,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 			for(y = (int)Main.rockLayer + 100; y < Main.maxTilesY - 200; y++){
 				for(x = dungeonLeft ? 0 : Main.maxTilesX - 1; dungeonLeft ? x < Main.maxTilesX / 3 : x > Main.maxTilesX * 2 / 3; x = dungeonLeft ? x + 1 : x - 1){
 					Tile tile = Framing.GetTileSafely(x, y);
-					if(Main.wallDungeon[tile.wall])
+					if(Main.wallDungeon[tile.WallType])
 						dungeonWalls.Add((x, y));
 				}
 
@@ -1329,7 +1330,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					y = 0;
 					return false;
 				}
-			}while(tile.active() || !tile.lava() || tile.liquid < 200);
+			}while(tile.HasTile || !(tile.LiquidType == LiquidID.Lava) || tile.LiquidAmount < 200);
 
 			return true;
 		}

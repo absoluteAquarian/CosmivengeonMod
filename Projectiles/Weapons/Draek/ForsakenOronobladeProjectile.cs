@@ -11,24 +11,24 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Poisonous Energy Blast");
-			Main.projFrames[projectile.type] = 5;
+			Main.projFrames[Projectile.type] = 5;
 		}
 
 		public override void SetDefaults(){
-			projectile.height = 14;
-			projectile.width = 14;
-			projectile.friendly = true;
-			projectile.hostile = false;
-			projectile.tileCollide = true;
-			projectile.ignoreWater = true;
-			projectile.penetrate = 1;
-			projectile.timeLeft = 2 * 60;
-			projectile.alpha = 255;
-			projectile.scale = 0.8f;
+			Projectile.height = 14;
+			Projectile.width = 14;
+			Projectile.friendly = true;
+			Projectile.hostile = false;
+			Projectile.tileCollide = true;
+			Projectile.ignoreWater = true;
+			Projectile.penetrate = 1;
+			Projectile.timeLeft = 2 * 60;
+			Projectile.alpha = 255;
+			Projectile.scale = 0.8f;
 
-			projectile.melee = true;
+			Projectile.DamageType = DamageClass.Melee;
 
-			projectile.aiStyle = 0;
+			Projectile.aiStyle = 0;
 		}
 
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
@@ -38,25 +38,25 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 		public override void AI(){
 			//Fade the projectile in
-			if(projectile.alpha > 0)
-				projectile.alpha -= 25;
-			else if(projectile.alpha < 0)
-				projectile.alpha = 0;
+			if(Projectile.alpha > 0)
+				Projectile.alpha -= 25;
+			else if(Projectile.alpha < 0)
+				Projectile.alpha = 0;
 
 			//Set the rotation to the projectile's velocity vector + PI
-			projectile.rotation = projectile.velocity.ToRotation() + MathHelper.ToRadians(90f);
+			Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(90f);
 
 			//Change the animation frame every 5 frames
-			if (++projectile.frameCounter >= 5){
-				projectile.frameCounter = 0;
-				projectile.frame = ++projectile.frame % Main.projFrames[projectile.type];
+			if (++Projectile.frameCounter >= 5){
+				Projectile.frameCounter = 0;
+				Projectile.frame = ++Projectile.frame % Main.projFrames[Projectile.type];
 			}
 
 			//Add a green light from the projectile
-			Lighting.AddLight(projectile.Center, 0f, 1f, 0f);
+			Lighting.AddLight(Projectile.Center, 0f, 1f, 0f);
 
 			if(Main.rand.NextFloat() < 0.125f){
-				Dust dust = Dust.NewDustDirect(projectile.position, projectile.width, projectile.height, 74);
+				Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 74);
 				dust.noGravity = true;
 				dust.velocity = Vector2.Zero;
 			}

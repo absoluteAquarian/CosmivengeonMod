@@ -11,7 +11,7 @@ using Terraria.ModLoader;
 namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite{
 	[AutoloadEquip(EquipType.Front)]
 	public class FrostDemonHorn : HidableTooltip{
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
 
 		public override string ItemName => "Frost Demon's Horn";
 
@@ -27,11 +27,11 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite{
 				"\n- Movement speed is decreased by 15%";
 
 		public override void SetDefaults(){
-			item.width = 18;
-			item.height = 14;
-			item.rare = ItemRarityID.Blue;
-			item.accessory = true;
-			item.value = Item.sellPrice(silver: 8, copper: 20);
+			Item.width = 18;
+			Item.height = 14;
+			Item.rare = ItemRarityID.Blue;
+			Item.accessory = true;
+			Item.value = Item.sellPrice(silver: 8, copper: 20);
 		}
 
 		public override void UpdateAccessory(Player player, bool hideVisual){
@@ -41,7 +41,7 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite{
 				player.moveSpeed *= 0.85f;
 			else{
 				player.moveSpeed *= 1.35f;
-				player.allDamage += 0.1f;
+				player.GetDamage(DamageClass.Generic) += 0.1f;
 				player.statDefense -= 15;
 				player.AddBuff(ModContent.BuffType<FrostHornWhole>(), 2);
 			}
@@ -56,7 +56,7 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite{
 				return;
 
 			do{
-				if(tooltips[customIndex].text.Contains("<N>"))
+				if(tooltips[customIndex].Text.Contains("<N>"))
 					break;
 
 				customIndex++;
@@ -64,9 +64,9 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite{
 
 			TooltipLine customLine = tooltips[customIndex];
 
-			List<string> text = customLine.text.Split(new string[]{ "<N>" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+			List<string> text = customLine.Text.Split(new string[]{ "<N>" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 			text.Insert(1, $"{(int)(Main.LocalPlayer.statLifeMax2 * 0.25f)}");
-			customLine.text = string.Join("", text.ToArray());
+			customLine.Text = string.Join("", text.ToArray());
 		}
 	}
 }

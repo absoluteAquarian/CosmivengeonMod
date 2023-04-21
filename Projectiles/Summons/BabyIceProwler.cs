@@ -6,12 +6,12 @@ using Terraria;
 namespace CosmivengeonMod.Projectiles.Summons{
 	public class BabyIceProwler : WalkingSummon{
 		public override void ExtraStaticDefaults(){
-			Main.projFrames[projectile.type] = 4;
+			Main.projFrames[Projectile.type] = 4;
 		}
 
 		public override void ExtraDefaults(){
-			projectile.width = 44;
-			projectile.height = 24;
+			Projectile.width = 44;
+			Projectile.height = 24;
 		}
 
 		public override bool OnTileCollide(Vector2 oldVelocity) => false;
@@ -20,51 +20,51 @@ namespace CosmivengeonMod.Projectiles.Summons{
 			if(ownerPlayer.dead)
 				minionOwner.babyProwler = false;
 			if(minionOwner.babyProwler)
-				projectile.timeLeft = 2;
+				Projectile.timeLeft = 2;
 		}
 
 		public override void Behaviour_AttackNPC(){
 			float velXCap = 10f;
 			float acceleration = 0.175f;
 
-			if(projectile.velocity.Y == 0f && projectile.Center.Y > npcTarget.Bottom.Y)
-				projectile.velocity.Y = Math.Min(-4 + Math.Abs(projectile.Center.Y - npcTarget.Center.Y) * 0.233f, -7) * Main.rand.NextFloat(0.835f, 1.183f);
+			if(Projectile.velocity.Y == 0f && Projectile.Center.Y > npcTarget.Bottom.Y)
+				Projectile.velocity.Y = Math.Min(-4 + Math.Abs(Projectile.Center.Y - npcTarget.Center.Y) * 0.233f, -7) * Main.rand.NextFloat(0.835f, 1.183f);
 
-			if(Math.Abs(projectile.Center.X - npcTarget.Center.X) > 2 * 16 && Math.Sign(projectile.velocity.X) != Math.Sign(npcTarget.Center.X - projectile.Center.X))
-				projectile.velocity.X *= 1f - 3f / 60f;
+			if(Math.Abs(Projectile.Center.X - npcTarget.Center.X) > 2 * 16 && Math.Sign(Projectile.velocity.X) != Math.Sign(npcTarget.Center.X - Projectile.Center.X))
+				Projectile.velocity.X *= 1f - 3f / 60f;
 
-			projectile.velocity.X += Math.Sign(npcTarget.Center.X - projectile.Center.X) * acceleration;
-			projectile.velocity.X.Clamp(-velXCap, velXCap);
+			Projectile.velocity.X += Math.Sign(npcTarget.Center.X - Projectile.Center.X) * acceleration;
+			Projectile.velocity.X.Clamp(-velXCap, velXCap);
 
-			projectile.rotation = 0;
+			Projectile.rotation = 0;
 		}
 
 		public override void ClampWalkSpeed(){
-			projectile.velocity.X.Clamp(-8, 8);
+			Projectile.velocity.X.Clamp(-8, 8);
 		}
 
 		public override void UpdateAnimation(){
-			if(projectile.velocity.X == 0 || projectile.velocity.Y != 0f || State == ActionStates.FlyingToPlayer)
-				projectile.frame = 0;
-			else if(++projectile.frameCounter > 9){
-				projectile.frameCounter = 0;
-				projectile.frame = ++projectile.frame % Main.projFrames[projectile.type];
+			if(Projectile.velocity.X == 0 || Projectile.velocity.Y != 0f || State == ActionStates.FlyingToPlayer)
+				Projectile.frame = 0;
+			else if(++Projectile.frameCounter > 9){
+				Projectile.frameCounter = 0;
+				Projectile.frame = ++Projectile.frame % Main.projFrames[Projectile.type];
 			}
 		}
 
 		public override void UpdateGravity(){
-			projectile.velocity.Y += 18.45f / 60;
-			if(projectile.velocity.Y > 16f)
-				projectile.velocity.Y = 16f;
+			Projectile.velocity.Y += 18.45f / 60;
+			if(Projectile.velocity.Y > 16f)
+				Projectile.velocity.Y = 16f;
 		}
 
 		public override void SpawnFlyDust(){
-			Dust dust = Dust.NewDustDirect(projectile.Bottom, 6, 6, 66);
+			Dust dust = Dust.NewDustDirect(Projectile.Bottom, 6, 6, 66);
 			dust.noGravity = true;
 		}
 
 		public override void Do_SmoothStep(){
-			Collision.StepUp(ref projectile.position, ref projectile.velocity, projectile.width, projectile.height, ref projectile.stepSpeed, ref projectile.gfxOffY);
+			Collision.StepUp(ref Projectile.position, ref Projectile.velocity, Projectile.width, Projectile.height, ref Projectile.stepSpeed, ref Projectile.gfxOffY);
 		}
 	}
 }

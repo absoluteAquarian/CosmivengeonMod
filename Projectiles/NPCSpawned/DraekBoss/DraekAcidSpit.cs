@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -12,13 +13,13 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 		}
 
 		public override void SetDefaults(){
-			projectile.alpha = 75;
-			projectile.width = 8;
-			projectile.height = 8;
-			projectile.penetrate = 1;
-			projectile.tileCollide = true;
-			projectile.friendly = false;
-			projectile.hostile = true;
+			Projectile.alpha = 75;
+			Projectile.width = 8;
+			Projectile.height = 8;
+			Projectile.penetrate = 1;
+			Projectile.tileCollide = true;
+			Projectile.friendly = false;
+			Projectile.hostile = true;
 		}
 
 		private bool hasSpawned = false;
@@ -26,22 +27,22 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 		public override void AI(){
 			if(!hasSpawned){
 				hasSpawned = true;
-				projectile.velocity = Vector2.Normalize(new Vector2(projectile.ai[0], projectile.ai[1]) - projectile.Center) * 10f;
+				Projectile.velocity = Vector2.Normalize(new Vector2(Projectile.ai[0], Projectile.ai[1]) - Projectile.Center) * 10f;
 
-				Main.PlaySound(SoundID.NPCDeath19.WithVolume(0.6f), projectile.Center);
+				SoundEngine.PlaySound(SoundID.NPCDeath19.WithVolume(0.6f), Projectile.Center);
 			}
 
-			projectile.velocity.Y += 8f / 60f;
+			Projectile.velocity.Y += 8f / 60f;
 
-			projectile.velocity.Y.Clamp(-10, 10);
+			Projectile.velocity.Y.Clamp(-10, 10);
 
 			if(Main.rand.NextFloat() < 0.75f){
-				Dust dust = Dust.NewDustPerfect(projectile.Center, 74);
+				Dust dust = Dust.NewDustPerfect(Projectile.Center, 74);
 				dust.velocity = Vector2.Zero;
 				dust.noGravity = true;
 			}
 
-			projectile.rotation += MathHelper.ToRadians(4f * 6f) * Math.Sign(projectile.velocity.X);
+			Projectile.rotation += MathHelper.ToRadians(4f * 6f) * Math.Sign(Projectile.velocity.X);
 		}
 	}
 }

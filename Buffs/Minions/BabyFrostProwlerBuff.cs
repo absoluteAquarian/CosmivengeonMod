@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Buffs.Minions{
 	public class BabyIceProwlerBuff : ModBuff{
-		public override void SetDefaults(){
+		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Baby Ice Prowler");
 			Description.SetDefault("A baby Ice Prowler will protect you.");
 			Main.buffNoSave[Type] = true;

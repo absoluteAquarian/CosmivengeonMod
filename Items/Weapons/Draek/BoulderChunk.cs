@@ -14,37 +14,36 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 		}
 
 		public override void SetDefaults(){
-			item.shootSpeed = BoulderChunkProjectile.MAX_VELOCITY;
-			item.damage = 58;
-			item.knockBack = 7.9f;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.useAnimation = 30;
-			item.useTime = 30;
-			item.width = 40;
-			item.height = 40;
-			item.maxStack = 999;
-			item.rare = ItemRarityID.Green;
+			Item.shootSpeed = BoulderChunkProjectile.MAX_VELOCITY;
+			Item.damage = 58;
+			Item.knockBack = 7.9f;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.useAnimation = 30;
+			Item.useTime = 30;
+			Item.width = 40;
+			Item.height = 40;
+			Item.maxStack = 999;
+			Item.rare = ItemRarityID.Green;
 
-			item.consumable = true;
-			item.noUseGraphic = true;
-			item.noMelee = true;
-			item.autoReuse = true;
-			item.thrown = true;
+			Item.consumable = true;
+			Item.noUseGraphic = true;
+			Item.noMelee = true;
+			Item.autoReuse = true;
+			Item.DamageType = DamageClass.Throwing;
 
-			item.UseSound = SoundID.Item1;
-			item.value = Item.sellPrice(0, 0, 2, 75);
+			Item.UseSound = SoundID.Item1;
+			Item.value = Item.sellPrice(0, 0, 2, 75);
 
-			item.shoot = ModContent.ProjectileType<BoulderChunkProjectile>();
+			Item.shoot = ModContent.ProjectileType<BoulderChunkProjectile>();
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe(50);
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
 			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);
 			recipe.AddIngredient(ModContent.ItemType<RaechonShell>());
 			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this, 50);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }

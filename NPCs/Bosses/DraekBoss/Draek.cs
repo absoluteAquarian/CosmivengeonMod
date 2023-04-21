@@ -11,6 +11,8 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.IO;
 using Terraria;
+using Terraria.Audio;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -33,7 +35,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		private int animationOffset;
 		public int AnimationOffset{
 			get{
-				FindFrame(Main.npcTexture[npc.type].Height / Main.npcFrameCount[npc.type]);
+				FindFrame(TextureAssets.Npc[NPC.type].Value.Height / Main.npcFrameCount[NPC.type]);
 				return animationOffset;
 			}
 		}
@@ -43,9 +45,9 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Draek");
-			Main.npcFrameCount[npc.type] = 4;
-			NPCID.Sets.TrailCacheLength[npc.type] = 5;
-			NPCID.Sets.TrailingMode[npc.type] = 0;
+			Main.npcFrameCount[NPC.type] = 4;
+			NPCID.Sets.TrailCacheLength[NPC.type] = 5;
+			NPCID.Sets.TrailingMode[NPC.type] = 0;
 		}
 
 		public int HealthThreshold;
@@ -55,28 +57,28 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		public static float GetHealthAugmentation() => MiscUtils.GetModeChoice(0, 0.65f, 0.8f);
 
 		public override void SetDefaults(){
-			npc.scale = 1f;
+			NPC.scale = 1f;
 			//Draek frame dimentions:  186x290px
-			npc.width = 74;
-			npc.height = 233;
-			npc.aiStyle = -1;	//-1 means that this enemy has a unique AI; don't copy an existing style
-			npc.damage = 45;
-			npc.defense = 18;
-			npc.lifeMax = BaseHealth;
-			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
-			npc.noGravity = true;
-			npc.knockBackResist = 0f;	//100% kb resist
-			npc.npcSlots = 30f;
-			npc.boss = true;
-			npc.lavaImmune = true;
-			npc.noTileCollide = true;
+			NPC.width = 74;
+			NPC.height = 233;
+			NPC.aiStyle = -1;	//-1 means that this enemy has a unique AI; don't copy an existing style
+			NPC.damage = 45;
+			NPC.defense = 18;
+			NPC.lifeMax = BaseHealth;
+			NPC.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
+			NPC.noGravity = true;
+			NPC.knockBackResist = 0f;	//100% kb resist
+			NPC.npcSlots = 30f;
+			NPC.boss = true;
+			NPC.lavaImmune = true;
+			NPC.noTileCollide = true;
 
-			npc.value = Value;
+			NPC.value = Value;
 
-			npc.buffImmune[BuffID.Poisoned] = true;
-			npc.buffImmune[BuffID.Confused] = true;
-			npc.buffImmune[BuffID.Burning] = true;
-			npc.buffImmune[BuffID.Frostburn] = true;
+			NPC.buffImmune[BuffID.Poisoned] = true;
+			NPC.buffImmune[BuffID.Confused] = true;
+			NPC.buffImmune[BuffID.Burning] = true;
+			NPC.buffImmune[BuffID.Frostburn] = true;
 
 			MiscUtils.PlayMusic(this, CosmivengeonBoss.Draek);
 
@@ -91,7 +93,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			}
 		}
 
-		public override bool PreNPCLoot(){
+		public override bool PreKill(){
 			return false;	//First phase shouldn't drop anything
 		}
 
@@ -99,11 +101,11 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			//Health increase handled in DetourNPC
 
 			if(!WorldEvents.desoMode){
-				npc.damage = 55;
-				npc.defense = 22;
+				NPC.damage = 55;
+				NPC.defense = 22;
 			}else{
-				npc.damage = 80;
-				npc.defense = 26;
+				NPC.damage = 80;
+				NPC.defense = 26;
 			}
 		}
 
@@ -182,10 +184,10 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		public const int Attack_Punch = 6;
 
 		//properties for ai[]
-		public ref float AI_Timer => ref npc.ai[AI_Timer_Slot];
-		public ref float AI_Attack => ref npc.ai[AI_Attack_Slot];
-		public ref float AI_Attack_Progress => ref npc.ai[AI_Attack_Progress_Slot];
-		public ref float AI_Animation_Counter => ref npc.ai[AI_Animation_Counter_Slot];
+		public ref float AI_Timer => ref NPC.ai[AI_Timer_Slot];
+		public ref float AI_Attack => ref NPC.ai[AI_Attack_Slot];
+		public ref float AI_Attack_Progress => ref NPC.ai[AI_Attack_Progress_Slot];
+		public ref float AI_Animation_Counter => ref NPC.ai[AI_Animation_Counter_Slot];
 
 		//Consts for animation frames
 		private const int Idle_Sword_0 = 0;
@@ -300,7 +302,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 					offsetY = 0;
 
 					string texture = "Draek_Punch";
-					texture += npc.spriteDirection == -1 ? "Right" : "Left";
+					texture += NPC.spriteDirection == -1 ? "Right" : "Left";
 					if(PunchProgress == Punch_PrimeFirst || PunchProgress == Punch_PunchFirst){
 						//Priming/punching first punch
 						texture += "_Both";
@@ -311,7 +313,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 					}
 
 					if(PunchProgress != Punch_Wait && PunchProgress != Punch_RetriveFirst && PunchProgress != Punch_RetrieveSecond){
-						RealTexture = mod.GetTexture($"NPCs/Draek/{texture}");
+						RealTexture = Mod.GetTexture($"NPCs/Draek/{texture}");
 						RealFrame = RealTexture.Frame(1, 8);
 					}else{
 						if(CounterMod30 < 7)
@@ -327,13 +329,13 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			}
 
 			if(AI_Attack != Attack_Punch || (AI_Attack == Attack_Punch && PunchProgress == Punch_Wait)){
-				RealTexture = mod.GetTexture($"NPCs/Draek/Draek_Animations");
+				RealTexture = Mod.GetTexture($"NPCs/Draek/Draek_Animations");
 				RealFrame = RealTexture.Frame(4, 5);
 
 				GraphicsOffsetX = -49;
 				GraphicsOffsetY = -52;
 
-				if(npc.spriteDirection == 1)
+				if(NPC.spriteDirection == 1)
 					GraphicsOffsetX = -65;
 
 				offsetY = offsetX / 4;
@@ -344,7 +346,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				GraphicsOffsetX = -131;
 				GraphicsOffsetY = -6;
 
-				if(npc.spriteDirection == -1)
+				if(NPC.spriteDirection == -1)
 					GraphicsOffsetX = -55;
 
 				animationOffset = offsetX;
@@ -362,44 +364,44 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				target.AddBuff(ModContent.BuffType<PrimordialWrath>(), 150);
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
+		public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor){
 			//Only apply afterimage effects while dashing
 			if(afterImageLength > 1){
 				//Afterimage effect
 				Vector2 drawOrigin = RealFrame.Size() / 2f;
-				SpriteEffects effect = (npc.spriteDirection == -1) ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+				SpriteEffects effect = (NPC.spriteDirection == -1) ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 				for (int k = 0; k < afterImageLength / 2; k++){
-					Vector2 drawPos = npc.oldPos[k] - Main.screenPosition + drawOrigin + new Vector2(GraphicsOffsetX, GraphicsOffsetY);
+					Vector2 drawPos = NPC.oldPos[k] - Main.screenPosition + drawOrigin + new Vector2(GraphicsOffsetX, GraphicsOffsetY);
 					
-					Color color = npc.GetAlpha(lightColor) * (((float)npc.oldPos.Length - k) / npc.oldPos.Length);
-					color.A = (byte)(0.75f * 255f * (npc.oldPos.Length - k) / npc.oldPos.Length);	//Apply transparency
+					Color color = NPC.GetAlpha(lightColor) * (((float)NPC.oldPos.Length - k) / NPC.oldPos.Length);
+					color.A = (byte)(0.75f * 255f * (NPC.oldPos.Length - k) / NPC.oldPos.Length);	//Apply transparency
 
-					spriteBatch.Draw(RealTexture, drawPos, RealFrame, color, npc.rotation, drawOrigin, npc.scale, effect, 0f);
+					spriteBatch.Draw(RealTexture, drawPos, RealFrame, color, NPC.rotation, drawOrigin, NPC.scale, effect, 0f);
 				}
 			}
 			return false;	//Prevent sprite from being drawn normally
 		}
 
-		public override void PostDraw(SpriteBatch spriteBatch, Color drawColor){
+		public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor){
 			//We're going to manually draw Draek to better fit his hitbox size
-			SpriteEffects effect = (npc.spriteDirection == -1) ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+			SpriteEffects effect = (NPC.spriteDirection == -1) ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 			Vector2 drawOrigin = RealFrame.Size() / 2f;
-			Vector2 drawPos = npc.position - Main.screenPosition + drawOrigin + new Vector2(GraphicsOffsetX, GraphicsOffsetY);
+			Vector2 drawPos = NPC.position - Main.screenPosition + drawOrigin + new Vector2(GraphicsOffsetX, GraphicsOffsetY);
 
-			spriteBatch.Draw(RealTexture, drawPos, RealFrame, drawColor, npc.rotation, drawOrigin, npc.scale, effect, 0f);
+			spriteBatch.Draw(RealTexture, drawPos, RealFrame, drawColor, NPC.rotation, drawOrigin, NPC.scale, effect, 0f);
 
 #pragma warning disable CS0162
 			if(ShowDebug){
-				Vector2 pos = npc.Top + new Vector2(-npc.width - 50, -70) - Main.screenPosition;
-				Utils.DrawBorderStringFourWay(spriteBatch, Main.fontMouseText,
-					$"AI: [ {(int)npc.ai[0],3}, {(int)npc.ai[1]}, {(int)npc.ai[2],2}, {(int)npc.ai[3],3} ]",
+				Vector2 pos = NPC.Top + new Vector2(-NPC.width - 50, -70) - Main.screenPosition;
+				Utils.DrawBorderStringFourWay(spriteBatch, FontAssets.MouseText.Value,
+					$"AI: [ {(int)NPC.ai[0],3}, {(int)NPC.ai[1]}, {(int)NPC.ai[2],2}, {(int)NPC.ai[3],3} ]",
 					pos.X,
 					pos.Y,
 					Color.White,
 					Color.Black,
 					Vector2.Zero);
 				pos.Y += 18;
-				Utils.DrawBorderStringFourWay(spriteBatch, Main.fontMouseText,
+				Utils.DrawBorderStringFourWay(spriteBatch, FontAssets.MouseText.Value,
 					$"Animation: [ {RealFrame.X / RealFrame.Width}, {RealFrame.Y / RealFrame.Height} ]",
 					pos.X,
 					pos.Y,
@@ -407,7 +409,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 					Color.Black,
 					Vector2.Zero);
 				pos.Y += 18;
-				Utils.DrawBorderStringFourWay(spriteBatch, Main.fontMouseText,
+				Utils.DrawBorderStringFourWay(spriteBatch, FontAssets.MouseText.Value,
 					$"Texture: \"{(AI_Attack == Attack_Punch ? "Punch Sheet" : "Main Sheet")}\"",
 					pos.X,
 					pos.Y,
@@ -421,33 +423,33 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		private const bool ShowDebug = false;
 
 		public override bool CheckActive(){
-			return Vector2.Distance(npc.Center, playerTarget.Center) > 200 * 16;
+			return Vector2.Distance(NPC.Center, playerTarget.Center) > 200 * 16;
 		}
 
 		public override void HitEffect(int hitDirection, double damage){
-			if(npc.life - damage < HealthThreshold){
-				npc.life = 0;
+			if(NPC.life - damage < HealthThreshold){
+				NPC.life = 0;
 
-				int newNPC = NPC.NewNPC((int)npc.Center.X, (int)npc.Center.Y, ModContent.NPCType<DraekP2Head>());
-				Main.npc[newNPC].modNPC.music = music;
-				Main.npc[newNPC].modNPC.musicPriority = musicPriority;
+				int newNPC = NPC.NewNPC((int)NPC.Center.X, (int)NPC.Center.Y, ModContent.NPCType<DraekP2Head>());
+				Main.npc[newNPC].ModNPC.Music = Music;
+				Main.npc[newNPC].ModNPC.SceneEffectPriority = SceneEffectPriority;
 
 				//Spawn 8 gores, 4 per arm
-				Vector2 goreTop = npc.Center;
-				goreTop.X += (npc.TopLeft.X - npc.Center.X) / 2f;
+				Vector2 goreTop = NPC.Center;
+				goreTop.X += (NPC.TopLeft.X - NPC.Center.X) / 2f;
 				goreTop.Y += 20f;
-				if((npc.spriteDirection == 1 && howManyArms == 2) || (npc.spriteDirection == -1 && howManyArms > 0)){
+				if((NPC.spriteDirection == 1 && howManyArms == 2) || (NPC.spriteDirection == -1 && howManyArms > 0)){
 					for(int i = 0; i < 4; i++){
-						int gore = Gore.NewGore(goreTop + new Vector2(0, 16 * i), new Vector2(Main.rand.NextFloat(-2, 2), Main.rand.NextFloat(-3, 5)), mod.GetGoreSlot("Gores/DraekArm"));
+						int gore = Gore.NewGore(goreTop + new Vector2(0, 16 * i), new Vector2(Main.rand.NextFloat(-2, 2), Main.rand.NextFloat(-3, 5)), Mod.GetGoreSlot("Gores/DraekArm"));
 						Main.gore[gore].numFrames = 3;
 						Main.gore[gore].frame = (byte)Main.rand.Next(3);
 					}
 				}
-				if((npc.spriteDirection == 1 && howManyArms > 0) || (npc.spriteDirection == -1 && howManyArms == 2)){
-					goreTop.X = npc.Center.X;
-					goreTop.X += (npc.TopRight.X - npc.Center.X) / 2f;
+				if((NPC.spriteDirection == 1 && howManyArms > 0) || (NPC.spriteDirection == -1 && howManyArms == 2)){
+					goreTop.X = NPC.Center.X;
+					goreTop.X += (NPC.TopRight.X - NPC.Center.X) / 2f;
 					for(int i = 0; i < 4; i++){
-						int gore = Gore.NewGore(goreTop + new Vector2(0, 16 * i), new Vector2(Main.rand.NextFloat(-2, 2), Main.rand.NextFloat(-3, 5)), mod.GetGoreSlot("Gores/DraekArm"));
+						int gore = Gore.NewGore(goreTop + new Vector2(0, 16 * i), new Vector2(Main.rand.NextFloat(-2, 2), Main.rand.NextFloat(-3, 5)), Mod.GetGoreSlot("Gores/DraekArm"));
 						Main.gore[gore].numFrames = 3;
 						Main.gore[gore].frame = (byte)Main.rand.Next(3);
 					}
@@ -462,7 +464,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			//AI:  https://docs.google.com/document/d/13IlpNUdO2X_elLPwsYcB1mzd_FMxQkwAcRKq1oSWgLg
 
 			if(!hasSpawned){
-				npc.TargetClosest(true);
+				NPC.TargetClosest(true);
 				
 				hasSpawned = true;
 				curPattern = 0;
@@ -470,49 +472,49 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				CurrentPhase = Phase_1;
 
 				//Spawn the arms
-				int newNPC = NPC.NewNPC((int)npc.Center.X, (int)npc.Center.Y, ModContent.NPCType<DraekArm>(), ai0: npc.whoAmI);
+				int newNPC = NPC.NewNPC((int)NPC.Center.X, (int)NPC.Center.Y, ModContent.NPCType<DraekArm>(), ai0: NPC.whoAmI);
 				if(newNPC == Main.maxNPCs){
-					npc.active = false;
+					NPC.active = false;
 					return;
 				}
 
-				Main.npc[newNPC].realLife = npc.whoAmI;
-				ArmLeft = Main.npc[newNPC].modNPC as DraekArm;
+				Main.npc[newNPC].realLife = NPC.whoAmI;
+				ArmLeft = Main.npc[newNPC].ModNPC as DraekArm;
 				ArmLeft.drawAboveBoss = true;
-				ArmLeft.npc.ai[3] = npc.target;
+				ArmLeft.NPC.ai[3] = NPC.target;
 
-				newNPC = NPC.NewNPC((int)npc.Center.X, (int)npc.Center.Y, ModContent.NPCType<DraekArm>(), ai0: npc.whoAmI);
+				newNPC = NPC.NewNPC((int)NPC.Center.X, (int)NPC.Center.Y, ModContent.NPCType<DraekArm>(), ai0: NPC.whoAmI);
 				if(newNPC == Main.maxNPCs){
-					npc.active = false;
+					NPC.active = false;
 					return;
 				}
 
-				Main.npc[newNPC].realLife = npc.whoAmI;
-				ArmRight = Main.npc[newNPC].modNPC as DraekArm;
-				ArmRight.npc.ai[3] = npc.target;
+				Main.npc[newNPC].realLife = NPC.whoAmI;
+				ArmRight = Main.npc[newNPC].ModNPC as DraekArm;
+				ArmRight.NPC.ai[3] = NPC.target;
 
 				//Spawn the lasting projectile
-				int proj = MiscUtils.SpawnProjectileSynced(npc.Center, Vector2.Zero, ModContent.ProjectileType<DraekP1ExtraProjectile>(),
-					npc.damage, 6f, npc.whoAmI);
+				int proj = MiscUtils.SpawnProjectileSynced(NPC.Center, Vector2.Zero, ModContent.ProjectileType<DraekP1ExtraProjectile>(),
+					NPC.damage, 6f, NPC.whoAmI);
 				if(proj == Main.maxProjectiles){
-					npc.active = false;
+					NPC.active = false;
 					return;
 				}
 
-				npc.netUpdate = true;
+				NPC.netUpdate = true;
 				
 				MiscUtils.SendMessage("<Draek> So, a new challenger has arisen to take my domain, hm?", TextColour);
 
-				npc.TargetClosest();
+				NPC.TargetClosest();
 			}
 
-			if(npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead){
-				npc.TargetClosest(true);
-				npc.netUpdate = true;
+			if(NPC.target < 0 || NPC.target == 255 || Main.player[NPC.target].dead){
+				NPC.TargetClosest(true);
+				NPC.netUpdate = true;
 			}
 
 			//Why is this here?
-			if(npc.spriteDirection == 1){
+			if(NPC.spriteDirection == 1){
 				ArmLeft.drawAboveBoss = true;
 				ArmRight.drawAboveBoss = false;
 			}else{
@@ -520,7 +522,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				ArmRight.drawAboveBoss = true;
 			}
 
-			playerTarget = Main.player[npc.target];
+			playerTarget = Main.player[NPC.target];
 			noTargetsAlive = playerTarget.dead || !playerTarget.active;
 			CheckTargetIsDead();
 			
@@ -530,16 +532,16 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			SummonedWyrms = UpdateWyrmCount();
 
 			if(SummonedWyrms > 0 && Main.expertMode)
-				npc.GetGlobalNPC<StatsNPC>().endurance += WorldEvents.desoMode ? 0.5f : 0.25f;
+				NPC.GetGlobalNPC<StatsNPC>().endurance += WorldEvents.desoMode ? 0.5f : 0.25f;
 
 			if(!dashing){
-				npc.spriteDirection = (npc.Center.X > Main.player[npc.target].Center.X) ? 1 : -1;
+				NPC.spriteDirection = (NPC.Center.X > Main.player[NPC.target].Center.X) ? 1 : -1;
 				afterImageLength--;
 			}
 
 			AI_Animation_Counter++;
 
-			if(npc.life - HealthThreshold < (npc.lifeMax - HealthThreshold) / 2f && !switchPhases && CurrentPhase == Phase_1){
+			if(NPC.life - HealthThreshold < (NPC.lifeMax - HealthThreshold) / 2f && !switchPhases && CurrentPhase == Phase_1){
 				switchPhases = true;
 
 				MiscUtils.SendMessage("<Draek> You're stronger than I expected, aren't you?  No matter.", TextColour);
@@ -550,7 +552,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				ArmRight.State = DraekArm.State_Return;
 				ArmLeft.State = DraekArm.State_Return;
 
-				npc.dontTakeDamage = true;
+				NPC.dontTakeDamage = true;
 
 				if(ForceFastCharge){
 					FastChargeEnded = false;
@@ -566,13 +568,13 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 					oldOffsetX = syncOffsetX;
 					oldOffsetY = syncOffsetY;
 
-					npc.netUpdate = true;
+					NPC.netUpdate = true;
 				}
 			}
 
 			AI_Check_Phase_Switch();
 
-			afterImageLength.Clamp(0, npc.oldPos.Length * 2);
+			afterImageLength.Clamp(0, NPC.oldPos.Length * 2);
 
 			if(WorldEvents.desoMode && ForceFastCharge){
 				if(!FastChargeStarted){
@@ -609,7 +611,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 						MiscUtils.SendMessage(text, TextColour);
 					}
 
-					npc.netUpdate = true;
+					NPC.netUpdate = true;
 				}
 
 				AI_Dash(16.5f, 1, 60, 0, true);
@@ -628,7 +630,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 					oldOffsetX = syncOffsetX;
 					oldOffsetY = syncOffsetY;
 
-					npc.netUpdate = true;
+					NPC.netUpdate = true;
 				}
 				return;
 			}
@@ -734,7 +736,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		}
 
 		private void ExtraHurtboxHelper(ref Vector2 offset, ref Vector2 size){
-			if(npc.spriteDirection == -1)
+			if(NPC.spriteDirection == -1)
 				offset.X = 186 - offset.X - size.X + 16;
 
 			offset += new Vector2(GraphicsOffsetX, GraphicsOffsetY);
@@ -745,23 +747,23 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		//Thanks jopojelly for helping me figure out how to make the Parent-Child link work for the two hooks below:
 		public override void OnHitByItem(Player player, Item item, int damage, float knockback, bool crit){
 			if(ArmLeft != null && ArmLeft.State != DraekArm.State_Punched)
-				ArmRight.npc.immune[player.whoAmI] = player.itemAnimation;
+				ArmRight.NPC.immune[player.whoAmI] = player.itemAnimation;
 			if(ArmRight != null && ArmRight.State != DraekArm.State_Punched)
-				ArmRight.npc.immune[player.whoAmI] = player.itemAnimation;
+				ArmRight.NPC.immune[player.whoAmI] = player.itemAnimation;
 		}
 
 		public override void OnHitByProjectile(Projectile projectile, int damage, float knockback, bool crit){
 			if(ArmLeft != null && ArmLeft.State != DraekArm.State_Punched){
-				ArmLeft.npc.immune[projectile.owner] = npc.immune[projectile.owner];
+				ArmLeft.NPC.immune[projectile.owner] = NPC.immune[projectile.owner];
 
 				if(projectile.usesLocalNPCImmunity)
-					projectile.localNPCImmunity[ArmLeft.npc.whoAmI] = projectile.localNPCHitCooldown;
+					projectile.localNPCImmunity[ArmLeft.NPC.whoAmI] = projectile.localNPCHitCooldown;
 			}
 			if(ArmRight != null && ArmRight.State != DraekArm.State_Punched){
-				ArmRight.npc.immune[projectile.owner] = npc.immune[projectile.owner];
+				ArmRight.NPC.immune[projectile.owner] = NPC.immune[projectile.owner];
 
 				if(projectile.usesLocalNPCImmunity)
-					projectile.localNPCImmunity[ArmLeft.npc.whoAmI] = projectile.localNPCHitCooldown;
+					projectile.localNPCImmunity[ArmLeft.NPC.whoAmI] = projectile.localNPCHitCooldown;
 			}
 		}
 
@@ -780,14 +782,14 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			if(delayPhaseChange){
 				if(AI_Timer == 0){
 					delayPhaseChange = false;
-					npc.dontTakeDamage = false;
-					npc.velocity = Vector2.Zero;
+					NPC.dontTakeDamage = false;
+					NPC.velocity = Vector2.Zero;
 
-					npc.TargetClosest();
+					NPC.TargetClosest();
 				}else{
 					AI_Attack = Attack_Idle;
-					npc.dontTakeDamage = true;
-					npc.velocity *= 0.91f;
+					NPC.dontTakeDamage = true;
+					NPC.velocity *= 0.91f;
 					dashing = false;
 					dashWait = false;
 					AI_Timer--;
@@ -799,7 +801,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				switchPhases = false;
 				dashing = false;
 				dashWait = true;
-				npc.dontTakeDamage = false;
+				NPC.dontTakeDamage = false;
 				throwingSword = false;
 				AI_Animation_Counter = 0;
 				AI_Timer = 0;
@@ -810,16 +812,16 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				syncOffsetX = 0;
 				syncOffsetY = 0;
 
-				npc.netUpdate = true;
+				NPC.netUpdate = true;
 
-				npc.TargetClosest();
+				NPC.TargetClosest();
 			}
 
 			if(switchSubPhases){
 				switchSubPhases = false;
 				dashing = false;
 				dashWait = true;
-				npc.dontTakeDamage = false;
+				NPC.dontTakeDamage = false;
 				AI_Animation_Counter = 0;
 				AI_Timer = 0;
 				AI_Attack_Progress = 0;
@@ -833,7 +835,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 					curPattern = 0;
 					
 				AI_Attack = pattern[curPattern];
-				npc.netUpdate = true;
+				NPC.netUpdate = true;
 				PunchProgress = -1;
 			}
 
@@ -841,16 +843,16 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				return;
 
 			float maxDistance = 70 * 16;
-			if((AI_Attack == Attack_Shoot || (AI_Attack == Attack_Throw_Sword && !throwingSword)) && npc.Distance(playerTarget.Center) > maxDistance){
+			if((AI_Attack == Attack_Shoot || (AI_Attack == Attack_Throw_Sword && !throwingSword)) && NPC.Distance(playerTarget.Center) > maxDistance){
 				ForceFastCharge = true;
 				FastCharge_SwordActive = true;
 
-				npc.netUpdate = true;
-			}else if(AI_Attack == Attack_Shoot_No_Sword && npc.Distance(playerTarget.Center) > maxDistance){
+				NPC.netUpdate = true;
+			}else if(AI_Attack == Attack_Shoot_No_Sword && NPC.Distance(playerTarget.Center) > maxDistance){
 				ForceFastCharge = true;
 				FastCharge_SwordActive = false;
 
-				npc.netUpdate = true;
+				NPC.netUpdate = true;
 			}
 		}
 
@@ -858,30 +860,30 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			//If the target is dead or not active, slow down the NPC
 			//Then, plummet to hell and despawn naturally
 			if(noTargetsAlive){
-				if(Math.Abs(npc.velocity.X) > 0)
-					npc.velocity.X *= 0.5f;
-				if(Math.Abs(npc.velocity.Y) > 0)
-					npc.velocity.Y *= 0.5f;
+				if(Math.Abs(NPC.velocity.X) > 0)
+					NPC.velocity.X *= 0.5f;
+				if(Math.Abs(NPC.velocity.Y) > 0)
+					NPC.velocity.Y *= 0.5f;
 				
-				if(npc.velocity.Length() < 1 && npc.velocity != Vector2.Zero){
-					npc.velocity = Vector2.Zero;
+				if(NPC.velocity.Length() < 1 && NPC.velocity != Vector2.Zero){
+					NPC.velocity = Vector2.Zero;
 				}
 
-				if(npc.velocity.X == 0){
-					npc.velocity.Y += 15f;
+				if(NPC.velocity.X == 0){
+					NPC.velocity.Y += 15f;
 				}
 
 				if(!startDespawn){
 					startDespawn = true;
-					npc.timeLeft = (int)(0.5f * 60);
+					NPC.timeLeft = (int)(0.5f * 60);
 
-					npc.netUpdate = true;
+					NPC.netUpdate = true;
 				}
 			}
 		}
 
 		private void AI_Hover(Player target, int facingDirection, out Vector2 npcTarget){
-			npc.velocity *= 0.86f;
+			NPC.velocity *= 0.86f;
 
 			//Generate a Vector2 point about 12 blocks up, 20 blocks left/right from the player
 			//X will be negative if the player is facing left
@@ -890,14 +892,14 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			npcTarget.X += 20 * 16 * facingDirection;		//Add the offset
 			npcTarget.Y += -12 * 16;
 
-			if(Vector2.Distance(npcTarget, npc.Center) > 16)	//If the boss isn't near the target point
-				npc.velocity += Vector2.Normalize(npcTarget - npc.Center) * 0.8f;
+			if(Vector2.Distance(npcTarget, NPC.Center) > 16)	//If the boss isn't near the target point
+				NPC.velocity += Vector2.Normalize(npcTarget - NPC.Center) * 0.8f;
 			else
-				npc.velocity = Vector2.Zero;
+				NPC.velocity = Vector2.Zero;
 			
 			float clampVal = MiscUtils.GetModeChoice(8f, 10f, 13f);
-			npc.velocity.X.Clamp(-clampVal, clampVal);
-			npc.velocity.Y.Clamp(-clampVal, clampVal);
+			NPC.velocity.X.Clamp(-clampVal, clampVal);
+			NPC.velocity.Y.Clamp(-clampVal, clampVal);
 		}
 
 		private void AI_Shoot_Laser(int delay, int times){
@@ -905,13 +907,13 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 
 			Vector2 positionOffset = new Vector2(Main.rand.NextFloat(-1, 1), Main.rand.NextFloat(-1, 1)) * 4f * 16;
 
-			int npcDamage = npc.damage;
-			npc.damage = 0;
+			int npcDamage = NPC.damage;
+			NPC.damage = 0;
 
 			int laserDamage = 20 + MiscUtils.GetModeChoice(0, 20, 30);
 
 			if(AI_Timer % delay == 0 && Main.netMode != NetmodeID.MultiplayerClient){
-				MiscUtils.SpawnProjectileSynced(npc.Bottom - new Vector2(0, 0.667f * npc.height),
+				MiscUtils.SpawnProjectileSynced(NPC.Bottom - new Vector2(0, 0.667f * NPC.height),
 					Vector2.Zero,
 					ModContent.ProjectileType<DraekLaser>(),
 					laserDamage,
@@ -921,10 +923,10 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				);
 				AI_Attack_Progress++;
 				//Play "boss laser" sound effect
-				Main.PlaySound(SoundID.Item33, npc.Bottom - new Vector2(0, 0.667f * npc.height));
+				SoundEngine.PlaySound(SoundID.Item33, NPC.Bottom - new Vector2(0, 0.667f * NPC.height));
 			}
 
-			npc.damage = npcDamage;
+			NPC.damage = npcDamage;
 
 			if(AI_Attack_Progress >= times)
 				switchSubPhases = true;
@@ -952,7 +954,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				AI_Timer--;
 				if(AI_Timer == 30 - 22){
 					//Throw the sword on the next-to-last frame
-					Vector2 dir = (npc.spriteDirection == 1) ? npc.BottomRight : npc.BottomLeft;
+					Vector2 dir = (NPC.spriteDirection == 1) ? NPC.BottomRight : NPC.BottomLeft;
 
 					int swordDamage = 35 + MiscUtils.GetModeChoice(0, 20, 55);
 
@@ -961,12 +963,12 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 						ModContent.ProjectileType<DraekSword>(),
 						swordDamage,
 						12f,
-						npc.target,
-						npc.whoAmI
+						NPC.target,
+						NPC.whoAmI
 					);
 
 					//Play sword swing sound effect
-					Main.PlaySound(SoundID.Item1, dir);
+					SoundEngine.PlaySound(SoundID.Item1, dir);
 				}
 
 				if(AI_Timer == 0){
@@ -984,7 +986,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				}
 			}
 			if(!throwingSword){
-				if(Vector2.Distance(npcTarget, npc.Center) < 100 * 16)
+				if(Vector2.Distance(npcTarget, NPC.Center) < 100 * 16)
 					AI_Timer++;
 				else
 					AI_Timer = 0;
@@ -1000,17 +1002,17 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		}
 
 		private void AI_Charge_Shoot(int delay, int times, float maxXvel, float maxYvel){
-			npc.velocity *= 0.86f;
+			NPC.velocity *= 0.86f;
 
-			if(Vector2.Distance(playerTarget.Center, npc.Center) > 16)		//If the boss isn't near the target
-				npc.velocity += Vector2.Normalize(playerTarget.Center - npc.Center) * 0.7f;
+			if(Vector2.Distance(playerTarget.Center, NPC.Center) > 16)		//If the boss isn't near the target
+				NPC.velocity += Vector2.Normalize(playerTarget.Center - NPC.Center) * 0.7f;
 			else
-				npc.velocity = Vector2.Zero;
+				NPC.velocity = Vector2.Zero;
 					
 			AI_Shoot_Laser(delay, times);
 
-			npc.velocity.X.Clamp(-maxXvel, maxXvel);
-			npc.velocity.Y.Clamp(-maxYvel, maxYvel);
+			NPC.velocity.X.Clamp(-maxXvel, maxXvel);
+			NPC.velocity.Y.Clamp(-maxYvel, maxYvel);
 		}
 
 		private void AI_Dash(float velocity, int times, int duration, int wait, bool fastCharge = false){
@@ -1023,13 +1025,13 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			}else if(!dashWait && (AI_Attack_Progress % 2 == 0)){
 				//Keep following the player until the wait duration has passed
 				if(AI_Attack_Progress == 0){
-					npc.velocity += Vector2.Normalize(playerTarget.Center - npc.Center) * 0.7f;
-					npc.velocity *= 0.52f;
+					NPC.velocity += Vector2.Normalize(playerTarget.Center - NPC.Center) * 0.7f;
+					NPC.velocity *= 0.52f;
 				}else if(AI_Attack_Progress / 2f < times){
-					if(Vector2.Distance(playerTarget.Center, npc.Center) > 16)		//If the boss isn't near the target
-						npc.velocity += Vector2.Normalize(playerTarget.Center - npc.Center) * 0.7f;
+					if(Vector2.Distance(playerTarget.Center, NPC.Center) > 16)		//If the boss isn't near the target
+						NPC.velocity += Vector2.Normalize(playerTarget.Center - NPC.Center) * 0.7f;
 					else
-						npc.velocity = Vector2.Zero;
+						NPC.velocity = Vector2.Zero;
 				}
 
 				AI_Timer--;
@@ -1054,14 +1056,14 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 						dashing = true;
 						AI_Timer = duration;
 
-						Vector2 newVel = npc.DirectionTo(playerTarget.Center) * velocity;
+						Vector2 newVel = NPC.DirectionTo(playerTarget.Center) * velocity;
 
 						if(fastCharge)
 							newVel = newVel.RotatedByRandom(MathHelper.ToRadians(30));
 
-						npc.velocity = newVel;
+						NPC.velocity = newVel;
 
-						Main.PlaySound(SoundID.ForceRoar, npc.Center, fastCharge ? -1 : 0);
+						SoundEngine.PlaySound(SoundID.ForceRoar, NPC.Center, fastCharge ? -1 : 0);
 
 						afterImageLength++;
 					}
@@ -1074,15 +1076,15 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			}
 			
 			if(!dashing){
-				npc.velocity.X.Clamp(-6, 6);
-				npc.velocity.Y.Clamp(-8, 8);
+				NPC.velocity.X.Clamp(-6, 6);
+				NPC.velocity.Y.Clamp(-8, 8);
 			}
 		}
 
 		private void AI_Retrieve_Sword(){
-			npc.velocity *= 0.7f;
+			NPC.velocity *= 0.7f;
 			
-			npc.dontTakeDamage = true;
+			NPC.dontTakeDamage = true;
 
 			AI_Timer++;
 
@@ -1092,13 +1094,13 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 
 		private void AI_Summon(int times){
 			while(SummonedWyrms < times && Main.netMode != NetmodeID.MultiplayerClient){
-				Vector2 range = npc.Center + new Vector2(Main.rand.NextFloat(-8 * 16, 8 * 16), Main.rand.NextFloat(-8 * 16, 8 * 16));
+				Vector2 range = NPC.Center + new Vector2(Main.rand.NextFloat(-8 * 16, 8 * 16), Main.rand.NextFloat(-8 * 16, 8 * 16));
 			
-				NPC.NewNPC((int)range.X, (int)range.Y, ModContent.NPCType<DraekWyrmSummon_Head>(), ai2: npc.whoAmI);
+				NPC.NewNPC((int)range.X, (int)range.Y, ModContent.NPCType<DraekWyrmSummon_Head>(), ai2: NPC.whoAmI);
 			
 				SummonedWyrms++;
 
-				npc.netUpdate = true;
+				NPC.netUpdate = true;
 			}
 		}
 
@@ -1106,14 +1108,14 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			int wyrms = 0;
 			
 			for(int i = 0; i < Main.npc.Length; i++){
-				if(Main.npc[i].active && Main.npc[i].type == ModContent.NPCType<DraekWyrmSummon_Head>() && (int)Main.npc[i].ai[2] == npc.whoAmI)
+				if(Main.npc[i].active && Main.npc[i].type == ModContent.NPCType<DraekWyrmSummon_Head>() && (int)Main.npc[i].ai[2] == NPC.whoAmI)
 					wyrms++;
 			}
 			
 			return wyrms;
 		}
 
-		public ref float PunchProgress => ref npc.localAI[1];
+		public ref float PunchProgress => ref NPC.localAI[1];
 
 		private void AI_Punch(bool enraged = false){
 			/*  Punch attack:
@@ -1129,18 +1131,18 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			int dashWait = (int)(MiscUtils.GetModeChoice(3, 1.5f, 0.5f) * 60);
 
 			void PunchArm(DraekArm arm){
-				Vector2 spawnCenter = npc.Bottom - new Vector2(0, 0.667f * npc.height);
-				spawnCenter += new Vector2(-8 * 16 * npc.spriteDirection, 20);
+				Vector2 spawnCenter = NPC.Bottom - new Vector2(0, 0.667f * NPC.height);
+				spawnCenter += new Vector2(-8 * 16 * NPC.spriteDirection, 20);
 
 				arm.State = DraekArm.State_Punched;
-				arm.npc.ai[3] = npc.target;
+				arm.NPC.ai[3] = NPC.target;
 				arm.Timer = 0;
 				arm.ShootTimer = 0;
 
-				arm.npc.Center = spawnCenter;
-				arm.npc.velocity = new Vector2(-20f * npc.spriteDirection, 0).RotatedByRandom(MathHelper.ToRadians(15f));
+				arm.NPC.Center = spawnCenter;
+				arm.NPC.velocity = new Vector2(-20f * NPC.spriteDirection, 0).RotatedByRandom(MathHelper.ToRadians(15f));
 
-				Main.PlaySound(SoundID.Item1, spawnCenter);
+				SoundEngine.PlaySound(SoundID.Item1, spawnCenter);
 			}
 
 			if(PunchProgress == -1)
@@ -1149,7 +1151,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			if(PunchProgress == Punch_PunchFirst){
 				if((int)(AI_Animation_Counter / 7.5f) == 6){
 					//Un-hide the first arm
-					if(npc.spriteDirection == 1){
+					if(NPC.spriteDirection == 1){
 						PunchArm(ArmRight);
 					}else
 						PunchArm(ArmLeft);
@@ -1191,8 +1193,8 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 
 					howManyArms = 2;
 
-					Vector2 goreTop = npc.Center;
-					goreTop.X += (npc.TopLeft.X - npc.Center.X) / 2f;
+					Vector2 goreTop = NPC.Center;
+					goreTop.X += (NPC.TopLeft.X - NPC.Center.X) / 2f;
 					goreTop.Y += 20f;
 					for(int i = 0; i < 4; i++){
 						for(int d = 0; d < 20; d++){
@@ -1201,8 +1203,8 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 							dust.velocity = Vector2.UnitX.RotatedByRandom(MathHelper.Pi) * 5.5f;
 						}
 					}
-					goreTop.X = npc.Center.X;
-					goreTop.X += (npc.TopRight.X - npc.Center.X) / 2f;
+					goreTop.X = NPC.Center.X;
+					goreTop.X += (NPC.TopRight.X - NPC.Center.X) / 2f;
 					for(int i = 0; i < 4; i++){
 						for(int d = 0; d < 20; d++){
 							Dust dust = Dust.NewDustDirect(goreTop + new Vector2(0, 16 * i), 0, 0, 82);

@@ -31,80 +31,80 @@ namespace CosmivengeonMod.Projectiles.Desomode{
 		}
 
 		public override void SetDefaults(){
-			projectile.width = 48;
-			projectile.height = 48;
-			projectile.tileCollide = false;
-			projectile.timeLeft = Attack_Timer_Max;
+			Projectile.width = 48;
+			Projectile.height = 48;
+			Projectile.tileCollide = false;
+			Projectile.timeLeft = Attack_Timer_Max;
 		}
 
 		public override void AI(){
 			//Playing cool sound effects
-			if(projectile.timeLeft > Attack_Death_Delay)
-				teleport = mod.PlayCustomSound(projectile.Center, "PsychicAttackLeadup");
+			if(Projectile.timeLeft > Attack_Death_Delay)
+				teleport = Mod.PlayCustomSound(Projectile.Center, "PsychicAttackLeadup");
 			else{
 				if(teleport != null){
 					teleport?.Stop();
 					teleport = null;
 				}
-				mod.PlayCustomSound(projectile.Center, "PsychicAttackCrash");
+				Mod.PlayCustomSound(Projectile.Center, "PsychicAttackCrash");
 			}
 
 			float rotation = MathHelper.ToRadians(1.25f * 6f);
-			projectile.rotation += rotation;
-			projectile.ai[0] += rotation * 0.8f;
+			Projectile.rotation += rotation;
+			Projectile.ai[0] += rotation * 0.8f;
 
-			if(projectile.timeLeft > Attack_Shrink_Start)
-				storedPosition = Main.player[(int)projectile.ai[1]].Center;
+			if(Projectile.timeLeft > Attack_Shrink_Start)
+				storedPosition = Main.player[(int)Projectile.ai[1]].Center;
 
-			projectile.Center = storedPosition;
+			Projectile.Center = storedPosition;
 
-			if(fastAttack && projectile.timeLeft == 4 + Attack_Death_Delay)
-				projectile.hostile = true;
-			if(projectile.timeLeft == 2 + Attack_Death_Delay)
-				projectile.hostile = true;
+			if(fastAttack && Projectile.timeLeft == 4 + Attack_Death_Delay)
+				Projectile.hostile = true;
+			if(Projectile.timeLeft == 2 + Attack_Death_Delay)
+				Projectile.hostile = true;
 
 			if(fastAttack)
-				projectile.timeLeft--;
+				Projectile.timeLeft--;
 		}
 
 		public override void OnHitPlayer(Player target, int damage, bool crit){
-			projectile.hostile = false;
+			Projectile.hostile = false;
 
 			target.AddBuff(BuffID.Confused, 120);
 			target.AddBuff(BuffID.Slow, 120);
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
+		public override bool PreDraw(ref Color lightColor){
 			int capacity = 64 * 2;
 			List<Vector2> points = new List<Vector2>();
 
 			//Set the points
 			float radiusOuter;
-			if(projectile.timeLeft > Attack_Leadup)
-				radiusOuter = 6 * 16 - 1.5f * 16 * (1f - (float)(projectile.timeLeft - Attack_Leadup) / (Attack_Timer_Max - Attack_Leadup));
-			else if(projectile.timeLeft > Attack_Shrink_Start + 12)
+			if(Projectile.timeLeft > Attack_Leadup)
+				radiusOuter = 6 * 16 - 1.5f * 16 * (1f - (float)(Projectile.timeLeft - Attack_Leadup) / (Attack_Timer_Max - Attack_Leadup));
+			else if(Projectile.timeLeft > Attack_Shrink_Start + 12)
 				radiusOuter = 4.5f * 16f;
-			else if(projectile.timeLeft > Attack_Shrink_Start)
-				radiusOuter = 4.5f * 16f + 0.5f * 16 * (float)Math.Sin((1f - (float)(projectile.timeLeft - Attack_Shrink_Start) / 12) * Math.PI);
-			else if(projectile.timeLeft > Attack_Death_Delay)
-				radiusOuter = 4.5f * 16f * ((float)(projectile.timeLeft - Attack_Death_Delay) / (Attack_Shrink_Start - Attack_Death_Delay));
+			else if(Projectile.timeLeft > Attack_Shrink_Start)
+				radiusOuter = 4.5f * 16f + 0.5f * 16 * (float)Math.Sin((1f - (float)(Projectile.timeLeft - Attack_Shrink_Start) / 12) * Math.PI);
+			else if(Projectile.timeLeft > Attack_Death_Delay)
+				radiusOuter = 4.5f * 16f * ((float)(Projectile.timeLeft - Attack_Death_Delay) / (Attack_Shrink_Start - Attack_Death_Delay));
 			else
-				radiusOuter = 10f * 16f * ((float)(projectile.timeLeft - Attack_Death_Delay) / Attack_Death_Delay);
+				radiusOuter = 10f * 16f * ((float)(Projectile.timeLeft - Attack_Death_Delay) / Attack_Death_Delay);
 
 			float radiusInner = radiusOuter * 0.6667f;
 
 			int halfCapacity = capacity / 2;
 			for(int i = 0; i < halfCapacity; i++){
-				Vector2 vector = Vector2.UnitX.RotatedBy(projectile.rotation + MathHelper.ToRadians(360f / halfCapacity * i)) * (radiusOuter - (i % 2 == 1 ? 8 : 0));
-				points.Add(vector + projectile.Center);
+				Vector2 vector = Vector2.UnitX.RotatedBy(Projectile.rotation + MathHelper.ToRadians(360f / halfCapacity * i)) * (radiusOuter - (i % 2 == 1 ? 8 : 0));
+				points.Add(vector + Projectile.Center);
 			}
 
 			DrawPrims(points, Color.Pink);
 			points.Clear();
 
 			for(int i = halfCapacity; i < capacity; i++){
-				Vector2 vector = Vector2.UnitX.RotatedBy(projectile.ai[0] + MathHelper.ToRadians(360f / halfCapacity * (i - halfCapacity))) * (radiusInner - (i % 2 == 1 ? 8 : 0));
-				points.Add(vector + projectile.Center);
+				Vector2 vector = Vector2.UnitX.RotatedBy(Projectile.ai[0] + MathHelper.ToRadians(360f / halfCapacity * (i - halfCapacity))) * (radiusInner - (i % 2 == 1 ? 8 : 0));
+				points.Add(vector + Projectile.Center);
 			}
 
 			DrawPrims(points, Color.Purple);

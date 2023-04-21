@@ -26,7 +26,7 @@ namespace CosmivengeonMod.NPCs.Global{
 		}
 
 		public override void OnHitByItem(NPC npc, Player player, Item item, int damage, float knockback, bool crit){
-			if(npc.life <= 0 && item.modItem is SubZero){
+			if(npc.life <= 0 && item.ModItem is SubZero){
 				//Spawn some projectiles
 				int numProjs = 20;
 				for(int i = 0; i < 20; i++){

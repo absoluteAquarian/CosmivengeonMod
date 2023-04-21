@@ -34,11 +34,11 @@ namespace CosmivengeonMod.Projectiles.Desomode{
 		}
 
 		public override void SetDefaults(){
-			projectile.width = 24;
-			projectile.height = 12;
-			projectile.hostile = false;
-			projectile.timeLeft = Max_TimeLeft;
-			projectile.tileCollide = false;
+			Projectile.width = 24;
+			Projectile.height = 12;
+			Projectile.hostile = false;
+			Projectile.timeLeft = Max_TimeLeft;
+			Projectile.tileCollide = false;
 
 			points = new List<Vector2>();
 		}
@@ -50,52 +50,52 @@ namespace CosmivengeonMod.Projectiles.Desomode{
 				if(AttackDelay % 2 == 1)
 					AttackDelay--;
 
-				projectile.timeLeft += AttackDelay;
+				Projectile.timeLeft += AttackDelay;
 			}
 
 			float factor = fastAttack ? 2 : 1;
 
-			if(projectile.timeLeft <= earliestFrame * factor + Death_Delay && projectile.timeLeft > Death_Delay){
-				projectile.hostile = true;
+			if(Projectile.timeLeft <= earliestFrame * factor + Death_Delay && Projectile.timeLeft > Death_Delay){
+				Projectile.hostile = true;
 
-				projectile.height = FinalHeight;
-			}else if(projectile.timeLeft <= Death_Delay)
-				projectile.hostile = false;
+				Projectile.height = FinalHeight;
+			}else if(Projectile.timeLeft <= Death_Delay)
+				Projectile.hostile = false;
 
-			if(projectile.timeLeft > earliestFrame * factor + Death_Delay){
+			if(Projectile.timeLeft > earliestFrame * factor + Death_Delay){
 				//An electric "cloud"
 				points.Clear();
 
 				if(Main.rand.NextBool(6))
 					for(int i = 0; i < 40; i++)
-						points.Add(new Vector2(Main.rand.NextFloat(-16, projectile.width + 16), Main.rand.NextFloat(-16, projectile.height + 16)));
-			}else if(projectile.timeLeft == earliestFrame * factor + Death_Delay){
+						points.Add(new Vector2(Main.rand.NextFloat(-16, Projectile.width + 16), Main.rand.NextFloat(-16, Projectile.height + 16)));
+			}else if(Projectile.timeLeft == earliestFrame * factor + Death_Delay){
 				//Approximately 3 points per tile
 				points.Clear();
 				float pointsPerTile = 3f;
 
-				int count = (int)(projectile.height / 16f * pointsPerTile + 0.5f);
+				int count = (int)(Projectile.height / 16f * pointsPerTile + 0.5f);
 				float y = 0;
 				for(int i = 0; i < count; i++){
-					points.Add(new Vector2(Main.rand.NextFloat(projectile.width), y));
+					points.Add(new Vector2(Main.rand.NextFloat(Projectile.width), y));
 					y += 16f / pointsPerTile;
 				}
 			}
 
-			if(projectile.timeLeft <= earliestFrame * factor + Death_Delay){
+			if(Projectile.timeLeft <= earliestFrame * factor + Death_Delay){
 				zap?.Stop();
-				zap = mod.PlayCustomSound(projectile.Top + new Vector2(0, 8), "PsychicAttackZap");
+				zap = Mod.PlayCustomSound(Projectile.Top + new Vector2(0, 8), "PsychicAttackZap");
 			}
 
 			if(fastAttack)
-				projectile.timeLeft--;
+				Projectile.timeLeft--;
 			
 			colorSwap = !colorSwap;
 		}
 
 		bool colorSwap;
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
+		public override bool PreDraw(ref Color lightColor){
 			if(points.Count == 0)
 				return false;
 
@@ -103,11 +103,11 @@ namespace CosmivengeonMod.Projectiles.Desomode{
 				return false;
 
 			for(int i = 0; i < points.Count; i++)
-				points[i] += projectile.position;
+				points[i] += Projectile.position;
 
 			Color color;
-			if(projectile.timeLeft <= Death_Delay)
-				color = Color.Yellow * ((float)projectile.timeLeft / Death_Delay);
+			if(Projectile.timeLeft <= Death_Delay)
+				color = Color.Yellow * ((float)Projectile.timeLeft / Death_Delay);
 			else
 				color = colorSwap ? Color.Yellow : Color.DeepPink;
 
@@ -118,10 +118,10 @@ namespace CosmivengeonMod.Projectiles.Desomode{
 
 			PrimitiveDrawing.SubmitPacket(lightning);
 
-			if(projectile.timeLeft > earliestFrame + 30 + Death_Delay){
+			if(Projectile.timeLeft > earliestFrame + 30 + Death_Delay){
 				Vector2[] line = new Vector2[2]{
-					projectile.Top,
-					projectile.Top + new Vector2(0, FinalHeight)
+					Projectile.Top,
+					Projectile.Top + new Vector2(0, FinalHeight)
 				};
 
 				PrimitivePacket linePacket = new PrimitivePacket(PrimitiveType.LineStrip);
@@ -134,6 +134,6 @@ namespace CosmivengeonMod.Projectiles.Desomode{
 		}
 
 		private bool ProjectileIsInScreen()
-			=> projectile.Right.X >= Main.screenPosition.X && projectile.Left.X <= Main.screenPosition.X + Main.screenWidth;
+			=> Projectile.Right.X >= Main.screenPosition.X && Projectile.Left.X <= Main.screenPosition.X + Main.screenWidth;
 	}
 }

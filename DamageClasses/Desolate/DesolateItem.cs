@@ -10,7 +10,7 @@ using Terraria.Utilities;
 
 namespace CosmivengeonMod.DamageClasses.Desolate{
 	public abstract class DesolatorItem : HidableTooltip{
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
 
 		public override string FlavourText => CoreMod.Descriptions.PlaceHolder;
 
@@ -19,44 +19,44 @@ namespace CosmivengeonMod.DamageClasses.Desolate{
 		public sealed override void SetDefaults(){
 			SafeSetDefaults();
 
-			item.melee = false;
-			item.ranged = false;
-			item.magic = false;
-			item.thrown = false;
-			item.summon = false;
+			Item.melee = false/* tModPorter Suggestion: Remove. See Item.DamageType */;
+			Item.ranged = false/* tModPorter Suggestion: Remove. See Item.DamageType */;
+			Item.magic = false/* tModPorter Suggestion: Remove. See Item.DamageType */;
+			Item.thrown = false/* tModPorter Suggestion: Remove. See Item.DamageType */;
+			Item.summon = false/* tModPorter Suggestion: Remove. See Item.DamageType */;
 		}
 
-		public override void ModifyWeaponDamage(Player player, ref float add, ref float mult, ref float flat){
+		public override void ModifyWeaponDamage(Player player, ref StatModifier damage){
 			add += player.Desolate().damageAdd;
 			mult += player.Desolate().damageMult;
 		}
 
-		public override void GetWeaponKnockback(Player player, ref float knockback){
+		public override void ModifyWeaponKnockback(Player player, ref StatModifier knockback){
 			knockback += player.Desolate().knockback;
 		}
 
-		public override void GetWeaponCrit(Player player, ref int crit){
+		public override void ModifyWeaponCrit(Player player, ref float crit){
 			crit += player.Desolate().crit;
 		}
 
 		public override void SafeModifyTooltips(List<TooltipLine> tooltips){
-			TooltipLine damageLine = tooltips.FirstOrDefault(x => x.Name == "Damage" && x.mod == "Terraria");
+			TooltipLine damageLine = tooltips.FirstOrDefault(x => x.Name == "Damage" && x.Mod == "Terraria");
 			if(damageLine != null){
-				string[] splitText = damageLine.text.Split(' ');
+				string[] splitText = damageLine.Text.Split(' ');
 				string damageValue = splitText.First();
 				string damageWord = splitText.Last();
 				
-				damageLine.text = damageValue + " desolate " + damageWord;
+				damageLine.Text = damageValue + " desolate " + damageWord;
 			}
 
 			int customIndex = FindCustomTooltipIndex(tooltips);
 			if(customIndex > 0){
-				tooltips.Insert(customIndex++, new TooltipLine(mod, "Desolator", "[c/6a00aa:Desolator]"));
+				tooltips.Insert(customIndex++, new TooltipLine(Mod, "Desolator", "[c/6a00aa:Desolator]"));
 
 				while(customIndex < tooltips.Count && tooltips[customIndex].Name.StartsWith("CustomTooltip"))
 					customIndex++;
 
-				TooltipLine line = new TooltipLine(mod, "DesolationModeItem", "[c/adadad:Desolation Mode Item]");
+				TooltipLine line = new TooltipLine(Mod, "DesolationModeItem", "[c/adadad:Desolation Mode Item]");
 				tooltips.Insert(customIndex, line);
 			}
 		}

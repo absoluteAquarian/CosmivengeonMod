@@ -41,8 +41,8 @@ namespace CosmivengeonMod.Players{
 			bool dashAccessoryEquipped = false;
 
 			//This is the loop used in vanilla to update/check the not-vanity accessories
-			for(int i = 3; i < 8 + player.extraAccessorySlots; i++){
-				Item item = player.armor[i];
+			for(int i = 3; i < 8 + Player.extraAccessorySlots; i++){
+				Item item = Player.armor[i];
 
 				//Set the flag for the ExampleDashAccessory being equipped if we have it equipped OR immediately return if any of the accessories are
 				// one of the higher-priority ones
@@ -54,14 +54,14 @@ namespace CosmivengeonMod.Players{
 
 			//If we don't have the ExampleDashAccessory equipped or the player has the Solor armor set equipped, return immediately
 			//Also return if the player is currently on a mount, since dashes on a mount look weird, or if the dash was already activated
-			if(!dashAccessoryEquipped || player.setSolar || player.mount.Active || DashActive)
+			if(!dashAccessoryEquipped || Player.setSolar || Player.mount.Active || DashActive)
 				return;
 
 			//When a directional key is pressed and released, vanilla starts a 15 tick (1/4 second) timer during which a second press activates a dash
 			//If the timers are set to 15, then this is the first press just processed by the vanilla logic.  Otherwise, it's a double-tap
-			if(player.controlRight && player.releaseRight && player.doubleTapCardinalTimer[DashRight] < 15)
+			if(Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[DashRight] < 15)
 				DashDir = DashRight;
-			else if(player.controlLeft && player.releaseLeft && player.doubleTapCardinalTimer[DashLeft] < 15)
+			else if(Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[DashLeft] < 15)
 				DashDir = DashLeft;
 			else{
 				DashDir = 0;
@@ -72,8 +72,8 @@ namespace CosmivengeonMod.Players{
 
 			//Here you'd be able to set an effect that happens when the dash first activates
 			//Some examples include:  the larger smoke effect from the Master Ninja Gear and Tabi
-			player.dash = 0;
-			player.ChangeDir(DashDir == DashRight ? 1 : -1);
+			Player.dash = 0;
+			Player.ChangeDir(DashDir == DashRight ? 1 : -1);
 		}
 
 		//Copy of the SoC's code in Player.DashMovement(), but changed to fit this accessory
@@ -81,40 +81,40 @@ namespace CosmivengeonMod.Players{
 			if(HitNPCIndex < 0){
 				//Vanilla uses the player's hitbox and adds 4px to each direction, then offsets it by half of the player's velocity.
 				//We'll a larger component of the velocity since the dash is faster
-				Rectangle collisionCheck = new Rectangle((int)(player.position.X + player.velocity.X * 2f - 4), (int)(player.position.Y + player.velocity.Y * 2f - 4), player.width + 8, player.height + 8);
+				Rectangle collisionCheck = new Rectangle((int)(Player.position.X + Player.velocity.X * 2f - 4), (int)(Player.position.Y + Player.velocity.Y * 2f - 4), Player.width + 8, Player.height + 8);
 				for(int i = 0; i < Main.maxNPCs; i++){
 					NPC npc = Main.npc[i];
-					if(npc.active && !npc.dontTakeDamage && !npc.friendly && collisionCheck.Intersects(npc.getRect()) && (npc.noTileCollide || player.CanHit(npc))){
-						float damageWithMultiplier = SnakeShield.BaseDamage * player.meleeDamage;
+					if(npc.active && !npc.dontTakeDamage && !npc.friendly && collisionCheck.Intersects(npc.getRect()) && (npc.noTileCollide || Player.CanHit(npc))){
+						float damageWithMultiplier = SnakeShield.BaseDamage * Player.GetDamage(DamageClass.Melee);
 						float knockback = 9f;
-						bool crit = Main.rand.Next(100) < player.meleeCrit;
+						bool crit = Main.rand.Next(100) < Player.GetCritChance(DamageClass.Generic);
 
-						if(player.kbGlove)
+						if(Player.kbGlove)
 							knockback *= 2f;
-						if(player.kbBuff)
+						if(Player.kbBuff)
 							knockback *= 1.5f;
 
-						int direction = player.velocity.X == 0 ? player.direction : Math.Sign(player.velocity.X);
+						int direction = Player.velocity.X == 0 ? Player.direction : Math.Sign(Player.velocity.X);
 
-						if(player.whoAmI == Main.myPlayer){
-							player.ApplyDamageToNPC(npc, (int)damageWithMultiplier, knockback, direction, crit);
+						if(Player.whoAmI == Main.myPlayer){
+							Player.ApplyDamageToNPC(npc, (int)damageWithMultiplier, knockback, direction, crit);
 							npc.AddBuff(BuffID.Poisoned, 8 * 60);
 							npc.AddBuff(ModContent.BuffType<PrimordialWrath>(), (int)(4.5f * 60));
 						}
 
 						DashTimer = 10;
 						DashDelay = 30;
-						player.velocity.X = -direction * 9;
-						player.velocity.Y = -4f;
-						player.immune = true;
-						player.immuneNoBlink = true;
+						Player.velocity.X = -direction * 9;
+						Player.velocity.Y = -4f;
+						Player.immune = true;
+						Player.immuneNoBlink = true;
 						//Longer immune because the dash is faster
-						player.immuneTime = 8;
+						Player.immuneTime = 8;
 						HitNPCIndex = i;
 					}
 				}
-			}else if((!player.controlLeft || player.velocity.X >= 0f) && (!player.controlRight || player.velocity.X <= 0f))
-				player.velocity.X *= 0.95f;
+			}else if((!Player.controlLeft || Player.velocity.X >= 0f) && (!Player.controlRight || Player.velocity.X <= 0f))
+				Player.velocity.X *= 0.95f;
 		}
 	}
 }

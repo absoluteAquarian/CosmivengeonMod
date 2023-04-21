@@ -5,26 +5,27 @@ using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
 namespace CosmivengeonMod.Items.Tools.Dice{
 	public class DiceOfFateD20 : HidableTooltip{
-		public override TagCompound Save()
+		public override void SaveData(TagCompound tag)/* tModPorter Suggestion: Edit tag parameter instead of returning new TagCompound */
 			=> new TagCompound(){
 				["recharge"] = rechargeTimer,
 				["pushLuck"] = dontPushYourLuck,
 				["unlucky"] = unluckyFactor
 			};
 
-		public override void Load(TagCompound tag){
+		public override void LoadData(TagCompound tag){
 			rechargeTimer = tag.GetInt("recharge");
 			dontPushYourLuck = tag.GetInt("pushLuck");
 			unluckyFactor = tag.GetInt("unlucky");
 		}
 
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
 
 		public static int rechargeTimer;
 		public static int dontPushYourLuck;
@@ -70,27 +71,27 @@ namespace CosmivengeonMod.Items.Tools.Dice{
 		public override string FlavourText => "~!~";
 
 		public override void SetDefaults(){
-			item.useTime = item.useAnimation = 18;
-			item.useTurn = true;
-			item.noUseGraphic = true;
-			item.noMelee = true;
+			Item.useTime = Item.useAnimation = 18;
+			Item.useTurn = true;
+			Item.noUseGraphic = true;
+			Item.noMelee = true;
 
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.UseSound = SoundID.Item1;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.UseSound = SoundID.Item1;
 
-			item.rare = ItemRarityID.LightRed;
-			item.value = Item.buyPrice(gold: 10, silver: 15);
+			Item.rare = ItemRarityID.LightRed;
+			Item.value = Item.buyPrice(gold: 10, silver: 15);
 
-			item.width = 34;
-			item.height = 34;
-			item.scale = 8f / 34;
+			Item.width = 34;
+			Item.height = 34;
+			Item.scale = 8f / 34;
 
-			item.shoot = ModContent.ProjectileType<DiceOfFateD20Dice>();
-			item.shootSpeed = 6f;
+			Item.shoot = ModContent.ProjectileType<DiceOfFateD20Dice>();
+			Item.shootSpeed = 6f;
 
-			item.consumable = false;
-			item.ammo = item.type;
-			item.useAmmo = item.type;
+			Item.consumable = false;
+			Item.ammo = Item.type;
+			Item.useAmmo = Item.type;
 		}
 
 		public override void SafeModifyTooltips(List<TooltipLine> tooltips){
@@ -133,7 +134,7 @@ namespace CosmivengeonMod.Items.Tools.Dice{
 			}else
 				replacement = "Active effects:\n - none";
 
-			tooltip.text = tooltip.text.Replace("~!~", replacement);
+			tooltip.Text = tooltip.Text.Replace("~!~", replacement);
 		}
 
 		public override void UpdateInventory(Player player){
@@ -148,12 +149,12 @@ namespace CosmivengeonMod.Items.Tools.Dice{
 			if(rechargeTimer > 0){
 				rechargeTimer--;
 
-				if(item.useAmmo == item.type)
-					item.useAmmo = ModContent.ItemType<DiceOfFateFakeAmmo>();
+				if(Item.useAmmo == Item.type)
+					Item.useAmmo = ModContent.ItemType<DiceOfFateFakeAmmo>();
 			}
 
 			if(rechargeTimer == 0 || Debug.debug_fastDiceOfFateRecharge){
-				item.useAmmo = item.type;
+				Item.useAmmo = Item.type;
 
 				if(dontPushYourLuck == 0){
 					unluckyFactor = 0;
@@ -164,7 +165,7 @@ namespace CosmivengeonMod.Items.Tools.Dice{
 
 		public override bool CanUseItem(Player player) => rechargeTimer <= 0 || Debug.debug_fastDiceOfFateRecharge;
 
-		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback){
 			if(dontPushYourLuck > 0)
 				unluckyFactor++;
 
@@ -178,7 +179,7 @@ namespace CosmivengeonMod.Items.Tools.Dice{
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddRecipeGroup(RecipeGroupID.IronBar, 8);
 			recipe.AddRecipeGroup(CoreMod.RecipeGroups.Tier4Bars, 20);
 			recipe.AddRecipeGroup(CoreMod.RecipeGroups.EvilBars, 12);
@@ -187,8 +188,7 @@ namespace CosmivengeonMod.Items.Tools.Dice{
 			recipe.AddIngredient(ItemID.LifeCrystal, 5);
 			recipe.AddIngredient(ItemID.ManaCrystal, 5);
 			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }

@@ -26,18 +26,18 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons{
 		public override void SetDefaults(){
 			head = true;
 
-			npc.width = 25;
-			npc.height = 25;
+			NPC.width = 25;
+			NPC.height = 25;
 			
-			npc.aiStyle = -1;
-			npc.lifeMax = 200;
-			npc.defense = 6;
-			npc.damage = 20;
-			npc.scale = 1f;
-			npc.lavaImmune = true;
-			npc.noGravity = true;
-			npc.noTileCollide = true;
-			npc.knockBackResist = 0f;
+			NPC.aiStyle = -1;
+			NPC.lifeMax = 200;
+			NPC.defense = 6;
+			NPC.damage = 20;
+			NPC.scale = 1f;
+			NPC.lavaImmune = true;
+			NPC.noGravity = true;
+			NPC.noTileCollide = true;
+			NPC.knockBackResist = 0f;
 
 			minLength = maxLength = 4;
 
@@ -55,15 +55,15 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons{
 			maxDigDistance = 16 * MiscUtils.GetModeChoice(15, 10, 7);
 			customBodySegments = true;
 
-			npc.HitSound = new LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
+			NPC.HitSound = new LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
 
-			bossID = (int)npc.ai[1];
+			bossID = (int)NPC.ai[1];
 
-			baseDefense = npc.defense;
+			baseDefense = NPC.defense;
 		}
 
 		public override int SetCustomBodySegments(int startDistance){
-			int latestNPC = npc.whoAmI;
+			int latestNPC = NPC.whoAmI;
 			latestNPC = NewBodySegment(ModContent.NPCType<DraekWyrmSummon_Body0>(), latestNPC);
 			latestNPC = NewBodySegment(ModContent.NPCType<DraekWyrmSummon_Body1>(), latestNPC);
 			return latestNPC;
@@ -90,36 +90,36 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons{
 		public override void AI(){
 			if(!hasSpawned){
 				hasSpawned = true;
-				npc.TargetClosest(false);
+				NPC.TargetClosest(false);
 				FastChargeTimer = Main.rand.Next(6 * 60, 10 * 60);
-				npc.netUpdate = true;
+				NPC.netUpdate = true;
 			}
 
-			if(npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead){
-				npc.TargetClosest(true);
-				npc.netUpdate = true;
+			if(NPC.target < 0 || NPC.target == 255 || Main.player[NPC.target].dead){
+				NPC.TargetClosest(true);
+				NPC.netUpdate = true;
 			}
 
-			if(Vector2.Distance(npc.Center, Main.player[npc.target].Center) > 100 * 16){
-				npc.life = 0;
-				npc.active = false;
+			if(Vector2.Distance(NPC.Center, Main.player[NPC.target].Center) > 100 * 16){
+				NPC.life = 0;
+				NPC.active = false;
 			}
 
 			//Occasionally spit acid
 			if(WorldEvents.desoMode){
 				if(AcidSpitTimer < 0){
-					MiscUtils.SpawnProjectileSynced(npc.position,
+					MiscUtils.SpawnProjectileSynced(NPC.position,
 						Vector2.Zero,
 						ModContent.ProjectileType<DraekAcidSpit>(),
 						20,
 						3f,
-						Main.player[npc.target].Center.X,
-						Main.player[npc.target].Center.Y
+						Main.player[NPC.target].Center.X,
+						Main.player[NPC.target].Center.Y
 					);
 
 					AcidSpitTimer = Main.rand.Next(60, 150);
 
-					npc.netUpdate = true;
+					NPC.netUpdate = true;
 				}
 				AcidSpitTimer--;
 			}
@@ -134,24 +134,24 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons{
 					speed = prevSpeed + 4f;
 					turnSpeed = 0.25f;
 					FastChargeTimer = 120;
-					npc.defense = 0;
+					NPC.defense = 0;
 
-					Main.PlaySound(SoundID.Item27.WithVolume(0.35f), npc.Center);
+					SoundEngine.PlaySound(SoundID.Item27.WithVolume(0.35f), NPC.Center);
 
-					npc.netUpdate = true;
+					NPC.netUpdate = true;
 				}else if(fastCharge && FastChargeTimer == 0){
 					fastCharge = false;
 					speed = prevSpeed;
 					turnSpeed = prevTurnSpeed;
 					FastChargeTimer = Main.rand.Next(6 * 60, 10 * 60);
-					npc.defense = baseDefense;
+					NPC.defense = baseDefense;
 
-					npc.netUpdate = true;
+					NPC.netUpdate = true;
 				}
 			}
 
 			if(fastCharge && Main.rand.NextFloat() < 0.85f){
-				Dust dust = Dust.NewDustDirect(npc.position, npc.width, npc.height, 74);
+				Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, 74);
 				dust.velocity = Vector2.Zero;
 				dust.noGravity = true;
 			}
@@ -164,42 +164,42 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons{
 		}
 
 		public override void SetDefaults(){
-			npc.width = 30;
-			npc.height = 30;
+			NPC.width = 30;
+			NPC.height = 30;
 			
-			npc.aiStyle = -1;
-			npc.lifeMax = 250;
-			npc.defense = 6;
-			npc.damage = 20;
-			npc.scale = 1f;
-			npc.lavaImmune = true;
-			npc.noGravity = true;
-			npc.noTileCollide = true;
-			npc.knockBackResist = 0f;
+			NPC.aiStyle = -1;
+			NPC.lifeMax = 250;
+			NPC.defense = 6;
+			NPC.damage = 20;
+			NPC.scale = 1f;
+			NPC.lavaImmune = true;
+			NPC.noGravity = true;
+			NPC.noTileCollide = true;
+			NPC.knockBackResist = 0f;
 
-			npc.dontCountMe = true;
+			NPC.dontCountMe = true;
 
-			npc.HitSound = new LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
+			NPC.HitSound = new LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
 		}
 
 		public override void AI(){
-			if(Main.npc[(int)npc.ai[3]].modNPC is DraekWyrmSummon_Head head){
+			if(Main.npc[(int)NPC.ai[3]].ModNPC is DraekWyrmSummon_Head head){
 				if(head.fastCharge && Main.rand.NextFloat() < 0.1667){
-					Dust dust = Dust.NewDustDirect(npc.position, npc.width, npc.height, 74);
+					Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, 74);
 					dust.velocity = Vector2.Zero;
 					dust.noGravity = true;
 				}
 
-				npc.defense = head.npc.defense;
+				NPC.defense = head.NPC.defense;
 			}
 		}
 	}
 	internal class DraekWyrmSummon_Body1 : DraekWyrmSummon_Body0{
 		public override void SetDefaults(){
-			npc.CloneDefaults(ModContent.NPCType<DraekWyrmSummon_Body0>());
+			NPC.CloneDefaults(ModContent.NPCType<DraekWyrmSummon_Body0>());
 
-			npc.width = 25;
-			npc.height = 25;
+			NPC.width = 25;
+			NPC.height = 25;
 		}
 	}
 
@@ -211,22 +211,22 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons{
 		public override void SetDefaults(){
 			tail = true;
 			
-			npc.width = 20;
-			npc.height = 20;
+			NPC.width = 20;
+			NPC.height = 20;
 			
-			npc.aiStyle = -1;
-			npc.lifeMax = 250;
-			npc.defense = 6;
-			npc.damage = 20;
-			npc.scale = 1f;
-			npc.lavaImmune = true;
-			npc.noGravity = true;
-			npc.noTileCollide = true;
-			npc.knockBackResist = 0f;
+			NPC.aiStyle = -1;
+			NPC.lifeMax = 250;
+			NPC.defense = 6;
+			NPC.damage = 20;
+			NPC.scale = 1f;
+			NPC.lavaImmune = true;
+			NPC.noGravity = true;
+			NPC.noTileCollide = true;
+			NPC.knockBackResist = 0f;
 
-			npc.dontCountMe = true;
+			NPC.dontCountMe = true;
 
-			npc.HitSound = new LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
+			NPC.HitSound = new LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
 		}
 	}
 }

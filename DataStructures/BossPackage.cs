@@ -15,9 +15,9 @@ namespace CosmivengeonMod.DataStructures{
 		public static Dictionary<CosmivengeonBoss, BossPackage> bossInfo;
 
 		public BossPackage(int id, int altID, string badUseMessage, Func<Player, bool> requirement, Func<float, int> musicFunc){
-			if(ModContent.GetModNPC(id)?.mod != CoreMod.Instance)
+			if(ModContent.GetModNPC(id)?.Mod != CoreMod.Instance)
 				throw new ArgumentException("ID wasn't a valid Cosmivengeon boss ID");
-			if(altID > 0 && ModContent.GetModNPC(altID)?.mod != CoreMod.Instance)
+			if(altID > 0 && ModContent.GetModNPC(altID)?.Mod != CoreMod.Instance)
 				throw new ArgumentException("Alternate ID wasn't a valid Cosmivengeon boss ID");
 
 			bossID = id;

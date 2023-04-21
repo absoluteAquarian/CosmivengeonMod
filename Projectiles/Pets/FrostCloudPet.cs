@@ -9,36 +9,36 @@ namespace CosmivengeonMod.Projectiles.Pets{
 		//Copied from ExampleMod
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Baby Blizzard Cloud");
-			Main.projFrames[projectile.type] = 4;
-			Main.projPet[projectile.type] = true;
+			Main.projFrames[Projectile.type] = 4;
+			Main.projPet[Projectile.type] = true;
 		}
 
 		public override void SetDefaults(){
-			projectile.CloneDefaults(ProjectileID.ZephyrFish);
-			projectile.width = 46;
-			projectile.height = 32;
-			aiType = ProjectileID.ZephyrFish;
+			Projectile.CloneDefaults(ProjectileID.ZephyrFish);
+			Projectile.width = 46;
+			Projectile.height = 32;
+			AIType = ProjectileID.ZephyrFish;
 		}
 
 		public override bool PreAI(){
 			//Zephyr Fish sets this to true, so we need to override that
 			// and make it false instead (we don't want the Zephyr Fish
 			// to appear)
-			Main.player[projectile.owner].zephyrfish = false;
+			Main.player[Projectile.owner].zephyrfish = false;
 			return true;
 		}
 
 		public override void AI(){
-			Player playerOwner = Main.player[projectile.owner];
+			Player playerOwner = Main.player[Projectile.owner];
 			PetPlayer modPlayer = playerOwner.GetModPlayer<PetPlayer>();
 
 			if(playerOwner.dead)
 				modPlayer.cloudPet = false;
 			if(modPlayer.cloudPet)
-				projectile.timeLeft = 2;
+				Projectile.timeLeft = 2;
 
-			if(!projectile.WithinDistance(playerOwner.Center, 300 * 16))
-				projectile.Center = playerOwner.Center;
+			if(!Projectile.WithinDistance(playerOwner.Center, 300 * 16))
+				Projectile.Center = playerOwner.Center;
 		}
 	}
 }

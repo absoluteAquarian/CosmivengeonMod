@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -40,26 +41,26 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		public override void SetDefaults(){
 			head = true;
 			
-			npc.width = 40;
-			npc.height = 40;
+			NPC.width = 40;
+			NPC.height = 40;
 
-			npc.aiStyle = -1;
-			npc.lifeMax = BaseHealth;
-			npc.defense = 16;
-			npc.damage = 40;
-			npc.boss = true;
-			npc.lavaImmune = true;
-			npc.noGravity = true;
-			npc.noTileCollide = true;
-			npc.knockBackResist = 0f;
+			NPC.aiStyle = -1;
+			NPC.lifeMax = BaseHealth;
+			NPC.defense = 16;
+			NPC.damage = 40;
+			NPC.boss = true;
+			NPC.lavaImmune = true;
+			NPC.noGravity = true;
+			NPC.noTileCollide = true;
+			NPC.knockBackResist = 0f;
 
-			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
-			npc.DeathSound = SoundID.NPCDeath60;	//Phantasm Dragon death sound
+			NPC.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
+			NPC.DeathSound = SoundID.NPCDeath60;	//Phantasm Dragon death sound
 			
-			npc.buffImmune[BuffID.Poisoned] = true;
-			npc.buffImmune[BuffID.Confused] = true;
-			npc.buffImmune[BuffID.Burning] = true;
-			npc.buffImmune[BuffID.Frostburn] = true;
+			NPC.buffImmune[BuffID.Poisoned] = true;
+			NPC.buffImmune[BuffID.Confused] = true;
+			NPC.buffImmune[BuffID.Burning] = true;
+			NPC.buffImmune[BuffID.Frostburn] = true;
 
 			minLength = maxLength = 6;
 
@@ -73,9 +74,9 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			maxDigDistance = 16 * 40;
 			customBodySegments = true;
 
-			npc.value = Draek.Value;
+			NPC.value = Draek.Value;
 
-			bossBag = ModContent.ItemType<DraekBag>();
+			bossBag/* tModPorter Note: Removed. Spawn the treasure bag alongside other loot via npcLoot.Add(ItemDropRule.BossBag(type)) */ = ModContent.ItemType<DraekBag>();
 
 			MiscUtils.PlayMusic(this, CosmivengeonBoss.Draek);
 		}
@@ -194,16 +195,16 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		}
 
 		public override bool CheckActive(){
-			return Vector2.Distance(npc.Center, CustomTarget) > 200 * 16;
+			return Vector2.Distance(NPC.Center, CustomTarget) > 200 * 16;
 		}
 
-		public override void NPCLoot(){
+		public override void OnKill(){
 			WorldEvents.downedDraekBoss = true;
 
 			if(Main.expertMode)
-				npc.DropBossBags();
+				NPC.DropBossBags();
 			else
-				NormalModeDrops(npc: npc);
+				NormalModeDrops(npc: NPC);
 
 			Debug.CheckWorldFlagUpdate(nameof(WorldEvents.downedDraekBoss));
 		}
@@ -265,7 +266,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		}
 
 		public override void ScaleExpertStats(int numPlayers, float bossLifeScale){
-			ExpertStatsHelper(npc);
+			ExpertStatsHelper(NPC);
 
 			speed = speed_subphase0_expert;
 			turnSpeed = turnSpeed_subphase0_expert;
@@ -285,7 +286,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			//AI:  https://docs.google.com/document/d/13IlpNUdO2X_elLPwsYcB1mzd_FMxQkwAcRKq1oSWgLg
 			
 			if(!hasSpawned){
-				npc.TargetClosest(true);
+				NPC.TargetClosest(true);
 				hasSpawned = true;
 
 				MiscUtils.SendMessage("<Draek> MY JEWEL!", Draek.TextColour);
@@ -297,7 +298,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				}
 			}
 
-			if((npc.life < ActualMaxHealth * 0.3 && CurrentPhase == Phase_2) || (npc.life < ActualMaxHealth * 0.4f && WorldEvents.desoMode && !desoMode_enrageTextPrinted)){
+			if((NPC.life < ActualMaxHealth * 0.3 && CurrentPhase == Phase_2) || (NPC.life < ActualMaxHealth * 0.4f && WorldEvents.desoMode && !desoMode_enrageTextPrinted)){
 				switchPhases = true;
 				desoMode_enrageTextPrinted = true;
 
@@ -313,13 +314,13 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			if(Main.expertMode){
 				SummonedWyrms = UpdateWyrmCount();
 
-				StatsNPC gnpc = npc.GetGlobalNPC<StatsNPC>();
+				StatsNPC gnpc = NPC.GetGlobalNPC<StatsNPC>();
 
 				if(SummonedWyrms > 0){
 					gnpc.endurance += WorldEvents.desoMode ? 0.2f : 0.4f;
 
 					for(int i = 0; i < Segments.Count; i++)
-						Segments[i].npc.GetGlobalNPC<StatsNPC>().endurance = gnpc.endurance;
+						Segments[i].NPC.GetGlobalNPC<StatsNPC>().endurance = gnpc.endurance;
 				}
 			}
 
@@ -393,7 +394,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			SpawnChargeDusts = (normalModeChargeAttack || expertModeChargeAttack || desoModeChargeAttack) && speed > 1;
 
 			if(SpawnChargeDusts)
-				SpawnDust(npc);
+				SpawnDust(NPC);
 		}
 
 		public static void SpawnDust(NPC npc){
@@ -407,7 +408,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			if(!WorldEvents.desoMode || desoModeSubphases.Length == 0)
 				return;
 
-			curLifeRatio = npc.life / (float)ActualMaxHealth;
+			curLifeRatio = NPC.life / (float)ActualMaxHealth;
 
 			if(desoModeSubphaseSet == 0 && curLifeRatio <= 0.6f && curLifeRatio > 0.4f){
 				switchDesoModeSubphaseSet = true;
@@ -455,7 +456,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			switchSubPhases = false;
 			switchDesoModeSubphaseSet = false;
 
-			npc.netUpdate = true;
+			NPC.netUpdate = true;
 		}
 
 		private void CheckPhaseChange(){
@@ -470,14 +471,14 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			switchPhases = false;
 			switchSubPhases = false;
 
-			npc.netUpdate = true;
+			NPC.netUpdate = true;
 		}
 
 		private int UpdateWyrmCount(){
 			int wyrms = 0;
 			
 			for(int i = 0; i < Main.npc.Length; i++){
-				if(Main.npc[i].active && Main.npc[i].type == ModContent.NPCType<DraekWyrmSummon_Head>() && (int)Main.npc[i].ai[2] == npc.whoAmI)
+				if(Main.npc[i].active && Main.npc[i].type == ModContent.NPCType<DraekWyrmSummon_Head>() && (int)Main.npc[i].ai[2] == NPC.whoAmI)
 					wyrms++;
 			}
 			
@@ -486,18 +487,18 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 
 		private void AI_Spit(){
 			if(spitTimer < 0 && Main.netMode != NetmodeID.MultiplayerClient){
-				MiscUtils.SpawnProjectileSynced(npc.Center,
+				MiscUtils.SpawnProjectileSynced(NPC.Center,
 					Vector2.Zero,
 					ModContent.ProjectileType<DraekAcidSpit>(),
 					20,
 					3f,
-					Main.player[npc.target].Center.X,
-					Main.player[npc.target].Center.Y
+					Main.player[NPC.target].Center.X,
+					Main.player[NPC.target].Center.Y
 				);
 
 				spitTimer = Main.rand.Next(120, 180);
 
-				npc.netUpdate = true;
+				NPC.netUpdate = true;
 			}
 		}
 
@@ -520,16 +521,16 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			if(attackTimer < waitBetween || Main.netMode == NetmodeID.MultiplayerClient)
 				return;
 			
-			Vector2 range = npc.Center + new Vector2(Main.rand.NextFloat(-5 * 16, 5 * 16), Main.rand.NextFloat(-5 * 16, 5 * 16));
+			Vector2 range = NPC.Center + new Vector2(Main.rand.NextFloat(-5 * 16, 5 * 16), Main.rand.NextFloat(-5 * 16, 5 * 16));
 			
-			MiscUtils.SpawnNPCSynced(range, ModContent.NPCType<DraekWyrmSummon_Head>(), ai2: npc.whoAmI);
+			MiscUtils.SpawnNPCSynced(range, ModContent.NPCType<DraekWyrmSummon_Head>(), ai2: NPC.whoAmI);
 			
 			SummonedWyrms++;
 
 			attackProgress++;
 			attackTimer = 0;
 
-			npc.netUpdate = true;
+			NPC.netUpdate = true;
 		}
 
 		private void AI_MegaCharge(int delay, int flyTime, int rockCount, float targetTolerance){
@@ -544,7 +545,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			if(attackProgress == 0){
 				speed = 1f;
 				turnSpeed = 0.5f;
-				CustomTarget = Main.player[npc.target].Center;
+				CustomTarget = Main.player[NPC.target].Center;
 				attackProgress++;
 			}else if(attackProgress == 1){
 				if(attackTimer < delay)
@@ -558,15 +559,15 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				turnSpeed = MiscUtils.GetModeChoice(0.62f, 0.7f, 0.85f);
 				fly = true;
 				JewelExplosion();
-				if(Vector2.Distance(CustomTarget, npc.Center) < 1 * 16)
+				if(Vector2.Distance(CustomTarget, NPC.Center) < 1 * 16)
 					attackProgress++;
 			}else if(attackProgress >= 4){
-				CustomTarget = Main.player[npc.target].Center - new Vector2(0, 16 * 10);
-				speed = Main.player[npc.target].velocity.Length() + MiscUtils.GetModeChoice(6, 6, 9);
+				CustomTarget = Main.player[NPC.target].Center - new Vector2(0, 16 * 10);
+				speed = Main.player[NPC.target].velocity.Length() + MiscUtils.GetModeChoice(6, 6, 9);
 
 				float rockDelay = flyTime / (rockCount + 1);
 
-				if(Vector2.Distance(npc.Center, CustomTarget) > targetTolerance){
+				if(Vector2.Distance(NPC.Center, CustomTarget) > targetTolerance){
 					attackTimer--;
 					return;
 				}
@@ -574,7 +575,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				if(attackTimer > rockDelay){
 					float rockSpawnOffset = Main.rand.NextFloat(-3, 3);
 
-					MiscUtils.SpawnProjectileSynced(npc.Center + new Vector2(rockSpawnOffset, 0),
+					MiscUtils.SpawnProjectileSynced(NPC.Center + new Vector2(rockSpawnOffset, 0),
 						Vector2.Zero,
 						ModContent.ProjectileType<DraekRock>(),
 						30 + (Main.expertMode ? 30 : 0),
@@ -583,7 +584,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 						0.35f
 					);
 
-					Main.PlaySound(SoundID.Item69, npc.Center);
+					SoundEngine.PlaySound(SoundID.Item69, NPC.Center);
 
 					attackTimer = 0;
 					attackProgress++;
@@ -606,7 +607,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			//Loop over all tiles we're colliding with
 			//If any are solid, trigger the explosion and go to the next subphase
 			foreach(Point p in tileCoords){
-				if(MiscUtils.TileIsSolidOrPlatform(p.X, p.Y) && Main.tile[p.X, p.Y].type != TileID.Platforms){
+				if(MiscUtils.TileIsSolidOrPlatform(p.X, p.Y) && Main.tile[p.X, p.Y].TileType != TileID.Platforms){
 					triggerExplosion = true;
 					switchSubPhases = true;
 					break;
@@ -621,17 +622,17 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 
 		private void AI_Beserker(bool lasers = false){
 			if(attackProgress < 4)
-				CustomTarget = Main.player[npc.target].Center;
+				CustomTarget = Main.player[NPC.target].Center;
 			else
-				CustomTarget = Main.player[npc.target].Center - new Vector2(0, 8 * 16);
+				CustomTarget = Main.player[NPC.target].Center - new Vector2(0, 8 * 16);
 
 			if(attackProgress == 0){
 				AI_Worm(speed, turnSpeed, 1);
 				attackProgress = 2;
 			}
 
-			if(npc.ai[1] == 0f && lasers && laserTimer < 0){
-				npc.ai[1] = 2;	//Signal to the jewel segment to fire lasers
+			if(NPC.ai[1] == 0f && lasers && laserTimer < 0){
+				NPC.ai[1] = 2;	//Signal to the jewel segment to fire lasers
 				laserTimer = Laser_Delay;
 			}
 
@@ -640,12 +641,12 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				turnSpeed = 0.525f;
 				fly = true;
 				JewelExplosion();
-				if(Vector2.Distance(CustomTarget, npc.Center) < 1 * 16)
+				if(Vector2.Distance(CustomTarget, NPC.Center) < 1 * 16)
 					attackProgress++;
 			}
 
 			if(attackTimer > DesoMode_RockDelay){
-				MiscUtils.SpawnProjectileSynced(npc.Center,
+				MiscUtils.SpawnProjectileSynced(NPC.Center,
 					new Vector2(0, -15),
 					ModContent.ProjectileType<DraekRock>(),
 					75,
@@ -654,7 +655,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 					0.35f
 				);
 
-				Main.PlaySound(SoundID.Item69, npc.Center);
+				SoundEngine.PlaySound(SoundID.Item69, NPC.Center);
 
 				attackTimer = 0;
 				attackProgress++;
@@ -670,12 +671,12 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		}
 
 		private void JewelExplosion(){
-			if(npc.ai[1] == 0f && attackProgress == 2){	//Notify the second body segment to cause the explosion
-				npc.ai[1] = 1f;
+			if(NPC.ai[1] == 0f && attackProgress == 2){	//Notify the second body segment to cause the explosion
+				NPC.ai[1] = 1f;
 				attackProgress++;
 
 				if(CurrentPhase == Phase_2_DesoMode && attackPhase >= DesoMode_Berserker)
-					Main.PlaySound(new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0), npc.Center);
+					SoundEngine.PlaySound(new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0), NPC.Center);
 			}
 		}
 
@@ -687,7 +688,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			int amount = Main.rand.Next(10, 17);
 
 			for(int i = 0; i < amount; i++){
-				MiscUtils.SpawnProjectileSynced(npc.Center,
+				MiscUtils.SpawnProjectileSynced(NPC.Center,
 					new Vector2(0, -7),
 					ModContent.ProjectileType<DraekRockExplosion>(),
 					20,
@@ -697,7 +698,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				);
 			}
 
-			Main.PlaySound(SoundID.Item14.WithPitchVariance(0.6f).WithVolume(0.8f), npc.Center);
+			SoundEngine.PlaySound(SoundID.Item14.WithPitchVariance(0.6f).WithVolume(0.8f), NPC.Center);
 
 			switchSubPhases = true;
 		}
@@ -705,13 +706,13 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		private List<Point> GetCollidingTileCoords(){
 			List<Point> ret = new List<Point>();
 
-			int curTileX = (int)(npc.position.X / 16f);
-			int curTileY = (int)(npc.position.Y / 16f);
+			int curTileX = (int)(NPC.position.X / 16f);
+			int curTileY = (int)(NPC.position.Y / 16f);
 
 			int tileX = curTileX - 1;
 			int tileY = curTileY - 1;
-			int endTileX = curTileX + (int)(npc.width / 16f) + 1;
-			int endTileY = curTileY + (int)(npc.height / 16f) + 1;
+			int endTileX = curTileX + (int)(NPC.width / 16f) + 1;
+			int endTileY = curTileY + (int)(NPC.height / 16f) + 1;
 
 			for(; tileX < endTileX; tileX++)
 				for(; tileY < endTileY; tileY++)
@@ -721,7 +722,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		}
 
 		public override int SetCustomBodySegments(int startDistance){
-			int latestNPC = npc.whoAmI;
+			int latestNPC = NPC.whoAmI;
 			latestNPC = NewBodySegment(ModContent.NPCType<DraekP2_Body0>(), latestNPC);
 			latestNPC = NewBodySegment(ModContent.NPCType<DraekP2_Body1>(), latestNPC);
 			latestNPC = NewBodySegment(ModContent.NPCType<DraekP2_Body2>(), latestNPC);
@@ -737,41 +738,41 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		}
 
 		public override void SetDefaults(){
-			npc.CloneDefaults(headType);
+			NPC.CloneDefaults(headType);
 
-			npc.boss = true;
+			NPC.boss = true;
 			
-			npc.width = 30;
-			npc.height = 30;
+			NPC.width = 30;
+			NPC.height = 30;
 			
-			npc.aiStyle = -1;
-			npc.lifeMax = 2500;
-			npc.defense = 25;
-			npc.damage = 40;
-			npc.lavaImmune = true;
-			npc.noGravity = true;
-			npc.noTileCollide = true;
-			npc.knockBackResist = 0f;
+			NPC.aiStyle = -1;
+			NPC.lifeMax = 2500;
+			NPC.defense = 25;
+			NPC.damage = 40;
+			NPC.lavaImmune = true;
+			NPC.noGravity = true;
+			NPC.noTileCollide = true;
+			NPC.knockBackResist = 0f;
 
-			npc.buffImmune[BuffID.Poisoned] = true;
-			npc.buffImmune[BuffID.Confused] = true;
-			npc.buffImmune[BuffID.Burning] = true;
-			npc.buffImmune[BuffID.Frostburn] = true;
+			NPC.buffImmune[BuffID.Poisoned] = true;
+			NPC.buffImmune[BuffID.Confused] = true;
+			NPC.buffImmune[BuffID.Burning] = true;
+			NPC.buffImmune[BuffID.Frostburn] = true;
 
-			npc.dontCountMe = true;
+			NPC.dontCountMe = true;
 
-			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
-			npc.DeathSound = SoundID.NPCDeath60;	//Phantasm Dragon death sound
+			NPC.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
+			NPC.DeathSound = SoundID.NPCDeath60;	//Phantasm Dragon death sound
 		}
 
-		public override bool PreNPCLoot(){
+		public override bool PreKill(){
 			return false;	//Don't drop anything
 		}
 
 		public override void AI(){
-			NPC parent = Main.npc[(int)npc.ai[3]];
-			if((parent.modNPC as DraekP2Head).SpawnChargeDusts)
-				DraekP2Head.SpawnDust(npc);
+			NPC parent = Main.npc[(int)NPC.ai[3]];
+			if((parent.ModNPC as DraekP2Head).SpawnChargeDusts)
+				DraekP2Head.SpawnDust(NPC);
 		}
 
 		public override void OnHitPlayer(Player target, int damage, bool crit){
@@ -780,7 +781,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		}
 
 		public override void ScaleExpertStats(int numPlayers, float bossLifeScale){
-			DraekP2Head.ExpertStatsHelper(npc);
+			DraekP2Head.ExpertStatsHelper(NPC);
 		}
 
 		public override void ModifyHitByProjectile(Projectile projectile, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
@@ -789,30 +790,30 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		}
 
 		public override bool CheckActive(){
-			return Vector2.Distance(npc.Center, (Main.npc[(int)npc.ai[3]].modNPC as Worm)?.CustomTarget ?? npc.Center) > 200 * 16;
+			return Vector2.Distance(NPC.Center, (Main.npc[(int)NPC.ai[3]].ModNPC as Worm)?.CustomTarget ?? NPC.Center) > 200 * 16;
 		}
 	}
 	internal class DraekP2_Body1 : DraekP2_Body0{
 		public override void AI(){
-			NPC parent = Main.npc[(int)npc.ai[3]];
+			NPC parent = Main.npc[(int)NPC.ai[3]];
 
 			if(parent.ai[1] == 1f){	//Head segment has flagged for this one to cause the "Jewel Explosion"
 				//Play the sounds
-				Main.PlaySound(SoundID.Item27, npc.Center);		//Crystal break sound effect
-				Main.PlaySound(SoundID.Item70, npc.Center);		//Staff of Earth alternative sound effect
+				SoundEngine.PlaySound(SoundID.Item27, NPC.Center);		//Crystal break sound effect
+				SoundEngine.PlaySound(SoundID.Item70, NPC.Center);		//Staff of Earth alternative sound effect
 
 				//Spawn the dust
 				for(int i = 0; i < 60; i++){
-					Dust.NewDust(npc.Center, 50, 50, 74, Main.rand.NextFloat(-8, 8), Main.rand.NextFloat(-8, 8));
-					Dust.NewDust(npc.Center, 50, 50, 107, Main.rand.NextFloat(-8, 8), Main.rand.NextFloat(-8, 8));
+					Dust.NewDust(NPC.Center, 50, 50, 74, Main.rand.NextFloat(-8, 8), Main.rand.NextFloat(-8, 8));
+					Dust.NewDust(NPC.Center, 50, 50, 107, Main.rand.NextFloat(-8, 8), Main.rand.NextFloat(-8, 8));
 				}
 				
 				parent.ai[1] = 0f;
 			}else if(parent.ai[1] == 2f){	//Head segment has flagged for laser attack to happen
-				Vector2 spawnOrigin = Main.player[npc.target].Center;
+				Vector2 spawnOrigin = Main.player[NPC.target].Center;
 				Vector2 positionOffset = new Vector2(Main.rand.NextFloat(-1, 1), Main.rand.NextFloat(-1, 1)) * 48f;
 				for(int i = 0; i < 3; i++){
-					MiscUtils.SpawnProjectileSynced(npc.Center,
+					MiscUtils.SpawnProjectileSynced(NPC.Center,
 						Vector2.Zero,
 						ModContent.ProjectileType<DraekLaser>(),
 						50,
@@ -825,7 +826,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				}
 
 				//Play "boss laser" sound effect
-				Main.PlaySound(SoundID.Item33, npc.position);
+				SoundEngine.PlaySound(SoundID.Item33, NPC.position);
 
 				parent.ai[1] = 0f;
 			}
@@ -840,38 +841,38 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		public override string Texture => "CosmivengeonMod/NPCs/Bosses/DraekBoss/DraekP2_Tail";
 
 		public override void SetDefaults(){
-			npc.CloneDefaults(headType);
+			NPC.CloneDefaults(headType);
 
-			npc.boss = true;
+			NPC.boss = true;
 			
-			npc.aiStyle = -1;
-			npc.lifeMax = 500;
-			npc.defense = 25;
-			npc.damage = 40;
-			npc.lavaImmune = true;
-			npc.noGravity = true;
-			npc.noTileCollide = true;
-			npc.knockBackResist = 0f;
+			NPC.aiStyle = -1;
+			NPC.lifeMax = 500;
+			NPC.defense = 25;
+			NPC.damage = 40;
+			NPC.lavaImmune = true;
+			NPC.noGravity = true;
+			NPC.noTileCollide = true;
+			NPC.knockBackResist = 0f;
 
-			npc.buffImmune[BuffID.Poisoned] = true;
-			npc.buffImmune[BuffID.Confused] = true;
-			npc.buffImmune[BuffID.Burning] = true;
-			npc.buffImmune[BuffID.Frostburn] = true;
+			NPC.buffImmune[BuffID.Poisoned] = true;
+			NPC.buffImmune[BuffID.Confused] = true;
+			NPC.buffImmune[BuffID.Burning] = true;
+			NPC.buffImmune[BuffID.Frostburn] = true;
 
 			tail = true;
-			npc.width = 30;
-			npc.height = 30;
+			NPC.width = 30;
+			NPC.height = 30;
 
-			npc.dontCountMe = true;
+			NPC.dontCountMe = true;
 
-			npc.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
-			npc.DeathSound = SoundID.NPCDeath60;	//Phantasm Dragon death sound
+			NPC.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);	//Stone tile hit sound
+			NPC.DeathSound = SoundID.NPCDeath60;	//Phantasm Dragon death sound
 		}
 
 		public override void AI(){
-			NPC parent = Main.npc[(int)npc.ai[3]];
-			if((parent.modNPC as DraekP2Head).SpawnChargeDusts)
-				DraekP2Head.SpawnDust(npc);
+			NPC parent = Main.npc[(int)NPC.ai[3]];
+			if((parent.ModNPC as DraekP2Head).SpawnChargeDusts)
+				DraekP2Head.SpawnDust(NPC);
 		}
 	}
 }

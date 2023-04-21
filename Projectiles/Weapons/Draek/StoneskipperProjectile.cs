@@ -2,56 +2,58 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 	public class StoneskipperProjectile : ModProjectile{
 		public override void SetDefaults(){
-			projectile.width = 8;
-			projectile.height = 8;
-			projectile.aiStyle = 1;
-			projectile.friendly = true;
-			projectile.hostile = false;
-			projectile.ranged = true;
-			projectile.penetrate = 1;
-			projectile.extraUpdates = 3;
-			projectile.timeLeft = 5 * 60 * projectile.extraUpdates;
-			projectile.alpha = 255;
-			projectile.ignoreWater = true;
-			projectile.tileCollide = true;
-			aiType = ProjectileID.Bullet;
+			Projectile.width = 8;
+			Projectile.height = 8;
+			Projectile.aiStyle = 1;
+			Projectile.friendly = true;
+			Projectile.hostile = false;
+			Projectile.DamageType = DamageClass.Ranged;
+			Projectile.penetrate = 1;
+			Projectile.extraUpdates = 3;
+			Projectile.timeLeft = 5 * 60 * Projectile.extraUpdates;
+			Projectile.alpha = 255;
+			Projectile.ignoreWater = true;
+			Projectile.tileCollide = true;
+			AIType = ProjectileID.Bullet;
 		}
 
 		public override void AI(){
-			if(projectile.velocity.Length() < Stoneskipper.ShootSpeed)
-				projectile.velocity = Vector2.Normalize(projectile.velocity) * Stoneskipper.ShootSpeed / (projectile.extraUpdates + 1);
+			if(Projectile.velocity.Length() < Stoneskipper.ShootSpeed)
+				Projectile.velocity = Vector2.Normalize(Projectile.velocity) * Stoneskipper.ShootSpeed / (Projectile.extraUpdates + 1);
 
 			//Add a green light from the projectile
-			Lighting.AddLight(projectile.Center, 0f, 1f, 0f);
+			Lighting.AddLight(Projectile.Center, 0f, 1f, 0f);
 
 			//Set the rotation to the projectile's velocity vector + PI
-			projectile.rotation = projectile.velocity.ToRotation();
+			Projectile.rotation = Projectile.velocity.ToRotation();
 		}
 
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
 			target.AddBuff(BuffID.Poisoned, 5 * 60);
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+		public override bool PreDraw(ref Color lightColor) {
 			//Redraw the projectile with the color not influenced by light
-			Vector2 drawOrigin = new Vector2(Main.projectileTexture[projectile.type].Width * 0.5f, projectile.height * 0.5f);
-			Vector2 drawPos = projectile.position - Main.screenPosition + drawOrigin + new Vector2(0f, projectile.gfxOffY);
-			Color color = projectile.GetAlpha(lightColor);
+			Vector2 drawOrigin = new Vector2(TextureAssets.Projectile[Projectile.type].Value.Width * 0.5f, Projectile.height * 0.5f);
+			Vector2 drawPos = Projectile.position - Main.screenPosition + drawOrigin + new Vector2(0f, Projectile.gfxOffY);
+			Color color = Projectile.GetAlpha(lightColor);
 
-			spriteBatch.Draw(Main.projectileTexture[projectile.type], drawPos, null, color, projectile.rotation, drawOrigin, projectile.scale, SpriteEffects.None, 0f);
+			spriteBatch.Draw(TextureAssets.Projectile[Projectile.type].Value, drawPos, null, color, Projectile.rotation, drawOrigin, Projectile.scale, SpriteEffects.None, 0f);
 
 			return true;
 		}
 
 		public override void Kill(int timeLeft){
-			Collision.HitTiles(projectile.position + projectile.velocity, projectile.velocity, projectile.width, projectile.height);
-			Main.PlaySound(SoundID.Item10, projectile.position);
+			Collision.HitTiles(Projectile.position + Projectile.velocity, Projectile.velocity, Projectile.width, Projectile.height);
+			SoundEngine.PlaySound(SoundID.Item10, Projectile.position);
 		}
 	}
 }

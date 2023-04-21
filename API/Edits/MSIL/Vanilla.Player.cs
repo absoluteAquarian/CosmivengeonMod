@@ -5,6 +5,7 @@ using MonoMod.Cil;
 using System;
 using System.Reflection;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 
 namespace CosmivengeonMod.API.Edits.MSIL{
@@ -323,7 +324,7 @@ bad_il:
 				player.GetModPlayer<AccessoriesPlayer>().oronitusJump.jumpEffectActive = true;
 				int height2 = player.height;
 				float num3 = player.gravDir;
-				Main.PlaySound(SoundID.DoubleJump, player.position);
+				SoundEngine.PlaySound(SoundID.DoubleJump, player.position);
 				player.velocity.Y = -Player.jumpSpeed * player.gravDir;
 				//Blizzard double jump uses a factor of 1.5f
 				player.jump = (int)(Player.jumpHeight * 1.6f);

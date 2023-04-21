@@ -7,20 +7,20 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 	public class DraekLaser : ModProjectile{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Poisonous Laser");
-			Main.projFrames[projectile.type] = 5;
+			Main.projFrames[Projectile.type] = 5;
 		}
 		
 		public override void SetDefaults(){
-			projectile.height = 14;
-			projectile.width = 14;
-			projectile.friendly = false;
-			projectile.hostile = true;
-			projectile.tileCollide = false;
-			projectile.ignoreWater = true;
-			projectile.penetrate = -1;
-			projectile.timeLeft = 300;
-			projectile.aiStyle = 0;
-			projectile.alpha = 0;
+			Projectile.height = 14;
+			Projectile.width = 14;
+			Projectile.friendly = false;
+			Projectile.hostile = true;
+			Projectile.tileCollide = false;
+			Projectile.ignoreWater = true;
+			Projectile.penetrate = -1;
+			Projectile.timeLeft = 300;
+			Projectile.aiStyle = 0;
+			Projectile.alpha = 0;
 		}
 
 		public override void ModifyHitPlayer(Player target, ref int damage, ref bool crit){
@@ -34,27 +34,27 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 			if(!hasSpawned){
 				hasSpawned = true;
 
-				Vector2 normalized = Vector2.Normalize(new Vector2(projectile.ai[0], projectile.ai[1]) - projectile.Center);
+				Vector2 normalized = Vector2.Normalize(new Vector2(Projectile.ai[0], Projectile.ai[1]) - Projectile.Center);
 				Vector2 speedOffset = normalized * Main.rand.NextFloat(-2, 2);
 
-				projectile.velocity = speedOffset + normalized * 12f;
+				Projectile.velocity = speedOffset + normalized * 12f;
 			}
 			
 			//Set the rotation to the projectile's velocity vector + PI
-			projectile.rotation = projectile.velocity.ToRotation() + MathHelper.ToRadians(90f);
+			Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(90f);
 
 			//Change the animation frame every 5 frames
-			if(++projectile.frameCounter >= 5){
-				projectile.frameCounter = 0;
-				projectile.frame = ++projectile.frame % Main.projFrames[projectile.type];
+			if(++Projectile.frameCounter >= 5){
+				Projectile.frameCounter = 0;
+				Projectile.frame = ++Projectile.frame % Main.projFrames[Projectile.type];
 			}
 
 			//Add a green light from the projectile
-			Lighting.AddLight(projectile.Center, 0f, 1f, 0f);
+			Lighting.AddLight(Projectile.Center, 0f, 1f, 0f);
 
 			if(Main.rand.NextFloat() < 0.125f){
-				Dust dust = Dust.NewDustDirect(projectile.position, projectile.width, projectile.height, 74);
-				dust.velocity = projectile.velocity * 0.3f;
+				Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 74);
+				dust.velocity = Projectile.velocity * 0.3f;
 			}
 		}
 	}

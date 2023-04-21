@@ -7,33 +7,33 @@ using Terraria.ModLoader;
 namespace CosmivengeonMod.NPCs.Monsters.Purity{
 	public class Raechon : RaechonAI{
 		public override void SetStaticDefaults(){
-			Main.npcFrameCount[npc.type] = 4;
+			Main.npcFrameCount[NPC.type] = 4;
 		}
 
 		public override void SetDefaults(){
-			npc.lifeMax = 375;
-			npc.defense = 13;
-			npc.damage = 65;
-			npc.width = 32;
-			npc.height = 32;
-			npc.knockBackResist = 0.4f;
-			npc.value = Item.buyPrice(gold: 1);
+			NPC.lifeMax = 375;
+			NPC.defense = 13;
+			NPC.damage = 65;
+			NPC.width = 32;
+			NPC.height = 32;
+			NPC.knockBackResist = 0.4f;
+			NPC.value = Item.buyPrice(gold: 1);
 
-			npc.buffImmune[BuffID.Poisoned] = true;
+			NPC.buffImmune[BuffID.Poisoned] = true;
 
-			npc.HitSound = SoundID.NPCHit33;
-			npc.DeathSound = SoundID.NPCDeath27;
+			NPC.HitSound = SoundID.NPCHit33;
+			NPC.DeathSound = SoundID.NPCDeath27;
 		}
 
-		public override void NPCLoot(){
+		public override void OnKill(){
 			if(Main.rand.NextFloat() < 0.4f)
-				Item.NewItem(npc.Hitbox, ModContent.ItemType<RaechonShell>());
+				Item.NewItem(NPC.Hitbox, ModContent.ItemType<RaechonShell>());
 		}
 
 		public override float SpawnChance(NPCSpawnInfo spawnInfo){
 			//Player is in the Forest biome, it's daytime and the Eye of Cthulhu has been defeated
 			//5% chance to spawn
-			return MiscUtils.PlayerIsInForest(spawnInfo.player) && Main.dayTime && NPC.downedBoss1 ? 0.05f : 0;
+			return MiscUtils.PlayerIsInForest(spawnInfo.Player) && Main.dayTime && NPC.downedBoss1 ? 0.05f : 0;
 		}
 
 		public const float vel_CanSee = 8.335f;

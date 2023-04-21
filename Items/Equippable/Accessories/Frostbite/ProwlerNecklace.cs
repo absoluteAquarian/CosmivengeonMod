@@ -12,25 +12,24 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite{
 		}
 
 		public override void SetDefaults(){
-			item.rare = ItemRarityID.Blue;
-			item.width = 20;
-			item.height = 26;
-			item.value = Item.sellPrice(silver: 5);
-			item.accessory = true;
+			Item.rare = ItemRarityID.Blue;
+			Item.width = 20;
+			Item.height = 26;
+			Item.value = Item.sellPrice(silver: 5);
+			Item.accessory = true;
 		}
 
 		public override void UpdateAccessory(Player player, bool hideVisual){
-			player.armorPenetration += 3;
+			player.GetArmorPenetration(DamageClass.Generic) += 3;
 			player.aggro += 300;
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ItemID.Chain, 2);
 			recipe.AddIngredient(ModContent.ItemType<ProwlerFang>(), 8);
 			recipe.AddIngredient(ItemID.IceBlock, 20);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }

@@ -6,17 +6,17 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.FrostbiteBoss{
 	public class FrostbiteIcicle : ModProjectile{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Icicle");
-			Main.projFrames[projectile.type] = 2;
+			Main.projFrames[Projectile.type] = 2;
 		}
 
 		public override void SetDefaults(){
-			projectile.width = 16;
-			projectile.height = 16;
-			projectile.friendly = false;
-			projectile.hostile = true;
-			projectile.tileCollide = true;
-			projectile.timeLeft = 5 * 60;
-			projectile.alpha = 255;
+			Projectile.width = 16;
+			Projectile.height = 16;
+			Projectile.friendly = false;
+			Projectile.hostile = true;
+			Projectile.tileCollide = true;
+			Projectile.timeLeft = 5 * 60;
+			Projectile.alpha = 255;
 		}
 
 		private bool spawned = false;
@@ -24,20 +24,20 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.FrostbiteBoss{
 		public override void AI(){
 			if(!spawned){
 				spawned = true;
-				projectile.frame = Main.rand.Next(2);
+				Projectile.frame = Main.rand.Next(2);
 			}
 
-			if(projectile.alpha > 0)
-				projectile.alpha -= 10;
-			if(projectile.alpha < 0)
-				projectile.alpha = 0;
+			if(Projectile.alpha > 0)
+				Projectile.alpha -= 10;
+			if(Projectile.alpha < 0)
+				Projectile.alpha = 0;
 
 			//Cyan light
-			Lighting.AddLight(projectile.Center, 132f / 255f, 1f, 1f);
+			Lighting.AddLight(Projectile.Center, 132f / 255f, 1f, 1f);
 
-			projectile.velocity.Y += 9f / 60f;
+			Projectile.velocity.Y += 9f / 60f;
 
-			projectile.rotation = projectile.velocity.ToRotation() + MathHelper.ToRadians(90f);
+			Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(90f);
 		}
 	}
 }

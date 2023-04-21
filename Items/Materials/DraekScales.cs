@@ -10,10 +10,10 @@ namespace CosmivengeonMod.Items.Materials{
 		}
 
 		public override void SetDefaults(){
-			item.maxStack = 99;
-			item.rare = ItemRarityID.Blue;
-			item.consumable = false;
-			item.value = Item.sellPrice(0, 0, 15, 0);
+			Item.maxStack = 99;
+			Item.rare = ItemRarityID.Blue;
+			Item.consumable = false;
+			Item.value = Item.sellPrice(0, 0, 15, 0);
 		}
 
 		public override bool CanUseItem(Player player){

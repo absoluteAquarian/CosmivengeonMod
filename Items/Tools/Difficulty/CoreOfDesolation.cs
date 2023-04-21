@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -23,14 +24,14 @@ namespace CosmivengeonMod.Items.Tools.Difficulty{
 			"\nenemies to become stronger.";
 
 		public override void SetDefaults(){
-			item.width = 20;
-			item.height = 20;
-			item.maxStack = 1;
-			item.rare = ItemRarityID.Pink;
-			item.useAnimation = 45;
-			item.useTime = 45;
-			item.useStyle = ItemUseStyleID.HoldingUp;
-			item.consumable = false;
+			Item.width = 20;
+			Item.height = 20;
+			Item.maxStack = 1;
+			Item.rare = ItemRarityID.Pink;
+			Item.useAnimation = 45;
+			Item.useTime = 45;
+			Item.useStyle = ItemUseStyleID.HoldUp;
+			Item.consumable = false;
 		}
 
 		public override void SafeModifyTooltips(List<TooltipLine> tooltips){
@@ -43,7 +44,7 @@ namespace CosmivengeonMod.Items.Tools.Difficulty{
 				TooltipLine customLine = tooltips[customIndex];
 
 				customIndex++;
-				if(!customLine.text.Contains("\"G\""))
+				if(!customLine.Text.Contains("\"G\""))
 					continue;
 
 				string hotkey;
@@ -54,7 +55,7 @@ namespace CosmivengeonMod.Items.Tools.Difficulty{
 				else
 					hotkey = "<NOT BOUND>";
 
-				customLine.text = customLine.text.Replace("\"G\"", $"\"{hotkey}\"");
+				customLine.Text = customLine.Text.Replace("\"G\"", $"\"{hotkey}\"");
 			}while(tooltips[customIndex].Name.StartsWith("CustomTooltip"));
 		}
 
@@ -88,8 +89,8 @@ namespace CosmivengeonMod.Items.Tools.Difficulty{
 			return Main.expertMode && (!WorldEvents.desoMode || Debug.debug_toggleDesoMode);
 		}
 
-		public override bool UseItem(Player player){
-			Main.PlaySound(SoundID.ForceRoar, player.Center, 0);
+		public override bool? UseItem(Player player)/* tModPorter Suggestion: Return null instead of false */{
+			SoundEngine.PlaySound(SoundID.ForceRoar, player.Center);
 
 			if(!WorldEvents.desoMode){
 				MiscUtils.SendMessage("An otherworldly chaos has been unleashed...  No turning back now.", MiscUtils.TausFavouriteColour);
@@ -109,10 +110,9 @@ namespace CosmivengeonMod.Items.Tools.Difficulty{
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddTile(TileID.DemonAltar);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }

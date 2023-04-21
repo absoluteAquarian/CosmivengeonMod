@@ -11,37 +11,36 @@ namespace CosmivengeonMod.Items.Weapons.Crystalice{
 			Tooltip.SetDefault("Casts a slow-moving ice bolt that explodes" +
 				"\ninto shards upon contact. Attacks have" +
 				"\na chance to inflict frostburn.");
-			Item.staff[item.type] = true;
+			Item.staff[Item.type] = true;
 		}
 
 		public override void SetDefaults(){
-			item.magic = true;
-			item.damage = 16;
-			item.knockBack = 5f;
-			item.value = Item.sellPrice(silver: 5, copper: 25);
-			item.width = 42;
-			item.height = 42;
-			item.scale = 0.8f;
-			item.useTime = 24;
-			item.useAnimation = 24;
-			item.autoReuse = false;
-			item.useStyle = ItemUseStyleID.HoldingOut;
-			item.noMelee = true;
-			item.UseSound = SoundID.Item28;
-			item.rare = ItemRarityID.Blue;
-			item.mana = 15;
-			item.shootSpeed = 9.1f;
-			item.shoot = ModContent.ProjectileType<CrystaliceWandProjectile>();
+			Item.DamageType = DamageClass.Magic;
+			Item.damage = 16;
+			Item.knockBack = 5f;
+			Item.value = Item.sellPrice(silver: 5, copper: 25);
+			Item.width = 42;
+			Item.height = 42;
+			Item.scale = 0.8f;
+			Item.useTime = 24;
+			Item.useAnimation = 24;
+			Item.autoReuse = false;
+			Item.useStyle = ItemUseStyleID.Shoot;
+			Item.noMelee = true;
+			Item.UseSound = SoundID.Item28;
+			Item.rare = ItemRarityID.Blue;
+			Item.mana = 15;
+			Item.shootSpeed = 9.1f;
+			Item.shoot = ModContent.ProjectileType<CrystaliceWandProjectile>();
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>());
 			recipe.AddIngredient(ItemID.SnowBlock, 10);
 			recipe.AddIngredient(ItemID.IceBlock, 10);
 			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }

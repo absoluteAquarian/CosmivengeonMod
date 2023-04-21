@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
@@ -278,21 +279,21 @@ End:
 
 		public Texture2D GetBackTexture(){
 			if(Empty)
-				return Main.magicPixel;
+				return TextureAssets.MagicPixel.Value;
 
 			return ModContent.GetTexture("CosmivengeonMod/Abilities/BarFrame");
 		}
 
 		public Texture2D GetBarTexture(){
 			if(Empty)
-				return Main.magicPixel;
+				return TextureAssets.MagicPixel.Value;
 
 			return ModContent.GetTexture("CosmivengeonMod/Abilities/Bar");
 		}
 
 		public Texture2D GetIconTexture(){
 			if(Empty)
-				return Main.magicPixel;
+				return TextureAssets.MagicPixel.Value;
 
 			string name;
 			if(Exhaustion)
@@ -423,7 +424,7 @@ End:
 					thing.Value(this);
 				else if(id >= NPCID.Count){
 					var mn = ModContent.GetModNPC(id);
-					if(mn != null && mp.BossesKilled.Any(sbd => sbd.mod == mn.mod.Name && sbd.key == mn.Name))
+					if(mn != null && mp.BossesKilled.Any(sbd => sbd.mod == mn.Mod.Name && sbd.key == mn.Name))
 						thing.Value(this);
 				}
 			}

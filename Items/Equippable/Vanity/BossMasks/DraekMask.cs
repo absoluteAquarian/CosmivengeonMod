@@ -5,13 +5,13 @@ namespace CosmivengeonMod.Items.Equippable.Vanity.BossMasks{
 	[AutoloadEquip(EquipType.Head)]
 	public class DraekMask : ModItem{
 		public override void SetDefaults(){
-			item.width = 28;
-			item.height = 22;
-			item.rare = ItemRarityID.Green;
-			item.vanity = true;
+			Item.width = 28;
+			Item.height = 22;
+			Item.rare = ItemRarityID.Green;
+			Item.vanity = true;
 		}
 
-		public override bool DrawHead(){
+		public override bool DrawHead()/* tModPorter Note: Removed. In SetStaticDefaults, use ArmorIDs.Head.Sets.DrawHead[Item.headSlot] = false if you returned false */{
 			return false;
 		}
 	}

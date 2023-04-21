@@ -18,9 +18,9 @@ namespace CosmivengeonMod.Items.Lore{
 				"\nof this bizarre ecological miracle.";
 
 		public override void SetDefaults(){
-			item.maxStack = 1;
-			item.rare = ItemRarityID.Blue;
-			item.consumable = false;
+			Item.maxStack = 1;
+			Item.rare = ItemRarityID.Blue;
+			Item.consumable = false;
 		}
 
 		public override bool CanUseItem(Player player) => false;

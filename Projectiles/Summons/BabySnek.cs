@@ -9,16 +9,16 @@ namespace CosmivengeonMod.Projectiles.Summons{
 	public class BabySnek : WalkingSummon{
 		public override void ExtraStaticDefaults(){
 			DisplayName.SetDefault("Yamanu");
-			Main.projFrames[projectile.type] = 11;
+			Main.projFrames[Projectile.type] = 11;
 		}
 
 		public override void ExtraDefaults(){
-			projectile.scale = 0.8f;
-			projectile.width = 66;
-			projectile.height = 62;
+			Projectile.scale = 0.8f;
+			Projectile.width = 66;
+			Projectile.height = 62;
 
-			drawOffsetX = -8;
-			drawOriginOffsetY = -4;
+			DrawOffsetX = -8;
+			DrawOriginOffsetY = -4;
 		}
 
 		private bool inLine = false;
@@ -59,10 +59,10 @@ namespace CosmivengeonMod.Projectiles.Summons{
 			Rectangle rect = BetterHitbox;
 			
 			//Resize the hitbox and update its position
-			rect.X = (int)(rect.X * projectile.scale + projectile.position.X);
-			rect.Y = (int)(rect.Y * projectile.scale + projectile.position.Y);
-			rect.Width = (int)(rect.Width * projectile.scale);
-			rect.Height = (int)(rect.Height * projectile.scale);
+			rect.X = (int)(rect.X * Projectile.scale + Projectile.position.X);
+			rect.Y = (int)(rect.Y * Projectile.scale + Projectile.position.Y);
+			rect.Width = (int)(rect.Width * Projectile.scale);
+			rect.Height = (int)(rect.Height * Projectile.scale);
 
 			hitbox = rect;
 		}
@@ -74,14 +74,14 @@ namespace CosmivengeonMod.Projectiles.Summons{
 			if(ownerPlayer.dead)
 				minionOwner.babySnek = false;
 			if(minionOwner.babySnek)
-				projectile.timeLeft = 2;
+				Projectile.timeLeft = 2;
 		}
 
 		public override void PostCheckTooFarFromPlayer(){
 			if(onGround && npcTarget != null){
-				inLine = npcTarget.Bottom.Y >= projectile.Center.Y && projectile.Center.Y >= npcTarget.Top.Y;
-				farAbove = !inLine && npcTarget.Bottom.Y < projectile.Center.Y - 6 * 16;
-				slightlyAbove = !farAbove && npcTarget.Bottom.Y < projectile.Center.Y;
+				inLine = npcTarget.Bottom.Y >= Projectile.Center.Y && Projectile.Center.Y >= npcTarget.Top.Y;
+				farAbove = !inLine && npcTarget.Bottom.Y < Projectile.Center.Y - 6 * 16;
+				slightlyAbove = !farAbove && npcTarget.Bottom.Y < Projectile.Center.Y;
 
 				if(AnimationState == AnimationStates.Jumping)
 					AnimationState = AnimationStates.Moving;
@@ -89,20 +89,20 @@ namespace CosmivengeonMod.Projectiles.Summons{
 		}
 
 		public override void Behaviour_AttackNPC(){
-			if(Math.Abs(npcTarget.Center.X - projectile.Center.X) > 12){
+			if(Math.Abs(npcTarget.Center.X - Projectile.Center.X) > 12){
 				//Friction
-				projectile.velocity.X *= 1 - 1.25f / 60;
+				Projectile.velocity.X *= 1 - 1.25f / 60;
 
-				float acceleration = projectile.velocity.Y != 0 || projectile.oldVelocity.Y != 0 ? 11.35f : 8.95f;
+				float acceleration = Projectile.velocity.Y != 0 || Projectile.oldVelocity.Y != 0 ? 11.35f : 8.95f;
 
-				projectile.velocity.X += (npcTarget.Center.X >= projectile.Center.X).ToDirectionInt() * acceleration / 60;
+				Projectile.velocity.X += (npcTarget.Center.X >= Projectile.Center.X).ToDirectionInt() * acceleration / 60;
 			}
 
 			//If the NPC is in line with the minion, just move towards it (do nothing; reset the timers)
 			//Otherwise, if it's barely above the minion, start doing the small hops
 			//Otherwise, if it's far above the minion, start doing the big hops
 			//Only do the hops if the NPC is close enough
-			bool closeEnough = npcTarget.Left.X - 5 * 16 < projectile.Center.X && projectile.Center.X < npcTarget.Right.X + 5 * 16;
+			bool closeEnough = npcTarget.Left.X - 5 * 16 < Projectile.Center.X && Projectile.Center.X < npcTarget.Right.X + 5 * 16;
 
 			if(onGround && (inLine || !closeEnough)){
 				timer_BigHop = max_BigHop * 2 / 3;
@@ -115,23 +115,23 @@ namespace CosmivengeonMod.Projectiles.Summons{
 				JumpHelper(vel_BigHop, ref timer_BigHop, max_BigHop, false, ref onGround);
 			}
 
-			projectile.rotation = 0f;
+			Projectile.rotation = 0f;
 
 			Do_SmoothStep();
 		}
 
 		public override void ClampWalkSpeed(){
-			projectile.velocity.X.Clamp(-animFactor_Move, animFactor_Move);
+			Projectile.velocity.X.Clamp(-animFactor_Move, animFactor_Move);
 		}
 
 		public override void PreCheckPlayerState(){
-			onGround = projectile.velocity.Y == 0 && projectile.oldVelocity.Y >= 0;
+			onGround = Projectile.velocity.Y == 0 && Projectile.oldVelocity.Y >= 0;
 		}
 
 		public override void UpdateGravity(){
-			projectile.velocity.Y += 18.45f / 60;
-			if(projectile.velocity.Y > 16)
-				projectile.velocity.Y = 16;
+			Projectile.velocity.Y += 18.45f / 60;
+			if(Projectile.velocity.Y > 16)
+				Projectile.velocity.Y = 16;
 		}
 
 		public override void UpdateAnimation(){
@@ -139,8 +139,8 @@ namespace CosmivengeonMod.Projectiles.Summons{
 		}
 
 		public override void PostUpdate(){
-			projectile.velocity.X.Clamp(-16, 16);
-			projectile.velocity.Y.Clamp(-16, 16);
+			Projectile.velocity.X.Clamp(-16, 16);
+			Projectile.velocity.Y.Clamp(-16, 16);
 
 			UpdateHitbox();
 
@@ -163,9 +163,9 @@ namespace CosmivengeonMod.Projectiles.Summons{
 				if(timer_jumpDelay <= 0){
 					timer = timerMax;
 					timer_jumpDelay = JumpDelayMax;
-					projectile.velocity.Y = velocity * Main.rand.NextFloat(0.875f, 1.225f);
+					Projectile.velocity.Y = velocity * Main.rand.NextFloat(0.875f, 1.225f);
 					onGround = false;
-					projectile.netUpdate = true;
+					Projectile.netUpdate = true;
 				}
 			}else if(onGround){
 				AnimationState = AnimationStates.Moving;
@@ -173,7 +173,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 		}
 
 		private void UpdateHitbox(){
-			switch(projectile.frame){
+			switch(Projectile.frame){
 				case IdleOffset:
 					BetterHitbox = new Rectangle(12, 14, 32, 47);
 					break;
@@ -211,7 +211,7 @@ namespace CosmivengeonMod.Projectiles.Summons{
 					goto case IdleOffset;
 			}
 
-			if(projectile.spriteDirection == -1)
+			if(Projectile.spriteDirection == -1)
 				BetterHitbox.X = 66 - BetterHitbox.X - BetterHitbox.Width;
 		}
 
@@ -221,15 +221,15 @@ namespace CosmivengeonMod.Projectiles.Summons{
 				animTimer_Idle = 0;
 				animTimer_Move = 0;
 			}else if(AnimationState == AnimationStates.Jumping){
-				projectile.frame = JumpOffset + (!onGround ? 1 : 0);
+				Projectile.frame = JumpOffset + (!onGround ? 1 : 0);
 				animTimer_Idle = 0;
 				animTimer_Move = 0;
 				animTimer_Fly = 0;
 			}else if(AnimationState == AnimationStates.Moving){
-				int timerAdd = (int)(3 * Utils.Clamp(Math.Abs(projectile.velocity.X), 0, animFactor_Move) / animFactor_Move);
+				int timerAdd = (int)(3 * Utils.Clamp(Math.Abs(Projectile.velocity.X), 0, animFactor_Move) / animFactor_Move);
 				UpdateAnimation(ref animTimer_Move, 4, animDelay_Move, MoveOffset, timerAdd);
-				if(projectile.frame == MoveOffset + 3)
-					projectile.frame = MoveOffset + 1;
+				if(Projectile.frame == MoveOffset + 3)
+					Projectile.frame = MoveOffset + 1;
 
 				animTimer_Idle = 0;
 				animTimer_Fly = 0;
@@ -243,16 +243,16 @@ namespace CosmivengeonMod.Projectiles.Summons{
 		private void UpdateAnimation(ref int timer, int frameCount, int delay, int offset, int extraAdd = 0){
 			timer += 1 + extraAdd;
 
-			projectile.frame = timer % (frameCount * delay) / delay + offset;
+			Projectile.frame = timer % (frameCount * delay) / delay + offset;
 		}
 
 		public override bool OnTileCollide(Vector2 oldVelocity){
-			Vector2 nextTL = projectile.TopLeft + oldVelocity - new Vector2(4f, 0f);
-			Vector2 nextTR = projectile.TopRight + oldVelocity + new Vector2(4f, 0f);
-			Vector2 nextBL = projectile.BottomLeft + oldVelocity - new Vector2(4f, 0f);
-			Vector2 nextBR = projectile.BottomRight + oldVelocity + new Vector2(4f, 0f);
+			Vector2 nextTL = Projectile.TopLeft + oldVelocity - new Vector2(4f, 0f);
+			Vector2 nextTR = Projectile.TopRight + oldVelocity + new Vector2(4f, 0f);
+			Vector2 nextBL = Projectile.BottomLeft + oldVelocity - new Vector2(4f, 0f);
+			Vector2 nextBR = Projectile.BottomRight + oldVelocity + new Vector2(4f, 0f);
 
-			if(projectile.velocity.X == 0 && projectile.velocity.Y == 0 && (oldVelocity.X < 0 && (MiscUtils.TileIsSolidNotPlatform(nextTL) || MiscUtils.TileIsSolidNotPlatform(nextBL)) || (oldVelocity.X > 0 && (MiscUtils.TileIsSolidNotPlatform(nextTR) || MiscUtils.TileIsSolidNotPlatform(nextBR))))){
+			if(Projectile.velocity.X == 0 && Projectile.velocity.Y == 0 && (oldVelocity.X < 0 && (MiscUtils.TileIsSolidNotPlatform(nextTL) || MiscUtils.TileIsSolidNotPlatform(nextBL)) || (oldVelocity.X > 0 && (MiscUtils.TileIsSolidNotPlatform(nextTR) || MiscUtils.TileIsSolidNotPlatform(nextBR))))){
 				timer_DoorStuck++;
 
 				//We've been touching a wall for 35 ticks
@@ -262,19 +262,19 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 					if(timer_jumpDelay > 0){
 						timer_jumpDelay--;
-						projectile.frame = JumpOffset;
+						Projectile.frame = JumpOffset;
 					}else{
 						timer_DoorStuck = 0;
-						projectile.velocity.Y = vel;
+						Projectile.velocity.Y = vel;
 						jumpTries = nextJumpsCount;
-						projectile.frame = JumpOffset + 1;
+						Projectile.frame = JumpOffset + 1;
 					}
 
 					AnimationState = AnimationStates.Jumping;
 
 					UpdateHitbox();
 				}
-			}else if(projectile.velocity.X != 0 && timer_DoorStuck > 0){
+			}else if(Projectile.velocity.X != 0 && timer_DoorStuck > 0){
 				timer_DoorStuck = 0;
 				timer_jumpDelay = JumpDelayMax;
 				jumpTries = 0;
@@ -286,13 +286,13 @@ namespace CosmivengeonMod.Projectiles.Summons{
 		}
 
 		public override void SpawnFlyDust() {
-			Dust dust = Dust.NewDustDirect(projectile.Center, 6, 6, 66);
+			Dust dust = Dust.NewDustDirect(Projectile.Center, 6, 6, 66);
 			dust.noGravity = true;
 		}
 
-		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough){
+		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac){
 			//(value < null) and (null > value) will always be false, so no need to check for the things being not null first
-			fallThrough = npcTarget?.Bottom.Y > projectile.Bottom.Y + 16 || (npcTarget is null && projectile.Bottom.Y < ownerPlayer?.Top.Y);
+			fallThrough = npcTarget?.Bottom.Y > Projectile.Bottom.Y + 16 || (npcTarget is null && Projectile.Bottom.Y < ownerPlayer?.Top.Y);
 			return true;
 		}
 	}

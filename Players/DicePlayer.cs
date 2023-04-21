@@ -33,7 +33,7 @@ namespace CosmivengeonMod.Players{
 		public int endlessClipTimer;
 		public int endlessManaTimer;
 
-		public override TagCompound Save()
+		public override void SaveData(TagCompound tag)/* tModPorter Suggestion: Edit tag parameter instead of returning new TagCompound */
 			=> new TagCompound(){
 				["badShop"] = badShop,
 				["goodShop"] = goodShop,
@@ -53,7 +53,7 @@ namespace CosmivengeonMod.Players{
 				["mana"] = endlessManaTimer
 			};
 
-		public override void Load(TagCompound tag){
+		public override void LoadData(TagCompound tag){
 			badShop = tag.GetBool("badShop");
 			goodShop = tag.GetBool("goodShop");
 			shopModifierTimer = tag.GetInt("shopTimer");
@@ -91,7 +91,7 @@ namespace CosmivengeonMod.Players{
 			forceReversedGravity = true;
 			forcedGravityTimer = duration;
 
-			player.gravDir = -1;
+			Player.gravDir = -1;
 		}
 
 		public void SetFishModifier(bool detriment, int duration = TimeSetter._7_30PM_day * 2 + TimeSetter._4_30AM_night * 2){
@@ -132,25 +132,25 @@ namespace CosmivengeonMod.Players{
 
 		public override void PostUpdateRunSpeeds(){
 			if(forceReversedGravity)
-				player.gravControl = true;
+				Player.gravControl = true;
 
 			//This hook is called just before the gravity flipping code is executed
 			if(forceReversedGravity && !Main.gameMenu){
-				if(player.controlUp && player.releaseUp){
+				if(Player.controlUp && Player.releaseUp){
 					//Set the gravity to the opposite so that the vanilla code reverses back to the intended value
-					player.gravDir = 1;
+					Player.gravDir = 1;
 				}else
-					player.gravDir = -1;
+					Player.gravDir = -1;
 			}
 		}
 
 		public override void PostUpdateMiscEffects(){
 			if(moreIFrames)
-				player.longInvince = true;
+				Player.longInvince = true;
 
 			if(godmodeTimer > 0){
-				player.eocDash = 30;
-				player.armorEffectDrawShadowEOCShield = true;
+				Player.eocDash = 30;
+				Player.armorEffectDrawShadowEOCShield = true;
 			}
 		}
 
@@ -162,8 +162,8 @@ namespace CosmivengeonMod.Players{
 		}
 
 		public override void PostUpdate(){
-			if(godmodeTimer > 0 && player.statLife < player.statLifeMax2)
-				player.statLife = player.statLifeMax2;
+			if(godmodeTimer > 0 && Player.statLife < Player.statLifeMax2)
+				Player.statLife = Player.statLifeMax2;
 
 			if(shopModifierTimer > 0)
 				shopModifierTimer--;
@@ -200,12 +200,12 @@ namespace CosmivengeonMod.Players{
 				price = (int)(price * 0.7f);
 		}
 
-		public override void ModifyWeaponDamage(Item item, ref float add, ref float mult, ref float flat){
+		public override void ModifyWeaponDamage(Item item, ref StatModifier damage){
 			if(buffDamageTimer > 0)
 				mult += 2f;
 		}
 
-		public override bool ConsumeAmmo(Item weapon, Item ammo)
+		public override bool CanConsumeAmmo(Item weapon, Item ammo)
 			=> endlessClipTimer == 0;
 
 		public override void ModifyManaCost(Item item, ref float reduce, ref float mult){
@@ -216,21 +216,21 @@ namespace CosmivengeonMod.Players{
 		public override bool PreKill(double damage, int hitDirection, bool pvp, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource){
 			//DoT debuffs can circumvent the godmode... Prevent that from happening
 			if(godmodeTimer > 0){
-				player.statLife = player.statLifeMax2;
+				Player.statLife = Player.statLifeMax2;
 
 				return false;
 			}
 
 			if(extraLives > 0){
-				Rectangle r = new Rectangle((int)player.position.X, (int)player.position.Y - 3 * 16, 0, 0);
+				Rectangle r = new Rectangle((int)Player.position.X, (int)Player.position.Y - 3 * 16, 0, 0);
 				CombatText.NewText(r, CombatText.LifeRegenNegative, "-1 EXTRA LIFE", dramatic: true);
 
 				extraLives--;
 
-				player.immuneTime = 8 * 60;
-				player.immuneNoBlink = false;
+				Player.immuneTime = 8 * 60;
+				Player.immuneNoBlink = false;
 
-				player.statLife = Math.Min(100, player.statLifeMax2);
+				Player.statLife = Math.Min(100, Player.statLifeMax2);
 
 				return false;
 			}
@@ -238,10 +238,10 @@ namespace CosmivengeonMod.Players{
 			return true;
 		}
 
-		public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource)
+		public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource, ref int cooldownCounter)
 			=> godmodeTimer <= 0;
 
-		public override void DrawEffects(PlayerDrawInfo drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright){
+		public override void DrawEffects(PlayerDrawSet drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright){
 			if(drawInfo.drawPlayer.GetModPlayer<DicePlayer>().godmodeTimer > 0){
 				r = Main.DiscoR;
 				g = Main.DiscoG;

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 
 namespace CosmivengeonMod.API.Edits.Detours.Desomode{
@@ -26,7 +27,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			if(npc.life < npc.lifeMax / 2f && !npc.Helper().Flag){
 				npc.Helper().Flag = true;
 
-				Main.PlaySound(SoundID.Roar, npc.Center, 0);
+				SoundEngine.PlaySound(SoundID.Roar, npc.Center);
 			}
 
 			if(!npc.Helper().Flag)
@@ -66,7 +67,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 				npc.localAI[3] += 1f;
 				if(npc.localAI[3] >= 600 + Main.rand.Next(1000)){
 					npc.localAI[3] = -Main.rand.Next(200);
-					Main.PlaySound(SoundID.NPCDeath10, (int)npc.position.X, (int)npc.position.Y);
+					SoundEngine.PlaySound(SoundID.NPCDeath10, npc.position);
 				}
 			}
 
@@ -82,7 +83,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 				num338++;
 				for(int num339 = num334; num339 <= num335; num339++){
 					try{
-						if(WorldGen.SolidTile(num339, num338) || Main.tile[num339, num338].liquid > 0)
+						if(WorldGen.SolidTile(num339, num338) || Main.tile[num339, num338].LiquidAmount > 0)
 							num337++;
 					}catch{
 						num337 += 15;
@@ -109,7 +110,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 				num338--;
 				for(int num340 = num334; num340 <= num335; num340++){
 					try{
-						if(WorldGen.SolidTile(num340, num338) || Main.tile[num340, num338].liquid > 0)
+						if(WorldGen.SolidTile(num340, num338) || Main.tile[num340, num338].LiquidAmount > 0)
 							num337++;
 					}catch{
 						num337 += 15;
@@ -322,7 +323,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 							float y = npc.Target().Center.Y + i * offY;
 
 							for(int j = 0; j < 4; j++){
-								Dust dust = Dust.NewDustDirect(new Vector2(x - range, y - range), (int)(range + 0.5f) * 2, (int)(range + 0.5f) * 2, DustID.Fire);
+								Dust dust = Dust.NewDustDirect(new Vector2(x - range, y - range), (int)(range + 0.5f) * 2, (int)(range + 0.5f) * 2, DustID.Torch);
 								dust.noGravity = true;
 								dust.velocity.X = npc.Target().velocity.X;
 							}
@@ -354,7 +355,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 					Projectile proj = Projectile.NewProjectileDirect(npc.Center - new Vector2(32 * npc.direction), npc.DirectionTo(npc.Target().Center) * 14f, ProjectileID.EyeFire, 50, 0f, Main.myPlayer);
 					proj.tileCollide = false;
 
-					Main.PlaySound(SoundID.Item34, npc.Center);
+					SoundEngine.PlaySound(SoundID.Item34, npc.Center);
 				}
 			}
 		}
@@ -560,13 +561,13 @@ chooseAgain:
 			float num369 = 0.1f;
 			float num370 = 300f;
 			if(wof.life < wof.lifeMax * 0.25){
-				npc.damage = (int)(85f * Main.damageMultiplier);
+				npc.damage = (int)(85f * Main.GameModeInfo.EnemyDamageMultiplier);
 				num369 += 0.1f;
 			}else if(wof.life < wof.lifeMax * 0.5){
-				npc.damage = (int)(70f * Main.damageMultiplier);
+				npc.damage = (int)(70f * Main.GameModeInfo.EnemyDamageMultiplier);
 				num369 += 0.066f;
 			}else if(wof.life < wof.lifeMax * 0.75){
-				npc.damage = (int)(55 * Main.damageMultiplier);
+				npc.damage = (int)(55 * Main.GameModeInfo.EnemyDamageMultiplier);
 				num369 += 0.033f;
 			}
 

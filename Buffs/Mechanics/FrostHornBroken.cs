@@ -4,7 +4,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Buffs.Mechanics{
 	public class FrostHornBroken : ModBuff{
-		public override void SetDefaults(){
+		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Frost Demon's Horn: Broken");
 			Description.SetDefault("Movement speed is decreased.");
 			Main.buffNoSave[Type] = true;

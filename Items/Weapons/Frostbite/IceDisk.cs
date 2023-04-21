@@ -14,23 +14,23 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 		}
 
 		public override void SetDefaults(){
-			item.width = 42;
-			item.height = 38;
-			item.thrown = true;
-			item.damage = 13;
-			item.knockBack = 5.1f;
-			item.rare = ItemRarityID.Blue;
-			item.useStyle = ItemUseStyleID.HoldingOut;
-			item.useTime = 20;
-			item.useAnimation = 20;
-			item.noUseGraphic = true;
-			item.autoReuse = true;
-			item.noMelee = true;
-			item.UseSound = SoundID.Item1;
-			item.value = Item.sellPrice(silver: 1, copper: 50);
-			item.shootSpeed = IceDiskProjectile.MaxVelocity;
-			item.shoot = ModContent.ProjectileType<IceDiskProjectile>();
-			item.channel = true;
+			Item.width = 42;
+			Item.height = 38;
+			Item.DamageType = DamageClass.Throwing;
+			Item.damage = 13;
+			Item.knockBack = 5.1f;
+			Item.rare = ItemRarityID.Blue;
+			Item.useStyle = ItemUseStyleID.Shoot;
+			Item.useTime = 20;
+			Item.useAnimation = 20;
+			Item.noUseGraphic = true;
+			Item.autoReuse = true;
+			Item.noMelee = true;
+			Item.UseSound = SoundID.Item1;
+			Item.value = Item.sellPrice(silver: 1, copper: 50);
+			Item.shootSpeed = IceDiskProjectile.MaxVelocity;
+			Item.shoot = ModContent.ProjectileType<IceDiskProjectile>();
+			Item.channel = true;
 		}
 
 		public override bool CanUseItem(Player player){
@@ -38,7 +38,7 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 			for(int i = 0; i < Main.maxProjectiles; i++){
 				Projectile projectile = Main.projectile[i];
 
-				if(!projectile.active || !(projectile.modProjectile is IceDiskProjectile))
+				if(!projectile.active || !(projectile.ModProjectile is IceDiskProjectile))
 					continue;
 
 				if(projectile.ai[0] == 0)  //Existing disk is following the mouse.  Don't spawn another one

@@ -11,21 +11,20 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Crystalice{
 		}
 
 		public override void SetDefaults(){
-			item.width = 30;
-			item.height = 20;
-			item.defense = 4;
-			item.rare = ItemRarityID.Blue;
-			item.value = Item.sellPrice(silver: 16, copper: 75);
+			Item.width = 30;
+			Item.height = 20;
+			Item.defense = 4;
+			Item.rare = ItemRarityID.Blue;
+			Item.value = Item.sellPrice(silver: 16, copper: 75);
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>(), 4);
 			recipe.AddIngredient(ItemID.IceBlock, 20);
 			recipe.AddIngredient(ItemID.SnowBlock, 20);
 			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }

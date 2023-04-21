@@ -72,13 +72,13 @@ namespace CosmivengeonMod{
 		public static readonly bool Release = false;
 
 		//Stamina use hotkey
-		public static ModHotKey StaminaHotKey;
+		public static ModKeybind StaminaHotKey;
 
 		private StaminaUI staminaUI;
 		private UserInterface userInterface;
 
 		public override void Load(){
-			StaminaHotKey = RegisterHotKey("Toggle Stamina Use", "G");
+			StaminaHotKey = KeybindLoader.RegisterKeybind(this, "Toggle Stamina Use", "G");
 
 			ModReferences.Load();
 
@@ -253,13 +253,13 @@ namespace CosmivengeonMod{
 				ModReferences.Calamity.Instance.GetModWorld("CalamityWorld").GetType().GetField("death", BindingFlags.Public | BindingFlags.Static).SetValue(null, false);
 		}
 
-		public override void UpdateUI(GameTime gameTime){
+		public override void UpdateUI(GameTime gameTime)/* tModPorter Note: Removed. Use ModSystem.UpdateUI */{
 			StaminaUI.Visible = !Main.gameMenu && WorldEvents.desoMode;
 			if(StaminaUI.Visible)
 				userInterface?.Update(gameTime);
 		}
 
-		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers){
+		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)/* tModPorter Note: Removed. Use ModSystem.ModifyInterfaceLayers */{
 			//Copied from ExampleMod :thinkies:
 			int mouseIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Mouse Text"));
 			if(mouseIndex != -1){
@@ -275,7 +275,7 @@ namespace CosmivengeonMod{
 			}
 		}
 
-		public override void AddRecipeGroups(){
+		public override void AddRecipeGroups()/* tModPorter Note: Removed. Use ModSystem.AddRecipeGroups */{
 			RegisterRecipeGroup(RecipeGroups.EvilDrops, ItemID.ShadowScale, new int[]{
 				ItemID.ShadowScale, ItemID.TissueSample
 			});

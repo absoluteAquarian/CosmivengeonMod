@@ -13,15 +13,15 @@ namespace CosmivengeonMod.Items.Tools.Debugging{
 		}
 
 		public override void SetDefaults(){
-			item.width = 20;
-			item.height = 20;
-			item.maxStack = 99;
-			item.rare = ItemRarityID.Pink;
-			item.useAnimation = 20;
-			item.useTime = 20;
-			item.useStyle = ItemUseStyleID.HoldingUp;
-			item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.MenuTick, 0);
-			item.consumable = false;
+			Item.width = 20;
+			Item.height = 20;
+			Item.maxStack = 99;
+			Item.rare = ItemRarityID.Pink;
+			Item.useAnimation = 20;
+			Item.useTime = 20;
+			Item.useStyle = ItemUseStyleID.HoldUp;
+			Item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.MenuTick, 0);
+			Item.consumable = false;
 		}
 
 		public override bool CanUseItem(Player player){
@@ -32,7 +32,7 @@ namespace CosmivengeonMod.Items.Tools.Debugging{
 			return true;
 		}
 
-		public override bool UseItem(Player player){
+		public override bool? UseItem(Player player)/* tModPorter Suggestion: Return null instead of false */{
 			float angle = Vector2.Normalize(player.Center - Main.MouseWorld).ToRotation();
 
 			Main.NewText(string.Format("POTENTIOMETER: {0} radians, {1} degrees", angle, MathHelper.ToDegrees(angle)));

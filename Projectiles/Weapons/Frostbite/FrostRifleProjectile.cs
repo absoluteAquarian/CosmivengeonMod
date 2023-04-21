@@ -1,4 +1,5 @@
 ﻿using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
@@ -10,32 +11,32 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Icicle");
-			Main.projFrames[projectile.type] = 3;
+			Main.projFrames[Projectile.type] = 3;
 		}
 
 		public override void SetDefaults(){
-			projectile.width = 8;
-			projectile.height = 8;
-			projectile.scale = 10f / 8f;
-			projectile.ranged = true;
-			projectile.friendly = true;
-			projectile.hostile = false;
-			projectile.penetrate = 3;
-			projectile.timeLeft = 180;
-			projectile.extraUpdates = 1;
-			projectile.alpha = 255;
+			Projectile.width = 8;
+			Projectile.height = 8;
+			Projectile.scale = 10f / 8f;
+			Projectile.DamageType = DamageClass.Ranged;
+			Projectile.friendly = true;
+			Projectile.hostile = false;
+			Projectile.penetrate = 3;
+			Projectile.timeLeft = 180;
+			Projectile.extraUpdates = 1;
+			Projectile.alpha = 255;
 
-			projectile.frame = Main.rand.Next(3);
+			Projectile.frame = Main.rand.Next(3);
 		}
 
 		public override void AI(){
-			projectile.TryDecrementAlpha(15);
+			Projectile.TryDecrementAlpha(15);
 
-			projectile.rotation = projectile.velocity.ToRotation() + MathHelper.PiOver2;
+			Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
 		}
 
 		public override void Kill(int timeLeft){
-			Main.PlaySound(SoundID.Item27.WithVolume(0.45f), projectile.Center);
+			SoundEngine.PlaySound(SoundID.Item27.WithVolume(0.45f), Projectile.Center);
 		}
 
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){

@@ -15,31 +15,30 @@ namespace CosmivengeonMod.Items.Spawning.Boss{
 		}
 
 		public override void SetDefaults(){
-			item.width = 20;
-			item.height = 20;
-			item.maxStack = 99;
-			item.rare = ItemRarityID.Green;
-			item.useAnimation = 45;
-			item.useTime = 45;
-			item.useStyle = ItemUseStyleID.HoldingUp;
-			item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0);
-			item.consumable = true;
+			Item.width = 20;
+			Item.height = 20;
+			Item.maxStack = 99;
+			Item.rare = ItemRarityID.Green;
+			Item.useAnimation = 45;
+			Item.useTime = 45;
+			Item.useStyle = ItemUseStyleID.HoldUp;
+			Item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0);
+			Item.consumable = true;
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>(), 2);
 			recipe.AddIngredient(ItemID.SnowBlock, 50);
 			recipe.AddIngredient(ItemID.IceBlock, 25);
 			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 
 		public override bool CanUseItem(Player player)
 			=> MiscUtils.TrySummonBoss(CosmivengeonBoss.Frostbite, player);
 
-		public override bool UseItem(Player player)
+		public override bool? UseItem(Player player)/* tModPorter Suggestion: Return null instead of false */
 			=> MiscUtils.SummonBossAbovePlayer(player, ModContent.NPCType<Frostbite>(), -50 * 16, 50 * 16, -10 * 16, -5 * 16);
 	}
 }

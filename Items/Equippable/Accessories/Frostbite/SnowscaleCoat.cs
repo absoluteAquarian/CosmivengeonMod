@@ -14,16 +14,16 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite{
 		}
 
 		public override void SetDefaults(){
-			item.accessory = true;
-			item.width = 32;
-			item.height = 34;
-			item.rare = ItemRarityID.Blue;
+			Item.accessory = true;
+			Item.width = 32;
+			Item.height = 34;
+			Item.rare = ItemRarityID.Blue;
 		}
 
 		public override void UpdateAccessory(Player player, bool hideVisual){
 			if(player.ZoneSnow){
 				player.statDefense += 6;
-				player.allDamage += 0.05f;
+				player.GetDamage(DamageClass.Generic) += 0.05f;
 			}
 			player.buffImmune[BuffID.Chilled] = true;
 			player.GetModPlayer<AccessoriesPlayer>().snowCoat = true;

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.Localization;
@@ -15,7 +16,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite{
 	public class EyeOfTheBlizzard : HidableTooltip{
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
 
 		public override string ItemName => "Eye of the Blizzard";
 
@@ -27,17 +28,17 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite{
 				"\nThe crystal must recharge for 60 seconds until the player can use the ability again";
 
 		public override void SafeSetStaticDefaults(){
-			Main.RegisterItemAnimation(item.type, new EyeOfTheBlizzardAnimation());
+			Main.RegisterItemAnimation(Item.type, new EyeOfTheBlizzardAnimation());
 		}
 
 		public override void SetDefaults(){
-			item.accessory = true;
-			item.width = 30;
-			item.height = 46;
-			item.scale = 0.6667f;
-			item.value = Item.sellPrice(silver: 25, copper: 60);
-			item.rare = ItemRarityID.Expert;
-			item.expert = true;
+			Item.accessory = true;
+			Item.width = 30;
+			Item.height = 46;
+			Item.scale = 0.6667f;
+			Item.value = Item.sellPrice(silver: 25, copper: 60);
+			Item.rare = ItemRarityID.Expert;
+			Item.expert = true;
 		}
 
 		private int abilityTimer = -1;
@@ -56,7 +57,7 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite{
 			for(int i = 0; i < Main.maxProjectiles; i++){
 				Projectile projectile = Main.projectile[i];
 
-				if(projectile.active && projectile.modProjectile is EyeOfTheBlizzardCrystal && projectile.owner == player.whoAmI)
+				if(projectile.active && projectile.ModProjectile is EyeOfTheBlizzardCrystal && projectile.owner == player.whoAmI)
 					projectile.Kill();
 			}
 
@@ -65,7 +66,7 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite{
 
 		private bool Equipped(Player player){
 			for(int i = 3; i < 8 + player.extraAccessorySlots; i++){
-				if(player.armor[i].type == item.type)
+				if(player.armor[i].type == Item.type)
 					return true;
 			}
 			return false;
@@ -88,11 +89,11 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite{
 			for(int i = 0; i < Main.maxProjectiles; i++){
 				Projectile projectile = Main.projectile[i];
 
-				if(projectile.active && projectile.modProjectile is EyeOfTheBlizzardCrystal && projectile.owner == player.whoAmI){
+				if(projectile.active && projectile.ModProjectile is EyeOfTheBlizzardCrystal && projectile.owner == player.whoAmI){
 					Crystal = projectile;
 
 					if(abilityTimer == 5 * 60)
-						(Crystal.modProjectile as EyeOfTheBlizzardCrystal).timer = 0;
+						(Crystal.ModProjectile as EyeOfTheBlizzardCrystal).timer = 0;
 
 					Crystal.ai[0] = abilityTimer;
 					break;
@@ -118,7 +119,7 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite{
 			if(Crystal != null && abilityTimer < 0 && !((player.mount?.Active ?? false) && player.mount.CanFly) && !player.HasBuff(ModContent.BuffType<EyeOfTheBlizzardCooldown>()) && doubleTap){
 				abilityTimer = 5 * 60;
 
-				Main.PlaySound(SoundID.Item27, Crystal.Center);
+				SoundEngine.PlaySound(SoundID.Item27, Crystal.Center);
 				for(int i = 0; i < 30; i++){
 					Dust.NewDust(Crystal.Center - new Vector2(8, 8), 16, 16, 74, Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-8, 8), newColor: Color.Blue);
 					Dust.NewDust(Crystal.Center - new Vector2(8, 8), 16, 16, 107, Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-8, 8), newColor: Color.Blue);
@@ -135,18 +136,18 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite{
 			do{
 				TooltipLine customLine = tooltips[customIndex];
 
-				if(customLine.text.Contains("<5N>")){
-					List<string> text = customLine.text.Split(new string[]{ "<5N>" }, StringSplitOptions.None).ToList();
+				if(customLine.Text.Contains("<5N>")){
+					List<string> text = customLine.Text.Split(new string[]{ "<5N>" }, StringSplitOptions.None).ToList();
 					text.Insert(1, $"{(int)(Main.LocalPlayer.statLifeMax2 * 0.05f)}");
-					customLine.text = string.Join("", text.ToArray());
-				}else if(customLine.text.Contains("<10N>")){
-					List<string> text2 = customLine.text.Split(new string[]{ "<10N>" }, StringSplitOptions.None).ToList();
+					customLine.Text = string.Join("", text.ToArray());
+				}else if(customLine.Text.Contains("<10N>")){
+					List<string> text2 = customLine.Text.Split(new string[]{ "<10N>" }, StringSplitOptions.None).ToList();
 					text2.Insert(1, $"{(int)(Main.LocalPlayer.statLifeMax2 * 0.1f)}");
-					customLine.text = string.Join("", text2.ToArray());
-				}else if(customLine.text.Contains("<N>")){
-					List<string> text3 = customLine.text.Split(new string[]{ "<N>" }, StringSplitOptions.None).ToList();
+					customLine.Text = string.Join("", text2.ToArray());
+				}else if(customLine.Text.Contains("<N>")){
+					List<string> text3 = customLine.Text.Split(new string[]{ "<N>" }, StringSplitOptions.None).ToList();
 					text3.Insert(1, Language.GetTextValue("Key.UP"));
-					customLine.text = string.Join("", text3.ToArray());
+					customLine.Text = string.Join("", text3.ToArray());
 				}
 
 				customIndex++;

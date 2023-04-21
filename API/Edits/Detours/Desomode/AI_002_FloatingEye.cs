@@ -1,12 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 
 namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 	public static partial class DesolationModeMonsterAI{
 		public static void AI_002_FloatingEye(NPC npc){
 			if((npc.type == NPCID.PigronCorruption || npc.type == NPCID.PigronHallow || npc.type == NPCID.PigronCrimson) && Main.rand.Next(1000) == 0)
-				Main.PlaySound(SoundID.Zombie, (int)npc.position.X, (int)npc.position.Y, 9);
+				SoundEngine.PlaySound(SoundID.Zombie9, npc.position);
 
 			npc.noGravity = true;
 			if(!npc.noTileCollide){

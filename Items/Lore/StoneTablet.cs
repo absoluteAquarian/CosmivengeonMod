@@ -18,9 +18,9 @@ namespace CosmivengeonMod.Items.Lore{
 				"\nit appears that he has finally met his match...";
 
 		public override void SetDefaults(){
-			item.maxStack = 1;
-			item.rare = ItemRarityID.Green;
-			item.consumable = false;
+			Item.maxStack = 1;
+			Item.rare = ItemRarityID.Green;
+			Item.consumable = false;
 		}
 
 		public override bool CanUseItem(Player player){

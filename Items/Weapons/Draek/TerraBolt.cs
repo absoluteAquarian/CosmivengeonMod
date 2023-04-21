@@ -2,6 +2,7 @@
 using CosmivengeonMod.Projectiles.Weapons.Draek;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -20,21 +21,21 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 			"\nbut if it were to ever be combined with the others of its class...";
 
 		public override void SafeSetDefaults(){
-			item.damage = 18;
-			item.width = 42;
-			item.height = 24;
-			item.useTime = 20;
-			item.useAnimation = 20;
-			item.useStyle = 6;  //Custom use style
-			item.channel = true;
-			item.mana = 3;
-			item.noMelee = true;
-			item.noUseGraphic = true;
-			item.knockBack = 2f;
-			item.value = Item.sellPrice(0, 5, 0, 0);
-			item.rare = ItemRarityID.Orange;
-			item.shoot = ModContent.ProjectileType<TerraBoltCharge>();
-			item.shootSpeed = 5f;
+			Item.damage = 18;
+			Item.width = 42;
+			Item.height = 24;
+			Item.useTime = 20;
+			Item.useAnimation = 20;
+			Item.useStyle = 6;  //Custom use style
+			Item.channel = true;
+			Item.mana = 3;
+			Item.noMelee = true;
+			Item.noUseGraphic = true;
+			Item.knockBack = 2f;
+			Item.value = Item.sellPrice(0, 5, 0, 0);
+			Item.rare = ItemRarityID.Orange;
+			Item.shoot = ModContent.ProjectileType<TerraBoltCharge>();
+			Item.shootSpeed = 5f;
 
 			//charge sound: Item15
 			//shoot sound: Item84
@@ -45,7 +46,7 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 			//Therefore, we can just check for the first active one and use it
 			for(int i = 0; i < Main.maxProjectiles; i++){
 				Projectile proj = Main.projectile[i];
-				if(proj.active && proj.owner == player.whoAmI && proj.modProjectile is TerraBoltCharge charge){
+				if(proj.active && proj.owner == player.whoAmI && proj.ModProjectile is TerraBoltCharge charge){
 					player.bodyFrame.Y = charge.BodyIndex() * player.bodyFrame.Height;
 					return true;
 				}
@@ -57,12 +58,12 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 		public override bool HoldItemFrame(Player player)
 			=> UseItemFrame(player);
 
-		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback){
 			speedX = 0;
 			speedY = 0;
 			return true;
 		}
 
-		public override bool SafeCanUseItem(Player player) => player.ownedProjectileCounts[item.shoot] < 1;
+		public override bool SafeCanUseItem(Player player) => player.ownedProjectileCounts[Item.shoot] < 1;
 	}
 }

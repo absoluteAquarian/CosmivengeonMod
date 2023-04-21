@@ -20,17 +20,17 @@ namespace CosmivengeonMod.Items.Tools.Debugging{
 		}
 
 		public override void SetDefaults(){
-			item.width = 26;
-			item.height = 30;
-			item.useStyle = ItemUseStyleID.HoldingOut;
-			item.useTime = 6;
-			item.useAnimation = 6;
-			item.useTurn = true;
-			item.noMelee = true;
-			item.maxStack = 1;
-			item.rare = ItemRarityID.Blue;
-			item.consumable = false;
-			item.autoReuse = true;
+			Item.width = 26;
+			Item.height = 30;
+			Item.useStyle = ItemUseStyleID.Shoot;
+			Item.useTime = 6;
+			Item.useAnimation = 6;
+			Item.useTurn = true;
+			Item.noMelee = true;
+			Item.maxStack = 1;
+			Item.rare = ItemRarityID.Blue;
+			Item.consumable = false;
+			Item.autoReuse = true;
 		}
 
 		public override bool AltFunctionUse(Player player) => true;
@@ -45,30 +45,30 @@ namespace CosmivengeonMod.Items.Tools.Debugging{
 			closestNPCtoMouse = null;
 			canHealNPC = false;
 			if(player.altFunctionUse == 2){
-				item.useTime = 6;
-				item.useAnimation = 6;
-				item.useStyle = ItemUseStyleID.HoldingOut;
+				Item.useTime = 6;
+				Item.useAnimation = 6;
+				Item.useStyle = ItemUseStyleID.Shoot;
 				closestNPCtoMouse = Main.npc.Where(n => n.active).OrderBy(n => Vector2.Distance(Main.MouseWorld, n.Center)).First();
 				canHealNPC = closestNPCtoMouse.MouseWithinRange(2 * 16);
 			}else{
-				item.useStyle = ItemUseStyleID.SwingThrow;
-				item.useTime = 6;
-				item.useAnimation = 6;
+				Item.useStyle = ItemUseStyleID.Swing;
+				Item.useTime = 6;
+				Item.useAnimation = 6;
 			}
 			return true;
 		}
 
-		public override bool UseItem(Player player){
+		public override bool? UseItem(Player player)/* tModPorter Suggestion: Return null instead of false */{
 			int regen;
 			Rectangle location;
 			if(player.altFunctionUse == 2 && closestNPCtoMouse != null && canHealNPC){
 				NPC actualNPC = closestNPCtoMouse.realLife >= 0 ? Main.npc[closestNPCtoMouse.realLife] : closestNPCtoMouse;
-				regen = (int)Math.Max(Math.Ceiling(closestNPCtoMouse.lifeMax * 0.2f / 60f * item.useTime), 4);
+				regen = (int)Math.Max(Math.Ceiling(closestNPCtoMouse.lifeMax * 0.2f / 60f * Item.useTime), 4);
 				location = new Rectangle((int)closestNPCtoMouse.TopLeft.X - 5, (int)closestNPCtoMouse.Top.Y - 20, closestNPCtoMouse.width + 5, 20);
 				actualNPC.life += regen;
 				actualNPC.life.Clamp(0, actualNPC.lifeMax);
 			}else if(player.altFunctionUse != 2){
-				regen = (int)Math.Ceiling(player.statLifeMax2 * 0.25f / 60f * item.useTime);
+				regen = (int)Math.Ceiling(player.statLifeMax2 * 0.25f / 60f * Item.useTime);
 				location = new Rectangle((int)player.TopLeft.X - 5, (int)player.Top.Y - 20, player.width + 5, 20);
 				player.statLife += regen;
 			}else

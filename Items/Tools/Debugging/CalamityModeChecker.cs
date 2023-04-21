@@ -17,15 +17,15 @@ namespace CosmivengeonMod.Items.Tools.Debugging{
 		}
 
 		public override void SetDefaults(){
-			item.width = 40;
-			item.height = 40;
-			item.maxStack = 1;
-			item.rare = ItemRarityID.Pink;
-			item.useAnimation = 15;
-			item.useTime = 15;
-			item.useStyle = ItemUseStyleID.HoldingUp;
-			item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.MenuTick, 0);
-			item.consumable = false;
+			Item.width = 40;
+			Item.height = 40;
+			Item.maxStack = 1;
+			Item.rare = ItemRarityID.Pink;
+			Item.useAnimation = 15;
+			Item.useTime = 15;
+			Item.useStyle = ItemUseStyleID.HoldUp;
+			Item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.MenuTick, 0);
+			Item.consumable = false;
 		}
 
 		public override bool AltFunctionUse(Player player) => true;
@@ -38,7 +38,7 @@ namespace CosmivengeonMod.Items.Tools.Debugging{
 			return true;
 		}
 
-		public override bool UseItem(Player player){
+		public override bool? UseItem(Player player)/* tModPorter Suggestion: Return null instead of false */{
 			if(!ModReferences.Calamity.Active)
 				Main.NewText("Calamity is not enabled.", Color.Red);
 			else{

@@ -5,6 +5,7 @@ using CosmivengeonMod.Utility.Extensions;
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -54,7 +55,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			if(npc.ai[0] < 0f){
 				//Check for the transition to phase 2
 				if(npc.localAI[2] == 0f){
-					Main.PlaySound(SoundID.NPCHit, npc.position);
+					SoundEngine.PlaySound(SoundID.NPCHit1, npc.position);
 					npc.localAI[2] = 1f;
 					Gore.NewGore(npc.position, new Vector2(Main.rand.Next(-30, 31), Main.rand.Next(-30, 31)) * 0.2f, 392, 1f);
 					Gore.NewGore(npc.position, new Vector2(Main.rand.Next(-30, 31), Main.rand.Next(-30, 31)) * 0.2f, 393, 1f);
@@ -64,7 +65,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 					for(int num766 = 0; num766 < 20; num766++)
 						Dust.NewDust(npc.position, npc.width, npc.height, 5, Main.rand.Next(-30, 31) * 0.2f, Main.rand.Next(-30, 31) * 0.2f);
 
-					Main.PlaySound(SoundID.Roar, npc.position, 0);
+					SoundEngine.PlaySound(SoundID.Roar, npc.position);
 				}
 
 				npc.dontTakeDamage = false;
@@ -157,7 +158,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 						npc.ai[3] = 255f;
 						npc.position.X = npc.ai[1] * 16f - npc.width / 2;
 						npc.position.Y = npc.ai[2] * 16f - npc.height / 2;
-						Main.PlaySound(SoundID.Item8, npc.Center);
+						SoundEngine.PlaySound(SoundID.Item8, npc.Center);
 						npc.ai[0] = -3f;
 						npc.netUpdate = true;
 						npc.netSpam = 0;
@@ -268,7 +269,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 
 					npc.alpha += 5;
 					if(npc.alpha >= 255){
-						Main.PlaySound(SoundID.Item8, npc.Center);
+						SoundEngine.PlaySound(SoundID.Item8, npc.Center);
 						npc.alpha = 255;
 						npc.position.X = npc.ai[1] * 16f - npc.width / 2;
 						npc.position.Y = npc.ai[2] * 16f - npc.height / 2;
@@ -328,7 +329,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 					owner: Main.myPlayer);
 
 				if(npc.ai[0] < 0)
-					(Main.projectile[proj].modProjectile as BrainPsychicMine).fastAttack = true;
+					(Main.projectile[proj].ModProjectile as BrainPsychicMine).fastAttack = true;
 			}
 
 			//Second psychic attack
@@ -358,7 +359,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 						65,
 						3.5f);
 
-					BrainPsychicLightning lightning = Main.projectile[proj].modProjectile as BrainPsychicLightning;
+					BrainPsychicLightning lightning = Main.projectile[proj].ModProjectile as BrainPsychicLightning;
 					lightning.AttackDelay = (int)(-dir * 180f * i / 15f);
 
 					if(npc.ai[0] < 0)

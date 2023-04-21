@@ -13,30 +13,29 @@ namespace CosmivengeonMod.Items.Spawning.Boss{
 		}
 
 		public override void SetDefaults(){
-			item.width = 20;
-			item.height = 20;
-			item.maxStack = 99;
-			item.rare = ItemRarityID.Pink;
-			item.useAnimation = 45;
-			item.useTime = 45;
-			item.useStyle = ItemUseStyleID.HoldingUp;
-			item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0);
-			item.consumable = true;
+			Item.width = 20;
+			Item.height = 20;
+			Item.maxStack = 99;
+			Item.rare = ItemRarityID.Pink;
+			Item.useAnimation = 45;
+			Item.useTime = 45;
+			Item.useStyle = ItemUseStyleID.HoldUp;
+			Item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0);
+			Item.consumable = true;
 		}
 
 		public override bool CanUseItem(Player player)
 			=> MiscUtils.TrySummonBoss(CosmivengeonBoss.Draek, player);
 
-		public override bool UseItem(Player player)
+		public override bool? UseItem(Player player)/* tModPorter Suggestion: Return null instead of false */
 			=> MiscUtils.SummonBossNearPlayer(player, ModContent.NPCType<Draek>(), 50f);
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
 			recipe.AddIngredient(ItemID.Emerald, 1);
 			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }

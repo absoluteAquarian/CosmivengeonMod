@@ -3,6 +3,7 @@ using CosmivengeonMod.Utility.Extensions;
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.Graphics.Effects;
 using Terraria.ID;
 
@@ -63,7 +64,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 				npc.ai[3] = -1f;
 				npc.Helper().EoC_PhaseTransitionVelocityLength = 7f;
 
-				Main.PlaySound(SoundID.Roar, npc.position, 0);
+				SoundEngine.PlaySound(SoundID.Roar, npc.position);
 			}
 
 			bool forceLockedRotation = npc.ai[0] == 6f && npc.ai[3] == 0f;
@@ -217,7 +218,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 					if(npc.ai[0] == 3f)
 						npc.ai[2] = 0f;
 					else{
-						Main.PlaySound(SoundID.NPCHit, npc.position);
+						SoundEngine.PlaySound(SoundID.NPCHit1, npc.position);
 
 						//Spawn the mouth gores
 						for(int num34 = 0; num34 < 2; num34++){
@@ -230,7 +231,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 						for(int num35 = 0; num35 < 20; num35++)
 							Dust.NewDust(npc.position, npc.width, npc.height, 5, Main.rand.Next(-30, 31) * 0.2f, Main.rand.Next(-30, 31) * 0.2f);
 
-						Main.PlaySound(SoundID.ForceRoar, npc.position, 0);
+						SoundEngine.PlaySound(SoundID.ForceRoar, npc.position);
 					}
 				}
 
@@ -321,7 +322,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 				}else if(npc.ai[1] == 1f){
 					//Charging
 
-					Main.PlaySound(SoundID.ForceRoar, npc.position, 0);
+					SoundEngine.PlaySound(SoundID.ForceRoar, npc.position);
 
 					npc.rotation = rotationToTarget;
 
@@ -459,7 +460,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 					npc.Helper().Timer++;
 
 					if(npc.ai[2] == 0f)
-						Main.PlaySound(SoundID.ForceRoar, npc.position, -1);
+						SoundEngine.PlaySound(SoundID.ForceRoarPitched, npc.position);
 
 					npc.ai[2] += 1f;
 
@@ -555,7 +556,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 							npc.ai[1] = 1f;
 							npc.ai[2] = 45f;
 
-							Main.PlaySound(SoundID.ForceRoar, npc.position, -1);
+							SoundEngine.PlaySound(SoundID.ForceRoarPitched, npc.position);
 							
 							npc.velocity = Vector2.Normalize(npc.velocity) * -10f;
 						}
@@ -655,7 +656,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 						npc.Helper().EoC_FadePositionOffset.X += dir * movementFactor;
 						npc.Center = targetCenter + npc.Helper().EoC_FadePositionOffset;
 					}else if(npc.ai[1] == 2f){
-						Main.PlaySound(SoundID.ForceRoar, npc.position, -1);
+						SoundEngine.PlaySound(SoundID.ForceRoarPitched, npc.position);
 						int dir = -npc.Helper().EoC_PlayerTargetMovementDirection;
 
 						float velocity = 24f * dir;
@@ -777,9 +778,9 @@ sendData:
 
 			//Play the "belch" sound when a minion spawns
 			if(belchSound)
-				Main.PlaySound(SoundID.NPCDeath13, position);
+				SoundEngine.PlaySound(SoundID.NPCDeath13, position);
 			else
-				Main.PlaySound(SoundID.NPCHit, position);
+				SoundEngine.PlaySound(SoundID.NPCHit1, position);
 
 			//And spawn some dust where the minion originated from
 			for(int m = 0; m < 10; m++)

@@ -97,7 +97,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 						bool teleportOutsideVarianceRange = Math.Abs(teleportX - targetTileCenter.X) > teleportCheckVariance || Math.Abs(teleportY - targetTileCenter.Y) > teleportCheckVariance;
 						bool teleportNotOnNPCLocation = teleportY != npcTileCenter.Y || teleportX != npcTileCenter.X;
 
-						if(teleportOutsideVarianceRange && teleportNotOnNPCLocation && !Main.tile[teleportX, teleportY].nactive()){
+						if(teleportOutsideVarianceRange && teleportNotOnNPCLocation && !Main.tile[teleportX, teleportY].HasUnactuatedTile){
 							int teleportYOffset = 0;
 
 							if(MiscUtils.TileIsSolidOrPlatform(teleportX, teleportY))
@@ -115,7 +115,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 							teleportY += teleportYOffset;
 							
 							//Only teleport to the tile if it doesn't have lava and we can't see the player
-							if(!Main.tile[teleportX, teleportY].lava() && !Collision.CanHitLine(npc.Center, 0, 0, npc.Target().Center, 0, 0)){
+							if(!(Main.tile[teleportX, teleportY].LiquidType == LiquidID.Lava) && !Collision.CanHitLine(npc.Center, 0, 0, npc.Target().Center, 0, 0)){
 								npc.localAI[1] = teleportX * 16 + 8;
 								npc.localAI[2] = teleportY * 16 + 16;
 								break;

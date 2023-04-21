@@ -1,6 +1,7 @@
 ﻿using CosmivengeonMod.Projectiles.Weapons.Frostbite;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -16,23 +17,23 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 		}
 
 		public override void SetDefaults(){
-			item.magic = true;
-			item.mana = 21;
-			item.width = 40;
-			item.height = 44;
-			item.noMelee = true;
-			item.useTime = 24;
-			item.useAnimation = 24;
-			item.rare = ItemRarityID.Blue;
-			item.value = Item.sellPrice(silver: 3, copper: 25);
-			item.UseSound = SoundID.Item30;
-			item.damage = 18;
-			item.knockBack = 4.15f;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.shoot = ModContent.ProjectileType<BlizzardRodProjectile>();
+			Item.DamageType = DamageClass.Magic;
+			Item.mana = 21;
+			Item.width = 40;
+			Item.height = 44;
+			Item.noMelee = true;
+			Item.useTime = 24;
+			Item.useAnimation = 24;
+			Item.rare = ItemRarityID.Blue;
+			Item.value = Item.sellPrice(silver: 3, copper: 25);
+			Item.UseSound = SoundID.Item30;
+			Item.damage = 18;
+			Item.knockBack = 4.15f;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.shoot = ModContent.ProjectileType<BlizzardRodProjectile>();
 		}
 
-		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback){
 			position = Main.MouseWorld;
 
 			//Generate a new projectile
@@ -45,7 +46,7 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 			if(SpawnedClouds[LastCloudSpawnedIndex] > 0){
 				var existing = Main.projectile[SpawnedClouds[LastCloudSpawnedIndex]];
 
-				if(existing.active && existing.modProjectile is BlizzardRodProjectile)
+				if(existing.active && existing.ModProjectile is BlizzardRodProjectile)
 					existing.Kill();
 			}
 

@@ -70,7 +70,7 @@ namespace CosmivengeonMod.NPCs.Global{
 			BossNames = null;
 		}
 
-		public override void NPCLoot(NPC npc){
+		public override void OnKill(NPC npc){
 			//If we're not in Desolation mode, don't do anything
 			if(!Main.expertMode || !WorldEvents.desoMode)
 				return;

@@ -6,7 +6,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Buffs.Pets{
 	public class FrostCloudPetBuff : ModBuff{
-		public override void SetDefaults(){
+		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Baby Blizzard Cloud");
 			Description.SetDefault("A baby blizzard cloud follows you.");
 			Main.buffNoTimeDisplay[Type] = true;

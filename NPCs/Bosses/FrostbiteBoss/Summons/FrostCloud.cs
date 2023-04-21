@@ -11,17 +11,17 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons{
 	public class FrostCloud : ModNPC{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Frost Cloud");
-			Main.npcFrameCount[npc.type] = 4;
+			Main.npcFrameCount[NPC.type] = 4;
 		}
 
 		public override void SetDefaults(){
-			npc.dontTakeDamage = true;
-			npc.lifeMax = 1;
-			npc.width = 46;
-			npc.height = 32;
-			npc.damage = 30;
-			npc.noTileCollide = true;
-			npc.noGravity = true;
+			NPC.dontTakeDamage = true;
+			NPC.lifeMax = 1;
+			NPC.width = 46;
+			NPC.height = 32;
+			NPC.damage = 30;
+			NPC.noTileCollide = true;
+			NPC.noGravity = true;
 		}
 
 		private bool spawned = false;
@@ -63,53 +63,53 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons{
 
 		public override void FindFrame(int frameHeight){
 			if(AI_Timer % 15 == 0)
-				npc.frame.Y = ++frameCount % Main.npcFrameCount[npc.type] * frameHeight;
+				NPC.frame.Y = ++frameCount % Main.npcFrameCount[NPC.type] * frameHeight;
 		}
 
 		public override void AI(){
 			if(!spawned){
 				spawned = true;
-				npc.TargetClosest(true);
-				PlayerTarget = Main.player[npc.target];
-				Parent = Main.npc[(int)npc.ai[0]];
-				npc.velocity = new Vector2(npc.ai[1], npc.ai[2]);
+				NPC.TargetClosest(true);
+				PlayerTarget = Main.player[NPC.target];
+				Parent = Main.npc[(int)NPC.ai[0]];
+				NPC.velocity = new Vector2(NPC.ai[1], NPC.ai[2]);
 
-				npc.netUpdate = true;
+				NPC.netUpdate = true;
 			}
 
 			if(activeTime < 0 || !Parent.active || Parent.townNPC || !Parent.boss || Parent.friendly){
-				npc.life = 0;
-				npc.active = false;
+				NPC.life = 0;
+				NPC.active = false;
 			}
 
 			TargetPosition = PlayerTarget.Center - new Vector2(0, 15 * 16);
 
 			if(AI_State == AI_JustSpawned){
-				if(npc.velocity.Length() > TargetSpeed)
-					npc.velocity *= 0.9435f;
+				if(NPC.velocity.Length() > TargetSpeed)
+					NPC.velocity *= 0.9435f;
 				else{
-					npc.velocity = Vector2.Normalize(npc.velocity) * TargetSpeed;
+					NPC.velocity = Vector2.Normalize(NPC.velocity) * TargetSpeed;
 					AI_State++;
 
-					npc.netUpdate = true;
+					NPC.netUpdate = true;
 				}
 			}else if(AI_State == AI_FollowPlayer){
-				npc.velocity *= 0.9427f;
+				NPC.velocity *= 0.9427f;
 
-				npc.velocity += Vector2.Normalize(TargetPosition - npc.Center) * 0.735f;
+				NPC.velocity += Vector2.Normalize(TargetPosition - NPC.Center) * 0.735f;
 
-				if(npc.velocity.Length() > TargetSpeed)
-					npc.velocity = Vector2.Normalize(npc.velocity) * TargetSpeed;
+				if(NPC.velocity.Length() > TargetSpeed)
+					NPC.velocity = Vector2.Normalize(NPC.velocity) * TargetSpeed;
 
-				if(Math.Abs(npc.Center.X - TargetPosition.X) < 2 * 16f && AI_Timer % 20 == 0){
-					MiscUtils.SpawnProjectileSynced(npc.Center + new Vector2(Main.rand.NextFloat(-24, 24), 0),
+				if(Math.Abs(NPC.Center.X - TargetPosition.X) < 2 * 16f && AI_Timer % 20 == 0){
+					MiscUtils.SpawnProjectileSynced(NPC.Center + new Vector2(Main.rand.NextFloat(-24, 24), 0),
 						Vector2.Zero,
 						ModContent.ProjectileType<FrostbiteIcicle>(),
 						20,
 						4f
 					);
 
-					npc.netUpdate = true;
+					NPC.netUpdate = true;
 				}
 			}
 

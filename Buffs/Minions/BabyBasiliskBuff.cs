@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Buffs.Minions{
 	public class BabyBasiliskBuff : ModBuff{
-		public override void SetDefaults(){
+		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Baby Basilisk");
 			Description.SetDefault("A baby basilisk will protect you.\nWho knew a potential descendant of Draek could be so cute!");
 			Main.buffNoSave[Type] = true;

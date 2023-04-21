@@ -9,11 +9,11 @@ namespace CosmivengeonMod.Items.Materials{
 		}
 
 		public override void SetDefaults(){
-			item.maxStack = 99;
-			item.rare = ItemRarityID.Blue;
-			item.width = 24;
-			item.height = 18;
-			item.value = Item.sellPrice(silver: 2, copper: 35);
+			Item.maxStack = 99;
+			Item.rare = ItemRarityID.Blue;
+			Item.width = 24;
+			Item.height = 18;
+			Item.value = Item.sellPrice(silver: 2, copper: 35);
 		}
 
 		public override bool CanUseItem(Player player) => false;

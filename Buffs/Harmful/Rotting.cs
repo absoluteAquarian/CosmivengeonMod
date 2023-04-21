@@ -4,7 +4,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Buffs.Harmful{
 	public class Rotting : ModBuff{
-		public override void SetDefaults(){
+		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Rotting");
 			Description.SetDefault("The Corruption weakens your body");
 			Main.debuff[Type] = true;

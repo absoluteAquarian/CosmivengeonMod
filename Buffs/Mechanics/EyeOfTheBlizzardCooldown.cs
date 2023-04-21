@@ -6,7 +6,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Buffs.Mechanics{
 	public class EyeOfTheBlizzardCooldown : ModBuff{
-		public override void SetDefaults(){
+		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Eye of the Blizzard: Ability Cooldown");
 			Description.SetDefault("The crystal is recharging");
 			Main.buffNoSave[Type] = true;

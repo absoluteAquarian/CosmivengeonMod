@@ -10,12 +10,12 @@ namespace CosmivengeonMod.Players{
 			BossesKilled = new StaminaBuffCollection();
 		}
 
-		public override TagCompound Save()
+		public override void SaveData(TagCompound tag)/* tModPorter Suggestion: Edit tag parameter instead of returning new TagCompound */
 			=> new TagCompound(){
 				["bosses"] = BossesKilled.ToTag()
 			};
 
-		public override void Load(TagCompound tag){
+		public override void LoadData(TagCompound tag){
 			//Older versions have the "bosses" tag as a List<int>
 			//We need to account for that
 			if(tag["bosses"] is TagCompound bosses)

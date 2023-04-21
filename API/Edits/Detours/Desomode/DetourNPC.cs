@@ -50,7 +50,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 					self.ScaleHealthBy(Draek.GetHealthAugmentation());
 				
 				int hp = Main.expertMode ? GetDraekMaxHealth(scale) : Draek.BaseHealth + DraekP2Head.BaseHealth;
-				(self.modNPC as Draek).HealthThreshold = hp - self.lifeMax;
+				(self.ModNPC as Draek).HealthThreshold = hp - self.lifeMax;
 				self.lifeMax = hp;
 
 				self.life = self.lifeMax;
@@ -61,7 +61,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 					self.ScaleHealthBy(DraekP2Head.GetHealthAugmentation());
 				
 				int curMax = self.lifeMax;
-				(self.modNPC as DraekP2Head).ActualMaxHealth = curMax;
+				(self.ModNPC as DraekP2Head).ActualMaxHealth = curMax;
 				self.lifeMax = Main.expertMode ? GetDraekMaxHealth(scale) : Draek.BaseHealth + DraekP2Head.BaseHealth;
 				
 				self.life = curMax;
@@ -93,8 +93,8 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 		}
 
 		public static int GetDraekMaxHealth(float bossScale)
-			=> (int)(Draek.BaseHealth * Main.expertLife * Draek.GetHealthAugmentation() * bossScale
-				+ DraekP2Head.BaseHealth * Main.expertLife * DraekP2Head.GetHealthAugmentation() * bossScale);
+			=> (int)(Draek.BaseHealth * Main.GameModeInfo.EnemyMaxLifeMultiplier * Draek.GetHealthAugmentation() * bossScale
+				+ DraekP2Head.BaseHealth * Main.GameModeInfo.EnemyMaxLifeMultiplier * DraekP2Head.GetHealthAugmentation() * bossScale);
 
 		public static void NPC_VanillaAI(On.Terraria.NPC.orig_VanillaAI orig, NPC self){
 			//Desolation mode AI changes

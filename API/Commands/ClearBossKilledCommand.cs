@@ -111,7 +111,7 @@ namespace CosmivengeonMod.API.Commands{
 			
 			ModNPC mn = ModContent.GetModNPC(id);
 
-			return $"{mn.mod.Name}.{mn.Name}";
+			return $"{mn.Mod.Name}.{mn.Name}";
 		}
 	}
 }

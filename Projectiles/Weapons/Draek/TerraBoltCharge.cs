@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -10,31 +11,31 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 	public class TerraBoltCharge : ModProjectile{
 		public override string Texture => "CosmivengeonMod/Projectiles/Weapons/Draek/TerraBoltProjectile";
 
-		public ref float Charge => ref projectile.ai[0];
+		public ref float Charge => ref Projectile.ai[0];
 
-		public ref float State => ref projectile.ai[1];
+		public ref float State => ref Projectile.ai[1];
 
-		public float MaxCharge => 60 / PlayerHooks.UseTimeMultiplier(Main.player[projectile.owner], Main.player[projectile.owner].HeldItem);
+		public float MaxCharge => 60 / PlayerLoader.UseTimeMultiplier(Main.player[Projectile.owner], Main.player[Projectile.owner].HeldItem);
 
 		private int wait;
 
 		public override void SetDefaults(){
-			projectile.width = 10;
-			projectile.height = 10;
-			projectile.tileCollide = false;
-			projectile.ignoreWater = true;
+			Projectile.width = 10;
+			Projectile.height = 10;
+			Projectile.tileCollide = false;
+			Projectile.ignoreWater = true;
 		}
 
 		public const float SpawnDistance = 8;
 
 		private int animTimer;
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
+		public override bool PreDraw(ref Color lightColor){
 			//Only draw the things during the charge animation
 			if(State > 0)
 				return false;
 
-			Player owner = Main.player[projectile.owner];
+			Player owner = Main.player[Projectile.owner];
 
 			//Draw a wobbling circle that grows bigger as each stage is reached
 			float factor = GetChargeFactor();
@@ -55,11 +56,11 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 		private int forceDir;
 
 		public override void AI(){
-			Player owner = Main.player[projectile.owner];
+			Player owner = Main.player[Projectile.owner];
 
 			animTimer++;
 
-			float targetTime = 15 / PlayerHooks.UseTimeMultiplier(owner, owner.HeldItem);
+			float targetTime = 15 / PlayerLoader.UseTimeMultiplier(owner, owner.HeldItem);
 
 			if(State < 2 && wait < targetTime - 1)
 				owner.ChangeDir(forceDir = owner.Center.X < Main.MouseWorld.X ? 1 : -1);
@@ -67,19 +68,19 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 				owner.ChangeDir(forceDir);
 
 			if(State == 0)
-				projectile.Center = owner.Center;
+				Projectile.Center = owner.Center;
 			else if(State == 1){
-				float curRot = owner.DirectionTo(projectile.Center).ToRotation();
+				float curRot = owner.DirectionTo(Projectile.Center).ToRotation();
 				float targetRot = owner.DirectionTo(Main.MouseWorld).ToRotation();
 
 				if(Math.Abs(curRot - targetRot) > MathHelper.ToRadians(15))
-					projectile.Center = MathHelper.Lerp(curRot, targetRot, 0.25f).ToRotationVector2() * SpawnDistance + owner.Center;
+					Projectile.Center = MathHelper.Lerp(curRot, targetRot, 0.25f).ToRotationVector2() * SpawnDistance + owner.Center;
 				else if(wait >= targetTime - 1 && wait < targetTime)
-					projectile.Center = targetRot.ToRotationVector2() * SpawnDistance + owner.Center;
+					Projectile.Center = targetRot.ToRotationVector2() * SpawnDistance + owner.Center;
 			}
 
 			if(State < 2)
-				projectile.timeLeft = 60;
+				Projectile.timeLeft = 60;
 
 			if(State == 1)
 				wait++;
@@ -89,12 +90,12 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 				Vector2 loc = owner.gravDir > 0 ? owner.Top - new Vector2(0, 20) : owner.Bottom + new Vector2(0, 20);
 				Lighting.AddLight(loc, Color.Green.ToVector3() * 1.3f);
 			}else if(State == 1)
-				Lighting.AddLight(projectile.Center, Color.Green.ToVector3() * 1.3f);
+				Lighting.AddLight(Projectile.Center, Color.Green.ToVector3() * 1.3f);
 
-			if(State == 0 && projectile.soundDelay == 0){
-				projectile.soundDelay = 18;
+			if(State == 0 && Projectile.soundDelay == 0){
+				Projectile.soundDelay = 18;
 
-				Main.PlaySound(SoundID.Item15, owner.Center);
+				SoundEngine.PlaySound(SoundID.Item15, owner.Center);
 			}
 
 			//Only drain mana when the charge stage increases
@@ -116,14 +117,14 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 		}
 
 		public int BodyIndex(){
-			Player owner = Main.player[projectile.owner];
+			Player owner = Main.player[Projectile.owner];
 
 			if(State == 0)
 				return 5;
-			else if(wait < 15 / PlayerHooks.UseTimeMultiplier(owner, owner.HeldItem) - 1)
+			else if(wait < 15 / PlayerLoader.UseTimeMultiplier(owner, owner.HeldItem) - 1)
 				return 6;
 			else{
-				float rotation = owner.DirectionTo(projectile.Center).ToRotation();
+				float rotation = owner.DirectionTo(Projectile.Center).ToRotation();
 
 				if(Math.Abs(rotation) < MathHelper.ToRadians(45) || Math.Abs(MathHelper.Pi - Math.Abs(rotation)) < MathHelper.ToRadians(45))
 					return 3;
@@ -154,12 +155,12 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 		public override bool ShouldUpdatePosition() => false;
 
 		private void SpawnProjectile(){
-			projectile.timeLeft = 12;
+			Projectile.timeLeft = 12;
 			State = 2;
 
-			Player owner = Main.player[projectile.owner];
+			Player owner = Main.player[Projectile.owner];
 
-			Main.PlaySound(SoundID.Item84, owner.Center);
+			SoundEngine.PlaySound(SoundID.Item84, owner.Center);
 
 			//Scale damage, knockback, speed and size based on how charged the projectile is
 			int damage = owner.HeldItem.damage;

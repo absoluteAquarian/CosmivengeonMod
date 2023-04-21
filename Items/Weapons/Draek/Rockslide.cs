@@ -11,41 +11,40 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 			Tooltip.SetDefault("Casts out a medium-length earth yoyo that has a chance to poison foes on hit.");
 
 			// These are all related to gamepad controls and don't seem to affect anything else
-			ItemID.Sets.Yoyo[item.type] = true;
-			ItemID.Sets.GamepadExtraRange[item.type] = 15;
-			ItemID.Sets.GamepadSmartQuickReach[item.type] = true;
+			ItemID.Sets.Yoyo[Item.type] = true;
+			ItemID.Sets.GamepadExtraRange[Item.type] = 15;
+			ItemID.Sets.GamepadSmartQuickReach[Item.type] = true;
 		}
 
 		public override void SetDefaults(){
-			item.useStyle = ItemUseStyleID.HoldingOut;
-			item.width = 30;
-			item.height = 26;
-			item.useAnimation = 25;
-			item.useTime = 25;
-			item.shootSpeed = 16f;
-			item.knockBack = 3f;
-			item.damage = 20;
-			item.rare = ItemRarityID.Green;
+			Item.useStyle = ItemUseStyleID.Shoot;
+			Item.width = 30;
+			Item.height = 26;
+			Item.useAnimation = 25;
+			Item.useTime = 25;
+			Item.shootSpeed = 16f;
+			Item.knockBack = 3f;
+			Item.damage = 20;
+			Item.rare = ItemRarityID.Green;
 
-			item.melee = true;
-			item.channel = true;
-			item.noMelee = true;
-			item.noUseGraphic = true;
+			Item.DamageType = DamageClass.Melee/* tModPorter Suggestion: Consider MeleeNoSpeed for no attack speed scaling */;
+			Item.channel = true;
+			Item.noMelee = true;
+			Item.noUseGraphic = true;
 
-			item.UseSound = SoundID.Item1;
-			item.value = Item.sellPrice(0, 0, 35, 0);
-			item.shoot = ModContent.ProjectileType<RockslideProjectile>();
+			Item.UseSound = SoundID.Item1;
+			Item.value = Item.sellPrice(0, 0, 35, 0);
+			Item.shoot = ModContent.ProjectileType<RockslideProjectile>();
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
 			recipe.AddIngredient(ItemID.Cobweb, 12);
 			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);
 			recipe.AddIngredient(ModContent.ItemType<RaechonShell>());
 			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }

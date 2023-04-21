@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Buffs.Harmful{
 	public class PrimordialWrath : ModBuff{
-		public override void SetDefaults(){
+		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Primordial Wrath");
 			Description.SetDefault("Your skin is melting off.");
 			Main.debuff[Type] = true;

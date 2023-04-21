@@ -12,11 +12,11 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Rockserpent{
 		}
 
 		public override void SetDefaults(){
-			item.width = 22;
-			item.height = 20;
-			item.rare = ItemRarityID.Orange;
-			item.defense = 7;
-			item.value = Item.sellPrice(gold: 2, silver: 15);
+			Item.width = 22;
+			Item.height = 20;
+			Item.rare = ItemRarityID.Orange;
+			Item.defense = 7;
+			Item.value = Item.sellPrice(gold: 2, silver: 15);
 		}
 
 		public override void UpdateEquip(Player player){
@@ -24,13 +24,12 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Rockserpent{
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 20);
 			recipe.AddRecipeGroup(CoreMod.RecipeGroups.EvilDrops, 5);
 			recipe.AddRecipeGroup("IronBar", 10);
 			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.Utilities;
 
@@ -193,14 +194,14 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 
 						if(npc.position.X + npc.width > vector.X && npc.position.X < vector.X + 16f && npc.position.Y + npc.height > vector.Y && npc.position.Y < vector.Y + 16f){
 							flag2 = true;
-							if(Main.rand.Next(100) == 0 && Main.tile[num33, num34].nactive())
+							if(Main.rand.Next(100) == 0 && Main.tile[num33, num34].HasUnactuatedTile)
 								WorldGen.KillTile(num33, num34, true, true, false);
 						}
 
 						//NPC is in the ground.  Set the flag to not damage a grabbed player
 						Tile tile = Main.tile[num33, num34];
 
-						if(tile.nactive() && tile.type != TileID.Platforms && !TileID.Sets.Platforms[tile.type])
+						if(tile.HasUnactuatedTile && tile.TileType != TileID.Platforms && !TileID.Sets.Platforms[tile.TileType])
 							npc.Helper().Flag = true;
 					}
 				}
@@ -310,7 +311,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 							num55 = 20f;
 
 						npc.soundDelay = (int)num55;
-						Main.PlaySound(SoundID.Roar, (int)npc.position.X, (int)npc.position.Y, 1, 1f, 0f);
+						SoundEngine.PlaySound(SoundID.WormDig, npc.position);
 					}
 
 					num53 = (float)Math.Sqrt(num40 * num40 + num41 * num41);

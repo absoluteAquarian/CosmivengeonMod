@@ -85,7 +85,7 @@ namespace CosmivengeonMod.UI{
 					colorMult = 0f;
 
 				spriteBatch.Draw(animationTexture,
-					modPlayer.player.position + positionOffset - Main.screenPosition + shakeOffset + animationCenter,
+					modPlayer.Player.position + positionOffset - Main.screenPosition + shakeOffset + animationCenter,
 					animationTexture.Frame(1, 10, 0, frame),
 					Color.White * colorMult,
 					0f,
@@ -103,7 +103,7 @@ namespace CosmivengeonMod.UI{
 					int frame = 8 + modPlayer.stamina.GetFlashType();
 
 					spriteBatch.Draw(animationTexture,
-						modPlayer.player.position + positionOffset - Main.screenPosition + animationCenter,
+						modPlayer.Player.position + positionOffset - Main.screenPosition + animationCenter,
 						animationTexture.Frame(1, 10, 0, frame),
 						Color.White,
 						0f,

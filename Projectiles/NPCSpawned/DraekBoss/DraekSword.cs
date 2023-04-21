@@ -15,26 +15,26 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 			DisplayName.SetDefault("Forsaken Oronoblade");
 		}
 		public override void SetDefaults(){
-			projectile.height = 30;
-			projectile.width = 30;
-			projectile.friendly = false;
-			projectile.hostile = true;
-			projectile.tileCollide = false;
-			projectile.ignoreWater = true;
-			projectile.penetrate = -1;
-			projectile.timeLeft = 2 * 60;
-			projectile.aiStyle = 0;
-			projectile.alpha = 0;
+			Projectile.height = 30;
+			Projectile.width = 30;
+			Projectile.friendly = false;
+			Projectile.hostile = true;
+			Projectile.tileCollide = false;
+			Projectile.ignoreWater = true;
+			Projectile.penetrate = -1;
+			Projectile.timeLeft = 2 * 60;
+			Projectile.aiStyle = 0;
+			Projectile.alpha = 0;
 
-			drawOffsetX = -44;
-			drawOriginOffsetY = -52;
+			DrawOffsetX = -44;
+			DrawOriginOffsetY = -52;
 		}
 
 		private bool hasSpawned = false;
 
 		private int npcOwner = -1;
 
-		public ref float Phase => ref projectile.ai[1];
+		public ref float Phase => ref Projectile.ai[1];
 
 		private float expert_revolutionAngle;
 
@@ -52,21 +52,21 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 			if(!hasSpawned){
 				hasSpawned = true;
 
-				target = Main.player[(int)projectile.ai[0]];
-				npcOwner = (int)projectile.ai[1];
+				target = Main.player[(int)Projectile.ai[0]];
+				npcOwner = (int)Projectile.ai[1];
 
 				//These two will be used later for swinging at the target player in Desolation Mode
-				projectile.ai[0] = 0f;
-				projectile.ai[1] = 0f;
+				Projectile.ai[0] = 0f;
+				Projectile.ai[1] = 0f;
 
 				//All AI types have the same initial movement
-				projectile.velocity = Vector2.Normalize(target.Center - projectile.Center) * 20f;
+				Projectile.velocity = Vector2.Normalize(target.Center - Projectile.Center) * 20f;
 
-				extra = Projectile.NewProjectile(projectile.position, Vector2.Zero, ModContent.ProjectileType<DraekSwordExtra>(), projectile.damage, projectile.knockBack, Main.myPlayer, projectile.whoAmI, -1);
-				extra2 = Projectile.NewProjectile(projectile.position, Vector2.Zero, ModContent.ProjectileType<DraekSwordExtra>(), projectile.damage, projectile.knockBack, Main.myPlayer, projectile.whoAmI, 1);
+				extra = Projectile.NewProjectile(Projectile.position, Vector2.Zero, ModContent.ProjectileType<DraekSwordExtra>(), Projectile.damage, Projectile.knockBack, Main.myPlayer, Projectile.whoAmI, -1);
+				extra2 = Projectile.NewProjectile(Projectile.position, Vector2.Zero, ModContent.ProjectileType<DraekSwordExtra>(), Projectile.damage, Projectile.knockBack, Main.myPlayer, Projectile.whoAmI, 1);
 
 				if(extra == Main.maxProjectiles || extra2 == Main.maxProjectiles){
-					projectile.Kill();
+					Projectile.Kill();
 					return;
 				}
 			}
@@ -74,14 +74,14 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 			NPC parent = Main.npc[npcOwner];
 
 			//Check if the NPC has died or if it's not the boss
-			if(!parent.active || parent.type != ModContent.NPCType<Draek>() || (parent.modNPC as Draek).AI_Attack == Draek.Attack_Retrieve_Sword){
-				projectile.Kill();
+			if(!parent.active || parent.type != ModContent.NPCType<Draek>() || (parent.ModNPC as Draek).AI_Attack == Draek.Attack_Retrieve_Sword){
+				Projectile.Kill();
 				return;
 			}
 
 			//Normal mode AI just flies in a straight line
 			if(!Main.expertMode && !WorldEvents.desoMode){
-				projectile.rotation = projectile.velocity.ToRotation() + MathHelper.PiOver2;
+				Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
 				return;
 			}
 
@@ -92,7 +92,7 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 					timer = -1;
 				}
 
-				projectile.rotation = projectile.velocity.ToRotation() + MathHelper.PiOver2;
+				Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
 			}
 			
 			if(!WorldEvents.desoMode){
@@ -103,28 +103,28 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 
 				expert_revolutionOffset = Vector2.UnitX.RotatedBy(expert_revolutionAngle) * (parent.height + 5 * 16);
 
-				Vector2 dirFromOwner = projectile.DirectionFrom(parent.Center);
+				Vector2 dirFromOwner = Projectile.DirectionFrom(parent.Center);
 
 				if(Phase == 1){
 					//Trying to get back in range of the boss
-					projectile.velocity += -dirFromOwner * 13f / 60f;
+					Projectile.velocity += -dirFromOwner * 13f / 60f;
 					
-					if(Math.Sign(-dirFromOwner.X) != Math.Sign(projectile.velocity.X))
-						projectile.velocity.X *= 1f - 12f / 60f;
-					if(Math.Sign(-dirFromOwner.Y) != Math.Sign(projectile.velocity.Y))
-						projectile.velocity.Y *= 1f - 12f / 60f;
+					if(Math.Sign(-dirFromOwner.X) != Math.Sign(Projectile.velocity.X))
+						Projectile.velocity.X *= 1f - 12f / 60f;
+					if(Math.Sign(-dirFromOwner.Y) != Math.Sign(Projectile.velocity.Y))
+						Projectile.velocity.Y *= 1f - 12f / 60f;
 
 					SpawnMoveDust(0.19f);
 
-					if(projectile.WithinDistance(parent.Center, parent.height + 5 * 16)){
+					if(Projectile.WithinDistance(parent.Center, parent.height + 5 * 16)){
 						Phase = 2;
 						timer = -1;
 
-						expert_revolutionAngle = projectile.DirectionFrom(parent.Center).ToRotation() + MathHelper.ToRadians(Main.rand.NextFloat(-30, 30));
+						expert_revolutionAngle = Projectile.DirectionFrom(parent.Center).ToRotation() + MathHelper.ToRadians(Main.rand.NextFloat(-30, 30));
 					}
 				}else if(Phase == 2){
 					//Revolving around the parent NPC
-					projectile.Center = parent.Center + expert_revolutionOffset;
+					Projectile.Center = parent.Center + expert_revolutionOffset;
 
 					if(timer > 3f * 60){
 						Phase = 3;
@@ -135,25 +135,25 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 				}else if(Phase == 3){
 					if(timer > 25){
 						Phase = 4;
-						projectile.velocity = projectile.DirectionTo(target.Center) * 20f;
+						Projectile.velocity = Projectile.DirectionTo(target.Center) * 20f;
 					}
 				}
 
 				if(Phase < 4)
-					projectile.timeLeft = 2 * 60;
+					Projectile.timeLeft = 2 * 60;
 
 				if(Phase > 0 && Phase < 3)
-					projectile.rotation = dirFromOwner.ToRotation() + MathHelper.PiOver2;
+					Projectile.rotation = dirFromOwner.ToRotation() + MathHelper.PiOver2;
 				else if(Phase == 3){
-					float targetRotation = projectile.DirectionTo(target.Center).ToRotation() + MathHelper.PiOver2;
+					float targetRotation = Projectile.DirectionTo(target.Center).ToRotation() + MathHelper.PiOver2;
 
 					//Ease the targetting rotation
-					projectile.rotation = MathHelper.Lerp(projectile.rotation, targetRotation, 0.25f);
+					Projectile.rotation = MathHelper.Lerp(Projectile.rotation, targetRotation, 0.25f);
 				}else
-					projectile.rotation = projectile.velocity.ToRotation() + MathHelper.PiOver2;
+					Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
 			}else{
 				//Desolation Mode: sword acts like the Terraprisma summon, but with a twist
-				projectile.timeLeft = 60;
+				Projectile.timeLeft = 60;
 
 				if(!target.WithinDistance(parent.Center, 40 * 16) && Phase < 2)
 					Phase = -1;
@@ -169,34 +169,34 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 					pos += parent.spriteDirection == 1 ? new Vector2(0, 150) : new Vector2(0, -150);
 
 					//Only try to change movement if the projectile is far enough away
-					if(!projectile.WithinDistance(pos, 2 * 16)){
-						Vector2 dir = projectile.DirectionTo(pos);
+					if(!Projectile.WithinDistance(pos, 2 * 16)){
+						Vector2 dir = Projectile.DirectionTo(pos);
 
-						if(Math.Sign(projectile.velocity.X) != Math.Sign(dir.X))
-							projectile.velocity.X *= 1f - 5f / 60f;
-						if(Math.Sign(projectile.velocity.Y) != Math.Sign(dir.Y))
-							projectile.velocity.Y *= 1f - 5f / 60f;
+						if(Math.Sign(Projectile.velocity.X) != Math.Sign(dir.X))
+							Projectile.velocity.X *= 1f - 5f / 60f;
+						if(Math.Sign(Projectile.velocity.Y) != Math.Sign(dir.Y))
+							Projectile.velocity.Y *= 1f - 5f / 60f;
 
-						projectile.velocity += dir * 12f / 60f;
+						Projectile.velocity += dir * 12f / 60f;
 
 						const float velCap = 18.5f;
-						if(projectile.velocity.LengthSquared() > velCap * velCap)
-							projectile.velocity = Vector2.Normalize(projectile.velocity) * velCap;
+						if(Projectile.velocity.LengthSquared() > velCap * velCap)
+							Projectile.velocity = Vector2.Normalize(Projectile.velocity) * velCap;
 					}
 
-					float factorX = projectile.velocity.X / 12f;
+					float factorX = Projectile.velocity.X / 12f;
 					factorX.Clamp(-1, 1);
-					projectile.rotation = MathHelper.Pi + MathHelper.ToRadians(30 * factorX);
+					Projectile.rotation = MathHelper.Pi + MathHelper.ToRadians(30 * factorX);
 
 					//If any swords are nearby, move both away from each other
 					for(int i = 0; i < Main.maxProjectiles; i++){
 						Projectile proj = Main.projectile[i];
 						const float dist = 4 * 16;
-						if(i != projectile.whoAmI && proj.active && proj.type == projectile.type && projectile.DistanceSQ(proj.Center) < dist * dist){
-							Vector2 dir = projectile.DirectionTo(proj.Center);
-							Vector2 midpoint = projectile.Center + (proj.Center - projectile.Center) / 2;
+						if(i != Projectile.whoAmI && proj.active && proj.type == Projectile.type && Projectile.DistanceSQ(proj.Center) < dist * dist){
+							Vector2 dir = Projectile.DirectionTo(proj.Center);
+							Vector2 midpoint = Projectile.Center + (proj.Center - Projectile.Center) / 2;
 
-							projectile.Center = midpoint + -dir * dist / 2;
+							Projectile.Center = midpoint + -dir * dist / 2;
 							proj.Center = midpoint + dir * dist / 2;
 						}
 					}
@@ -204,21 +204,21 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 					SpawnMoveDust(0.3f);
 				}else if(Phase == 2){
 					//Player is too close!  Stab them
-					var dir = projectile.DirectionTo(target.Center);
-					projectile.rotation = MathHelper.PiOver2 + MathHelper.Lerp(projectile.rotation, dir.ToRotation() + MathHelper.PiOver2, 0.25f);
+					var dir = Projectile.DirectionTo(target.Center);
+					Projectile.rotation = MathHelper.PiOver2 + MathHelper.Lerp(Projectile.rotation, dir.ToRotation() + MathHelper.PiOver2, 0.25f);
 
-					projectile.velocity = Vector2.Zero;
+					Projectile.velocity = Vector2.Zero;
 
 					if(timer == 45){
 						timer = -1;
 						Phase = 3;
 
-						projectile.velocity = dir * 12f;
+						Projectile.velocity = dir * 12f;
 					}
 				}else if(Phase == 3){
 					SpawnMoveDust(0.3f);
 
-					projectile.rotation = projectile.velocity.ToRotation() + MathHelper.PiOver2;
+					Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
 
 					if(timer == 80){
 						Phase = -1;
@@ -243,7 +243,7 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 
 			for(int i = 0; i < count; i++){
 				Vector2 offset = start + step * i;
-				SpawnDustInner(projectile.Center + offset, new Vector2(4), chance);
+				SpawnDustInner(Projectile.Center + offset, new Vector2(4), chance);
 			}
 		}
 

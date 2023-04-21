@@ -11,20 +11,20 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 		}
 
 		public override void SetDefaults(){
-			item.melee = true;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.rare = ItemRarityID.Blue;
-			item.UseSound = SoundID.Item1;
-			item.damage = 17;
-			item.knockBack = 3.1f;
-			item.useTime = 6;
-			item.useAnimation = 6;
-			item.width = 22;
-			item.height = 20;
-			item.scale = 1.15f;
-			item.useTurn = true;
-			item.autoReuse = true;
-			item.value = Item.sellPrice(silver: 5, copper: 40);
+			Item.DamageType = DamageClass.Melee/* tModPorter Suggestion: Consider MeleeNoSpeed for no attack speed scaling */;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.rare = ItemRarityID.Blue;
+			Item.UseSound = SoundID.Item1;
+			Item.damage = 17;
+			Item.knockBack = 3.1f;
+			Item.useTime = 6;
+			Item.useAnimation = 6;
+			Item.width = 22;
+			Item.height = 20;
+			Item.scale = 1.15f;
+			Item.useTurn = true;
+			Item.autoReuse = true;
+			Item.value = Item.sellPrice(silver: 5, copper: 40);
 		}
 
 		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit){

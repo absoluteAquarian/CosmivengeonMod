@@ -13,21 +13,21 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 		}
 
 		public override void SetDefaults(){
-			item.width = 60;
-			item.height = 16;
-			item.ranged = true;
-			item.noMelee = true;
-			item.useTime = 45;
-			item.useAnimation = 45;
-			item.shoot = ModContent.ProjectileType<FrostRifleProjectile>();
-			item.useAmmo = ItemID.IceBlock;
-			item.UseSound = SoundID.Item40;
-			item.shootSpeed = 14f;	//actual speed: 28px/frame
-			item.useStyle = ItemUseStyleID.HoldingOut;
-			item.damage = 32;
-			item.knockBack = 8.7f;
-			item.value = Item.sellPrice(silver: 5);
-			item.rare = ItemRarityID.Blue;
+			Item.width = 60;
+			Item.height = 16;
+			Item.DamageType = DamageClass.Ranged;
+			Item.noMelee = true;
+			Item.useTime = 45;
+			Item.useAnimation = 45;
+			Item.shoot = ModContent.ProjectileType<FrostRifleProjectile>();
+			Item.useAmmo = ItemID.IceBlock;
+			Item.UseSound = SoundID.Item40;
+			Item.shootSpeed = 14f;	//actual speed: 28px/frame
+			Item.useStyle = ItemUseStyleID.Shoot;
+			Item.damage = 32;
+			Item.knockBack = 8.7f;
+			Item.value = Item.sellPrice(silver: 5);
+			Item.rare = ItemRarityID.Blue;
 		}
 
 		public override Vector2? HoldoutOffset() => new Vector2(-10, 0);

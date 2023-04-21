@@ -7,7 +7,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Items.Weapons.UpgradeTree{
 	public class BreadSword : ModItem{
-		public override bool OnlyShootOnSwing => true;
+		public override bool OnlyShootOnSwing/* tModPorter Note: Removed. If you returned true, set Item.useTime to a multiple of Item.useAnimation */ => true;
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Terracrust Blade");
@@ -16,29 +16,28 @@ namespace CosmivengeonMod.Items.Weapons.UpgradeTree{
 		}
 
 		public override void SetDefaults(){
-			item.damage = 30;
-			item.melee = true;
-			item.useTurn = false;
-			item.width = 58;
-			item.height = 58;
-			item.useTime = 36;
-			item.useAnimation = 26;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.knockBack = 5.5f;
-			item.value = Item.sellPrice(gold: 3);
-			item.rare = ItemRarityID.Blue;
-			item.UseSound = SoundID.Item1;
-			item.autoReuse = true;
+			Item.damage = 30;
+			Item.DamageType = DamageClass.Melee/* tModPorter Suggestion: Consider MeleeNoSpeed for no attack speed scaling */;
+			Item.useTurn = false;
+			Item.width = 58;
+			Item.height = 58;
+			Item.useTime = 36;
+			Item.useAnimation = 26;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.knockBack = 5.5f;
+			Item.value = Item.sellPrice(gold: 3);
+			Item.rare = ItemRarityID.Blue;
+			Item.UseSound = SoundID.Item1;
+			Item.autoReuse = true;
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<CrystaliceSword>());
 			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);
 			recipe.AddIngredient(ItemID.Emerald, 5);
 			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 
 		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit) {

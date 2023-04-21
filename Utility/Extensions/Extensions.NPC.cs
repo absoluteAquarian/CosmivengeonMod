@@ -21,7 +21,7 @@ namespace CosmivengeonMod.Utility.Extensions{
 		public static void ScaleHealthBy(this NPC npc, float factor){
 			float bossScale = MiscUtils.CalculateBossHealthScale(out _);
 
-			npc.lifeMax = (int)(npc.lifeMax * Main.expertLife);
+			npc.lifeMax = (int)(npc.lifeMax * Main.GameModeInfo.EnemyMaxLifeMultiplier);
 			npc.lifeMax = (int)(npc.lifeMax * factor * bossScale);
 		}
 

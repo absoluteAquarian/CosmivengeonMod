@@ -19,16 +19,16 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek{
 		}
 
 		public override void SetDefaults(){
-			item.rare = ItemRarityID.Expert;
-			item.width = 30;
-			item.height = 32;
-			item.accessory = true;
-			item.expert = true;
-			item.damage = BaseDamage;
-			item.defense = 6;
-			item.melee = true;
-			item.knockBack = 10.2f;
-			item.value = Item.sellPrice(gold: 2, silver: 15);
+			Item.rare = ItemRarityID.Expert;
+			Item.width = 30;
+			Item.height = 32;
+			Item.accessory = true;
+			Item.expert = true;
+			Item.damage = BaseDamage;
+			Item.defense = 6;
+			Item.DamageType = DamageClass.Melee/* tModPorter Suggestion: Consider MeleeNoSpeed for no attack speed scaling */;
+			Item.knockBack = 10.2f;
+			Item.value = Item.sellPrice(gold: 2, silver: 15);
 		}
 
 		public override bool AllowPrefix(int pre)
@@ -84,14 +84,13 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek{
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<JewelOfOronitus>());
 			recipe.AddIngredient(ItemID.EoCShield);
 			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 30);
 			recipe.AddRecipeGroup(CoreMod.RecipeGroups.EvilDrops, 10);
 			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }

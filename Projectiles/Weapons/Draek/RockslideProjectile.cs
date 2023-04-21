@@ -9,27 +9,27 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 			//The following sets are only applicable to yoyo that use aiStyle 99.
 			//YoyosLifeTimeMultiplier is how long in seconds the yoyo will stay out before automatically returning to the player. 
 			//Vanilla values range from 3f(Wood) to 16f(Chik), and defaults to -1f. Leaving as -1 will make the time infinite.
-			ProjectileID.Sets.YoyosLifeTimeMultiplier[projectile.type] = 6f;
+			ProjectileID.Sets.YoyosLifeTimeMultiplier[Projectile.type] = 6f;
 
 			//YoyosMaximumRange is the maximum distance the yoyo sleep away from the player. 
 			//Vanilla values range from 130f(Wood) to 400f(Terrarian), and defaults to 200f
-			ProjectileID.Sets.YoyosMaximumRange[projectile.type] = 250f;
+			ProjectileID.Sets.YoyosMaximumRange[Projectile.type] = 250f;
 
 			//YoyosTopSpeed is top speed of the yoyo projectile. 
 			//Vanilla values range from 9f(Wood) to 17.5f(Terrarian), and defaults to 10f
-			ProjectileID.Sets.YoyosTopSpeed[projectile.type] = 12f;
+			ProjectileID.Sets.YoyosTopSpeed[Projectile.type] = 12f;
 		}
 
 		public override void SetDefaults() {
-			projectile.extraUpdates = 0;
-			projectile.width = 24;
-			projectile.height = 24;
+			Projectile.extraUpdates = 0;
+			Projectile.width = 24;
+			Projectile.height = 24;
 			//aiStyle 99 is used for all yoyos, and is Extremely suggested, as yoyo are extremely difficult without them
-			projectile.aiStyle = 99;
-			projectile.friendly = true;
-			projectile.penetrate = -1;
-			projectile.melee = true;
-			projectile.scale = 1f;
+			Projectile.aiStyle = 99;
+			Projectile.friendly = true;
+			Projectile.penetrate = -1;
+			Projectile.DamageType = DamageClass.Melee;
+			Projectile.scale = 1f;
 		}
 		//notes for aiStyle 99: 
 		//localAI[0] is used for timing up to YoyosLifeTimeMultiplier
@@ -41,10 +41,10 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 		public override void PostAI(){
 			//Add a green light from the projectile
-			Lighting.AddLight(projectile.Center, 0f, 1f, 0f);
+			Lighting.AddLight(Projectile.Center, 0f, 1f, 0f);
 
 			if(Main.rand.Next(8) == 0)
-				Dust.NewDust(projectile.position, projectile.width, projectile.height, 74);
+				Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, 74);
 		}
 
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
