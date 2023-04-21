@@ -3,9 +3,9 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.Frostbite{
-	public class IceDisk : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Weapons.Frostbite {
+	public class IceDisk : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Abominable's Animosity");
 			Tooltip.SetDefault("Launches a frozen disk that homes in on" +
 				"\nthe cursor's position.  Once it reaches" +
@@ -13,7 +13,7 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 				"\nshards then splits into two smaller disks.");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.width = 42;
 			Item.height = 38;
 			Item.DamageType = DamageClass.Throwing;
@@ -33,21 +33,21 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 			Item.channel = true;
 		}
 
-		public override bool CanUseItem(Player player){
+		public override bool CanUseItem(Player player) {
 			int ai1Count = 0;
-			for(int i = 0; i < Main.maxProjectiles; i++){
+			for (int i = 0; i < Main.maxProjectiles; i++) {
 				Projectile projectile = Main.projectile[i];
 
-				if(!projectile.active || !(projectile.ModProjectile is IceDiskProjectile))
+				if (!projectile.active || !(projectile.ModProjectile is IceDiskProjectile))
 					continue;
 
-				if(projectile.ai[0] == 0)  //Existing disk is following the mouse.  Don't spawn another one
+				if (projectile.ai[0] == 0)  //Existing disk is following the mouse.  Don't spawn another one
 					return false;
 
-				if(projectile.ai[0] == 1){  //Existing disc is spinning in place, spawning shards.  Only let up to 3 of those exist at once
+				if (projectile.ai[0] == 1) {  //Existing disc is spinning in place, spawning shards.  Only let up to 3 of those exist at once
 					ai1Count++;
 
-					if(ai1Count >= 3)
+					if (ai1Count >= 3)
 						return false;
 				}
 			}

@@ -2,20 +2,19 @@
 using CosmivengeonMod.NPCs.Bosses.DraekBoss;
 using CosmivengeonMod.Worlds;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
-	public class DraekP1ExtraProjectile : ModProjectile{
+namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss {
+	public class DraekP1ExtraProjectile : ModProjectile {
 		public override string Texture => "CosmivengeonMod/Assets/Empty";
 
-		public override void SetStaticDefaults(){
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Forsaken Oronoblade");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Projectile.width = 125;
 			Projectile.height = 23;
 			Projectile.friendly = false;
@@ -31,19 +30,19 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 
 		public override bool PreDraw(ref Color lightColor) => false;
 
-		public override void AI(){
-			if(Projectile.width == 0 || Projectile.height == 0)
+		public override void AI() {
+			if (Projectile.width == 0 || Projectile.height == 0)
 				Projectile.hostile = false;
 			else
 				Projectile.hostile = true;
 
-			if(!spawned){
+			if (!spawned) {
 				spawned = true;
 				Parent = Main.npc[(int)Projectile.ai[0]].ModNPC as Draek;
 			}
 
 			//kill this projectile if the boss it's attached to has died or despawned
-			if(Parent?.NPC.active != true || Main.npc[Parent.NPC.whoAmI].type != Parent.NPC.type){
+			if (Parent?.NPC.active != true || Main.npc[Parent.NPC.whoAmI].type != Parent.NPC.type) {
 				Projectile.active = false;
 				return;
 			}
@@ -56,9 +55,9 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 			Projectile.height = (int)packet.W;
 		}
 
-		public override void OnHitPlayer(Player target, int damage, bool crit){
+		public override void OnHitPlayer(Player target, int damage, bool crit) {
 			//Only apply the Primordial Wrath debuff if the world is in Desolation mode
-			if(WorldEvents.desoMode)
+			if (WorldEvents.desoMode)
 				target.AddBuff(ModContent.BuffType<PrimordialWrath>(), 2 * 60);
 		}
 	}

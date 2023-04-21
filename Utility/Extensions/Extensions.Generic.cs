@@ -1,7 +1,7 @@
 ﻿using System;
 
-namespace CosmivengeonMod.Utility.Extensions{
-	public static partial class Extensions{
+namespace CosmivengeonMod.Utility.Extensions {
+	public static partial class Extensions {
 		/// <summary>
 		/// I made this fuction because fuck Re-Logic and their "npc.velocity.X = Utils.Clamp(npc.velocity.X, min, max)" BS
 		/// </summary>

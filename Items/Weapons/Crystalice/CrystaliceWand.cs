@@ -4,9 +4,9 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.Crystalice{
-	public class CrystaliceWand : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Weapons.Crystalice {
+	public class CrystaliceWand : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Crystalice Wand");
 			Tooltip.SetDefault("Casts a slow-moving ice bolt that explodes" +
 				"\ninto shards upon contact. Attacks have" +
@@ -14,7 +14,7 @@ namespace CosmivengeonMod.Items.Weapons.Crystalice{
 			Item.staff[Item.type] = true;
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.DamageType = DamageClass.Magic;
 			Item.damage = 16;
 			Item.knockBack = 5f;
@@ -34,7 +34,7 @@ namespace CosmivengeonMod.Items.Weapons.Crystalice{
 			Item.shoot = ModContent.ProjectileType<CrystaliceWandProjectile>();
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>());
 			recipe.AddIngredient(ItemID.SnowBlock, 10);

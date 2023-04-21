@@ -1,10 +1,10 @@
 ﻿using CosmivengeonMod.API.Edits.Detours.Desomode;
 
-namespace CosmivengeonMod.API.Edits{
-	public static class EditsLoader{
+namespace CosmivengeonMod.API.Edits {
+	public static class EditsLoader {
 		public static bool LogILEdits = false;
 
-		public static void Load(){
+		public static void Load() {
 			ILHelper.InitMonoModDumps();
 
 			DetourNPC.Load();
@@ -30,7 +30,7 @@ namespace CosmivengeonMod.API.Edits{
 			ILHelper.DeInitMonoModDumps();
 		}
 
-		public static void Unload(){
+		public static void Unload() {
 			DetourNPC.Unload();
 
 			MSIL.CheatSheet.Unload();

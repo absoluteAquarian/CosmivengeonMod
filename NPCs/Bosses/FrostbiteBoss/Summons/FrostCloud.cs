@@ -7,14 +7,14 @@ using System.IO;
 using Terraria;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons{
-	public class FrostCloud : ModNPC{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons {
+	public class FrostCloud : ModNPC {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Frost Cloud");
 			Main.npcFrameCount[NPC.type] = 4;
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			NPC.dontTakeDamage = true;
 			NPC.lifeMax = 1;
 			NPC.width = 46;
@@ -41,7 +41,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons{
 
 		private int activeTime = 15 * 60;
 
-		public override void SendExtraAI(BinaryWriter writer){
+		public override void SendExtraAI(BinaryWriter writer) {
 			writer.Write(spawned);
 			writer.Write((byte)AI_State);
 			writer.Write(AI_Timer);
@@ -51,7 +51,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons{
 			writer.Write(activeTime);
 		}
 
-		public override void ReceiveExtraAI(BinaryReader reader){
+		public override void ReceiveExtraAI(BinaryReader reader) {
 			spawned = reader.ReadByte() == 1;
 			AI_State = reader.ReadByte();
 			AI_Timer = reader.ReadInt32();
@@ -61,13 +61,13 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons{
 			activeTime = reader.ReadInt32();
 		}
 
-		public override void FindFrame(int frameHeight){
-			if(AI_Timer % 15 == 0)
+		public override void FindFrame(int frameHeight) {
+			if (AI_Timer % 15 == 0)
 				NPC.frame.Y = ++frameCount % Main.npcFrameCount[NPC.type] * frameHeight;
 		}
 
-		public override void AI(){
-			if(!spawned){
+		public override void AI() {
+			if (!spawned) {
 				spawned = true;
 				NPC.TargetClosest(true);
 				PlayerTarget = Main.player[NPC.target];
@@ -77,31 +77,31 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons{
 				NPC.netUpdate = true;
 			}
 
-			if(activeTime < 0 || !Parent.active || Parent.townNPC || !Parent.boss || Parent.friendly){
+			if (activeTime < 0 || !Parent.active || Parent.townNPC || !Parent.boss || Parent.friendly) {
 				NPC.life = 0;
 				NPC.active = false;
 			}
 
 			TargetPosition = PlayerTarget.Center - new Vector2(0, 15 * 16);
 
-			if(AI_State == AI_JustSpawned){
-				if(NPC.velocity.Length() > TargetSpeed)
+			if (AI_State == AI_JustSpawned) {
+				if (NPC.velocity.Length() > TargetSpeed)
 					NPC.velocity *= 0.9435f;
-				else{
+				else {
 					NPC.velocity = Vector2.Normalize(NPC.velocity) * TargetSpeed;
 					AI_State++;
 
 					NPC.netUpdate = true;
 				}
-			}else if(AI_State == AI_FollowPlayer){
+			} else if (AI_State == AI_FollowPlayer) {
 				NPC.velocity *= 0.9427f;
 
 				NPC.velocity += Vector2.Normalize(TargetPosition - NPC.Center) * 0.735f;
 
-				if(NPC.velocity.Length() > TargetSpeed)
+				if (NPC.velocity.Length() > TargetSpeed)
 					NPC.velocity = Vector2.Normalize(NPC.velocity) * TargetSpeed;
 
-				if(Math.Abs(NPC.Center.X - TargetPosition.X) < 2 * 16f && AI_Timer % 20 == 0){
+				if (Math.Abs(NPC.Center.X - TargetPosition.X) < 2 * 16f && AI_Timer % 20 == 0) {
 					MiscUtils.SpawnProjectileSynced(NPC.Center + new Vector2(Main.rand.NextFloat(-24, 24), 0),
 						Vector2.Zero,
 						ModContent.ProjectileType<FrostbiteIcicle>(),
@@ -115,7 +115,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons{
 
 			AI_Timer++;
 
-			if(!WorldEvents.desoMode)
+			if (!WorldEvents.desoMode)
 				activeTime--;
 		}
 	}

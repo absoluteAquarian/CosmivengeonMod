@@ -4,16 +4,16 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.Draek{
-	public class BoulderChunk : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Weapons.Draek {
+	public class BoulderChunk : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Rockserpent Boulder");
 			Tooltip.SetDefault("Hurls a crystal-infused boulder in the direction of" +
 				"\nthe cursor.  Unable to be thrown far, but man, do they" +
 				"\npack a real punch!");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.shootSpeed = BoulderChunkProjectile.MAX_VELOCITY;
 			Item.damage = 58;
 			Item.knockBack = 7.9f;
@@ -37,7 +37,7 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 			Item.shoot = ModContent.ProjectileType<BoulderChunkProjectile>();
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe(50);
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
 			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);

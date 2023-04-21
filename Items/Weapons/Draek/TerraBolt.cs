@@ -6,8 +6,8 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.Draek{
-	public class TerraBolt : DesolatorItem{
+namespace CosmivengeonMod.Items.Weapons.Draek {
+	public class TerraBolt : DesolatorItem {
 		public override string ItemName => "Terra Bolt";
 
 		public override string FlavourText =>
@@ -20,7 +20,7 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 			"\nDraek managed to stumble across something this powerful is unknown," +
 			"\nbut if it were to ever be combined with the others of its class...";
 
-		public override void SafeSetDefaults(){
+		public override void SafeSetDefaults() {
 			Item.damage = 18;
 			Item.width = 42;
 			Item.height = 24;
@@ -41,12 +41,12 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 			//shoot sound: Item84
 		}
 
-		public override bool UseItemFrame(Player player){
+		public override bool UseItemFrame(Player player) {
 			//Only one Charge projectile should be out at once
 			//Therefore, we can just check for the first active one and use it
-			for(int i = 0; i < Main.maxProjectiles; i++){
+			for (int i = 0; i < Main.maxProjectiles; i++) {
 				Projectile proj = Main.projectile[i];
-				if(proj.active && proj.owner == player.whoAmI && proj.ModProjectile is TerraBoltCharge charge){
+				if (proj.active && proj.owner == player.whoAmI && proj.ModProjectile is TerraBoltCharge charge) {
 					player.bodyFrame.Y = charge.BodyIndex() * player.bodyFrame.Height;
 					return true;
 				}
@@ -58,7 +58,7 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 		public override bool HoldItemFrame(Player player)
 			=> UseItemFrame(player);
 
-		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback){
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
 			speedX = 0;
 			speedY = 0;
 			return true;

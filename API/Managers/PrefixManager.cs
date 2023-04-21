@@ -5,15 +5,15 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.API.Managers{
-	public static class PrefixManager{
+namespace CosmivengeonMod.API.Managers {
+	public static class PrefixManager {
 		public static Dictionary<string, ModPrefix> desolatorPrefixes;
 
-		public static void Load(){
+		public static void Load() {
 			LoadDesolatePrefixes();
 		}
 
-		private static void LoadDesolatePrefixes(){
+		private static void LoadDesolatePrefixes() {
 			/*  Desolator weapons have custom prefixes applied to them. The attributes of each prefix is listed below:
 			 *  
 			 *      Name     |       Rarity       | Category  |   Value multiplier   | Stat changes
@@ -48,25 +48,25 @@ namespace CosmivengeonMod.API.Managers{
 				damageMult: 1.12f, knockbackMult: 1.09f, useTimeMult: 0.85f, scaleMult: 1.14f, shootSpeedMult: 1.34f, critBonus: 15);
 		}
 
-		public static void Unload(){
+		public static void Unload() {
 			desolatorPrefixes = null;
 		}
 
-		private static void AddDesolatePrefixType(string name, float chance, float valueMult, PrefixCategory category, float damageMult = 1f, float knockbackMult = 1f, float useTimeMult = 1f, float scaleMult = 1f, float shootSpeedMult = 1f, float manaMult = 1f, int critBonus = 0){
+		private static void AddDesolatePrefixType(string name, float chance, float valueMult, PrefixCategory category, float damageMult = 1f, float knockbackMult = 1f, float useTimeMult = 1f, float scaleMult = 1f, float shootSpeedMult = 1f, float manaMult = 1f, int critBonus = 0) {
 			CoreMod.Instance.AddPrefix(name, new DesolatorPrefix(chance, valueMult, category, damageMult, knockbackMult, useTimeMult, scaleMult, shootSpeedMult, manaMult, critBonus));
 
 			desolatorPrefixes.Add(name, CoreMod.Instance.GetPrefix(name));
 		}
 
-		public static DesolatorPrefix GetDesolatorPrefix(byte type){
-			foreach(ModPrefix prefix in desolatorPrefixes.Values)
-				if(prefix.Type == type)
+		public static DesolatorPrefix GetDesolatorPrefix(byte type) {
+			foreach (ModPrefix prefix in desolatorPrefixes.Values)
+				if (prefix.Type == type)
 					return prefix as DesolatorPrefix;
 
 			return null;
 		}
 
-		public static void ApplyDesolatorPrefix(Item item, DesolatorPrefix prefix){
+		public static void ApplyDesolatorPrefix(Item item, DesolatorPrefix prefix) {
 			//I'm having to do this manually because the prefix code is fucking awful and I hate it
 			item.damage = (int)Math.Round(item.damage * prefix.DamageMultiplier);
 			item.knockBack *= prefix.KnockbackMultiplier;
@@ -79,11 +79,11 @@ namespace CosmivengeonMod.API.Managers{
 			float valueMult = prefix.ValueMultiplier;
 			prefix.PostApply(item, valueMult);
 
-			if(item.rare > ItemRarityID.Expert + 1){
-				if(item.rare < ItemRarityID.Gray)
+			if (item.rare > ItemRarityID.Expert + 1) {
+				if (item.rare < ItemRarityID.Gray)
 					item.rare = ItemRarityID.Gray;
 
-				if(item.rare > ItemRarityID.Purple)
+				if (item.rare > ItemRarityID.Purple)
 					item.rare = ItemRarityID.Purple;
 			}
 

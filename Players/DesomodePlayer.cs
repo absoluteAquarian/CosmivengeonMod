@@ -9,27 +9,27 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Players{
-	public class DesomodePlayer : ModPlayer{
+namespace CosmivengeonMod.Players {
+	public class DesomodePlayer : ModPlayer {
 		public int GrabCounter = -1;
 
 		private bool prevHoneyed = false;
 
-		public override void SetControls(){
-			if(!WorldEvents.desoMode)
+		public override void SetControls() {
+			if (!WorldEvents.desoMode)
 				return;
 
 			//Player is grabbed by an EoW worm head and isn't underground
-			if(DetourNPCHelper.EoW_GrabbingNPC != -1 && DetourNPCHelper.EoW_GrabbedPlayer == Player.whoAmI && !Main.npc[DetourNPCHelper.EoW_GrabbingNPC].Helper().Flag){
-				if(Player.controlLeft && Player.releaseLeft)
+			if (DetourNPCHelper.EoW_GrabbingNPC != -1 && DetourNPCHelper.EoW_GrabbedPlayer == Player.whoAmI && !Main.npc[DetourNPCHelper.EoW_GrabbingNPC].Helper().Flag) {
+				if (Player.controlLeft && Player.releaseLeft)
 					GrabCounter--;
-				if(Player.controlRight && Player.releaseRight)
+				if (Player.controlRight && Player.releaseRight)
 					GrabCounter--;
-				if(Player.controlUp && Player.releaseUp)
+				if (Player.controlUp && Player.releaseUp)
 					GrabCounter--;
-				if(Player.controlDown && Player.releaseDown)
+				if (Player.controlDown && Player.releaseDown)
 					GrabCounter--;
-				if(Player.controlJump && Player.releaseJump)
+				if (Player.controlJump && Player.releaseJump)
 					GrabCounter--;
 
 				//No jumping, mounting or grappling allowed!
@@ -46,20 +46,20 @@ namespace CosmivengeonMod.Players{
 				Player.controlLeft = false;
 				Player.releaseLeft = false;
 
-				if(GrabCounter <= 0)
+				if (GrabCounter <= 0)
 					DetourNPCHelper.EoW_ResetGrab(Main.npc[DetourNPCHelper.EoW_GrabbingNPC], Player);
 			}
 		}
 
-		public override void PreUpdateMovement(){
-			if(!WorldEvents.desoMode)
+		public override void PreUpdateMovement() {
+			if (!WorldEvents.desoMode)
 				return;
 
 			//PreUpdateMovement() is called a bit after the tongued velocity is applied... perfect!
-			if(Main.wof >= 0){
+			if (Main.wof >= 0) {
 				//Handle player being too far in front of the WoF
 				float dist = Math.Abs(Player.Center.X - Main.npc[Main.wof].Center.X);
-				if(Player.position.Y / 16 >= Main.maxTilesY - 200 && dist > 100 * 16){
+				if (Player.position.Y / 16 >= Main.maxTilesY - 200 && dist > 100 * 16) {
 					Player.tongued = true;
 
 					Player.velocity = Player.DirectionTo(Main.npc[Main.wof].Center);
@@ -67,28 +67,28 @@ namespace CosmivengeonMod.Players{
 
 				bool licked = Player.tongued || Player.HasBuff(BuffID.TheTongue);
 
-				if(licked){
+				if (licked) {
 					//Player velocity is forced to be in front of the mouth... let's speed that up
 					Vector2 dir = Vector2.Normalize(Player.velocity);
 					float length = Player.velocity.Length();
 
 					float extra;
-					if(dist > 150 * 16)
+					if (dist > 150 * 16)
 						extra = 30;
-					else if(dist > 100 * 16)
+					else if (dist > 100 * 16)
 						extra = 20;
-					else if(dist > 50 * 16)
+					else if (dist > 50 * 16)
 						extra = 15;
 					else
 						extra = 10;
 
 					float desiredVel = Math.Abs(Main.npc[Main.wof].velocity.X) + extra;
-					if(length < desiredVel)
+					if (length < desiredVel)
 						Player.velocity = dir * desiredVel;
 				}
 			}
 
-			if(Player.tongued || DetourNPCHelper.EoW_GrabbingNPC == -1)
+			if (Player.tongued || DetourNPCHelper.EoW_GrabbingNPC == -1)
 				return;
 
 			Player.velocity.X = 0;
@@ -99,27 +99,27 @@ namespace CosmivengeonMod.Players{
 			Player.Center = npc.Center + offset;
 		}
 
-		public override void PostUpdateRunSpeeds(){
-			if(!WorldEvents.desoMode)
+		public override void PostUpdateRunSpeeds() {
+			if (!WorldEvents.desoMode)
 				return;
 
-			if(Player.HasBuff(BuffID.Slimed)){
+			if (Player.HasBuff(BuffID.Slimed)) {
 				Player.maxRunSpeed *= 0.85f;
 				Player.accRunSpeed *= 0.85f;
 				Player.runAcceleration *= 0.85f;
 			}
-			if(Player.HasBuff(ModContent.BuffType<Sticky>())){
+			if (Player.HasBuff(ModContent.BuffType<Sticky>())) {
 				Player.maxRunSpeed *= 0.8f;
 				Player.accRunSpeed *= 0.8f;
 				Player.runAcceleration *= 0.7f;
 			}
 		}
 
-		public override void DrawEffects(PlayerDrawSet drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright){
-			if(!WorldEvents.desoMode)
+		public override void DrawEffects(PlayerDrawSet drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright) {
+			if (!WorldEvents.desoMode)
 				return;
 
-			if(Player.HasBuff(ModContent.BuffType<Sticky>())){
+			if (Player.HasBuff(ModContent.BuffType<Sticky>())) {
 				Color color = new Color(r, g, b, a);
 				color = Color.Lerp(color, Color.Yellow, 0.2f);
 
@@ -128,15 +128,15 @@ namespace CosmivengeonMod.Players{
 				b = color.B / 255f;
 				a = color.A / 255f;
 
-				if(Main.rand.NextFloat() < 0.2f){
+				if (Main.rand.NextFloat() < 0.2f) {
 					Dust dust = Dust.NewDustDirect(Player.position, Player.width, Player.height, DustID.t_Honey);
 					dust.velocity = new Vector2(0, 1);
 				}
 			}
 		}
 
-		public override void ModifyHitByNPC(NPC npc, ref int damage, ref bool crit){
-			if(!WorldEvents.desoMode)
+		public override void ModifyHitByNPC(NPC npc, ref int damage, ref bool crit) {
+			if (!WorldEvents.desoMode)
 				return;
 
 			int[] slimeTypes = new int[]{
@@ -176,23 +176,23 @@ namespace CosmivengeonMod.Players{
 				NPCID.Pinky
 			};
 
-			if(Player.HasBuff(BuffID.Slimed) && slimeTypes.Contains(npc.type)){
+			if (Player.HasBuff(BuffID.Slimed) && slimeTypes.Contains(npc.type)) {
 				damage = (int)Math.Max(damage * 1.35f, damage + 1);
 			}
 		}
 
-		public override void PreUpdateBuffs(){
-			if(!WorldEvents.desoMode)
+		public override void PreUpdateBuffs() {
+			if (!WorldEvents.desoMode)
 				return;
 
-			if(NPC.AnyNPCs(NPCID.EyeofCthulhu))
+			if (NPC.AnyNPCs(NPCID.EyeofCthulhu))
 				Player.AddBuff(BuffID.Darkness, 601);
 
-			if(!Player.honeyWet && prevHoneyed)
+			if (!Player.honeyWet && prevHoneyed)
 				Player.AddBuff(ModContent.BuffType<Sticky>(), 5 * 60);
 		}
 
-		public override void PostUpdate(){
+		public override void PostUpdate() {
 			prevHoneyed = Player.honeyWet;
 		}
 	}

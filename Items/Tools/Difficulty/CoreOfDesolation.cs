@@ -5,15 +5,14 @@ using CosmivengeonMod.Utility;
 using CosmivengeonMod.Worlds;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
-using System.Linq;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Tools.Difficulty{
-	public class CoreOfDesolation : HidableTooltip{
+namespace CosmivengeonMod.Items.Tools.Difficulty {
+	public class CoreOfDesolation : HidableTooltip {
 		public override string ItemName => "Core of Desolation";
 
 		public override string FlavourText => "Activates Desolation Mode." +
@@ -23,7 +22,7 @@ namespace CosmivengeonMod.Items.Tools.Difficulty{
 			"\nDesolation Mode unleashes hell upon this world, causing all" +
 			"\nenemies to become stronger.";
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.width = 20;
 			Item.height = 20;
 			Item.maxStack = 1;
@@ -34,37 +33,37 @@ namespace CosmivengeonMod.Items.Tools.Difficulty{
 			Item.consumable = false;
 		}
 
-		public override void SafeModifyTooltips(List<TooltipLine> tooltips){
+		public override void SafeModifyTooltips(List<TooltipLine> tooltips) {
 			int customIndex = FindCustomTooltipIndex(tooltips);
 
-			if(customIndex < 0)
+			if (customIndex < 0)
 				return;
 
-			do{
+			do {
 				TooltipLine customLine = tooltips[customIndex];
 
 				customIndex++;
-				if(!customLine.Text.Contains("\"G\""))
+				if (!customLine.Text.Contains("\"G\""))
 					continue;
 
 				string hotkey;
 
 				var hotkeys = CoreMod.StaminaHotKey.GetAssignedKeys();
-				if(hotkeys.Count > 0)
+				if (hotkeys.Count > 0)
 					hotkey = hotkeys[0];
 				else
 					hotkey = "<NOT BOUND>";
 
 				customLine.Text = customLine.Text.Replace("\"G\"", $"\"{hotkey}\"");
-			}while(tooltips[customIndex].Name.StartsWith("CustomTooltip"));
+			} while (tooltips[customIndex].Name.StartsWith("CustomTooltip"));
 		}
 
-		public override bool CanUseItem(Player player){
+		public override bool CanUseItem(Player player) {
 			//If the game is in multiplayer, only allow the host to use the item OR if this game is using a dedicated server, prevent the item's use entirely
-			if(Main.netMode != NetmodeID.SinglePlayer && !Main.dedServ && MiscUtils.ClientIsLocalHost(Main.myPlayer)){
+			if (Main.netMode != NetmodeID.SinglePlayer && !Main.dedServ && MiscUtils.ClientIsLocalHost(Main.myPlayer)) {
 				Main.NewText("Only the server host can use this item!", Color.Red);
 				return false;
-			}else if(Main.dedServ){
+			} else if (Main.dedServ) {
 				Main.NewText("This item cannot be used on dedicated servers!  Get the server owner to toggle Desolation mode through the server's console.", Color.Red);
 				return false;
 			}
@@ -72,16 +71,16 @@ namespace CosmivengeonMod.Items.Tools.Difficulty{
 			bool calamityRevengeance = (bool?)ModReferences.Calamity.Call("Difficulty", "Rev") ?? false;
 			bool calamityDeath = (bool?)ModReferences.Calamity.Call("Difficulty", "Death") ?? false;
 
-			if(player.GetModPlayer<StaminaPlayer>().stamina.Active || player.GetModPlayer<StaminaPlayer>().stamina.Exhaustion)
+			if (player.GetModPlayer<StaminaPlayer>().stamina.Active || player.GetModPlayer<StaminaPlayer>().stamina.Exhaustion)
 				return false;
-			if(!Main.expertMode)
+			if (!Main.expertMode)
 				Main.NewText("You are not powerful enough to withstand the chaos...", MiscUtils.TausFavouriteColour);
-			if(WorldEvents.desoMode && !Debug.debug_toggleDesoMode)
+			if (WorldEvents.desoMode && !Debug.debug_toggleDesoMode)
 				Main.NewText("Nice try, but the deed has already been done.", MiscUtils.TausFavouriteColour);
 
 			//Disable Calamity's modes if they are active
 			bool disableModeDisabler = true;
-			if(!disableModeDisabler && Main.expertMode && (calamityRevengeance || calamityDeath)){
+			if (!disableModeDisabler && Main.expertMode && (calamityRevengeance || calamityDeath)) {
 				CoreMod.DeactivateCalamityRevengeance();
 				CoreMod.DeactivateCalamityDeath();
 			}
@@ -92,24 +91,24 @@ namespace CosmivengeonMod.Items.Tools.Difficulty{
 		public override bool? UseItem(Player player)/* tModPorter Suggestion: Return null instead of false */{
 			SoundEngine.PlaySound(SoundID.ForceRoar, player.Center);
 
-			if(!WorldEvents.desoMode){
+			if (!WorldEvents.desoMode) {
 				MiscUtils.SendMessage("An otherworldly chaos has been unleashed...  No turning back now.", MiscUtils.TausFavouriteColour);
 				WorldEvents.desoMode = true;
-			}else{
+			} else {
 				MiscUtils.SendMessage("The otherworldy chaos recedes...  For now.", MiscUtils.TausFavouriteColour);
 				WorldEvents.desoMode = false;
 			}
 
-			for(int i = 0; i < Main.maxNPCs; i++){
+			for (int i = 0; i < Main.maxNPCs; i++) {
 				NPC npc = Main.npc[i];
-				if(npc.active && npc.boss)
+				if (npc.active && npc.boss)
 					player.KillMe(PlayerDeathReason.ByCustomReason($"{player.name} was consumed by the chaos."), 9999, 0);
 			}
 
 			return true;
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddTile(TileID.DemonAltar);
 			recipe.Register();

@@ -6,8 +6,8 @@ using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
-namespace CosmivengeonMod.Worlds{
-	public class WorldEvents : ModSystem{
+namespace CosmivengeonMod.Worlds {
+	public class WorldEvents : ModSystem {
 		public static bool desoMode;
 
 		public static bool downedDraekBoss;
@@ -30,28 +30,28 @@ namespace CosmivengeonMod.Worlds{
 
 		public override void SaveWorldData(TagCompound tag)/* tModPorter Suggestion: Edit tag parameter instead of returning new TagCompound */{
 			//Stop all custom sounds
-			if(Main.gameMenu){
-				for(int i = 0; i < Main.maxProjectiles; i++){
+			if (Main.gameMenu) {
+				for (int i = 0; i < Main.maxProjectiles; i++) {
 					Projectile proj = Main.projectile[i];
 
-					if(!proj.active)
+					if (!proj.active)
 						continue;
 
-					if(proj.ModProjectile is BrainPsychicMine mine)
+					if (proj.ModProjectile is BrainPsychicMine mine)
 						mine.teleport?.Stop();
-					else if(proj.ModProjectile is BrainPsychicLightning lightning)
+					else if (proj.ModProjectile is BrainPsychicLightning lightning)
 						lightning.zap?.Stop();
 				}
 			}
 
 			List<string> downed = new List<string>();
 
-			if(downedDraekBoss)
+			if (downedDraekBoss)
 				downed.Add("draek");
-			if(downedFrostbiteBoss)
+			if (downedFrostbiteBoss)
 				downed.Add("frostbite");
 
-			return new TagCompound{
+			return new TagCompound {
 				["downed"] = downed,
 				["desolation"] = desoMode,
 				["lore_Draek"] = obtainedLore_DraekBoss,
@@ -60,7 +60,7 @@ namespace CosmivengeonMod.Worlds{
 			};
 		}
 
-		public override void LoadWorldData(TagCompound tag){
+		public override void LoadWorldData(TagCompound tag) {
 			var downed = tag.GetList<string>("downed");
 			downedDraekBoss = downed.Contains("draek");
 			downedFrostbiteBoss = downed.Contains("frostbite");
@@ -72,7 +72,7 @@ namespace CosmivengeonMod.Worlds{
 			Debug.InitializeFlags();
 		}
 
-		public override void NetSend(BinaryWriter writer){
+		public override void NetSend(BinaryWriter writer) {
 			BitsByte flags = new BitsByte();
 			flags[0] = downedDraekBoss;
 			flags[1] = desoMode;
@@ -85,7 +85,7 @@ namespace CosmivengeonMod.Worlds{
 			Debug.NetSend(writer);
 		}
 
-		public override void NetReceive(BinaryReader reader){
+		public override void NetReceive(BinaryReader reader) {
 			BitsByte flags = reader.ReadByte();
 			downedDraekBoss = flags[0];
 			desoMode = flags[1];

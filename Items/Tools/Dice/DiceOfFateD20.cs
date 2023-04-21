@@ -10,16 +10,16 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
-namespace CosmivengeonMod.Items.Tools.Dice{
-	public class DiceOfFateD20 : HidableTooltip{
+namespace CosmivengeonMod.Items.Tools.Dice {
+	public class DiceOfFateD20 : HidableTooltip {
 		public override void SaveData(TagCompound tag)/* tModPorter Suggestion: Edit tag parameter instead of returning new TagCompound */
-			=> new TagCompound(){
+			=> new TagCompound() {
 				["recharge"] = rechargeTimer,
 				["pushLuck"] = dontPushYourLuck,
 				["unlucky"] = unluckyFactor
 			};
 
-		public override void LoadData(TagCompound tag){
+		public override void LoadData(TagCompound tag) {
 			rechargeTimer = tag.GetInt("recharge");
 			dontPushYourLuck = tag.GetInt("pushLuck");
 			unluckyFactor = tag.GetInt("unlucky");
@@ -34,21 +34,21 @@ namespace CosmivengeonMod.Items.Tools.Dice{
 
 		public override string ItemName => "Dice of Fate";
 
-		private string TimeString(float timeTicks){
+		private string TimeString(float timeTicks) {
 			string ret = "";
 			const float oneHour = 60 * 60 * 60;
 			const float oneMinute = 60 * 60;
-			
+
 			bool hasHour = false, hasMinute = false;
-			if(timeTicks >= oneHour){
+			if (timeTicks >= oneHour) {
 				hasHour = true;
 
 				ret += $"{(int)(timeTicks / oneHour)}h";
 				timeTicks %= oneHour;
 			}
 
-			if(timeTicks >= oneMinute){
-				if(hasHour)
+			if (timeTicks >= oneMinute) {
+				if (hasHour)
 					ret += " ";
 
 				hasMinute = true;
@@ -57,10 +57,10 @@ namespace CosmivengeonMod.Items.Tools.Dice{
 				timeTicks %= oneMinute;
 			}
 
-			if(hasHour || hasMinute)
+			if (hasHour || hasMinute)
 				ret += " ";
 
-			ret += $"{timeTicks / 60 :0.#}s";
+			ret += $"{timeTicks / 60:0.#}s";
 
 			return ret;
 		}
@@ -70,7 +70,7 @@ namespace CosmivengeonMod.Items.Tools.Dice{
 
 		public override string FlavourText => "~!~";
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.useTime = Item.useAnimation = 18;
 			Item.useTurn = true;
 			Item.noUseGraphic = true;
@@ -94,79 +94,79 @@ namespace CosmivengeonMod.Items.Tools.Dice{
 			Item.useAmmo = Item.type;
 		}
 
-		public override void SafeModifyTooltips(List<TooltipLine> tooltips){
+		public override void SafeModifyTooltips(List<TooltipLine> tooltips) {
 			int line = FindCustomTooltipIndex(tooltips);
 
-			if(line < 0)
+			if (line < 0)
 				return;
 
 			TooltipLine tooltip = tooltips[line];
 			DicePlayer mp = Main.LocalPlayer.GetModPlayer<DicePlayer>();
 
 			string replacement;
-			if(mp.badShop || mp.goodShop || mp.forceReversedGravity || mp.fishDontWantMe || (!mp.fishDontWantMe && mp.fishTimer > 0) || mp.moreIFrames || mp.noStaminaDecay || mp.extraLives > 0 || mp.godmodeTimer > 0 || mp.buffDamageTimer > 0 || mp.endlessClipTimer > 0 || mp.endlessManaTimer > 0){
+			if (mp.badShop || mp.goodShop || mp.forceReversedGravity || mp.fishDontWantMe || (!mp.fishDontWantMe && mp.fishTimer > 0) || mp.moreIFrames || mp.noStaminaDecay || mp.extraLives > 0 || mp.godmodeTimer > 0 || mp.buffDamageTimer > 0 || mp.endlessClipTimer > 0 || mp.endlessManaTimer > 0) {
 				replacement = "Active effects:";
 
-				if(mp.badShop)
+				if (mp.badShop)
 					replacement += $"\n - Increased shop prices ({TimeString(mp.shopModifierTimer)})";
-				if(mp.goodShop)
+				if (mp.goodShop)
 					replacement += $"\n - Decreased shop prices ({TimeString(mp.shopModifierTimer)})";
-				if(mp.forceReversedGravity)
+				if (mp.forceReversedGravity)
 					replacement += $"\n - Forced reverse gravity ({TimeString(mp.forcedGravityTimer)})";
-				if(mp.fishDontWantMe)
+				if (mp.fishDontWantMe)
 					replacement += $"\n - Decreased fishing skill ({TimeString(mp.fishTimer)})";
-				else if(!mp.fishDontWantMe && mp.fishTimer > 0)
+				else if (!mp.fishDontWantMe && mp.fishTimer > 0)
 					replacement += $"\n - Increased fishing skill ({TimeString(mp.fishTimer)})";
-				if(mp.moreIFrames)
+				if (mp.moreIFrames)
 					replacement += $"\n - Increased immunity frames on hit ({TimeString(mp.moreIFrameTimer)})";
-				if(mp.noStaminaDecay)
+				if (mp.noStaminaDecay)
 					replacement += $"\n - No Stamina Decay ({TimeString(mp.nsdTimer)})";
-				if(mp.extraLives > 0)
+				if (mp.extraLives > 0)
 					replacement += $"\n - Extra Lives: {mp.extraLives}";
-				if(mp.godmodeTimer > 0)
+				if (mp.godmodeTimer > 0)
 					replacement += $"\n - Godmode ({TimeString(mp.godmodeTimer)})";
-				if(mp.buffDamageTimer > 0)
+				if (mp.buffDamageTimer > 0)
 					replacement += $"\n - Double damage ({TimeString(mp.buffDamageTimer)})";
-				if(mp.endlessClipTimer > 0)
+				if (mp.endlessClipTimer > 0)
 					replacement += $"\n - Infinite ammo ({TimeString(mp.endlessClipTimer)})";
-				if(mp.endlessManaTimer > 0)
+				if (mp.endlessManaTimer > 0)
 					replacement += $"\n - Infinite mana ({TimeString(mp.endlessManaTimer)})";
-			}else
+			} else
 				replacement = "Active effects:\n - none";
 
 			tooltip.Text = tooltip.Text.Replace("~!~", replacement);
 		}
 
-		public override void UpdateInventory(Player player){
+		public override void UpdateInventory(Player player) {
 			UpdateRecharge();
 		}
 
-		public override void PostUpdate(){
+		public override void PostUpdate() {
 			UpdateRecharge();
 		}
 
-		private void UpdateRecharge(){
-			if(rechargeTimer > 0){
+		private void UpdateRecharge() {
+			if (rechargeTimer > 0) {
 				rechargeTimer--;
 
-				if(Item.useAmmo == Item.type)
+				if (Item.useAmmo == Item.type)
 					Item.useAmmo = ModContent.ItemType<DiceOfFateFakeAmmo>();
 			}
 
-			if(rechargeTimer == 0 || Debug.debug_fastDiceOfFateRecharge){
+			if (rechargeTimer == 0 || Debug.debug_fastDiceOfFateRecharge) {
 				Item.useAmmo = Item.type;
 
-				if(dontPushYourLuck == 0){
+				if (dontPushYourLuck == 0) {
 					unluckyFactor = 0;
-				}else
+				} else
 					dontPushYourLuck--;
 			}
 		}
 
 		public override bool CanUseItem(Player player) => rechargeTimer <= 0 || Debug.debug_fastDiceOfFateRecharge;
 
-		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback){
-			if(dontPushYourLuck > 0)
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
+			if (dontPushYourLuck > 0)
 				unluckyFactor++;
 
 			//Gotta wait 10 minutes
@@ -178,7 +178,7 @@ namespace CosmivengeonMod.Items.Tools.Dice{
 			return false;
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddRecipeGroup(RecipeGroupID.IronBar, 8);
 			recipe.AddRecipeGroup(CoreMod.RecipeGroups.Tier4Bars, 20);

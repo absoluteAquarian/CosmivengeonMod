@@ -3,8 +3,8 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Placeable.Trophies{
-	public class DraekTrophy : ModItem{
+namespace CosmivengeonMod.Items.Placeable.Trophies {
+	public class DraekTrophy : ModItem {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Draek Trophy");
 		}

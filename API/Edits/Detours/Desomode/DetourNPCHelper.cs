@@ -7,8 +7,8 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.API.Edits.Detours.Desomode{
-	public class DetourNPCHelper : GlobalNPC{
+namespace CosmivengeonMod.API.Edits.Detours.Desomode {
+	public class DetourNPCHelper : GlobalNPC {
 		public override bool InstancePerEntity => true;
 
 		//None of these fields are descriptive.  Too bad!
@@ -85,14 +85,14 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 		public Vector2 EoC_FadePositionOffset;
 		public int EoC_TimerTarget;
 		public static int EoC_FirstBloodWallNPC = -1;
-		
+
 		public int EoW_SegmentType;
 		public static int EoW_GrabbingNPC = -1;
 		private static int EoW_grabbingNPCPrevDamage = 0;
 		public static int EoW_GrabbedPlayer = -1;
 
-		public static void EoW_SetGrab(NPC npc, Player player){
-			if(EoW_GrabbingNPC != -1)
+		public static void EoW_SetGrab(NPC npc, Player player) {
+			if (EoW_GrabbingNPC != -1)
 				return;
 
 			EoW_GrabbingNPC = npc.whoAmI;
@@ -106,10 +106,10 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			//Chomps every 2.5 seconds
 			npc.Helper().Timer = 150;
 
-			if(player.mount != null)
+			if (player.mount != null)
 				player.mount._active = false;
 
-			if(Main.netMode != NetmodeID.Server)
+			if (Main.netMode != NetmodeID.Server)
 				return;
 
 			NetMessage.SendData(MessageID.SyncNPC, number: npc.whoAmI);
@@ -122,8 +122,8 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			packet.Send();
 		}
 
-		public static void EoW_ResetGrab(NPC npc, Player player){
-			if(Main.myPlayer != EoW_GrabbedPlayer || EoW_GrabbingNPC != npc.whoAmI || EoW_GrabbedPlayer != player.whoAmI)
+		public static void EoW_ResetGrab(NPC npc, Player player) {
+			if (Main.myPlayer != EoW_GrabbedPlayer || EoW_GrabbingNPC != npc.whoAmI || EoW_GrabbedPlayer != player.whoAmI)
 				return;
 
 			EoW_GrabbingNPC = -1;
@@ -137,7 +137,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			player.velocity.X = npc.velocity.X >= 0 ? 8 : -8;
 			player.velocity.Y = -15;
 
-			if(Main.netMode != NetmodeID.Server)
+			if (Main.netMode != NetmodeID.Server)
 				return;
 
 			NetMessage.SendData(MessageID.SyncNPC, number: npc.whoAmI);
@@ -150,39 +150,39 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			packet.Send();
 		}
 
-		public static void EoW_CheckGrabBite(NPC npc){
-			if(EoW_GrabbingNPC == npc.whoAmI){
+		public static void EoW_CheckGrabBite(NPC npc) {
+			if (EoW_GrabbingNPC == npc.whoAmI) {
 				//If the NPC is underground, don't try to bite the player
 				bool underground = npc.Helper().Flag;
 
-				if(!underground)
+				if (!underground)
 					npc.Helper().Timer--;
 				else
 					npc.Helper().Timer = 150;
 
 				Player grabbed = Main.player[EoW_GrabbedPlayer];
 
-				if(npc.Helper().Timer == 0){
+				if (npc.Helper().Timer == 0) {
 					npc.damage = EoW_grabbingNPCPrevDamage;
 
 					grabbed.immune = false;
 					grabbed.immuneTime = 0;
 
 					SendData(npc.whoAmI);
-				}else if(npc.Helper().Timer == -1){
+				} else if (npc.Helper().Timer == -1) {
 					npc.damage = 0;
 					npc.Helper().Timer = 150;
 
 					grabbed.immune = true;
 					grabbed.immuneTime = 2;
-				}else{
+				} else {
 					grabbed.immune = true;
 					grabbed.immuneTime = 2;
 				}
 			}
 		}
 
-		public static void ReceiveData(BinaryReader reader){
+		public static void ReceiveData(BinaryReader reader) {
 			NPC npc = Main.npc[reader.ReadInt32()];
 			DetourNPCHelper helper = npc.Helper();
 			DesomodeNPC desomode = npc.Desomode();
@@ -218,7 +218,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			desomode.EoW_WormSegmentsCount = reader.ReadByte();
 			float targetX = reader.ReadSingle();
 			float targetY = reader.ReadSingle();
-			if(targetX != -1000 && targetY != -1000)
+			if (targetX != -1000 && targetY != -1000)
 				desomode.EoW_GrabTarget = new Vector2(targetX, targetY);
 			else
 				desomode.EoW_GrabTarget = null;
@@ -232,8 +232,8 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			stats.endurance = reader.ReadSingle();
 		}
 
-		public static void SendData(int whoAmI){
-			if(Main.netMode != NetmodeID.Server)
+		public static void SendData(int whoAmI) {
+			if (Main.netMode != NetmodeID.Server)
 				return;
 
 			NPC npc = Main.npc[whoAmI];
@@ -250,11 +250,11 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			packet.Write(helper.Timer2);
 			packet.Write(helper.Timer3);
 			packet.Write(helper.Timer4);
-			
+
 			packet.Write(helper.Flag);
 			packet.Write(helper.Flag2);
 			packet.Write(helper.Flag3);
-			
+
 			packet.Write(helper.EoC_PhaseTransitionVelocityLength);
 			packet.Write(helper.EoC_TargetHeight);
 			packet.Write(helper.EoC_UsingShader);

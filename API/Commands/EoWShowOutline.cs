@@ -2,8 +2,8 @@
 using Microsoft.Xna.Framework;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.API.Commands{
-	public class EoWShowOutline : ModCommand{
+namespace CosmivengeonMod.API.Commands {
+	public class EoWShowOutline : ModCommand {
 		public override CommandType Type => CommandType.Chat;
 
 		public override string Command => "eso";
@@ -12,13 +12,13 @@ namespace CosmivengeonMod.API.Commands{
 
 		public override string Description => "A debug command to show what segments for the Eater of Worlds will do what.";
 
-		public override void Action(CommandCaller caller, string input, string[] args){
-			if(!Debug.debug_canShowEoWOutlines){
+		public override void Action(CommandCaller caller, string input, string[] args) {
+			if (!Debug.debug_canShowEoWOutlines) {
 				caller.Reply("Editing this flag is disabled.", Color.Red);
 				return;
 			}
 
-			if(!bool.TryParse(args[0], out bool result)){
+			if (!bool.TryParse(args[0], out bool result)) {
 				caller.Reply("Invalid argument.  Expected a boolean (true/false).", Color.Red);
 				return;
 			}

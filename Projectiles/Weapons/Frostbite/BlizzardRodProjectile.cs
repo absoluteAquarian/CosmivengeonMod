@@ -2,16 +2,16 @@
 using Terraria;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
-	public class BlizzardRodProjectile : ModProjectile{
+namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
+	public class BlizzardRodProjectile : ModProjectile {
 		public override string Texture => "CosmivengeonMod/NPCs/Bosses/FrostbiteBoss/Summons/FrostCloud";
 
-		public override void SetStaticDefaults(){
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Blizzard Cloud");
 			Main.projFrames[Projectile.type] = 4;
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Projectile.width = 46;
 			Projectile.height = 32;
 			Projectile.friendly = true;
@@ -22,13 +22,13 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 		public static readonly int Delay = 25;
 		private int timer = -Delay;
 
-		public override void AI(){
-			if(Projectile.alpha > 0 && timer < 0)
+		public override void AI() {
+			if (Projectile.alpha > 0 && timer < 0)
 				Projectile.alpha -= 9;
-			if((Projectile.alpha < 0 && timer < 0) || (timer >= 0 && Projectile.alpha > 0))
+			if ((Projectile.alpha < 0 && timer < 0) || (timer >= 0 && Projectile.alpha > 0))
 				Projectile.alpha = 0;
 
-			if(timer++ > 0 && timer % 20 == 0){
+			if (timer++ > 0 && timer % 20 == 0) {
 				Projectile.NewProjectile(
 					Projectile.Center + new Vector2(Main.rand.NextFloat(-16, 16), Main.rand.NextFloat(-4f, 0f)),
 					Vector2.Zero,
@@ -41,7 +41,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 				);
 			}
 
-			if(++Projectile.frameCounter % 17 == 0)
+			if (++Projectile.frameCounter % 17 == 0)
 				Projectile.frame = ++Projectile.frame % Main.projFrames[Projectile.type];
 		}
 	}

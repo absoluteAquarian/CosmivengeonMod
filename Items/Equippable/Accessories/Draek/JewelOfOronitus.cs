@@ -7,9 +7,9 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Equippable.Accessories.Draek{
+namespace CosmivengeonMod.Items.Equippable.Accessories.Draek {
 	[AutoloadEquip(EquipType.Neck)]
-	public class JewelOfOronitus : HidableTooltip{
+	public class JewelOfOronitus : HidableTooltip {
 		public override string ItemName => "Jewel of Oronitus";
 
 		public override string FlavourText => "Damage dealt and damage reduction increased by 5%" +
@@ -19,11 +19,11 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek{
 				"\nAn ancient artifact, last donned by the rock serpent Draek." +
 				"\nIts original master, Oronitus, was seemingly lost to time many years ago...";
 
-		public override void SafeSetStaticDefaults(){
+		public override void SafeSetStaticDefaults() {
 			Main.RegisterItemAnimation(Item.type, new JewelOfOronitusAnimation());
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.width = 26;
 			Item.height = 34;
 			Item.accessory = true;
@@ -32,7 +32,7 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek{
 			Item.expert = true;
 		}
 
-		public override void UpdateAccessory(Player player, bool hideVisual){
+		public override void UpdateAccessory(Player player, bool hideVisual) {
 			player.GetDamage(DamageClass.Generic) += 0.05f;
 			player.endurance += 0.05f;
 			player.moveSpeed *= 1.1f;
@@ -43,8 +43,8 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek{
 		}
 	}
 
-	public class JewelOfOronitusAnimation : DrawAnimation{
-		public JewelOfOronitusAnimation(){
+	public class JewelOfOronitusAnimation : DrawAnimation {
+		public JewelOfOronitusAnimation() {
 			FrameCount = 25;
 			TicksPerFrame = 5;
 		}
@@ -52,8 +52,8 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek{
 		public override Rectangle GetFrame(Texture2D texture)
 			=> texture.Frame(1, FrameCount, 0, Frame);
 
-		public override void Update(){
-			if(++FrameCounter % TicksPerFrame == 0)
+		public override void Update() {
+			if (++FrameCounter % TicksPerFrame == 0)
 				Frame = ++Frame % FrameCount;
 		}
 	}

@@ -1,10 +1,10 @@
 ﻿using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Equippable.Vanity.BossMasks{
+namespace CosmivengeonMod.Items.Equippable.Vanity.BossMasks {
 	[AutoloadEquip(EquipType.Head)]
-	public class FrostbiteMask : ModItem{
-		public override void SetDefaults(){
+	public class FrostbiteMask : ModItem {
+		public override void SetDefaults() {
 			Item.width = 32;
 			Item.height = 34;
 			Item.rare = ItemRarityID.Blue;

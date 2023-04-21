@@ -4,13 +4,13 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.Crystalice{
-	public class CrystaliceShard : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Weapons.Crystalice {
+	public class CrystaliceShard : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Crystalice Shard");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.shootSpeed = CrystaliceShardProjectile.MAX_VELOCITY;
 			Item.damage = 10;
 			Item.knockBack = 3.1f;
@@ -34,7 +34,7 @@ namespace CosmivengeonMod.Items.Weapons.Crystalice{
 			Item.shoot = ModContent.ProjectileType<CrystaliceShardProjectile>();
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe(100);
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>());
 			recipe.AddIngredient(ItemID.SnowBlock, 10);

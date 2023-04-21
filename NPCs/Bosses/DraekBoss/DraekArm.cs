@@ -9,8 +9,8 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
-	public class DraekArm : ModNPC{
+namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
+	public class DraekArm : ModNPC {
 		private bool spawned;
 		private Draek Parent;
 
@@ -34,7 +34,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 
 		public override bool CheckActive() => false;
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			NPC.width = 30;
 			NPC.height = 30;
 
@@ -48,12 +48,12 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			NPC.noTileCollide = true;
 		}
 
-		public override void AI(){
-			if(!spawned){
+		public override void AI() {
+			if (!spawned) {
 				spawned = true;
 				Parent = Main.npc[(int)NPC.ai[0]].ModNPC as Draek;
 
-				if(Parent is null || !Parent.NPC.active){
+				if (Parent is null || !Parent.NPC.active) {
 					NPC.active = false;
 					return;
 				}
@@ -62,7 +62,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			}
 
 			//kill this NPC if the boss it's attached to has died or despawned
-			if(Parent?.NPC.active != true || Parent.NPC.type != ModContent.NPCType<Draek>()){
+			if (Parent?.NPC.active != true || Parent.NPC.type != ModContent.NPCType<Draek>()) {
 				NPC.active = false;
 				return;
 			}
@@ -81,10 +81,10 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 
 			Player target = Main.player[(int)PunchTarget];
 
-			if(Parent.AI_Attack != Draek.Attack_Punch)
+			if (Parent.AI_Attack != Draek.Attack_Punch)
 				NPC.alpha = 255;
 
-			if(State == State_Punched){
+			if (State == State_Punched) {
 				NPC.width = (int)(30 * NPC.scale);
 				NPC.height = (int)(30 * NPC.scale);
 
@@ -95,27 +95,27 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				var direction = NPC.DirectionTo(target.Center);
 				NPC.rotation = direction.ToRotation() - MathHelper.Pi;
 
-				if(Timer > 50){
+				if (Timer > 50) {
 					//Stay a certain distance away from the target player
 					const float dist = 10 * 16;
-					if(NPC.DistanceSQ(target.Center) < dist * dist)
+					if (NPC.DistanceSQ(target.Center) < dist * dist)
 						NPC.Center = target.Center + NPC.DirectionFrom(target.Center) * dist;
-					else{
+					else {
 						NPC.velocity += direction * MiscUtils.GetModeChoice(10f, 15f, 20f) / 60f;
 
-						if(Math.Sign(direction.X) != Math.Sign(NPC.velocity.X))
+						if (Math.Sign(direction.X) != Math.Sign(NPC.velocity.X))
 							NPC.velocity.X *= 1f - 8f / 60f;
-						if(Math.Sign(direction.Y) != Math.Sign(NPC.velocity.Y))
+						if (Math.Sign(direction.Y) != Math.Sign(NPC.velocity.Y))
 							NPC.velocity.Y *= 1f - 8f / 60f;
 					}
 
 					const float velCap = 20f;
-					if(NPC.velocity.LengthSquared() > velCap * velCap)
+					if (NPC.velocity.LengthSquared() > velCap * velCap)
 						NPC.velocity = Vector2.Normalize(NPC.velocity) * velCap;
 
 					ShootTimer++;
 
-					if(ShootTimer > MiscUtils.GetModeChoice(2f, 1.25f, 0.75f) * 60){
+					if (ShootTimer > MiscUtils.GetModeChoice(2f, 1.25f, 0.75f) * 60) {
 						ShootTimer = 0;
 
 						//Recoil
@@ -136,7 +136,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 						SoundEngine.PlaySound(SoundID.Item33, NPC.Center);
 					}
 				}
-			}else if(State == State_Return && NPC.alpha < 255){
+			} else if (State == State_Return && NPC.alpha < 255) {
 				//Not used
 				//Draek just "kills" the old arms and creates new ones
 				NPC.dontTakeDamage = true;
@@ -160,7 +160,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				Main.gore[gore].frame = (byte)Main.rand.Next(3);
 
 				State = State_Idle;
-			}else if(NPC.alpha >= 255){
+			} else if (NPC.alpha >= 255) {
 				//Hide the NPC; it doesn't need to be drawn anymore
 				NPC.dontTakeDamage = true;
 				NPC.alpha = 255;
@@ -171,18 +171,18 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 				NPC.Center = Parent.NPC.Center;
 			}
 
-			if(NPC.rotation > MathHelper.PiOver2 || NPC.rotation < -MathHelper.PiOver2)
+			if (NPC.rotation > MathHelper.PiOver2 || NPC.rotation < -MathHelper.PiOver2)
 				NPC.spriteDirection = -1;
 			else
 				NPC.spriteDirection = 1;
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor){
+		public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor) {
 			//Draek draws the arms if they're not punched
-			if(State != State_Punched && State != State_Return)
+			if (State != State_Punched && State != State_Return)
 				return false;
 
-			if(NPC.alpha == 255)
+			if (NPC.alpha == 255)
 				return false;
 
 			Texture2D texture = Mod.GetTexture("NPCs/Draek/DraekArm_Punched");
@@ -190,7 +190,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 			SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipVertically : SpriteEffects.None;
 
 			spriteBatch.Draw(texture, NPC.Center - Main.screenPosition, null, drawColor, NPC.rotation, drawOrigin, NPC.scale, effects, 0);
-			
+
 			return false;
 		}
 
@@ -200,22 +200,22 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss{
 		public override bool? DrawHealthBar(byte hbPosition, ref float scale, ref Vector2 position) => false;
 
 		//Thanks jopojelly for helping me figure out how to make the Parent-Child link work for the two hooks below:
-		public override void OnHitByItem(Player player, Item item, int damage, float knockback, bool crit){
-			if(State == State_Punched)
+		public override void OnHitByItem(Player player, Item item, int damage, float knockback, bool crit) {
+			if (State == State_Punched)
 				return;
 
-			if(Parent != null)
+			if (Parent != null)
 				Parent.NPC.immune[player.whoAmI] = player.itemAnimation;
 		}
 
-		public override void OnHitByProjectile(Projectile projectile, int damage, float knockback, bool crit){
-			if(State == State_Punched)
+		public override void OnHitByProjectile(Projectile projectile, int damage, float knockback, bool crit) {
+			if (State == State_Punched)
 				return;
 
-			if(Parent != null){
+			if (Parent != null) {
 				Parent.NPC.immune[projectile.owner] = NPC.immune[projectile.owner];
 
-				if(projectile.usesLocalNPCImmunity)
+				if (projectile.usesLocalNPCImmunity)
 					projectile.localNPCImmunity[Parent.NPC.whoAmI] = projectile.localNPCHitCooldown;
 			}
 		}

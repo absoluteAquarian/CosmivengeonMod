@@ -6,15 +6,15 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.Frostbite{
-	public class IceScepter : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Weapons.Frostbite {
+	public class IceScepter : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Ice Lord's Scepter");
 			Tooltip.SetDefault("Summons the elemental frost lizard's snow wall at the cursor" +
 				"\nThe wall lasts for 15 seconds");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.width = 44;
 			Item.height = 44;
 			Item.useStyle = ItemUseStyleID.Swing;
@@ -31,16 +31,16 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 			Item.UseSound = SoundID.Item30;
 		}
 
-		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback){
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
 			//Find the closest solid tile above or below the cursor and spawn the sentry there
 			int tileX = (int)Main.MouseWorld.X >> 4;
 			int tileY = (int)Main.MouseWorld.Y >> 4;
 
-			for(int i = 0; i < 50; i++){
-				if(tileY + i <= Main.maxTilesY && MiscUtils.TileIsSolidOrPlatform(tileX, tileY + i)){
+			for (int i = 0; i < 50; i++) {
+				if (tileY + i <= Main.maxTilesY && MiscUtils.TileIsSolidOrPlatform(tileX, tileY + i)) {
 					tileY += i;
 					break;
-				}else if(tileY - i > 0 && MiscUtils.TileIsSolidOrPlatform(tileX, tileY - i)){
+				} else if (tileY - i > 0 && MiscUtils.TileIsSolidOrPlatform(tileX, tileY - i)) {
 					tileY -= i;
 					break;
 				}
@@ -49,8 +49,8 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 			position = new Point(tileX, tileY).ToWorldCoordinates(8, 0) - new Vector2(0, 116 / 2f) * IceScepterWall.Scale;
 
 			//If any of this weapon's sentries exist, kill them
-			for(int i = 0; i < 1000; i++){
-				if(Main.projectile[i]?.active == true && Main.projectile[i].ModProjectile is IceScepterWall)
+			for (int i = 0; i < 1000; i++) {
+				if (Main.projectile[i]?.active == true && Main.projectile[i].ModProjectile is IceScepterWall)
 					Main.projectile[i].active = false;
 			}
 

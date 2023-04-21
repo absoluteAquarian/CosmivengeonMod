@@ -1,20 +1,20 @@
-﻿using Terraria;
+﻿using CosmivengeonMod.Utility.Extensions;
+using Microsoft.Xna.Framework;
+using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Microsoft.Xna.Framework;
-using CosmivengeonMod.Utility.Extensions;
 
-namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
-	public class FrostRifleProjectile : ModProjectile{
+namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
+	public class FrostRifleProjectile : ModProjectile {
 		public override string Texture => "CosmivengeonMod/Projectiles/Weapons/Frostbite/CrystaliceShardFragmentProjectile";
 
-		public override void SetStaticDefaults(){
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Icicle");
 			Main.projFrames[Projectile.type] = 3;
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Projectile.width = 8;
 			Projectile.height = 8;
 			Projectile.scale = 10f / 8f;
@@ -29,17 +29,17 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 			Projectile.frame = Main.rand.Next(3);
 		}
 
-		public override void AI(){
+		public override void AI() {
 			Projectile.TryDecrementAlpha(15);
 
 			Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
 		}
 
-		public override void Kill(int timeLeft){
+		public override void Kill(int timeLeft) {
 			SoundEngine.PlaySound(SoundID.Item27.WithVolume(0.45f), Projectile.Center);
 		}
 
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
+		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
 			target.AddBuff(BuffID.Frostburn, 3 * 60);
 		}
 	}

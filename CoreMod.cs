@@ -28,9 +28,9 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 
-namespace CosmivengeonMod{
-	public class CoreMod : Mod{
-		public static class RecipeGroups{
+namespace CosmivengeonMod {
+	public class CoreMod : Mod {
+		public static class RecipeGroups {
 			/// <summary>
 			/// "Cosmivengeon: Evil Drops" - "Any Shadow Scale"
 			/// </summary>
@@ -52,7 +52,7 @@ namespace CosmivengeonMod{
 			public static readonly string WeirdPlant = "Cosmivengeon: Strange Plants";
 		}
 
-		public static class Descriptions{
+		public static class Descriptions {
 			/// <summary>
 			/// "Description to be added..."
 			/// </summary>
@@ -77,7 +77,7 @@ namespace CosmivengeonMod{
 		private StaminaUI staminaUI;
 		private UserInterface userInterface;
 
-		public override void Load(){
+		public override void Load() {
 			StaminaHotKey = KeybindLoader.RegisterKeybind(this, "Toggle Stamina Use", "G");
 
 			ModReferences.Load();
@@ -89,7 +89,7 @@ namespace CosmivengeonMod{
 			StaminaBuffsTrackingNPC.Load();
 
 			//Only run this segment if we're not loading on a server
-			if(!Main.dedServ && Main.netMode != NetmodeID.Server){
+			if (!Main.dedServ && Main.netMode != NetmodeID.Server) {
 				staminaUI = new StaminaUI();
 				staminaUI.Activate();
 
@@ -229,25 +229,25 @@ namespace CosmivengeonMod{
 			Main.buffNoTimeDisplay[BuffID.Obstructed] = false;
 		}
 
-		public override void PostSetupContent(){
+		public override void PostSetupContent() {
 			CrossMod.Load();
 		}
 
-		public static void DeactivateCalamityRevengeance(){
-			if(!ModReferences.Calamity.Active)
+		public static void DeactivateCalamityRevengeance() {
+			if (!ModReferences.Calamity.Active)
 				return;
 
-			if(ModReferences.Calamity.Instance.Version >= new Version("1.4.2.108"))
+			if (ModReferences.Calamity.Instance.Version >= new Version("1.4.2.108"))
 				ModReferences.Calamity.Call("SetDifficulty", "Rev", false);
 			else
 				ModReferences.Calamity.Instance.GetModWorld("CalamityWorld").GetType().GetField("revenge", BindingFlags.Public | BindingFlags.Static).SetValue(null, false);
 		}
 
-		public static void DeactivateCalamityDeath(){
-			if(!ModReferences.Calamity.Active)
+		public static void DeactivateCalamityDeath() {
+			if (!ModReferences.Calamity.Active)
 				return;
 
-			if(ModReferences.Calamity.Instance.Version >= new Version("1.4.2.108"))
+			if (ModReferences.Calamity.Instance.Version >= new Version("1.4.2.108"))
 				ModReferences.Calamity.Call("SetDifficulty", "Death", false);
 			else
 				ModReferences.Calamity.Instance.GetModWorld("CalamityWorld").GetType().GetField("death", BindingFlags.Public | BindingFlags.Static).SetValue(null, false);
@@ -255,18 +255,18 @@ namespace CosmivengeonMod{
 
 		public override void UpdateUI(GameTime gameTime)/* tModPorter Note: Removed. Use ModSystem.UpdateUI */{
 			StaminaUI.Visible = !Main.gameMenu && WorldEvents.desoMode;
-			if(StaminaUI.Visible)
+			if (StaminaUI.Visible)
 				userInterface?.Update(gameTime);
 		}
 
 		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)/* tModPorter Note: Removed. Use ModSystem.ModifyInterfaceLayers */{
 			//Copied from ExampleMod :thinkies:
 			int mouseIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Mouse Text"));
-			if(mouseIndex != -1){
+			if (mouseIndex != -1) {
 				layers.Insert(mouseIndex, new LegacyGameInterfaceLayer(
 					"CosmivengeonMod: Stamina UI",
-					delegate{
-						if(StaminaUI.Visible)
+					delegate {
+						if (StaminaUI.Visible)
 							userInterface.Draw(Main.spriteBatch, new GameTime());
 						return true;
 					},
@@ -290,7 +290,7 @@ namespace CosmivengeonMod{
 			});
 		}
 
-		public override void Unload(){
+		public override void Unload() {
 			StaminaHotKey = null;
 			staminaUI = null;
 			userInterface = null;
@@ -301,7 +301,7 @@ namespace CosmivengeonMod{
 
 			StaminaBuffsTrackingNPC.Unload();
 
-			if(FilterCollection.Screen_EoC?.Active ?? false)
+			if (FilterCollection.Screen_EoC?.Active ?? false)
 				FilterCollection.Screen_EoC.Deactivate();
 
 			//Restore the original setting for the buffs
@@ -314,10 +314,10 @@ namespace CosmivengeonMod{
 		private static void RegisterRecipeGroup(string groupName, int itemForAnyName, int[] validTypes)
 			=> RecipeGroup.RegisterGroup(groupName, new RecipeGroup(() => $"{Language.GetTextValue("LegacyMisc.37")} {Lang.GetItemNameValue(itemForAnyName)}", validTypes));
 
-		public override void HandlePacket(BinaryReader reader, int whoAmI){
+		public override void HandlePacket(BinaryReader reader, int whoAmI) {
 			MessageType message = (MessageType)reader.ReadByte();
 
-			switch(message){
+			switch (message) {
 				case MessageType.SyncPlayer:
 					byte clientWhoAmI = reader.ReadByte();
 					StaminaPlayer mp = Main.player[clientWhoAmI].GetModPlayer<StaminaPlayer>();
@@ -328,7 +328,7 @@ namespace CosmivengeonMod{
 					mp = Main.player[clientWhoAmI].GetModPlayer<StaminaPlayer>();
 					mp.stamina.ReceiveData(reader);
 
-					if(Main.netMode == NetmodeID.Server){
+					if (Main.netMode == NetmodeID.Server) {
 						ModPacket packet = GetPacket();
 						packet.Write((byte)MessageType.StaminaChanged);
 						packet.Write(clientWhoAmI);
@@ -349,19 +349,19 @@ namespace CosmivengeonMod{
 			}
 		}
 
-		public override object Call(params object[] args){
+		public override object Call(params object[] args) {
 			/*		Possible commands:
 			 *	"GetDifficulty"/"Difficulty", "Desolation"/"desoMode"/"deso"
 			 *	"SetDifficulty",              "Desolation"/"desoMode"/"deso", true/false
 			 */
-			if(args.Length == 2
-					&& new string[]{ "getdifficulty", "difficulty" }.Contains(((string)args[0]).ToLower())
-					&& new string[]{ "desolation", "desomode", "deso" }.Contains(((string)args[1]).ToLower())){
+			if (args.Length == 2
+					&& new string[] { "getdifficulty", "difficulty" }.Contains(((string)args[0]).ToLower())
+					&& new string[] { "desolation", "desomode", "deso" }.Contains(((string)args[1]).ToLower())) {
 				return WorldEvents.desoMode;
-			}else if(args.Length == 3
+			} else if (args.Length == 3
 					&& (string)args[0] == "SetDifficulty"
-					&& new string[]{ "desolation", "desomode", "deso" }.Contains(((string)args[1]).ToLower())){
-				if(bool.TryParse((string)args[2], out bool value)){
+					&& new string[] { "desolation", "desomode", "deso" }.Contains(((string)args[1]).ToLower())) {
+				if (bool.TryParse((string)args[2], out bool value)) {
 					WorldEvents.desoMode = value;
 					return value;
 				}

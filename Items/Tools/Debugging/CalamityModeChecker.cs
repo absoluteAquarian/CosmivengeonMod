@@ -5,9 +5,9 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Tools.Debugging{
-	public class CalamityModeChecker : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Tools.Debugging {
+	public class CalamityModeChecker : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Calamity Mod Checker");
 			Tooltip.SetDefault(CoreMod.Descriptions.DebugItem +
 				"\nThis item can be used to check the state of" +
@@ -16,7 +16,7 @@ namespace CosmivengeonMod.Items.Tools.Debugging{
 				"\nRight click to print [c/ac00ff:Death]'s state to the chat.");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.width = 40;
 			Item.height = 40;
 			Item.maxStack = 1;
@@ -30,8 +30,8 @@ namespace CosmivengeonMod.Items.Tools.Debugging{
 
 		public override bool AltFunctionUse(Player player) => true;
 
-		public override bool CanUseItem(Player player){
-			if(!Debug.debug_canUseCalamityChecker){
+		public override bool CanUseItem(Player player) {
+			if (!Debug.debug_canUseCalamityChecker) {
 				Main.NewText("Sorry, but you can't use this item.", Color.LightGray);
 				return false;
 			}
@@ -39,15 +39,15 @@ namespace CosmivengeonMod.Items.Tools.Debugging{
 		}
 
 		public override bool? UseItem(Player player)/* tModPorter Suggestion: Return null instead of false */{
-			if(!ModReferences.Calamity.Active)
+			if (!ModReferences.Calamity.Active)
 				Main.NewText("Calamity is not enabled.", Color.Red);
-			else{
+			else {
 				bool state;
 				string name;
-				if(player.altFunctionUse == 2){		//Right click
+				if (player.altFunctionUse == 2) {       //Right click
 					state = (bool)ModReferences.Calamity.Call("Difficulty", "Death");
 					name = "[c/ac00ff:Death]";
-				}else{
+				} else {
 					state = (bool)ModReferences.Calamity.Call("Difficulty", "Rev");
 					name = "[c/ff0000:Revengeance]";
 				}

@@ -1,8 +1,8 @@
 ﻿using System;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.DataStructures{
-	public class ModReference{
+namespace CosmivengeonMod.DataStructures {
+	public class ModReference {
 		private Mod instance;
 		public Mod Instance => GetMod();
 		private readonly string modName;
@@ -10,21 +10,21 @@ namespace CosmivengeonMod.DataStructures{
 
 		public bool Active => Instance != null;
 
-		public ModReference(string name){
+		public ModReference(string name) {
 			modName = name;
 		}
 
 		public static implicit operator Mod(ModReference reference) => reference.GetMod();
 
-		private Mod GetMod(){
-			if(!loadCheck){
+		private Mod GetMod() {
+			if (!loadCheck) {
 				loadCheck = true;
 				instance = ModLoader.GetMod(modName);
 			}
 			return instance;
 		}
 
-		public void Unload(){
+		public void Unload() {
 			loadCheck = false;
 			instance = null;
 		}

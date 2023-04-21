@@ -2,8 +2,8 @@
 using Terraria;
 using Terraria.ID;
 
-namespace CosmivengeonMod.Items.Lore{
-	public class StoneTablet : HidableTooltip{
+namespace CosmivengeonMod.Items.Lore {
+	public class StoneTablet : HidableTooltip {
 		public override string ItemName => "Stone Tablet";
 
 		public override string FlavourText => "Long ago, the ancient earth elemental Oronitus ruled over these lands." +
@@ -17,13 +17,13 @@ namespace CosmivengeonMod.Items.Lore{
 				"\ndown any challengers with other relics recovered shortly after, until now, where" +
 				"\nit appears that he has finally met his match...";
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.maxStack = 1;
 			Item.rare = ItemRarityID.Green;
 			Item.consumable = false;
 		}
 
-		public override bool CanUseItem(Player player){
+		public override bool CanUseItem(Player player) {
 			return false;
 		}
 	}

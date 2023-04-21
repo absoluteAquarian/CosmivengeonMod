@@ -4,16 +4,16 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Equippable.Armor.Crystalice{
+namespace CosmivengeonMod.Items.Equippable.Armor.Crystalice {
 	[AutoloadEquip(EquipType.Head)]
-	public class CrystaliceHelmet : ModItem{
-		public override void SetStaticDefaults(){
+	public class CrystaliceHelmet : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Crystalice Hood");
 			Tooltip.SetDefault("Damage increased by 10%" +
 				"\n+1 minion slot");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.width = 24;
 			Item.height = 26;
 			Item.defense = 2;
@@ -21,7 +21,7 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Crystalice{
 			Item.value = Item.sellPrice(silver: 8, copper: 40);
 		}
 
-		public override void UpdateEquip(Player player){
+		public override void UpdateEquip(Player player) {
 			player.GetDamage(DamageClass.Generic) += 0.1f;
 			player.maxMinions++;
 		}
@@ -29,12 +29,12 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Crystalice{
 		public override bool IsArmorSet(Item head, Item body, Item legs)
 			=> body.type == ModContent.ItemType<CrystaliceBreastplate>() && legs.type == ModContent.ItemType<CrystaliceLeggings>();
 
-		public override void UpdateArmorSet(Player player){
+		public override void UpdateArmorSet(Player player) {
 			player.setBonus = "All attacks inflict [c/6fa8dc:Frostburn]";
 			player.GetModPlayer<ArmorsPlayer>().setBonus_Crystalice = true;
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>(), 2);
 			recipe.AddIngredient(ItemID.IceBlock, 10);

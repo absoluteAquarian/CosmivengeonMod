@@ -13,19 +13,19 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Projectiles.Summons{
-	public class EyeOfTheBlizzardCrystal : ModProjectile{
+namespace CosmivengeonMod.Projectiles.Summons {
+	public class EyeOfTheBlizzardCrystal : ModProjectile {
 		public override string Texture => "CosmivengeonMod/Items/Equippable/Accessories/Frostbite/EyeOfTheBlizzard";
 
 		public static readonly int Damage = 25;
 		public static readonly float Knockback = 2.5f;
 
-		public override void SetStaticDefaults(){
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Ice Crystal");
 			Main.projFrames[Projectile.type] = 6;
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Projectile.width = 30;
 			Projectile.height = 46;
 			Projectile.timeLeft = 3600 * 60;
@@ -42,8 +42,8 @@ namespace CosmivengeonMod.Projectiles.Summons{
 		private float baseScale;
 		private int baseWidth, baseHeight;
 
-		public override void AI(){
-			if(!spawned){
+		public override void AI() {
+			if (!spawned) {
 				spawned = true;
 				Parent = Main.player[Projectile.owner];
 				baseScale = Projectile.scale;
@@ -51,17 +51,17 @@ namespace CosmivengeonMod.Projectiles.Summons{
 				baseHeight = Projectile.height;
 			}
 
-			if(Parent.dead || !Parent.active || !Parent.GetModPlayer<AccessoriesPlayer>().blizzardEye){
+			if (Parent.dead || !Parent.active || !Parent.GetModPlayer<AccessoriesPlayer>().blizzardEye) {
 				Projectile.Kill();
 				return;
 			}
 
 			bool equippedAccessory = false;
-			for(int i = 3; i < 8 + Parent.extraAccessorySlots; i++){
-				if(Parent.armor[i].type == ModContent.ItemType<EyeOfTheBlizzard>())
+			for (int i = 3; i < 8 + Parent.extraAccessorySlots; i++) {
+				if (Parent.armor[i].type == ModContent.ItemType<EyeOfTheBlizzard>())
 					equippedAccessory = true;
 			}
-			if(!equippedAccessory){
+			if (!equippedAccessory) {
 				Projectile.Kill();
 				return;
 			}
@@ -75,9 +75,9 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 			int cooldownDebuff = Parent.FindBuffIndex(ModContent.BuffType<EyeOfTheBlizzardCooldown>());
 
-			if(mp.activeBlizzardEye)
+			if (mp.activeBlizzardEye)
 				Projectile.scale = baseScale * preWoFShrink * (minScale + (maxScale - minScale) * Projectile.ai[0] / (5 * 60));
-			else if(cooldownDebuff > -1)
+			else if (cooldownDebuff > -1)
 				Projectile.scale = baseScale * preWoFShrink * (minScale + (1f - minScale) * (1f - Parent.buffTime[cooldownDebuff] / (60f * 60f)));
 			else
 				Projectile.scale = baseScale * preWoFShrink;
@@ -92,14 +92,14 @@ namespace CosmivengeonMod.Projectiles.Summons{
 				: Parent.Bottom + new Vector2(0, offset) - floatOffset;
 
 			//Don't shoot projectiles if the player has the cooldown debuff
-			if(--timer < 0 && cooldownDebuff < 0){
+			if (--timer < 0 && cooldownDebuff < 0) {
 				List<NPC> closestNPCs = Main.npc.Where(n => n?.CanBeChasedBy() == true && Collision.CanHit(Projectile.Center, 0, 0, n.Center, 0, 0) && Projectile.Distance(n.Center) < 50 * 16)
 					.OrderBy(n => Projectile.Distance(n.Center))
 					.ToList();
-				if(closestNPCs.Any()){
+				if (closestNPCs.Any()) {
 					int randTime = !Main.hardMode ? Main.rand.Next(120, 241) : Main.rand.Next(75, 167);
 
-					if(!Main.hardMode)
+					if (!Main.hardMode)
 						timer = mp.activeBlizzardEye ? (int)(randTime * 0.489f) : randTime;
 					else
 						timer = mp.activeBlizzardEye ? (int)(randTime * 0.351f) : randTime;
@@ -118,16 +118,16 @@ namespace CosmivengeonMod.Projectiles.Summons{
 						1f,
 						1f
 					);
-				}else
+				} else
 					timer++;
 			}
 
-			if(Projectile.ai[0] > 0f && Main.rand.NextFloat() < 0.375f){
+			if (Projectile.ai[0] > 0f && Main.rand.NextFloat() < 0.375f) {
 				Dust dust = Dust.NewDustDirect(
 					Projectile.Center - new Vector2(8, 8),
 					16,
 					16,
-					Main.rand.Next(new int[]{ 74, 107 }),
+					Main.rand.Next(new int[] { 74, 107 }),
 					Main.rand.NextFloat(-1.5f, 1.5f),
 					Main.rand.NextFloat(-1.5f, 1.5f),
 					newColor: Color.Blue
@@ -137,13 +137,13 @@ namespace CosmivengeonMod.Projectiles.Summons{
 
 			Lighting.AddLight(Projectile.Center, Color.Cyan.ToVector3() * 2.5f);
 
-			if(++Projectile.frameCounter % 9 == 0)
+			if (++Projectile.frameCounter % 9 == 0)
 				Projectile.frame = ++Projectile.frame % Main.projFrames[Projectile.type];
 
 			floatAngle += MathHelper.ToRadians(1.5f * 6f);
 		}
 
-		public override bool PreDraw(ref Color lightColor){
+		public override bool PreDraw(ref Color lightColor) {
 			Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
 			Rectangle frame = texture.Frame(1, 6, 0, Projectile.frame);
 

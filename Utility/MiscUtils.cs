@@ -10,13 +10,13 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Utility{
-	public static class MiscUtils{
+namespace CosmivengeonMod.Utility {
+	public static class MiscUtils {
 		public static float DamageDecrease => Main.expertMode ? 0.25f : 0.5f;
 
 		public static Color TausFavouriteColour = new Color(106, 0, 170);
 
-		public static bool PlayerIsInForest(Player player){
+		public static bool PlayerIsInForest(Player player) {
 			return !player.ZoneJungle
 				&& !player.ZoneDungeon
 				&& !player.ZoneCorrupt
@@ -84,7 +84,7 @@ namespace CosmivengeonMod.Utility{
 		public static bool TileIsSolidOrPlatform(Vector2 pos)
 			=> TileIsSolidOrPlatform((int)pos.X >> 4, (int)pos.Y >> 4);
 
-		public static bool TileIsSolidOrPlatform(int x, int y){
+		public static bool TileIsSolidOrPlatform(int x, int y) {
 			Tile tile = Framing.GetTileSafely(x, y);
 			return tile.HasUnactuatedTile && (Main.tileSolid[tile.TileType] || Main.tileSolidTop[tile.TileType] && tile.TileFrameY == 0) || tile.LiquidAmount > 64;
 		}
@@ -116,48 +116,48 @@ namespace CosmivengeonMod.Utility{
 		public static T GetModeChoice<T>(T normal, T expert, T desolation)
 			=> WorldEvents.desoMode ? desolation : (Main.expertMode ? expert : normal);
 
-		public static float CalculateBossHealthScale(out int playerCount){
+		public static float CalculateBossHealthScale(out int playerCount) {
 			//This is what vanila does
 			playerCount = 0;
 			float healthFactor = 1f;
 			float component = 0.35f;
 
-			if(Main.netMode == NetmodeID.SinglePlayer){
+			if (Main.netMode == NetmodeID.SinglePlayer) {
 				playerCount = 1;
 				return 1f;
 			}
 
-			for(int i = 0; i < Main.maxPlayers; i++)
-				if(Main.player[i].active)
+			for (int i = 0; i < Main.maxPlayers; i++)
+				if (Main.player[i].active)
 					playerCount++;
 
-			for(int i = 0; i < playerCount; i++){
+			for (int i = 0; i < playerCount; i++) {
 				healthFactor += component;
 				component += (1f - component) / 3f;
 			}
 
-			if(healthFactor > 8f)
+			if (healthFactor > 8f)
 				healthFactor = (healthFactor * 2f + 8f) / 3f;
-			if(healthFactor > 1000f)
+			if (healthFactor > 1000f)
 				healthFactor = 1000f;
 
 			return healthFactor;
 		}
 
-		public static int SpawnProjectileSynced(Vector2 position, Vector2 velocity, int type, int damage, float knockback, float ai0 = 0f, float ai1 = 0f, int owner = -1){
-			if(owner == -1)
+		public static int SpawnProjectileSynced(Vector2 position, Vector2 velocity, int type, int damage, float knockback, float ai0 = 0f, float ai1 = 0f, int owner = -1) {
+			if (owner == -1)
 				owner = Main.myPlayer;
 
 			int proj = Projectile.NewProjectile(position, velocity, type, TrueDamage(damage), knockback, owner, ai0, ai1);
-			if(Main.netMode != NetmodeID.SinglePlayer)
+			if (Main.netMode != NetmodeID.SinglePlayer)
 				NetMessage.SendData(MessageID.SyncProjectile, number: proj);
 
 			return proj;
 		}
 
-		public static int SpawnNPCSynced(Vector2 spawn, int type, float ai0 = 0f, float ai1 = 0f, float ai2 = 0f, float ai3 = 0f){
+		public static int SpawnNPCSynced(Vector2 spawn, int type, float ai0 = 0f, float ai1 = 0f, float ai2 = 0f, float ai3 = 0f) {
 			int npc = Main.maxNPCs;
-			if(Main.netMode != NetmodeID.MultiplayerClient){
+			if (Main.netMode != NetmodeID.MultiplayerClient) {
 				npc = NPC.NewNPC((int)spawn.X, (int)spawn.Y, type, 0, ai0, ai1, ai2, ai3, 255);
 
 				NetMessage.SendData(MessageID.SyncNPC, number: npc);
@@ -165,7 +165,7 @@ namespace CosmivengeonMod.Utility{
 			return npc;
 		}
 
-		public static void PlayMusic(ModNPC modNPC, CosmivengeonBoss boss){
+		public static void PlayMusic(ModNPC modNPC, CosmivengeonBoss boss) {
 			float songChance = Main.rand.NextFloat();
 
 			modNPC.Music = BossPackage.bossInfo?[boss]?.music(songChance) ?? 0;
@@ -174,14 +174,14 @@ namespace CosmivengeonMod.Utility{
 		/// <summary>
 		/// Returns whether the <paramref name="player"/> can summon the given <paramref name="boss"/>.
 		/// </summary>
-		public static bool TrySummonBoss(CosmivengeonBoss boss, Player player){
+		public static bool TrySummonBoss(CosmivengeonBoss boss, Player player) {
 			bool canSummonBoss = false;
-			
-			if(!BossPackage.bossInfo.ContainsKey(boss))
+
+			if (!BossPackage.bossInfo.ContainsKey(boss))
 				throw new ArgumentException($"Boss enum value hasn't been assigned to any boss information: CosmivengeonBoss.{boss}");
 
 			BossPackage package = BossPackage.bossInfo[boss];
-			if(!package.useRequirement(player))
+			if (!package.useRequirement(player))
 				Main.NewText($"[n:{player.name}] {package.badSummonUseMessage}");
 			else
 				canSummonBoss = !NPC.AnyNPCs(package.bossID) && (package.altBossID == -1 || !NPC.AnyNPCs(package.altBossID));
@@ -196,7 +196,7 @@ namespace CosmivengeonMod.Utility{
 		/// <param name="npcID">The ID of the NPC being spawned.</param>
 		/// <param name="tileDistance">The radius of the circle around the <paramref name="player"/> where the NPC will spawn.</param>
 		/// <returns>Whether or not an NPC could be spawned.</returns>
-		public static bool SummonBossNearPlayer(Player player, int npcID, float tileDistance){
+		public static bool SummonBossNearPlayer(Player player, int npcID, float tileDistance) {
 			float randomAngle;
 			Vector2 offset;
 			int targetX, targetY;
@@ -212,14 +212,14 @@ namespace CosmivengeonMod.Utility{
 			int npc = NPC.NewNPC(targetX, targetY, npcID);
 
 			//Only display the text if we could spawn the NPC
-			if(npc < Main.npc.Length){
+			if (npc < Main.npc.Length) {
 				string name = Main.npc[npc].TypeName;
 
 				//Display the "X has awoken!" text since we aren't using NPC.SpawnOnPlayer(int, int)
 				Main.NewText(Language.GetTextValue("Announcement.HasAwoken", name), 175, 75, 255);
 			}
 
-			return npc != Main.npc.Length;	//Return false if we couldn't generate an NPC
+			return npc != Main.npc.Length;  //Return false if we couldn't generate an NPC
 		}
 
 		/// <summary>
@@ -230,14 +230,14 @@ namespace CosmivengeonMod.Utility{
 		/// <param name="maxNegX">The max X-coordinate offset to the left of the <paramref name="player"/>.</param>
 		/// <param name="maxPosX">The max X-coordinate offset to the right of the <paramref name="player"/>.</param>
 		/// <returns>Whether or not an NPC could be spawned.</returns>
-		public static bool SummonBossAbovePlayer(Player player, int npcID, float maxNegX, float maxPosX, float maxNegY, float maxPosY){
+		public static bool SummonBossAbovePlayer(Player player, int npcID, float maxNegX, float maxPosX, float maxNegY, float maxPosY) {
 			const float MinRange = 30 * 16;
 			float targetX;
 			//Keep generating new X-coords until one isn't very close to
 			// the player (unless the possible range is too small)
-			do{
+			do {
 				targetX = Main.rand.NextFloat(maxNegX, maxPosX) + player.Center.X;
-			}while(Math.Abs(targetX - player.Center.X) < MinRange || (maxPosX < MinRange && maxNegX > -MinRange));
+			} while (Math.Abs(targetX - player.Center.X) < MinRange || (maxPosX < MinRange && maxNegX > -MinRange));
 
 			float targetY = Main.rand.NextFloat(maxNegY, maxPosY) + player.Center.Y;
 
@@ -253,18 +253,18 @@ namespace CosmivengeonMod.Utility{
 		public static string GetPlaceholderTexture(string name)
 			=> $"CosmivengeonMod/Items/PlaceHolder{name}";
 
-		public static void SendMessage(string message, Color? color = null){
+		public static void SendMessage(string message, Color? color = null) {
 			color = color ?? Color.White;
 
-			if(Main.netMode == NetmodeID.SinglePlayer)
+			if (Main.netMode == NetmodeID.SinglePlayer)
 				Main.NewText(message, color.Value);
 			else
 				ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral(message), color.Value);
 		}
 
-		public static T[] CreateArray<T>(T defaultValue, uint size){
+		public static T[] CreateArray<T>(T defaultValue, uint size) {
 			T[] arr = new T[size];
-			for(int i = 0; i < size; i++)
+			for (int i = 0; i < size; i++)
 				arr[i] = defaultValue;
 			return arr;
 		}
@@ -275,14 +275,14 @@ namespace CosmivengeonMod.Utility{
 		/// <summary>
 		/// Returns if this game is the local host in a multiplayer instance.  If the game is a singleplayer game, this method returns false.
 		/// </summary>
-		public static bool ClientIsLocalHost(int whoAmI){
-			if(whoAmI < 0 || whoAmI > Main.maxPlayers)
+		public static bool ClientIsLocalHost(int whoAmI) {
+			if (whoAmI < 0 || whoAmI > Main.maxPlayers)
 				return false;
 
-			if(Main.netMode == NetmodeID.SinglePlayer)
+			if (Main.netMode == NetmodeID.SinglePlayer)
 				return false;
 
-			if(Main.netMode == NetmodeID.MultiplayerClient)
+			if (Main.netMode == NetmodeID.MultiplayerClient)
 				return Netplay.Connection.Socket.GetRemoteAddress().IsLocalHost();
 
 			RemoteClient client = Netplay.Clients[whoAmI];

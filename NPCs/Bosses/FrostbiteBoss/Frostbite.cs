@@ -20,24 +20,24 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
+namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss {
 	[AutoloadBossHead]
-	public class Frostbite : ModNPC{
-		public override void SetStaticDefaults(){
+	public class Frostbite : ModNPC {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Frostbite");
 			Main.npcFrameCount[NPC.type] = 15;
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			NPC.height = 80;
 			NPC.width = 180;
 			NPC.aiStyle = -1;
 			NPC.damage = 26;
 			NPC.defense = 8;
 			NPC.lifeMax = 2000;
-			NPC.HitSound = SoundID.NPCHit11;	//Snow NPC hit sound
+			NPC.HitSound = SoundID.NPCHit11;    //Snow NPC hit sound
 			NPC.DeathSound = SoundID.NPCDeath27;
-			NPC.knockBackResist = 0f;	//100% kb resist
+			NPC.knockBackResist = 0f;   //100% kb resist
 			NPC.npcSlots = 30f;
 			NPC.boss = true;
 			NPC.lavaImmune = true;
@@ -53,7 +53,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
 
 			MiscUtils.PlayMusic(this, CosmivengeonBoss.Frostbite);
 
-			if(!Main.expertMode && !WorldEvents.desoMode)
+			if (!Main.expertMode && !WorldEvents.desoMode)
 				Subphases = new int[]{
 					AI_Attack_Walk,
 					AI_Attack_Charge,
@@ -62,7 +62,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
 					AI_Attack_Walk,
 					AI_Attack_Stomp
 				};
-			else if(Main.expertMode && !WorldEvents.desoMode)
+			else if (Main.expertMode && !WorldEvents.desoMode)
 				Subphases = new int[]{
 					AI_Attack_Walk,
 					AI_Attack_Charge,
@@ -75,20 +75,20 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
 				};
 		}
 
-		public override void ScaleExpertStats(int numPlayers, float bossLifeScale){
-			NPC.lifeMax /= 2;	//Negate vanilla health buff
-			if(!WorldEvents.desoMode){
+		public override void ScaleExpertStats(int numPlayers, float bossLifeScale) {
+			NPC.lifeMax /= 2;   //Negate vanilla health buff
+			if (!WorldEvents.desoMode) {
 				NPC.ScaleHealthBy(0.8f);
 				NPC.damage = 40;
 				NPC.defense = 11;
-			}else{
+			} else {
 				NPC.ScaleHealthBy(0.875f);
 				NPC.damage = 55;
 				NPC.defense = 14;
 			}
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor){
+		public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor) {
 			Texture2D texture = TextureAssets.Npc[NPC.type].Value;
 
 			spriteBatch.Draw(texture, NPC.Center - Main.screenPosition, NPC.frame, drawColor, 0f, NPC.frame.Size() / 2f, NPC.scale, NPC.spriteDirection == -1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
@@ -112,10 +112,10 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
 		private float GetWaitBetweenSubphases()
 			=> Main.rand.NextFloat(MiscUtils.GetModeChoice(5, 3, 2), MiscUtils.GetModeChoice(6, 4, 3));
 
-		public override void OnKill(){
+		public override void OnKill() {
 			WorldEvents.downedFrostbiteBoss = true;
 
-			if(Main.expertMode)
+			if (Main.expertMode)
 				NPC.DropBossBags();
 			else
 				NormalModeDrops(npc: NPC);
@@ -123,7 +123,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
 			Debug.CheckWorldFlagUpdate(nameof(WorldEvents.downedFrostbiteBoss));
 		}
 
-		public static void NormalModeDrops(Player player = null, NPC npc = null, bool quickSpawn = false){
+		public static void NormalModeDrops(Player player = null, NPC npc = null, bool quickSpawn = false) {
 			int[] drops = new int[]{
 				ModContent.ItemType<FrostbiteFlamethrower>(),
 				ModContent.ItemType<SnowballFlail>(),
@@ -140,51 +140,51 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
 
 			dropType = Main.rand.Next(drops);
 
-			if(player != null && quickSpawn){
+			if (player != null && quickSpawn) {
 				player.QuickSpawnItem(dropType, dropAmount);
 
-				if(Main.rand.NextFloat() < 0.1)
+				if (Main.rand.NextFloat() < 0.1)
 					player.QuickSpawnItem(ModContent.ItemType<FrostbiteMask>());
 
-				if(!WorldEvents.obtainedLore_FrostbiteBoss){
+				if (!WorldEvents.obtainedLore_FrostbiteBoss) {
 					player.QuickSpawnItem(ModContent.ItemType<IceforgedRelic>());
 					Debug.CheckWorldFlagUpdate(nameof(WorldEvents.obtainedLore_FrostbiteBoss));
 				}
-			}else if(npc != null){
+			} else if (npc != null) {
 				Item.NewItem(npc.getRect(), dropType, dropAmount);
-				
-				if(Main.rand.NextFloat() < 0.1)
+
+				if (Main.rand.NextFloat() < 0.1)
 					Item.NewItem(npc.getRect(), ModContent.ItemType<FrostbiteMask>());
 
-				if(!WorldEvents.obtainedLore_FrostbiteBoss){
+				if (!WorldEvents.obtainedLore_FrostbiteBoss) {
 					Item.NewItem(npc.getRect(), ModContent.ItemType<IceforgedRelic>());
 					Debug.CheckWorldFlagUpdate(nameof(WorldEvents.obtainedLore_FrostbiteBoss));
 				}
 			}
 		}
 
-		public override bool CheckActive(){
+		public override bool CheckActive() {
 			return Vector2.Distance(NPC.Center, Target?.Center ?? NPC.Center) > 200 * 16;
 		}
 
-		public override void FindFrame(int frameHeight){
+		public override void FindFrame(int frameHeight) {
 			int frame = 0;
-			if(CurrentSubphase == AI_Attack_Walk){
+			if (CurrentSubphase == AI_Attack_Walk) {
 				//He walkin
 				frame = AI_AnimationTimer % (Walk_Frames_Max * 12) / 12;
-			}else if((CurrentSubphase == AI_Attack_Charge && AI_AttackProgress < 3) || CurrentSubphase == AI_Attack_Stomp)
+			} else if ((CurrentSubphase == AI_Attack_Charge && AI_AttackProgress < 3) || CurrentSubphase == AI_Attack_Stomp)
 				frame = AI_AnimationTimer % (Walk_Frames_Max * 8) / 8;
-			else if(CurrentSubphase == AI_Attack_Charge && AI_AttackProgress >= 3)
+			else if (CurrentSubphase == AI_Attack_Charge && AI_AttackProgress >= 3)
 				frame = Bite_Frames_Start;
-			else if((CurrentSubphase == AI_Attack_Flick && AI_AttackProgress == 1 && AI_Timer > 0) || (CurrentSubphase == AI_Expert_SnowCloud && AI_AttackProgress == 0))
+			else if ((CurrentSubphase == AI_Attack_Flick && AI_AttackProgress == 1 && AI_Timer > 0) || (CurrentSubphase == AI_Expert_SnowCloud && AI_AttackProgress == 0))
 				frame = Flick_Frames_Start;
-			else if((CurrentSubphase == AI_Attack_Flick && AI_AttackProgress < normal_icicle_count + 1 && AI_Timer > 0) || (CurrentSubphase == AI_Expert_SnowCloud && AI_AttackProgress == 1))
+			else if ((CurrentSubphase == AI_Attack_Flick && AI_AttackProgress < normal_icicle_count + 1 && AI_Timer > 0) || (CurrentSubphase == AI_Expert_SnowCloud && AI_AttackProgress == 1))
 				frame = Flick_Frames_Start + 1;
-			else if((CurrentSubphase == AI_Attack_Flick && AI_AttackProgress == normal_icicle_count + 1) || (CurrentSubphase == AI_Expert_SnowCloud && AI_AttackProgress == 2))
+			else if ((CurrentSubphase == AI_Attack_Flick && AI_AttackProgress == normal_icicle_count + 1) || (CurrentSubphase == AI_Expert_SnowCloud && AI_AttackProgress == 2))
 				frame = Flick_Frames_Start + 2;
-			else if(CurrentSubphase == AI_Enrage_Smash)
+			else if (CurrentSubphase == AI_Enrage_Smash)
 				frame = Smash_Frames_Start + AI_AttackProgress;
-			else if(CurrentSubphase == AI_Expert_Snowball)
+			else if (CurrentSubphase == AI_Expert_Snowball)
 				frame = Bite_Frames_Start + Utils.Clamp(AI_AttackProgress, 0, 2);
 
 			NPC.frame.Y = frame * frameHeight;
@@ -223,7 +223,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
 
 		private int timePhasing = 0;
 
-		public override void SendExtraAI(BinaryWriter writer){
+		public override void SendExtraAI(BinaryWriter writer) {
 			BitsByte flag = new BitsByte(switchSubPhase, noTargetsAlive, startDespawn, forceSpriteTurn);
 
 			writer.Write(flag);
@@ -240,7 +240,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
 			writer.Write(timePhasing);
 		}
 
-		public override void ReceiveExtraAI(BinaryReader reader){
+		public override void ReceiveExtraAI(BinaryReader reader) {
 			BitsByte flag = reader.ReadByte();
 			flag.Retrieve(ref switchSubPhase, ref noTargetsAlive, ref startDespawn, ref forceSpriteTurn);
 			Target = Main.player[reader.ReadByte()];
@@ -258,15 +258,15 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
 
 		public bool CanSeeTarget() => Target != null && Collision.CanHit(NPC.position, NPC.width, NPC.height, Target.position, Target.width, Target.height);
 
-		public bool AnyActiveTilesInHitbox(bool doAhead){
+		public bool AnyActiveTilesInHitbox(bool doAhead) {
 			Vector2 ahead = doAhead ? NPC.DirectionTo(Target.Center) * 24 : Vector2.Zero;
 
 			Point tileTL = (NPC.position + ahead).ToTileCoordinates();
 			Point tileBR = (NPC.BottomRight + ahead).ToTileCoordinates();
 
-			for(int x = tileTL.X; x < tileBR.X; x++){
-				for(int y = tileTL.Y; y < tileBR.Y; y++){
-					if(MiscUtils.TileIsSolidNotPlatform(x, y))
+			for (int x = tileTL.X; x < tileBR.X; x++) {
+				for (int y = tileTL.Y; y < tileBR.Y; y++) {
+					if (MiscUtils.TileIsSolidNotPlatform(x, y))
 						return true;
 				}
 			}
@@ -274,12 +274,12 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
 			return false;
 		}
 
-		public override void DrawEffects(ref Color drawColor){
+		public override void DrawEffects(ref Color drawColor) {
 			//Cool effect while phasing through tiles
-			if(timePhasing > 0){
+			if (timePhasing > 0) {
 				drawColor = Color.White * 0.65f;
 
-				for(int i = 0; i < 10; i++){
+				for (int i = 0; i < 10; i++) {
 					Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, 76);
 					dust.noGravity = true;
 					dust.velocity = Vector2.Zero;
@@ -287,7 +287,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
 			}
 		}
 
-		public override void AI(){
+		public override void AI() {
 			//AI:  https://docs.google.com/document/d/1B7liHxU-65k_f8eXlC6-M4HLMx9Xu5d5LQWFIznylv8
 
 			int prevTarget = NPC.target;
@@ -296,48 +296,48 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
 			NPC.TargetClosest(true);
 			Target = Main.player[NPC.target];
 
-			if(NPC.target != prevTarget)
+			if (NPC.target != prevTarget)
 				NPC.netUpdate = true;
 
 			noTargetsAlive = Target.dead || !Target.active;
 			CheckTargetIsDead();
-			
-			if(noTargetsAlive)
+
+			if (noTargetsAlive)
 				return;
-			
+
 			CheckSubPhaseChange();
 			CheckPhaseChange();
 
-			if(switchSubPhase)
+			if (switchSubPhase)
 				return;
 
 			CheckFallThroughPlatforms(out _);
 
-			if((AnyActiveTilesInHitbox(doAhead: true) || AnyActiveTilesInHitbox(doAhead: false)) && CurrentSubphase == AI_Attack_Walk){
+			if ((AnyActiveTilesInHitbox(doAhead: true) || AnyActiveTilesInHitbox(doAhead: false)) && CurrentSubphase == AI_Attack_Walk) {
 				timePhasing++;
 
 				PhaseFloat();
 
 				goto skipAI;
-			}else
+			} else
 				timePhasing = 0;
 
 			NPC.noGravity = false;
 
 			float breathAngle = NPC.DirectionTo(Target.Center).ToRotation();
 
-			if(Phase == Phase_1){
-				if(CurrentSubphase == AI_Attack_Walk && AI_WaitTimer < 0){
+			if (Phase == Phase_1) {
+				if (CurrentSubphase == AI_Attack_Walk && AI_WaitTimer < 0) {
 					AI_WaitTimer = (int)(GetWaitBetweenSubphases() * 60);
 
 					NPC.netUpdate = true;
-				}else if(CurrentSubphase == AI_Attack_Walk && AI_WaitTimer >= 0){
-					if(AI_WaitTimer == 0)
+				} else if (CurrentSubphase == AI_Attack_Walk && AI_WaitTimer >= 0) {
+					if (AI_WaitTimer == 0)
 						switchSubPhase = true;
 					int speed = MiscUtils.GetModeChoice(3, 5, 0);
 					float acceleration = MiscUtils.GetModeChoice(2f, 4f, 0);
 					AI_Walk(speed, acceleration / 60f);
-				}else if(CurrentSubphase == AI_Attack_Charge){
+				} else if (CurrentSubphase == AI_Attack_Charge) {
 					int chargeSpeed = MiscUtils.GetModeChoice(5, 7, 0);
 					int chargeFrames = MiscUtils.GetModeChoice(120, 90, 0);
 					float breathSpeed = MiscUtils.GetModeChoice(6f, 9f, 0);
@@ -350,26 +350,26 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
 						maxFlamesShot: 40,
 						breathTime
 					);
-				}else if(CurrentSubphase == AI_Attack_Flick){
+				} else if (CurrentSubphase == AI_Attack_Flick) {
 					int count = Main.expertMode ? expert_icicle_count : normal_icicle_count;
 					AI_Flick(20f * 16f / 60f, count, MathHelper.ToRadians(20f));
-				}else if(CurrentSubphase == AI_Attack_Stomp){
+				} else if (CurrentSubphase == AI_Attack_Stomp) {
 					float initialYVel = MiscUtils.GetModeChoice(10f, 13f, 0);
 					int xVel = MiscUtils.GetModeChoice(4, 6, 0);
 					float acceleration = MiscUtils.GetModeChoice(3f, 5f, 0);
 					AI_Stomp(60, initialYVel, xVel, acceleration / 60f);
-				}else if(CurrentSubphase == AI_Expert_Snowball)
+				} else if (CurrentSubphase == AI_Expert_Snowball)
 					AI_Snowball(20, 10f);
-			}else if(Phase == Phase_2){
-				if(CurrentSubphase % 2 == 0 && AI_WaitTimer < 0)
+			} else if (Phase == Phase_2) {
+				if (CurrentSubphase % 2 == 0 && AI_WaitTimer < 0)
 					AI_WaitTimer = (int)(GetWaitBetweenSubphases() * 60);
-				else if(CurrentSubphase == AI_Attack_Walk && AI_WaitTimer >= 0){
-					if(AI_WaitTimer == 0)
+				else if (CurrentSubphase == AI_Attack_Walk && AI_WaitTimer >= 0) {
+					if (AI_WaitTimer == 0)
 						switchSubPhase = true;
 					int speed = MiscUtils.GetModeChoice(5, 7, 8);
 					float acceleration = MiscUtils.GetModeChoice(4f, 7f, 9f);
 					AI_Walk(speed, acceleration / 60f);
-				}else if(CurrentSubphase == AI_Attack_Charge){
+				} else if (CurrentSubphase == AI_Attack_Charge) {
 					int chargeSpeed = MiscUtils.GetModeChoice(8, 10, 12);
 					int chargeFrames = MiscUtils.GetModeChoice(90, 75, 60);
 					float breathSpeed = MiscUtils.GetModeChoice(9f, 11f, 13f);
@@ -383,40 +383,40 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss{
 						maxFlamesShot,
 						breathTime
 					);
-				}else if(CurrentSubphase == AI_Attack_Flick){
+				} else if (CurrentSubphase == AI_Attack_Flick) {
 					int count = MiscUtils.GetModeChoice(enraged_icicle_count, expert_enraged_icicle_count, expert_enraged_icicle_count + 4);
 					AI_Flick(25f * 16f / 60f, count, MathHelper.ToRadians(15f));
-				}else if(CurrentSubphase == AI_Attack_Stomp){
+				} else if (CurrentSubphase == AI_Attack_Stomp) {
 					float initialYVel = MiscUtils.GetModeChoice(13f, 14f, 15f);
 					int xVel = MiscUtils.GetModeChoice(6, 9, 10);
 					float acceleration = MiscUtils.GetModeChoice(5f, 8f, 10f);
 					AI_Stomp(45, initialYVel, xVel, acceleration / 60f);
-				}else if(CurrentSubphase == AI_Enrage_Smash)
+				} else if (CurrentSubphase == AI_Enrage_Smash)
 					AI_Smash(30, 5 * 60, Main.expertMode);
-				else if(CurrentSubphase == AI_Expert_Snowball)
+				else if (CurrentSubphase == AI_Expert_Snowball)
 					AI_Snowball(15, 15f);
-				else if(CurrentSubphase == AI_Expert_SnowCloud)
+				else if (CurrentSubphase == AI_Expert_SnowCloud)
 					AI_SummonCloud();
 			}
 
-			if(AI_Timer >= 0)
+			if (AI_Timer >= 0)
 				AI_Timer--;
 
-			if(AI_WaitTimer >= 0)
+			if (AI_WaitTimer >= 0)
 				AI_WaitTimer--;
 
 			//Extra gravity when not stomping
-			if(CurrentSubphase != AI_Attack_Stomp)
+			if (CurrentSubphase != AI_Attack_Stomp)
 				NPC.velocity.Y += 16f / 60f;
 
 			CheckTileStep();
 
 skipAI:
-			
-			//If Frostbite is charging/breathing frost, don't update the direction
-			if(AI_WaitTimer < 0 && CurrentSubphase == AI_Attack_Charge && AI_AttackProgress < 3)
+
+//If Frostbite is charging/breathing frost, don't update the direction
+			if (AI_WaitTimer < 0 && CurrentSubphase == AI_Attack_Charge && AI_AttackProgress < 3)
 				NPC.spriteDirection = spriteDir;
-			else if(!forceSpriteTurn){
+			else if (!forceSpriteTurn) {
 				int sign = Math.Sign(NPC.velocity.X);
 				NPC.spriteDirection = sign == 0 ? NPC.spriteDirection : sign;
 			}
@@ -424,14 +424,14 @@ skipAI:
 			AI_AnimationTimer++;
 
 			//Increased friction when turning around
-			if(Math.Sign(NPC.Center.X - Target.Center.X) == Math.Sign(NPC.velocity.X))
+			if (Math.Sign(NPC.Center.X - Target.Center.X) == Math.Sign(NPC.velocity.X))
 				NPC.velocity.X *= 0.9742f;
 
-			if(timePhasing == 0)
+			if (timePhasing == 0)
 				NPC.velocity.X.Clamp(-curMaxSpeed, curMaxSpeed);
 		}
 
-		private void PhaseFloat(){
+		private void PhaseFloat() {
 			NPC.noTileCollide = true;
 			NPC.noGravity = true;
 
@@ -443,15 +443,15 @@ skipAI:
 			float epsilon = 2;
 			float diffY = NPC.Center.Y - targetY;
 
-			if(Math.Sign(NPC.velocity.Y) == Math.Sign(diffY))
+			if (Math.Sign(NPC.velocity.Y) == Math.Sign(diffY))
 				NPC.velocity.Y *= 1f - 8.35f / 60f;
 
-			if(Math.Abs(diffY) < epsilon){
+			if (Math.Abs(diffY) < epsilon) {
 				Vector2 v = NPC.Center;
 				v.Y = targetY;
 				NPC.Center = v;
 				NPC.velocity.Y = 0;
-			}else
+			} else
 				NPC.velocity.Y += -Math.Sign(diffY) * 9.75f / 60f;
 
 			float cap = 6 + (1.125f / 60f) * timePhasing;
@@ -460,22 +460,22 @@ skipAI:
 			NPC.velocity.Y.Clamp(-cap, cap);
 		}
 
-		private void CheckTargetIsDead(){
+		private void CheckTargetIsDead() {
 			//If the target is dead or not active, slow down the NPC
 			//Then, plummet to hell and despawn naturally
-			if(noTargetsAlive){
-				if(Math.Abs(NPC.velocity.X) > 0)
+			if (noTargetsAlive) {
+				if (Math.Abs(NPC.velocity.X) > 0)
 					NPC.velocity.X *= 0.5f;
-				
-				if(NPC.velocity.Length() < 1 && NPC.velocity != Vector2.Zero){
+
+				if (NPC.velocity.Length() < 1 && NPC.velocity != Vector2.Zero) {
 					NPC.velocity = Vector2.Zero;
 				}
 
-				if(NPC.velocity.X == 0){
+				if (NPC.velocity.X == 0) {
 					NPC.velocity.Y += 15f;
 				}
 
-				if(!startDespawn){
+				if (!startDespawn) {
 					startDespawn = true;
 					NPC.noTileCollide = true;
 					NPC.timeLeft = (int)(0.5f * 60);
@@ -483,16 +483,16 @@ skipAI:
 					NPC.netUpdate = true;
 				}
 
-				if(NPC.timeLeft == 0)
+				if (NPC.timeLeft == 0)
 					NPC.active = false;
 
 				NPC.timeLeft--;
 			}
 		}
 
-		private void CheckPhaseChange(){
-			if(!Main.expertMode && !WorldEvents.desoMode){
-				if(NPC.life / (float)NPC.lifeMax < 0.5f && Phase == Phase_1){
+		private void CheckPhaseChange() {
+			if (!Main.expertMode && !WorldEvents.desoMode) {
+				if (NPC.life / (float)NPC.lifeMax < 0.5f && Phase == Phase_1) {
 					Phase++;
 					subphaseIndex = -1;
 					switchSubPhase = true;
@@ -510,8 +510,8 @@ skipAI:
 
 					NPC.netUpdate = true;
 				}
-			}else if(Main.expertMode && !WorldEvents.desoMode){
-				if(NPC.life / (float)NPC.lifeMax < 0.7f && Phase == Phase_1){
+			} else if (Main.expertMode && !WorldEvents.desoMode) {
+				if (NPC.life / (float)NPC.lifeMax < 0.7f && Phase == Phase_1) {
 					Phase++;
 					subphaseIndex = -1;
 					switchSubPhase = true;
@@ -536,8 +536,8 @@ skipAI:
 
 					NPC.netUpdate = true;
 				}
-			}else{
-				if(Phase == Phase_1){
+			} else {
+				if (Phase == Phase_1) {
 					Main.raining = true;
 					Main.rainTime = 3 * 60 * 60;
 
@@ -569,8 +569,8 @@ skipAI:
 			}
 		}
 
-		private void CheckSubPhaseChange(){
-			if(!switchSubPhase)
+		private void CheckSubPhaseChange() {
+			if (!switchSubPhase)
 				return;
 
 			CurrentSubphase = Subphases[++subphaseIndex % Subphases.Length];
@@ -584,19 +584,19 @@ skipAI:
 			NPC.netUpdate = true;
 		}
 
-		private void CheckFallThroughPlatforms(out bool checkFailed){
+		private void CheckFallThroughPlatforms(out bool checkFailed) {
 			checkFailed = true;
 
-			if(CurrentSubphase != AI_Attack_Walk || CurrentSubphase == AI_Attack_Stomp)
+			if (CurrentSubphase != AI_Attack_Walk || CurrentSubphase == AI_Attack_Stomp)
 				return;
 
 			//If the player is too far away, don't do the platform checks
 			float dist = 40 * 16;
-			if(NPC.DistanceSQ(Target.Center) > dist * dist)
+			if (NPC.DistanceSQ(Target.Center) > dist * dist)
 				return;
 
 			//If we can't see the player, don't do the platform checks
-			if(!CanSeeTarget()){
+			if (!CanSeeTarget()) {
 				NPC.noTileCollide = false;
 				return;
 			}
@@ -608,20 +608,20 @@ skipAI:
 			int tileStartX = (int)(NPC.position.X / 16f);
 			int tileEndX = (int)(NPC.BottomRight.X / 16f);
 			int tileY = (int)((NPC.Bottom.Y + 8f) / 16f);
-			
-			for(int x = tileStartX; x <= tileEndX; x++){
+
+			for (int x = tileStartX; x <= tileEndX; x++) {
 				//If this tile isn't a platform and is solid, re-enable tile collision
-				if(MiscUtils.TileIsSolidNotPlatform(x, tileY)){
+				if (MiscUtils.TileIsSolidNotPlatform(x, tileY)) {
 					NPC.noTileCollide = false;
 					NPC.netUpdate = true;
 					return;
 				}
 			}
-			
+
 			//Next, if we're in line with the player target or they're above us,
 			// don't do anything
 			//Enable tile collision just in case though
-			if(Target.Top.Y <= NPC.Bottom.Y){
+			if (Target.Top.Y <= NPC.Bottom.Y) {
 				NPC.noTileCollide = false;
 				return;
 			}
@@ -631,56 +631,56 @@ skipAI:
 			NPC.netUpdate = true;
 		}
 
-		private void CheckTileStep(){
-			if(CurrentSubphase == AI_Attack_Stomp)
+		private void CheckTileStep() {
+			if (CurrentSubphase == AI_Attack_Stomp)
 				return;
 
 			Collision.StepUp(ref NPC.position, ref NPC.velocity, NPC.width, NPC.height, ref NPC.stepSpeed, ref NPC.gfxOffY, specialChecksMode: 1);
 		}
 
-		private void AI_Walk(int speed, float acceleration){
+		private void AI_Walk(int speed, float acceleration) {
 			curMaxSpeed = speed;
 			NPC.velocity.X += acceleration * (NPC.Center.X < Target.Center.X ? 1 : -1);
 
 			int nextSubPhase = Subphases[(subphaseIndex + 1) % Subphases.Length];
-			if(Math.Sign(NPC.velocity.X) != Math.Sign(Target.Center.X - NPC.Center.X) && (nextSubPhase == AI_Attack_Flick || nextSubPhase == AI_Attack_Stomp))
+			if (Math.Sign(NPC.velocity.X) != Math.Sign(Target.Center.X - NPC.Center.X) && (nextSubPhase == AI_Attack_Flick || nextSubPhase == AI_Attack_Stomp))
 				AI_WaitTimer++;
 		}
 
-		private void AI_Charge_BreatheFrost(int chargeSpeed, int chargeFrames, float breathSpeed, float breathAngle, float maxFlamesShot, float breathTime){
-			if(AI_AttackProgress < 3)
+		private void AI_Charge_BreatheFrost(int chargeSpeed, int chargeFrames, float breathSpeed, float breathAngle, float maxFlamesShot, float breathTime) {
+			if (AI_AttackProgress < 3)
 				AI_Charge(chargeSpeed, chargeFrames);
-			else if(AI_AttackProgress >= 3)
+			else if (AI_AttackProgress >= 3)
 				AI_BreatheFrost(breathSpeed, breathAngle, maxFlamesShot, breathTime);
 		}
 
-		private void AI_Charge(int speed, int maxFrames){
+		private void AI_Charge(int speed, int maxFrames) {
 			curMaxSpeed = speed;
-			if(AI_AttackProgress == 0){
+			if (AI_AttackProgress == 0) {
 				//Set the NPC's direction and spriteDirection so that he doesn't turn around while charging
 				spriteDir = NPC.spriteDirection;
 				AI_AttackProgress++;
 				AI_Timer = -1;
-			}else if(AI_AttackProgress == 1){
+			} else if (AI_AttackProgress == 1) {
 				//Slow down and prepare to charge
-				if(AI_Timer < 0)
+				if (AI_Timer < 0)
 					AI_Timer = 60;
 
-				if(AI_Timer > 0)
+				if (AI_Timer > 0)
 					NPC.velocity.X *= 0.873f;
-				else{
+				else {
 					AI_AttackProgress++;
 					AI_Timer = -1;
 					SoundEngine.PlaySound(new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0), NPC.Center);
 					NPC.netUpdate = true;
 				}
-			}else if(AI_AttackProgress == 2){
+			} else if (AI_AttackProgress == 2) {
 				//The direction has been set.  Ram towards where the player was
 				NPC.velocity.X = speed * spriteDir;
-				if(AI_Timer < 0)
+				if (AI_Timer < 0)
 					AI_Timer = maxFrames;
 
-				if(AI_Timer == 0){
+				if (AI_Timer == 0) {
 					AI_AttackProgress++;
 					AI_Timer = -1;
 					NPC.netUpdate = true;
@@ -688,8 +688,8 @@ skipAI:
 			}
 		}
 
-		private void AI_BreatheFrost(float speed, float angle, float flamesPerSecond, float breatheTime){
-			if(Main.netMode == NetmodeID.MultiplayerClient)
+		private void AI_BreatheFrost(float speed, float angle, float flamesPerSecond, float breatheTime) {
+			if (Main.netMode == NetmodeID.MultiplayerClient)
 				return;
 
 			NPC.spriteDirection = NPC.Center.X < Target.Center.X ? 1 : -1;
@@ -702,10 +702,10 @@ skipAI:
 			//Frostbite will shoot "flamesPerSecond" flames per second
 			int maxFlames = (int)(flamesPerSecond * breatheTime + 1);
 
-			if(AI_Timer < 0)
+			if (AI_Timer < 0)
 				AI_Timer = (int)(60f / flamesPerSecond) + 1;
 
-			if(AI_AttackProgress - 3 < maxFlames && AI_Timer == 0){
+			if (AI_AttackProgress - 3 < maxFlames && AI_Timer == 0) {
 				//Get a random angle to add to "angle"; variation is [-3, 3] degrees
 				//Get the speed vector based on this angle
 				Vector2 flameSpeed = angle.ToRotationVector2() * speed;
@@ -723,7 +723,7 @@ skipAI:
 				SoundEngine.PlaySound(SoundID.Item34, start);
 			}
 
-			if(AI_AttackProgress == maxFlames + 3)
+			if (AI_AttackProgress == maxFlames + 3)
 				switchSubPhase = true;
 
 			NPC.velocity.X *= 0.8159f;
@@ -731,16 +731,16 @@ skipAI:
 
 		private int curIcicle = 0;
 
-		private void AI_Flick(float speedX, int numProjectiles, float angle){
+		private void AI_Flick(float speedX, int numProjectiles, float angle) {
 			speedX *= NPC.spriteDirection;
 
-			if(AI_Timer < 0 && AI_AttackProgress == 0){
+			if (AI_Timer < 0 && AI_AttackProgress == 0) {
 				curIcicle = -(int)(numProjectiles / 2f);
 				AI_Timer = Phase == Phase_1 ? normal_icicle_wait : enraged_icicle_wait;
 				AI_AttackProgress++;
-			}else if(AI_Timer >= 0 && AI_AttackProgress == 1){
+			} else if (AI_Timer >= 0 && AI_AttackProgress == 1) {
 				NPC.velocity.X *= 0.9185f;
-			}else if(AI_Timer < 0 && AI_AttackProgress < 1 + numProjectiles){
+			} else if (AI_Timer < 0 && AI_AttackProgress < 1 + numProjectiles) {
 				angle.MirrorAngle(mirrorY: NPC.spriteDirection == 1);
 
 				//Calculate the Y-velocity the middle projectile needs to move at,
@@ -764,35 +764,35 @@ skipAI:
 				AI_AttackProgress++;
 
 				curIcicle++;
-			}else if(AI_AttackProgress >= 1 + numProjectiles)
+			} else if (AI_AttackProgress >= 1 + numProjectiles)
 				switchSubPhase = true;
 		}
 
-		private void AI_Stomp(int jumpDelay, float initialYVel, int xVel, float walkAccel){
-			if(AI_Timer < 0 && AI_AttackProgress == 0){
+		private void AI_Stomp(int jumpDelay, float initialYVel, int xVel, float walkAccel) {
+			if (AI_Timer < 0 && AI_AttackProgress == 0) {
 				AI_Timer = jumpDelay;
 				AI_AttackProgress++;
 				AI_Walk(xVel, walkAccel);
-			}else if(AI_Timer >= 0 && AI_AttackProgress == 1){
+			} else if (AI_Timer >= 0 && AI_AttackProgress == 1) {
 				AI_Walk(xVel, walkAccel);
 
-				if(NPC.velocity.X != 0 && Math.Sign(NPC.velocity.X) != Math.Sign(Target.Center.X - NPC.Center.X))
+				if (NPC.velocity.X != 0 && Math.Sign(NPC.velocity.X) != Math.Sign(Target.Center.X - NPC.Center.X))
 					AI_Timer++;
-			}else if(AI_Timer < 0 && AI_AttackProgress == 1){
+			} else if (AI_Timer < 0 && AI_AttackProgress == 1) {
 				NPC.velocity.X += MiscUtils.GetModeChoice(4f, 6f, 9f) * NPC.spriteDirection;
 				NPC.velocity.Y = -initialYVel;
 				AI_AttackProgress++;
-			}else if(AI_AttackProgress == 2){
+			} else if (AI_AttackProgress == 2) {
 				NPC.velocity.X += 8f / 60f * NPC.spriteDirection;
 				NPC.velocity.Y += initialYVel / 20f / 60f;
 
-				if(NPC.position.Y == NPC.oldPosition.Y && NPC.oldVelocity.Y != 0)
+				if (NPC.position.Y == NPC.oldPosition.Y && NPC.oldVelocity.Y != 0)
 					AI_AttackProgress++;
-			}else if(AI_AttackProgress == 3){
+			} else if (AI_AttackProgress == 3) {
 				//Spawn a shitton of the flame particles and play an explosion sound
 				SoundEngine.PlaySound(SoundID.Item14.WithVolume(0.75f), NPC.Bottom);
 
-				for(int i = 0; i < 30; i++){
+				for (int i = 0; i < 30; i++) {
 					MiscUtils.SpawnProjectileSynced(NPC.Bottom,
 						new Vector2(0, -9).RotatedByRandom(MathHelper.ToRadians(60)),
 						ModContent.ProjectileType<FrostbiteBreath>(),
@@ -806,40 +806,40 @@ skipAI:
 			}
 		}
 
-		private void AI_Smash(int delay, int wallTimeLeft, bool wallsShootBolts){
-			if(AI_AttackProgress == 0 && AI_Timer < 0)
+		private void AI_Smash(int delay, int wallTimeLeft, bool wallsShootBolts) {
+			if (AI_AttackProgress == 0 && AI_Timer < 0)
 				AI_Timer = delay;
-			else if(AI_AttackProgress == 0 && AI_Timer >= 0){
-				if(AI_Timer == 0)
+			else if (AI_AttackProgress == 0 && AI_Timer >= 0) {
+				if (AI_Timer == 0)
 					AI_AttackProgress++;
 
 				NPC.velocity.X *= 0.925f;
-			}else if(AI_AttackProgress == 1 && AI_Timer < 0){
+			} else if (AI_AttackProgress == 1 && AI_Timer < 0) {
 				AI_Timer = 20;
 
-				for(int i = 0; i < 2; i++){
+				for (int i = 0; i < 2; i++) {
 					Vector2 offset = Target.Top + new Vector2(i == 0 ? 10 * 16f : -10 * 16f, -2 * 16);
 					MiscUtils.SpawnNPCSynced(offset, ModContent.NPCType<FrostbiteWall>(), wallTimeLeft, 80, wallsShootBolts ? 1 : 0);
 				}
-			}else if(AI_AttackProgress == 1 && AI_Timer == 0){
+			} else if (AI_AttackProgress == 1 && AI_Timer == 0) {
 				AI_AttackProgress++;
 				AI_Timer = 20;
-			}else if(AI_AttackProgress == 2 && AI_Timer == 0)
+			} else if (AI_AttackProgress == 2 && AI_Timer == 0)
 				switchSubPhase = true;
 		}
 
-		private void AI_Snowball(int delay, float speed){
+		private void AI_Snowball(int delay, float speed) {
 			NPC.velocity.X *= 0.8732f;
 
-			if(AI_AttackProgress == 0 && AI_Timer < 0)
+			if (AI_AttackProgress == 0 && AI_Timer < 0)
 				AI_Timer = delay;
-			else if(AI_AttackProgress == 0 && AI_Timer == 0){
+			else if (AI_AttackProgress == 0 && AI_Timer == 0) {
 				AI_AttackProgress++;
 				AI_Timer = 10;
-			}else if(AI_AttackProgress == 1 && AI_Timer < 0){
+			} else if (AI_AttackProgress == 1 && AI_Timer < 0) {
 				AI_Timer = 20;
 				AI_AttackProgress++;
-			}else if(AI_AttackProgress == 2 && AI_Timer < 0){
+			} else if (AI_AttackProgress == 2 && AI_Timer < 0) {
 				//Get the starting position of the snowball (it's the same as the breath attack, just further fowards in the mouth)
 				Vector2 start = (NPC.spriteDirection == 1) ? NPC.Right - new Vector2(40, 0) : NPC.Left + new Vector2(40, 0);
 
@@ -857,24 +857,24 @@ skipAI:
 
 				AI_Timer = 20;
 				AI_AttackProgress++;
-			}else if(AI_AttackProgress == 3 && AI_Timer < 0)
+			} else if (AI_AttackProgress == 3 && AI_Timer < 0)
 				switchSubPhase = true;
 		}
 
-		private void AI_SummonCloud(){
-			if(Main.npc.Any(n => n.active && n.type == ModContent.NPCType<FrostCloud>() && n.ai[0] == NPC.whoAmI)){
+		private void AI_SummonCloud() {
+			if (Main.npc.Any(n => n.active && n.type == ModContent.NPCType<FrostCloud>() && n.ai[0] == NPC.whoAmI)) {
 				switchSubPhase = true;
 				return;
 			}
 
-			if(AI_Timer < 0 && AI_AttackProgress == 0){
+			if (AI_Timer < 0 && AI_AttackProgress == 0) {
 				AI_Timer = Phase == Phase_1 ? normal_icicle_wait : enraged_icicle_wait;
-			}else if(AI_Timer >= 0 && AI_AttackProgress == 0){
+			} else if (AI_Timer >= 0 && AI_AttackProgress == 0) {
 				NPC.velocity.X *= 0.9185f;
 
-				if(AI_Timer == 0)
+				if (AI_Timer == 0)
 					AI_AttackProgress++;
-			}else if(AI_Timer < 0 && AI_AttackProgress == 1){
+			} else if (AI_Timer < 0 && AI_AttackProgress == 1) {
 				//Spawn the cloud
 				Vector2 spawn = NPC.spriteDirection == -1 ? NPC.TopRight : NPC.position;
 				spawn -= new Vector2(0, 3 * 16);
@@ -889,7 +889,7 @@ skipAI:
 
 				AI_AttackProgress++;
 				AI_Timer = 20;
-			}else if(AI_AttackProgress == 2 && AI_Timer < 0)
+			} else if (AI_AttackProgress == 2 && AI_Timer < 0)
 				switchSubPhase = true;
 		}
 	}

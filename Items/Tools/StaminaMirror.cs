@@ -7,21 +7,21 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Tools{
-	public class StaminaMirror : HidableTooltip{
+namespace CosmivengeonMod.Items.Tools {
+	public class StaminaMirror : HidableTooltip {
 		public override string ItemName => "Energy Inspector";
 
 		public override string FlavourText => GetFlavorText(Main.LocalPlayer);
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.width = 24;
 			Item.height = 24;
 			Item.value = Item.sellPrice(silver: 2, copper: 35);
 			Item.rare = ItemRarityID.Blue;
 		}
 
-		private string GetFlavorText(Player player){
-			if(player.whoAmI != Main.myPlayer || Main.netMode == NetmodeID.Server)
+		private string GetFlavorText(Player player) {
+			if (player.whoAmI != Main.myPlayer || Main.netMode == NetmodeID.Server)
 				return "";
 
 			//Get a copy of this player's Stamina and use it
@@ -33,13 +33,13 @@ namespace CosmivengeonMod.Items.Tools{
 			stamina.ApplyEffects();
 
 			string bosses = "";
-			foreach(var sbd in logPlayer.BossesKilled){
-				if(sbd.mod == "Terraria")
+			foreach (var sbd in logPlayer.BossesKilled) {
+				if (sbd.mod == "Terraria")
 					bosses += $"\"{ClearBossKilledCommand.GetBossNameFromDictionary(int.Parse(sbd.key))}\", ";
-				else{
+				else {
 					var otherMod = ModLoader.GetMod(sbd.mod);
 					//Don't display the name if the mod it's from isn't loaded
-					if(otherMod == null)
+					if (otherMod == null)
 						continue;
 
 					int id = otherMod.Find<ModNPC>(sbd.key).Type;
@@ -47,27 +47,27 @@ namespace CosmivengeonMod.Items.Tools{
 				}
 			}
 
-			if(bosses != ""){
+			if (bosses != "") {
 				bosses = bosses.Remove(bosses.Length - 2, 2);
 
 				StringBuilder sb = new StringBuilder(bosses.Length);
 
 				var words = bosses.Split(',');
 				int counter = 0;
-				for(int i = 0; i < words.Length; i++){
+				for (int i = 0; i < words.Length; i++) {
 					string word = words[i].Trim();
 
 					sb.Append(word);
 
 					counter++;
-					if(counter < 4)
+					if (counter < 4)
 						sb.Append(", ");
-					else{
+					else {
 						sb.Append(",\n  ");
 						counter = 0;
 					}
 				}
-			}else
+			} else
 				bosses = null;
 
 			return
@@ -87,7 +87,7 @@ namespace CosmivengeonMod.Items.Tools{
 				$"\n  {bosses ?? "none"}";
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddRecipeGroup("Wood", 5);
 			recipe.AddRecipeGroup("IronBar", 8);
@@ -97,13 +97,13 @@ namespace CosmivengeonMod.Items.Tools{
 			recipe.Register();
 		}
 
-		private string GetUnitsDiffString(int original, int current){
+		private string GetUnitsDiffString(int original, int current) {
 			int diff = current - original;
 			string sign = GetSign(diff);
 			return $"{current} units ({sign}{diff} units)";
 		}
 
-		private string GetPercentDiffString(float defaultRate, float multiplier){
+		private string GetPercentDiffString(float defaultRate, float multiplier) {
 			float current = defaultRate * multiplier;
 			int cur = (int)((current - 1) * 100);
 			int diff = (int)((current - defaultRate) * 100);
@@ -112,7 +112,7 @@ namespace CosmivengeonMod.Items.Tools{
 			return $"{signCur}{cur}% ({signDiff}{diff}%)";
 		}
 
-		private string GetRatesString(float current, float defaultRate){
+		private string GetRatesString(float current, float defaultRate) {
 			current *= 60 * 10000;
 			defaultRate *= 60 * 10000;
 			int diff = (int)(current - defaultRate);

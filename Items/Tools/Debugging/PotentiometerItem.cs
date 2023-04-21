@@ -4,15 +4,15 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Tools.Debugging{
-	public class PotentiometerItem : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Tools.Debugging {
+	public class PotentiometerItem : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Potentiometer");
 			Tooltip.SetDefault(CoreMod.Descriptions.DebugItem +
 				"\nClick to show the angle from the player's center to the mouse position.");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.width = 20;
 			Item.height = 20;
 			Item.maxStack = 99;
@@ -24,8 +24,8 @@ namespace CosmivengeonMod.Items.Tools.Debugging{
 			Item.consumable = false;
 		}
 
-		public override bool CanUseItem(Player player){
-			if(!Debug.debug_canUsePotentiometer){
+		public override bool CanUseItem(Player player) {
+			if (!Debug.debug_canUsePotentiometer) {
 				Main.NewText("Sorry, but you can't use this item.", Color.LightGray);
 				return false;
 			}

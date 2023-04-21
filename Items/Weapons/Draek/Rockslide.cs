@@ -4,9 +4,9 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.Draek{
-	public class Rockslide : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Weapons.Draek {
+	public class Rockslide : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Rockslide");
 			Tooltip.SetDefault("Casts out a medium-length earth yoyo that has a chance to poison foes on hit.");
 
@@ -16,7 +16,7 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 			ItemID.Sets.GamepadSmartQuickReach[Item.type] = true;
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.useStyle = ItemUseStyleID.Shoot;
 			Item.width = 30;
 			Item.height = 26;
@@ -37,7 +37,7 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 			Item.shoot = ModContent.ProjectileType<RockslideProjectile>();
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
 			recipe.AddIngredient(ItemID.Cobweb, 12);

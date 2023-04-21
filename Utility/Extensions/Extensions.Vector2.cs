@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Terraria;
 
-namespace CosmivengeonMod.Utility.Extensions{
-	public static partial class Extensions{
+namespace CosmivengeonMod.Utility.Extensions {
+	public static partial class Extensions {
 		/// <summary>
 		/// Equivalent to <paramref name="vector"/>.RotatedBy(<paramref name="rotateBy"/>).RotatedByRandom(<paramref name="rotateByRandom"/>)
 		/// </summary>
@@ -23,7 +23,7 @@ namespace CosmivengeonMod.Utility.Extensions{
 		public static Vector2 RotateDegrees(this Vector2 vector, float rotateByDegrees, float rotateByRandomDegrees)
 			=> vector.Rotate(MathHelper.ToRadians(rotateByDegrees), MathHelper.ToRadians(rotateByRandomDegrees));
 
-		public static Vector3 ScreenCoord(this Vector2 vector){
+		public static Vector3 ScreenCoord(this Vector2 vector) {
 			//"vector" is a point on the screen... given the zoom is 1x
 			//Let's correct that
 			Vector2 screenCenter = new Vector2(Main.screenWidth / 2f, Main.screenHeight / 2f);

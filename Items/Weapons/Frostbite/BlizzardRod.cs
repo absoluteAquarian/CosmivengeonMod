@@ -5,18 +5,18 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.Frostbite{
-	public class BlizzardRod : ModItem{
+namespace CosmivengeonMod.Items.Weapons.Frostbite {
+	public class BlizzardRod : ModItem {
 		private static int LastCloudSpawnedIndex = -1;
-		public static int[] SpawnedClouds = new int[2]{ -1, -1 };
+		public static int[] SpawnedClouds = new int[2] { -1, -1 };
 
-		public override void SetStaticDefaults(){
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Blizzard Rod");
 			Tooltip.SetDefault("Spawns a blizzard cloud at the cursor." +
 				"\nUp to 2 clouds can exist at once.");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.DamageType = DamageClass.Magic;
 			Item.mana = 21;
 			Item.width = 40;
@@ -33,7 +33,7 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 			Item.shoot = ModContent.ProjectileType<BlizzardRodProjectile>();
 		}
 
-		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback){
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
 			position = Main.MouseWorld;
 
 			//Generate a new projectile
@@ -43,10 +43,10 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 			LastCloudSpawnedIndex = ++LastCloudSpawnedIndex % SpawnedClouds.Length;
 
 			//If this index has a cloud already, kill the cloud that's there if it's still active
-			if(SpawnedClouds[LastCloudSpawnedIndex] > 0){
+			if (SpawnedClouds[LastCloudSpawnedIndex] > 0) {
 				var existing = Main.projectile[SpawnedClouds[LastCloudSpawnedIndex]];
 
-				if(existing.active && existing.ModProjectile is BlizzardRodProjectile)
+				if (existing.active && existing.ModProjectile is BlizzardRodProjectile)
 					existing.Kill();
 			}
 

@@ -6,9 +6,9 @@ using System.Linq;
 using Terraria;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.NPCs.Monsters.Purity{
-	public abstract class RaechonAI : ModNPC{
-		public abstract float JumpStrength{ get; }
+namespace CosmivengeonMod.NPCs.Monsters.Purity {
+	public abstract class RaechonAI : ModNPC {
+		public abstract float JumpStrength { get; }
 		public abstract float GetWalkSpeed(bool cantSee, bool noTarget);
 
 		public ref float AIState => ref NPC.ai[0];
@@ -42,38 +42,38 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity{
 
 		public bool CanSee(Player plr) => CoordVectors.Any(v => Collision.CanHit(v - new Vector2(1), 2, 2, plr.Center - new Vector2(1), 2, 2));
 
-		public override void AI(){
+		public override void AI() {
 			//AI states:
 			//1: cannot see any players and doesn't have one as a target, walking around and being idle
 			//2: has a target player but can't see them
 			//3: has a target player and can see them
 			AITimer++;
 
-			if(NPC.collideX){
+			if (NPC.collideX) {
 				NPC.velocity.X = 0;
 				NPC.position.X = NPC.oldPosition.X;
 			}
 
 			//Make the animation move faster if the NPC is moving faster
-			if(NPC.velocity.X != 0)
+			if (NPC.velocity.X != 0)
 				NPC.frameCounter += Math.Max(3.5 * Math.Abs(NPC.velocity.X) / vel_targetX, 0.8);
-			else{
+			else {
 				NPC.frameCounter = 0;
 				animFrame = 0;
 			}
 
-			if(NPC.frameCounter > 10){
+			if (NPC.frameCounter > 10) {
 				NPC.frameCounter = 0;
 				animFrame = ++animFrame % Main.npcFrameCount[NPC.type];
 			}
 
 			//On the first tick, set the animation states properly
-			if(AIState == 0){
+			if (AIState == 0) {
 				AIState = State_LookingForPlayers;
 				AISubstate = 2;
 				AITimer = 0;
 
-				faceDir = Main.rand.Next(new int[]{ -1, 1 });
+				faceDir = Main.rand.Next(new int[] { -1, 1 });
 				NPC.velocity.X = Main.rand.NextFloat(-3f, 3.00001f);
 
 				NPC.netUpdate = true;
@@ -81,20 +81,20 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity{
 
 			NPC.SmoothStep(ref NPC.position);
 
-			if(AIState == State_LookingForPlayers){
+			if (AIState == State_LookingForPlayers) {
 				//Attempt to find a player target
 				//If one is found, set it and update the netcode
 				Target = null;
 				NPC.target = -1;
-				for(int i = 0; i < Main.maxPlayers; i++){
+				for (int i = 0; i < Main.maxPlayers; i++) {
 					Player plr = Main.player[i];
 
-					if(!plr.active || plr.dead || !NPC.WithinDistance(plr.Center, 40 * 16))
+					if (!plr.active || plr.dead || !NPC.WithinDistance(plr.Center, 40 * 16))
 						continue;
 
 					//Check if no blocks are in the way
 					//If there aren't any, then target this player
-					if(CanSee(plr)){
+					if (CanSee(plr)) {
 						Target = plr;
 						NPC.target = plr.whoAmI;
 						AIState = State_FoundPlayer_CanSee;
@@ -104,23 +104,23 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity{
 					}
 				}
 
-				if(NPC.velocity.X > 0)
+				if (NPC.velocity.X > 0)
 					faceDir = 1;
-				else if(NPC.velocity.X < 0)
+				else if (NPC.velocity.X < 0)
 					faceDir = -1;
 
 				float walk = GetWalkSpeed(true, true);
 
 				Do_AIState_0_Movement(walk / 0.6667f, walk, walk * 2.1f, true);
-			}else if(AIState == State_FoundPlayer_CanSee){
+			} else if (AIState == State_FoundPlayer_CanSee) {
 				//If we can no longer see the player, move on to AI state 1 or 2
-				if(InvalidTarget){
+				if (InvalidTarget) {
 					AIState = State_LookingForPlayers;
 					Target = null;
 					NPC.target = -1;
 					return;
 				}
-				if(Target != null && !CanSee(Target)){
+				if (Target != null && !CanSee(Target)) {
 					AIState = State_FoundPlayer_NoSee;
 					return;
 				}
@@ -132,15 +132,15 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity{
 
 				//Basically a copy of AIState 0's movement, but without the waiting and with faster movement
 				Do_AIState_0_Movement(walk / 0.45f, walk, walk, false);
-			}else if(AIState == State_FoundPlayer_NoSee){
-				if(Target != null && CanSee(Target)){
+			} else if (AIState == State_FoundPlayer_NoSee) {
+				if (Target != null && CanSee(Target)) {
 					AIState = State_FoundPlayer_CanSee;
 					return;
 				}
 
-				if(NPC.velocity.X > 0)
+				if (NPC.velocity.X > 0)
 					faceDir = 1;
-				else if(NPC.velocity.X < 0)
+				else if (NPC.velocity.X < 0)
 					faceDir = -1;
 
 				float walk = GetWalkSpeed(true, false);
@@ -149,7 +149,7 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity{
 				Do_AIState_0_Movement(walk / 0.45f, walk, walk * 0.6f, false);
 
 				lookTimer++;
-				if(lookTimer > 5 * 60){
+				if (lookTimer > 5 * 60) {
 					AIState = State_LookingForPlayers;
 					Reset();
 				}
@@ -161,7 +161,7 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity{
 			NPC.spriteDirection = faceDir;
 		}
 
-		private void Reset(){
+		private void Reset() {
 			AITimer = 0;
 			AITimerTarget = 0;
 			lookTimer = 0;
@@ -172,36 +172,36 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity{
 			NPC.netUpdate = true;
 		}
 
-		private void Do_AIState_0_Movement(float acceleration, float velCap, float anim_target, bool doWait){
+		private void Do_AIState_0_Movement(float acceleration, float velCap, float anim_target, bool doWait) {
 			//Cycles between several substates:
 			//0: Reset wait timer and turn around
 			//1: Wait until timer has reached the random value from substate 0; apply friction
 			//2: Reset wait timer
 			//3: Try to move forwards until the timer has reached the random value from substate 2
-			if(!doWait && AISubstate == 0)
+			if (!doWait && AISubstate == 0)
 				AISubstate = 2;
 
 			vel_targetX = anim_target;
 
-			if(AISubstate == 0){
+			if (AISubstate == 0) {
 				AITimer = 0;
-				if(doWait)
+				if (doWait)
 					AITimerTarget = Main.rand.Next(75, 161);
 				else
 					AITimerTarget = 0;
 
 				AISubstate = 1;
 				NPC.netUpdate = true;
-			}else if(AISubstate == 1){
+			} else if (AISubstate == 1) {
 				//Friction
 				NPC.velocity.X *= 1f - 2.635f / 60f;
 
-				if(NPC.velocity.Y != 0)
+				if (NPC.velocity.Y != 0)
 					AITimer--;
-				else if(Math.Abs(NPC.velocity.X) < 0.025f)
+				else if (Math.Abs(NPC.velocity.X) < 0.025f)
 					NPC.velocity.X = 0;
 
-				if(AITimer >= AITimerTarget){
+				if (AITimer >= AITimerTarget) {
 					//Turn around
 					faceDir *= -1;
 					NPC.velocity.X = 0;
@@ -209,19 +209,19 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity{
 					AISubstate = 2;
 					NPC.netUpdate = true;
 				}
-			}else if(AISubstate == 2){
+			} else if (AISubstate == 2) {
 				AITimer = 0;
 				AISubstate = 3;
 				NPC.netUpdate = true;
 				AITimerTarget = Main.rand.Next(170, 280);
-			}else if(AISubstate == 3){
-				if(NPC.velocity.Y == 0){
+			} else if (AISubstate == 3) {
+				if (NPC.velocity.Y == 0) {
 					NPC.velocity.X += faceDir * acceleration / 60f;
 
 					NPC.velocity.X.Clamp(-velCap, velCap);
 				}
 
-				if(AITimer >= AITimerTarget){
+				if (AITimer >= AITimerTarget) {
 					AISubstate = 0;
 					NPC.netUpdate = true;
 				}
@@ -230,30 +230,30 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity{
 			}
 		}
 
-		private void TryHop(){
+		private void TryHop() {
 			//If we've hit a wall, start a second timer
 			//If that timer reaches 35 ticks, do a random amount of small hops (crab be stubby though)
-			if(NPC.collideX && NPC.velocity.Y == 0){
+			if (NPC.collideX && NPC.velocity.Y == 0) {
 				hopTimer++;
 
-				if(hopTimer == 35){
+				if (hopTimer == 35) {
 					hopCount = Main.rand.Next(1, 4);
 					NPC.netUpdate = true;
 				}
 
-				if(hopTimer >= 35 && hopCount > 0){
+				if (hopTimer >= 35 && hopCount > 0) {
 					//Offset the NPC's position to be slightly away from the wall
 					NPC.position.X -= NPC.spriteDirection * 4;
 
 					NPC.velocity.Y = JumpStrength;
 					hopCount--;
-				}else if(hopTimer >= 35 && hopCount == 0){
+				} else if (hopTimer >= 35 && hopCount == 0) {
 					hopTimer = 0;
 					AISubstate = 0;
 				}
 
 				animFrame = 0;
-			}else if(!NPC.collideX){
+			} else if (!NPC.collideX) {
 				//Not colliding with any tiles horizontally
 				int hc = hopCount;
 
@@ -261,12 +261,12 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity{
 				hopCount = 0;
 
 				//Update netcode if the hop count actually reset
-				if(hc != hopCount)
+				if (hc != hopCount)
 					NPC.netUpdate = true;
 			}
 		}
 
-		public override void SendExtraAI(BinaryWriter writer){
+		public override void SendExtraAI(BinaryWriter writer) {
 			writer.Write((byte)AIState);
 			writer.Write((byte)(Target?.whoAmI ?? -1));
 			writer.Write((short)hopTimer);
@@ -276,11 +276,11 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity{
 			writer.Write((sbyte)faceDir);
 		}
 
-		public override void ReceiveExtraAI(BinaryReader reader){
+		public override void ReceiveExtraAI(BinaryReader reader) {
 			byte state = reader.ReadByte();
 			byte plr = reader.ReadByte();
 
-			if(state != State_LookingForPlayers && plr >= 0)
+			if (state != State_LookingForPlayers && plr >= 0)
 				Target = Main.player[plr];
 
 			hopTimer = reader.ReadInt16();
@@ -290,21 +290,21 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity{
 			faceDir = reader.ReadSByte();
 		}
 
-		public override void FindFrame(int frameHeight){
+		public override void FindFrame(int frameHeight) {
 			NPC.frame.Y = animFrame * frameHeight;
 		}
 
-		public override void OnHitByItem(Player player, Item item, int damage, float knockback, bool crit){
+		public override void OnHitByItem(Player player, Item item, int damage, float knockback, bool crit) {
 			TargetPlayer(player);
 		}
 
-		public override void OnHitByProjectile(Projectile projectile, int damage, float knockback, bool crit){
+		public override void OnHitByProjectile(Projectile projectile, int damage, float knockback, bool crit) {
 			TargetPlayer(Main.player[projectile.owner]);
 		}
 
-		private void TargetPlayer(Player player){
+		private void TargetPlayer(Player player) {
 			//Retaliate against that player immediately unless we're already chasing after one
-			if(NPC.target != -1 && AIState != State_LookingForPlayers)
+			if (NPC.target != -1 && AIState != State_LookingForPlayers)
 				return;
 
 			Target = player;

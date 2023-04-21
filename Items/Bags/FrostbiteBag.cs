@@ -4,14 +4,14 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Bags{
-	public class FrostbiteBag : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Bags {
+	public class FrostbiteBag : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Treasure Bag");
 			Tooltip.SetDefault("{$CommonItemTooltip.RightClickToOpen}");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.maxStack = 999;
 			Item.consumable = true;
 			Item.width = 40;
@@ -22,8 +22,8 @@ namespace CosmivengeonMod.Items.Bags{
 
 		public override bool CanRightClick() => true;
 
-		public override void OpenBossBag(Player player){
-			if(Main.hardMode)
+		public override void OpenBossBag(Player player) {
+			if (Main.hardMode)
 				player.TryGettingDevArmor();
 
 			player.QuickSpawnItem(ModContent.ItemType<EyeOfTheBlizzard>());

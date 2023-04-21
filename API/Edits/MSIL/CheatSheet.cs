@@ -8,40 +8,40 @@ using System.Reflection;
 using Terraria;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.API.Edits.MSIL{
-	public static class CheatSheet{
+namespace CosmivengeonMod.API.Edits.MSIL {
+	public static class CheatSheet {
 		private static Type NPCBrowser;
 		private static ConstructorInfo NPCBrowser_ctor;
 		private static MethodInfo NPCBrowser_Draw;
 
-		public static void Load(){
-			if(ModReferences.CheatSheet.Active){ 
+		public static void Load() {
+			if (ModReferences.CheatSheet.Active) {
 				NPCBrowser = null;
 
 				Assembly assembly = ModReferences.CheatSheet.GetType().Assembly;
 
 				Type[] types = assembly.GetTypes();
-				foreach(Type type in types){
-					if(type.Name == "NPCBrowser"){
+				foreach (Type type in types) {
+					if (type.Name == "NPCBrowser") {
 						NPCBrowser = type;
 						break;
 					}
 				}
 
-				if(NPCBrowser != null){
-					NPCBrowser_ctor = NPCBrowser.GetConstructor(new Type[]{ ModReferences.CheatSheet.GetType() });
+				if (NPCBrowser != null) {
+					NPCBrowser_ctor = NPCBrowser.GetConstructor(new Type[] { ModReferences.CheatSheet.GetType() });
 					NPCBrowser_Draw = NPCBrowser.GetMethod("Draw", BindingFlags.Public | BindingFlags.Instance);
 				}
 
-				if(NPCBrowser_Draw != null)
+				if (NPCBrowser_Draw != null)
 					ModifyDraw += PatchDraw;
-				if(NPCBrowser_ctor != null)
+				if (NPCBrowser_ctor != null)
 					Modify_ctor += Patch_ctor;
-			}else
+			} else
 				CoreMod.Instance.Logger.Error("Unable to patch CheatSheet since it doesn't exist.");
 		}
 
-		private static void Patch_ctor(ILContext il){
+		private static void Patch_ctor(ILContext il) {
 			FieldInfo NPCBrowser_textures = NPCBrowser.GetField("textures", BindingFlags.NonPublic | BindingFlags.Instance);
 			MethodInfo Mod_GetTexture = typeof(Mod).GetMethod("GetTexture", BindingFlags.Public | BindingFlags.Instance);
 
@@ -70,7 +70,7 @@ namespace CosmivengeonMod.API.Edits.MSIL{
 			 *   IL_0358: stfld     class [Microsoft.Xna.Framework.Graphics]Microsoft.Xna.Framework.Graphics.Texture2D[] CheatSheet.Menus.NPCBrowser::textures
 			 *   IL_035D: ret
 			 */
-			if(!c.TryGotoNext(MoveType.Before, i => i.MatchLdarg(0),
+			if (!c.TryGotoNext(MoveType.Before, i => i.MatchLdarg(0),
 											   i => i.MatchLdcI4(4),
 											   i => i.MatchNewarr(typeof(Texture2D)),
 											   i => i.MatchDup()))
@@ -78,7 +78,7 @@ namespace CosmivengeonMod.API.Edits.MSIL{
 			c.Index++;
 			c.Instrs[c.Index].OpCode = OpCodes.Ldc_I4_5;
 
-			if(!c.TryGotoNext(MoveType.Before, i => i.MatchCallvirt(Mod_GetTexture),
+			if (!c.TryGotoNext(MoveType.Before, i => i.MatchCallvirt(Mod_GetTexture),
 											   i => i.MatchStelemRef(),
 											   i => i.MatchStfld(NPCBrowser_textures),
 											   i => i.MatchRet()))
@@ -94,14 +94,14 @@ namespace CosmivengeonMod.API.Edits.MSIL{
 			ILHelper.CompleteLog(c);
 
 			return;
-			//Using a label here because it's easier
+//Using a label here because it's easier
 bad_il:
 			CoreMod.Instance.Logger.Error("Unable to fully patch CheatSheet.NPCBrowser..ctor()");
 		}
 
-		private static void PatchDraw(ILContext il){
+		private static void PatchDraw(ILContext il) {
 			FieldInfo NPCBrowser_tooltipNpc = NPCBrowser.GetField("tooltipNpc", BindingFlags.NonPublic | BindingFlags.Static);
-			MethodInfo String_Format = typeof(string).GetMethod("Format", BindingFlags.Public | BindingFlags.Static, null, new Type[]{ typeof(string), typeof(object) }, null);
+			MethodInfo String_Format = typeof(string).GetMethod("Format", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(string), typeof(object) }, null);
 
 			ILCursor c = new ILCursor(il);
 
@@ -123,14 +123,14 @@ bad_il:
 			 *   IL_01AB: stloc.2
 			 *   IL_01AC: ldloca.s  V_3
 			 */
-			if(!c.TryGotoNext(MoveType.Before, i => i.MatchLdcI4(4),
+			if (!c.TryGotoNext(MoveType.Before, i => i.MatchLdcI4(4),
 											   i => i.MatchNewarr(typeof(string)),
 											   i => i.MatchDup(),
 											   i => i.MatchLdcI4(0)))
 				goto bad_il;
 			c.Instrs[c.Index].OpCode = OpCodes.Ldc_I4_5;
 
-			if(!c.TryGotoNext(MoveType.Before, i => i.MatchBox(typeof(float)),
+			if (!c.TryGotoNext(MoveType.Before, i => i.MatchBox(typeof(float)),
 											   i => i.MatchCall(String_Format),
 											   i => i.MatchStelemRef(),
 											   i => i.MatchStloc(2),
@@ -140,7 +140,7 @@ bad_il:
 			c.Emit(OpCodes.Dup);
 			c.Emit(OpCodes.Ldc_I4_4);
 			c.Emit(OpCodes.Ldsfld, NPCBrowser_tooltipNpc);
-			c.EmitDelegate<Func<NPC, string>>(npc => $"{npc.GetGlobalNPC<StatsNPC>().endurance :0.##}");
+			c.EmitDelegate<Func<NPC, string>>(npc => $"{npc.GetGlobalNPC<StatsNPC>().endurance:0.##}");
 			c.Emit(OpCodes.Stelem_Ref);
 
 			ILHelper.UpdateInstructionOffsets(c);
@@ -148,26 +148,26 @@ bad_il:
 			ILHelper.CompleteLog(c);
 
 			return;
-			//Using a label here because it's easier
+//Using a label here because it's easier
 bad_il:
 			CoreMod.Instance.Logger.Error("Unable to fully patch CheatSheet.NPCBrowser.Draw()");
 		}
 
-		public static void Unload(){
-			if(NPCBrowser_Draw != null)
+		public static void Unload() {
+			if (NPCBrowser_Draw != null)
 				ModifyDraw -= PatchDraw;
-			if(NPCBrowser_ctor != null)
+			if (NPCBrowser_ctor != null)
 				Modify_ctor -= Patch_ctor;
 
 			NPCBrowser = null;
 		}
 
 		//The method manipulators
-		private static event ILContext.Manipulator ModifyDraw{
+		private static event ILContext.Manipulator ModifyDraw {
 			add => HookEndpointManager.Modify(NPCBrowser_Draw, value);
 			remove => HookEndpointManager.Unmodify(NPCBrowser_Draw, value);
 		}
-		private static event ILContext.Manipulator Modify_ctor{
+		private static event ILContext.Manipulator Modify_ctor {
 			add => HookEndpointManager.Modify(NPCBrowser_ctor, value);
 			remove => HookEndpointManager.Unmodify(NPCBrowser_ctor, value);
 		}

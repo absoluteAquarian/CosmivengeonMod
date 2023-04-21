@@ -15,12 +15,12 @@ using System.Collections.Generic;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.API.Managers{
-	public static class CrossMod{
-		public static void Load(){
+namespace CosmivengeonMod.API.Managers {
+	public static class CrossMod {
+		public static void Load() {
 			//Set the boss's position in BossChecklist if the mod is active
 			//see:  https://github.com/JavidPack/BossChecklist/wiki/Support-using-Mod-Call
-			if(ModReferences.BossChecklist.Active){
+			if (ModReferences.BossChecklist.Active) {
 				//2.7f ==> just before Eater of Worlds
 				ModReferences.BossChecklist.Call("AddBoss",
 					2.7f,

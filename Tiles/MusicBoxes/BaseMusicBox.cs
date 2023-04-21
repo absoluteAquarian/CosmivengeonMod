@@ -4,14 +4,14 @@ using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 
-namespace CosmivengeonMod.Tiles.MusicBoxes{
-	public abstract class BaseMusicBox<T> : ModTile where T : ModItem{
+namespace CosmivengeonMod.Tiles.MusicBoxes {
+	public abstract class BaseMusicBox<T> : ModTile where T : ModItem {
 		//Needed so that tML doesn't try to load this class
 #pragma warning disable IDE0060
-		protected BaseMusicBox(bool b = false){ }
+		protected BaseMusicBox(bool b = false) { }
 #pragma warning restore IDE0060
 
-		public override void SetStaticDefaults(){
+		public override void SetStaticDefaults() {
 			Main.tileFrameImportant[Type] = true;
 			Main.tileObsidianKill[Type] = true;
 			TileObjectData.newTile.CopyFrom(TileObjectData.Style2x2);
@@ -25,11 +25,11 @@ namespace CosmivengeonMod.Tiles.MusicBoxes{
 			AddMapEntry(new Color(200, 200, 200), name);
 		}
 
-		public override void KillMultiTile(int i, int j, int frameX, int frameY){
+		public override void KillMultiTile(int i, int j, int frameX, int frameY) {
 			Item.NewItem(i * 16, j * 16, 16, 48, ModContent.ItemType<T>());
 		}
 
-		public override void MouseOver(int i, int j){
+		public override void MouseOver(int i, int j) {
 			Player player = Main.LocalPlayer;
 			player.noThrow = 2;
 			player.cursorItemIconEnabled = true;

@@ -7,9 +7,9 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Projectiles.Weapons.Draek{
-	public class StoneskipperProjectile : ModProjectile{
-		public override void SetDefaults(){
+namespace CosmivengeonMod.Projectiles.Weapons.Draek {
+	public class StoneskipperProjectile : ModProjectile {
+		public override void SetDefaults() {
 			Projectile.width = 8;
 			Projectile.height = 8;
 			Projectile.aiStyle = 1;
@@ -25,8 +25,8 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 			AIType = ProjectileID.Bullet;
 		}
 
-		public override void AI(){
-			if(Projectile.velocity.Length() < Stoneskipper.ShootSpeed)
+		public override void AI() {
+			if (Projectile.velocity.Length() < Stoneskipper.ShootSpeed)
 				Projectile.velocity = Vector2.Normalize(Projectile.velocity) * Stoneskipper.ShootSpeed / (Projectile.extraUpdates + 1);
 
 			//Add a green light from the projectile
@@ -36,7 +36,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 			Projectile.rotation = Projectile.velocity.ToRotation();
 		}
 
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
+		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
 			target.AddBuff(BuffID.Poisoned, 5 * 60);
 		}
 
@@ -51,7 +51,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 			return true;
 		}
 
-		public override void Kill(int timeLeft){
+		public override void Kill(int timeLeft) {
 			Collision.HitTiles(Projectile.position + Projectile.velocity, Projectile.velocity, Projectile.width, Projectile.height);
 			SoundEngine.PlaySound(SoundID.Item10, Projectile.position);
 		}

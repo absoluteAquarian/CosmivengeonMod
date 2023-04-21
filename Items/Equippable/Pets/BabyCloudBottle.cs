@@ -5,14 +5,14 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Equippable.Pets{
-	public class BabyCloudBottle : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Equippable.Pets {
+	public class BabyCloudBottle : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Baby Cloud Bottle");
 			Tooltip.SetDefault("Summons a baby blizzard cloud.");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.ZephyrFish);
 			Item.width = 20;
 			Item.height = 38;
@@ -21,8 +21,8 @@ namespace CosmivengeonMod.Items.Equippable.Pets{
 			Item.buffType = ModContent.BuffType<FrostCloudPetBuff>();
 		}
 
-		public override void UseStyle(Player player, Rectangle heldItemFrame){
-			if(player.whoAmI == Main.myPlayer && player.itemTime == 0)
+		public override void UseStyle(Player player, Rectangle heldItemFrame) {
+			if (player.whoAmI == Main.myPlayer && player.itemTime == 0)
 				player.AddBuff(ModContent.BuffType<FrostCloudPetBuff>(), 3600, true);
 		}
 	}

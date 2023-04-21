@@ -4,9 +4,9 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Abilities{
-	public class EnergizedParticle{
-		public Player Parent{ get; internal set; }
+namespace CosmivengeonMod.Abilities {
+	public class EnergizedParticle {
+		public Player Parent { get; internal set; }
 		public Vector2 Velocity = Vector2.Zero;
 		private Vector2 offset = Vector2.Zero;
 		public Vector2 Position => Parent.position + offset;
@@ -16,7 +16,7 @@ namespace CosmivengeonMod.Abilities{
 
 		private bool deleted = false;
 
-		public EnergizedParticle(Player parent, Vector2 initialOffset, Vector2 velocity){
+		public EnergizedParticle(Player parent, Vector2 initialOffset, Vector2 velocity) {
 			Parent = parent;
 			offset = initialOffset;
 			Velocity = velocity;
@@ -36,9 +36,9 @@ namespace CosmivengeonMod.Abilities{
 				0
 			);
 
-		public void Update(){
-			if(!Active){
-				if(!deleted)
+		public void Update() {
+			if (!Active) {
+				if (!deleted)
 					Delete();
 				return;
 			}
@@ -46,11 +46,11 @@ namespace CosmivengeonMod.Abilities{
 			offset += Velocity;
 			Scale *= 0.973f;
 
-			if(Scale < 0.25f)
+			if (Scale < 0.25f)
 				Active = false;
 		}
 
-		public void Delete(){
+		public void Delete() {
 			deleted = true;
 			Active = false;
 			Parent = null;

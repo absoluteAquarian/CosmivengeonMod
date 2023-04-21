@@ -3,14 +3,14 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Equippable.Armor.Crystalice{
+namespace CosmivengeonMod.Items.Equippable.Armor.Crystalice {
 	[AutoloadEquip(EquipType.Body)]
-	public class CrystaliceBreastplate : ModItem{
-		public override void SetStaticDefaults(){
+	public class CrystaliceBreastplate : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Crystalice Coat");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.width = 30;
 			Item.height = 20;
 			Item.defense = 4;
@@ -18,7 +18,7 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Crystalice{
 			Item.value = Item.sellPrice(silver: 16, copper: 75);
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>(), 4);
 			recipe.AddIngredient(ItemID.IceBlock, 20);

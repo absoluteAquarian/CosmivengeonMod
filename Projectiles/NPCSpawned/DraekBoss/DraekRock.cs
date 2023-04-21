@@ -2,13 +2,13 @@
 using Terraria;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
-	public class DraekRock : ModProjectile{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss {
+	public class DraekRock : ModProjectile {
+		public override void SetStaticDefaults() {
 			Main.projFrames[Projectile.type] = 3;
 		}
-		
-		public override void SetDefaults(){
+
+		public override void SetDefaults() {
 			Projectile.height = WorldEvents.desoMode ? 20 : 15;
 			Projectile.width = WorldEvents.desoMode ? 20 : 15;
 			Projectile.friendly = false;
@@ -25,12 +25,12 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 			DrawOriginOffsetY = (int)(Projectile.height / 2f);
 		}
 
-		public override void AI(){
-			if(Projectile.velocity.Y < Projectile.ai[0])
+		public override void AI() {
+			if (Projectile.velocity.Y < Projectile.ai[0])
 				Projectile.velocity.Y += Projectile.ai[1];
-			
+
 			//Change the animation frame every 6 frames
-			if(++Projectile.frameCounter >= 6){
+			if (++Projectile.frameCounter >= 6) {
 				Projectile.frameCounter = 0;
 				Projectile.frame = ++Projectile.frame % Main.projFrames[Projectile.type];
 			}

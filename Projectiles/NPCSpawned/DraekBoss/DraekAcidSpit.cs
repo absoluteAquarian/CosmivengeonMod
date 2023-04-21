@@ -6,13 +6,13 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
-	public class DraekAcidSpit : ModProjectile{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss {
+	public class DraekAcidSpit : ModProjectile {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Acid Spit");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Projectile.alpha = 75;
 			Projectile.width = 8;
 			Projectile.height = 8;
@@ -24,8 +24,8 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 
 		private bool hasSpawned = false;
 
-		public override void AI(){
-			if(!hasSpawned){
+		public override void AI() {
+			if (!hasSpawned) {
 				hasSpawned = true;
 				Projectile.velocity = Vector2.Normalize(new Vector2(Projectile.ai[0], Projectile.ai[1]) - Projectile.Center) * 10f;
 
@@ -36,7 +36,7 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 
 			Projectile.velocity.Y.Clamp(-10, 10);
 
-			if(Main.rand.NextFloat() < 0.75f){
+			if (Main.rand.NextFloat() < 0.75f) {
 				Dust dust = Dust.NewDustPerfect(Projectile.Center, 74);
 				dust.velocity = Vector2.Zero;
 				dust.noGravity = true;

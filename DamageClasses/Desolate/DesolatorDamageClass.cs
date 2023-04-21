@@ -1,21 +1,21 @@
 ﻿using Terraria.ModLoader;
 
-namespace CosmivengeonMod.DamageClasses.Desolate{
-	public class DesolatorDamageClass : ModPlayer{
+namespace CosmivengeonMod.DamageClasses.Desolate {
+	public class DesolatorDamageClass : ModPlayer {
 		public float damageAdd;
 		public float damageMult;
 		public float knockback;
 		public int crit;
 
-		public override void ResetEffects(){
+		public override void ResetEffects() {
 			Reset();
 		}
 
-		public override void UpdateDead(){
+		public override void UpdateDead() {
 			Reset();
 		}
 
-		private void Reset(){
+		private void Reset() {
 			damageAdd = 0;
 			damageMult = 0;
 			knockback = 0;

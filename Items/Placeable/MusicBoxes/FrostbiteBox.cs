@@ -3,8 +3,8 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Placeable.MusicBoxes{
-	public class FrostbiteBox : ModItem{
+namespace CosmivengeonMod.Items.Placeable.MusicBoxes {
+	public class FrostbiteBox : ModItem {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Music Box (Frostbite)");
 		}

@@ -6,15 +6,15 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.Crystalice{
-	public class CrystaliceBow : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Weapons.Crystalice {
+	public class CrystaliceBow : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Crystalice Bow");
 			Tooltip.SetDefault("A sleek, frozen bow." +
 				"\nCauses all arrows fired from it to inflict [c/6fa8dc:Frostburn].");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.DamageType = DamageClass.Ranged;
 			Item.damage = 12;
 			Item.knockBack = 3.1f;
@@ -32,7 +32,7 @@ namespace CosmivengeonMod.Items.Weapons.Crystalice{
 			Item.value = Item.sellPrice(silver: 1, copper: 75);
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>());
 			recipe.AddIngredient(ItemID.SnowBlock, 10);
@@ -41,7 +41,7 @@ namespace CosmivengeonMod.Items.Weapons.Crystalice{
 			recipe.Register();
 		}
 
-		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback){
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
 			Projectile proj = Main.projectile[Projectile.NewProjectile(position, new Vector2(speedX, speedY), type, damage, knockBack, player.whoAmI)];
 			proj.GetGlobalProjectile<WeaponAffectedProjectile>().shotFromCrystaliceBow = true;
 			return false;

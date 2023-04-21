@@ -1,5 +1,5 @@
-﻿namespace CosmivengeonMod.DamageClasses.Desolate{
-	public static class DesolatorPrefixChance{
+﻿namespace CosmivengeonMod.DamageClasses.Desolate {
+	public static class DesolatorPrefixChance {
 		public const float ExceptionallyRare = 0.1f;
 		public const float VeryRare = 0.25f;
 		public const float Rare = 0.5f;

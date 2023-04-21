@@ -4,15 +4,15 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
-	public class DraekRockExplosion : ModProjectile{
+namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss {
+	public class DraekRockExplosion : ModProjectile {
 		public override string Texture => "CosmivengeonMod/Projectiles/NPCSpawned/DraekBoss/DraekRock";
 
-		public override void SetStaticDefaults(){
+		public override void SetStaticDefaults() {
 			Main.projFrames[Projectile.type] = 3;
 		}
-		
-		public override void SetDefaults(){
+
+		public override void SetDefaults() {
 			Projectile.height = 8;
 			Projectile.width = 8;
 			Projectile.friendly = false;
@@ -28,20 +28,20 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 
 		private bool frameChosen = false;
 
-		public override void AI(){
+		public override void AI() {
 			Projectile.velocity.X += Projectile.ai[0];
 			Projectile.velocity.Y += Projectile.ai[1];
 
 			Projectile.rotation += MathHelper.ToRadians(3f * 360f / 60f) * ((Projectile.velocity.X > 0) ? 1 : -1);
-			
+
 			//Choose a random frame to use when spawning this projectile
-			if(!frameChosen){
+			if (!frameChosen) {
 				frameChosen = true;
 				Projectile.frame = Main.rand.Next(Main.projFrames[Projectile.type]);
 			}
 		}
 
-		public override bool PreDraw(ref Color lightColor){
+		public override bool PreDraw(ref Color lightColor) {
 			Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
 			Rectangle frame = texture.Frame(1, 3, 0, Projectile.frame);
 

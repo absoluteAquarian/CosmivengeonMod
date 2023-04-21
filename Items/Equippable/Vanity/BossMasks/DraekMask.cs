@@ -1,10 +1,10 @@
 ﻿using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Equippable.Vanity.BossMasks{
+namespace CosmivengeonMod.Items.Equippable.Vanity.BossMasks {
 	[AutoloadEquip(EquipType.Head)]
-	public class DraekMask : ModItem{
-		public override void SetDefaults(){
+	public class DraekMask : ModItem {
+		public override void SetDefaults() {
 			Item.width = 28;
 			Item.height = 22;
 			Item.rare = ItemRarityID.Green;

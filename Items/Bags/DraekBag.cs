@@ -7,14 +7,14 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Bags{
-	public class DraekBag : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Bags {
+	public class DraekBag : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Treasure Bag");
 			Tooltip.SetDefault("{$CommonItemTooltip.RightClickToOpen}");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.maxStack = 999;
 			Item.consumable = true;
 			Item.width = 32;
@@ -23,15 +23,15 @@ namespace CosmivengeonMod.Items.Bags{
 			Item.expert = true;
 		}
 
-		public override bool CanRightClick(){
+		public override bool CanRightClick() {
 			return true;
 		}
 
-		public override void OpenBossBag(Player player){
-			if(Main.hardMode)
+		public override void OpenBossBag(Player player) {
+			if (Main.hardMode)
 				player.TryGettingDevArmor();
 
-			if(Main.expertMode && WorldEvents.desoMode && !WorldEvents.obtainedDesolator_DraekBoss){
+			if (Main.expertMode && WorldEvents.desoMode && !WorldEvents.obtainedDesolator_DraekBoss) {
 				player.QuickSpawnItem(ModContent.ItemType<TerraBolt>());
 				WorldEvents.obtainedDesolator_DraekBoss = true;
 

@@ -2,20 +2,20 @@
 using Terraria;
 using Terraria.ID;
 
-namespace CosmivengeonMod.API.Edits.Detours.Desomode{
-	public static class DetourPlayer{
-		public static void Player_StatusPlayer(On.Terraria.Player.orig_StatusPlayer orig, Player self, NPC npc){
-			if(WorldEvents.desoMode){
-				if(npc.type == NPCID.BrainofCthulhu){
-					if(Main.rand.NextBool(3)){
+namespace CosmivengeonMod.API.Edits.Detours.Desomode {
+	public static class DetourPlayer {
+		public static void Player_StatusPlayer(On.Terraria.Player.orig_StatusPlayer orig, Player self, NPC npc) {
+			if (WorldEvents.desoMode) {
+				if (npc.type == NPCID.BrainofCthulhu) {
+					if (Main.rand.NextBool(3)) {
 						int num = Main.rand.Next(8);
-						if(num == 2)
+						if (num == 2)
 							num = Main.rand.Next(8);
 
 						float num2 = Main.rand.NextFloat(0.75f, 1.5f) * 60f;
 
 						//Removed case for Confused debuff
-						switch(num){
+						switch (num) {
 							case 0:
 								self.AddBuff(BuffID.Poisoned, (int)(num2 * 3.5f));
 								break;
@@ -42,12 +42,12 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 								break;
 						}
 					}
-				}else if(npc.type == NPCID.SkeletronHead){
+				} else if (npc.type == NPCID.SkeletronHead) {
 					int num = Main.rand.Next(3);
-					if(num == 2)
+					if (num == 2)
 						num = Main.rand.Next(3);
 
-					switch(num){
+					switch (num) {
 						case 0:
 							self.AddBuff(BuffID.Bleeding, Main.rand.Next(100, 300));
 							break;
@@ -58,8 +58,8 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 							self.AddBuff(BuffID.Cursed, Main.rand.Next(60, 3 * 60));
 							break;
 					}
-				}else if(npc.type == NPCID.SkeletronHand){
-					switch(Main.rand.Next(2)){
+				} else if (npc.type == NPCID.SkeletronHand) {
+					switch (Main.rand.Next(2)) {
 						case 0:
 							self.AddBuff(BuffID.Slow, Main.rand.Next(30, 60));
 							break;
@@ -67,9 +67,9 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 							self.AddBuff(BuffID.Bleeding, Main.rand.Next(60, 3 * 60));
 							break;
 					}
-				}else
+				} else
 					orig(self, npc);
-			}else
+			} else
 				orig(self, npc);
 		}
 	}

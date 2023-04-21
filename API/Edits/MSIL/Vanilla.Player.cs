@@ -8,9 +8,9 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 
-namespace CosmivengeonMod.API.Edits.MSIL{
-	public static partial class Vanilla{
-		public static void Player_GrappleMovement(ILContext il){
+namespace CosmivengeonMod.API.Edits.MSIL {
+	public static partial class Vanilla {
+		public static void Player_GrappleMovement(ILContext il) {
 			FieldInfo Player_doubleJumpUnicorn = typeof(Player).GetField("doubleJumpUnicorn", BindingFlags.Public | BindingFlags.Instance);
 			FieldInfo Player_jumpAgainUnicorn = typeof(Player).GetField("jumpAgainUnicorn", BindingFlags.Public | BindingFlags.Instance);
 
@@ -38,7 +38,7 @@ namespace CosmivengeonMod.API.Edits.MSIL{
 			 *  IL_08B5: ldfld     int32[] Terraria.Player::grappling
 			 */
 			ILLabel afterBlock = null;
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
 											  i => i.MatchLdfld(Player_doubleJumpUnicorn),
 											  i => i.MatchBrfalse(out afterBlock),
 											  i => i.MatchLdarg(0),
@@ -53,7 +53,7 @@ namespace CosmivengeonMod.API.Edits.MSIL{
 			c.EmitDelegate<Action<Player>>(player => player.GetModPlayer<AccessoriesPlayer>().oronitusJump.jumpAgain = true);
 			//Move back and replace the branch target
 			c.Index = 0;
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
 											  i => i.MatchLdfld(Player_doubleJumpUnicorn),
 											  i => i.MatchBrfalse(out _)))
 				goto bad_il;
@@ -69,7 +69,7 @@ bad_il:
 			CoreMod.Instance.Logger.Error("Unable to fully patch Terraria.Player.GrappleMovement()");
 		}
 
-		public static void Player_CarpetMovement(ILContext il){
+		public static void Player_CarpetMovement(ILContext il) {
 			FieldInfo Player_jumpAgainUnicorn = typeof(Player).GetField("jumpAgainUnicorn", BindingFlags.Public | BindingFlags.Instance);
 
 			ILCursor c = new ILCursor(il);
@@ -90,7 +90,7 @@ bad_il:
 			 *  IL_005E: ldfld     int32 Terraria.Player::jump
 			 */
 			ILLabel afterBlock = null;
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
 											  i => i.MatchLdfld(Player_jumpAgainUnicorn),
 											  i => i.MatchBrtrue(out afterBlock)))
 				goto bad_il;
@@ -107,7 +107,7 @@ bad_il:
 			CoreMod.Instance.Logger.Error("Unable to fully patch Terraria.Player.CarpetMovement()");
 		}
 
-		public static void Player_JumpMovement(ILContext il){
+		public static void Player_JumpMovement(ILContext il) {
 			//This is where the actual jump happens
 			FieldInfo Player_jumpAgainUnicorn = typeof(Player).GetField("jumpAgainUnicorn", BindingFlags.Public | BindingFlags.Instance);
 			FieldInfo Player_jumpAgainBlizzard = typeof(Player).GetField("jumpAgainBlizzard", BindingFlags.Public | BindingFlags.Instance);
@@ -134,7 +134,7 @@ bad_il:
 			 *  IL_02BB: ldarg.0
 			 */
 			ILLabel afterWetCheck = null;
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchBrtrue(out _),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchBrtrue(out _),
 											  i => i.MatchLdarg(0),
 											  i => i.MatchLdfld(Player_jumpAgainUnicorn),
 											  i => i.MatchBrtrue(out afterWetCheck)))
@@ -157,7 +157,7 @@ bad_il:
 			 *       <== here
 			 *  IL_0374: ldloc.s   V_7
 			 */
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdcI4(0),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdcI4(0),
 											  i => i.MatchStloc(12),
 											  i => i.MatchLdcI4(0),
 											  i => i.MatchStloc(13)))
@@ -188,7 +188,7 @@ bad_il:
 			 *  IL_03B4: ldarg.0
 			 */
 			ILLabel branchToFartJumpCheck = null, branchAfterChecks = null;
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
 											  i => i.MatchLdfld(Player_jumpAgainBlizzard),
 											  i => i.MatchBrfalse(out branchToFartJumpCheck),
 											  i => i.MatchLdcI4(1),
@@ -210,7 +210,7 @@ bad_il:
 			c.Emit(OpCodes.Br_S, branchAfterChecks);
 			//Move back to the 'brfalse.s' instruction used in the search and modify its jump target
 			c.Index = 0;
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
 											  i => i.MatchLdfld(Player_jumpAgainBlizzard),
 											  i => i.MatchBrfalse(out branchToFartJumpCheck),
 											  i => i.MatchLdcI4(1),
@@ -243,7 +243,7 @@ bad_il:
 			 *  IL_0547: ldarg.0
 			 */
 			ILLabel velocityCheckAfterDJumpSetting = null;
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
 											  i => i.MatchLdfld(Player_doubleJumpUnicorn),
 											  i => i.MatchBrfalse(out velocityCheckAfterDJumpSetting),
 											  i => i.MatchLdarg(0),
@@ -259,7 +259,7 @@ bad_il:
 			c.EmitDelegate<Action<Player>>(player => player.GetModPlayer<AccessoriesPlayer>().oronitusJump.jumpAgain = true);
 			//Move back and edit those three branch instructions' operands
 			c.Index = 0;
-			if(!c.TryGotoNext(MoveType.Before, i => i.MatchLdfld(Player_autoJump),
+			if (!c.TryGotoNext(MoveType.Before, i => i.MatchLdfld(Player_autoJump),
 											   i => i.MatchBrfalse(out _),
 											   i => i.MatchLdarg(0),
 											   i => i.MatchLdfld(Player_justJumped),
@@ -305,12 +305,12 @@ bad_il:
 			 *  IL_05B9: ldloc.s   V_9
 			 */
 			ILLabel nextBranch = null, blockEnd = null;
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdloc(7),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdloc(7),
 											  i => i.MatchOr(),
 											  i => i.MatchBrfalse(out nextBranch),
 											  i => i.MatchLdarg(0)))
 				goto bad_il;
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchMul(),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchMul(),
 											  i => i.MatchConvR4(),
 											  i => i.MatchStfld(Vector2_X),
 											  i => i.MatchBr(out blockEnd)))
@@ -332,7 +332,7 @@ bad_il:
 			c.Emit(OpCodes.Br_S, blockEnd);
 			//Replace the jump target that we got 'nextBranch' from to 'finalEmitStart'
 			c.Index = 0;
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdloc(7),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdloc(7),
 											  i => i.MatchOr(),
 											  i => i.MatchBrfalse(out nextBranch),
 											  i => i.MatchLdarg(0)))
@@ -349,16 +349,16 @@ bad_il:
 			CoreMod.Instance.Logger.Error("Unable to fully patch Terraria.Player.Update()");
 		}
 
-		public static void Player_Update(ILContext il){
+		public static void Player_Update(ILContext il) {
 			//This is where 'CosmivengeonPlayer.jumpAgain_JewelOfOronitus' is set or cleared
-			FieldInfo Player_jumpAgainUnicorn =   typeof(Player).GetField("jumpAgainUnicorn",   BindingFlags.Public | BindingFlags.Instance);
-			FieldInfo Player_doubleJumpUnicorn =  typeof(Player).GetField("doubleJumpUnicorn",  BindingFlags.Public | BindingFlags.Instance);
+			FieldInfo Player_jumpAgainUnicorn = typeof(Player).GetField("jumpAgainUnicorn", BindingFlags.Public | BindingFlags.Instance);
+			FieldInfo Player_doubleJumpUnicorn = typeof(Player).GetField("doubleJumpUnicorn", BindingFlags.Public | BindingFlags.Instance);
 			FieldInfo Player_dJumpEffectUnicorn = typeof(Player).GetField("dJumpEffectUnicorn", BindingFlags.Public | BindingFlags.Instance);
-			FieldInfo Player_maxRunSpeed =        typeof(Player).GetField("maxRunSpeed",        BindingFlags.Public | BindingFlags.Instance);
-			FieldInfo Player_sandStorm =          typeof(Player).GetField("sandStorm",          BindingFlags.Public | BindingFlags.Instance);
-			FieldInfo Player_runAcceleration =    typeof(Player).GetField("runAcceleration",    BindingFlags.Public | BindingFlags.Instance);
-			FieldInfo Entity_position =           typeof(Entity).GetField("position",           BindingFlags.Public | BindingFlags.Instance);
-			MethodInfo Player_DashMovement =      typeof(Player).GetMethod("DashMovement",      BindingFlags.Public | BindingFlags.Instance);
+			FieldInfo Player_maxRunSpeed = typeof(Player).GetField("maxRunSpeed", BindingFlags.Public | BindingFlags.Instance);
+			FieldInfo Player_sandStorm = typeof(Player).GetField("sandStorm", BindingFlags.Public | BindingFlags.Instance);
+			FieldInfo Player_runAcceleration = typeof(Player).GetField("runAcceleration", BindingFlags.Public | BindingFlags.Instance);
+			FieldInfo Entity_position = typeof(Entity).GetField("position", BindingFlags.Public | BindingFlags.Instance);
+			MethodInfo Player_DashMovement = typeof(Player).GetMethod("DashMovement", BindingFlags.Public | BindingFlags.Instance);
 
 			ILCursor c = new ILCursor(il);
 
@@ -381,10 +381,10 @@ bad_il:
 			 *             <== here
 			 *  IL_2FC3: br        IL_30F4
 			 */
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
-			                                  i => i.MatchLdcI4(0),
-			                                  i => i.MatchStfld(Player_jumpAgainUnicorn),
-			                                  i => i.MatchBr(out _)))
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
+											  i => i.MatchLdcI4(0),
+											  i => i.MatchStfld(Player_jumpAgainUnicorn),
+											  i => i.MatchBr(out _)))
 				goto bad_il;
 			c.Index--;
 			c.Emit(OpCodes.Ldarg_0);
@@ -412,23 +412,23 @@ bad_il:
 			 *  IL_30EF: stfld     bool Terraria.Player::jumpAgainUnicorn
 			 *         <== here
 			 */
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchBrfalse(out _),
-			                                  i => i.MatchLdarg(0),
-			                                  i => i.MatchLdcI4(1),
-			                                  i => i.MatchStfld(Player_jumpAgainUnicorn)))
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchBrfalse(out _),
+											  i => i.MatchLdarg(0),
+											  i => i.MatchLdcI4(1),
+											  i => i.MatchStfld(Player_jumpAgainUnicorn)))
 				goto bad_il;
 			ILLabel emitStart = c.MarkLabel();
 			c.Emit(OpCodes.Ldarg_0);
 			c.EmitDelegate<Action<Player>>(player => {
 				AccessoriesPlayer mp = player.GetModPlayer<AccessoriesPlayer>();
-				if(!mp.oronitusJump.abilityActive)
+				if (!mp.oronitusJump.abilityActive)
 					mp.oronitusJump.jumpAgain = false;
-				else if(player.velocity.Y == 0f || player.sliding)
+				else if (player.velocity.Y == 0f || player.sliding)
 					mp.oronitusJump.jumpAgain = true;
 			});
 			//Go back and modify the branch targets to 'emitStart'
 			c.Index = 0;
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdfld(Player_doubleJumpUnicorn),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdfld(Player_doubleJumpUnicorn),
 											  i => i.MatchBrtrue(out _),
 											  i => i.MatchLdarg(0),
 											  i => i.MatchLdcI4(0),
@@ -437,10 +437,10 @@ bad_il:
 				goto bad_il;
 			c.Index--;
 			c.Instrs[c.Index].Operand = emitStart;
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchBrfalse(out _),
-			                                  i => i.MatchLdarg(0),
-			                                  i => i.MatchLdcI4(1),
-			                                  i => i.MatchStfld(Player_jumpAgainUnicorn)))
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchBrfalse(out _),
+											  i => i.MatchLdarg(0),
+											  i => i.MatchLdcI4(1),
+											  i => i.MatchStfld(Player_jumpAgainUnicorn)))
 				goto bad_il;
 			c.Index -= 4;
 			c.Instrs[c.Index].Operand = emitStart;
@@ -459,10 +459,10 @@ bad_il:
 			 *  IL_3224: ldarg.0
 			 *  IL_3225: ldflda    valuetype [Microsoft.Xna.Framework]Microsoft.Xna.Framework.Vector2 Terraria.Entity::position
 			 */
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
-			                                  i => i.MatchLdcI4(0),
-			                                  i => i.MatchStfld(Player_dJumpEffectUnicorn),
-			                                  i => i.MatchLdarg(0),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
+											  i => i.MatchLdcI4(0),
+											  i => i.MatchStfld(Player_dJumpEffectUnicorn),
+											  i => i.MatchLdarg(0),
 											  i => i.MatchLdflda(Entity_position)))
 				goto bad_il;
 			c.Index -= 2;
@@ -498,13 +498,13 @@ bad_il:
 			 *  IL_43B6: ldfld     bool Terraria.Player::dJumpEffectBlizzard
 			 */
 			ILLabel nextBlock = null;
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
 											  i => i.MatchLdfld(Player_sandStorm),
 											  i => i.MatchBrfalse(out nextBlock),
 											  i => i.MatchLdarg(0)))
 				goto bad_il;
 			int branchIndex = c.Index - 2;
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
 											  i => i.MatchLdfld(Player_maxRunSpeed),
 											  i => i.MatchLdcR4(2),
 											  i => i.MatchMul(),
@@ -543,11 +543,11 @@ bad_il:
 			 *  IL_48CB: ldarg.0
 			 *  IL_48CC: call      instance void Terraria.Player::DashMovement()
 			 */
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
-			                                  i => i.MatchLdcI4(0),
-			                                  i => i.MatchStfld(Player_dJumpEffectUnicorn),
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
+											  i => i.MatchLdcI4(0),
+											  i => i.MatchStfld(Player_dJumpEffectUnicorn),
 											  i => i.MatchLdarg(0),
-			                                  i => i.MatchCall(Player_DashMovement)))
+											  i => i.MatchCall(Player_DashMovement)))
 				goto bad_il;
 			c.Index -= 2;
 			c.Emit(OpCodes.Ldarg_0);
@@ -568,10 +568,10 @@ bad_il:
 			 *       <== here
 			 *  IL_4B06: br        IL_882E
 			 */
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
-			                                  i => i.MatchLdcI4(0),
-			                                  i => i.MatchStfld(Player_dJumpEffectUnicorn),
-			                                  i => i.MatchBr(out _)))
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
+											  i => i.MatchLdcI4(0),
+											  i => i.MatchStfld(Player_dJumpEffectUnicorn),
+											  i => i.MatchBr(out _)))
 				goto bad_il;
 			c.Index--;
 			c.Emit(OpCodes.Ldarg_0);
@@ -586,7 +586,7 @@ bad_il:
 			CoreMod.Instance.Logger.Error("Unable to fully patch Terraria.Player.Update()");
 		}
 
-		public static void Player_PlayerFrame(ILContext il){
+		public static void Player_PlayerFrame(ILContext il) {
 			FieldInfo Player_dJumpEffectUnicorn = typeof(Player).GetField("dJumpEffectUnicorn", BindingFlags.Public | BindingFlags.Instance);
 
 			ILCursor c = new ILCursor(il);
@@ -605,10 +605,10 @@ bad_il:
 			 *  IL_2439: ldarg.0
 			 *  
 			 */
-			if(!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
-			                                  i => i.MatchLdcI4(0),
-			                                  i => i.MatchStfld(Player_dJumpEffectUnicorn),
-			                                  i => i.MatchLdloca(27)))
+			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
+											  i => i.MatchLdcI4(0),
+											  i => i.MatchStfld(Player_dJumpEffectUnicorn),
+											  i => i.MatchLdloca(27)))
 				goto bad_il;
 			c.Index--;
 			c.Emit(OpCodes.Ldarg_0);

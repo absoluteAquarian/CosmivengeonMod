@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.DataStructures{
-	public class BossPackage{
+namespace CosmivengeonMod.DataStructures {
+	public class BossPackage {
 		public int bossID;
 		public int altBossID;
 		public string badSummonUseMessage;
@@ -14,10 +14,10 @@ namespace CosmivengeonMod.DataStructures{
 
 		public static Dictionary<CosmivengeonBoss, BossPackage> bossInfo;
 
-		public BossPackage(int id, int altID, string badUseMessage, Func<Player, bool> requirement, Func<float, int> musicFunc){
-			if(ModContent.GetModNPC(id)?.Mod != CoreMod.Instance)
+		public BossPackage(int id, int altID, string badUseMessage, Func<Player, bool> requirement, Func<float, int> musicFunc) {
+			if (ModContent.GetModNPC(id)?.Mod != CoreMod.Instance)
 				throw new ArgumentException("ID wasn't a valid Cosmivengeon boss ID");
-			if(altID > 0 && ModContent.GetModNPC(altID)?.Mod != CoreMod.Instance)
+			if (altID > 0 && ModContent.GetModNPC(altID)?.Mod != CoreMod.Instance)
 				throw new ArgumentException("Alternate ID wasn't a valid Cosmivengeon boss ID");
 
 			bossID = id;

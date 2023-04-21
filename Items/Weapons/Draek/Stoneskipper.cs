@@ -6,16 +6,16 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.Draek{
-	public class Stoneskipper : ModItem{
+namespace CosmivengeonMod.Items.Weapons.Draek {
+	public class Stoneskipper : ModItem {
 
 		public static float ShootSpeed = 28f;
-		public override void SetStaticDefaults(){
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Stoneskipper");
 			Tooltip.SetDefault("Lightweight gun that fires fast, high-accuracy poison bullets");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.damage = 58;
 			Item.DamageType = DamageClass.Ranged;
 			Item.width = 66;
@@ -35,7 +35,7 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 			Item.crit = 25;  //+25% crit chance
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
 			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);
@@ -44,12 +44,12 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 			recipe.Register();
 		}
 
-		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback){
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
 			type = ModContent.ProjectileType<StoneskipperProjectile>();
 			return true;
 		}
 
-		public override Vector2? HoldoutOffset(){
+		public override Vector2? HoldoutOffset() {
 			return new Vector2(-10, 0);
 		}
 	}

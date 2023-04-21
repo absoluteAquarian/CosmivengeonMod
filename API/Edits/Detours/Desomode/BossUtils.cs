@@ -1,8 +1,8 @@
 ﻿using CosmivengeonMod.NPCs.Global;
 using Terraria;
 
-namespace CosmivengeonMod.API.Edits.Detours.Desomode{
-	public static partial class DesolationModeBossAI{
+namespace CosmivengeonMod.API.Edits.Detours.Desomode {
+	public static partial class DesolationModeBossAI {
 		public static Player Target(this NPC npc) => Main.player[npc.target];
 
 		public static DetourNPCHelper Helper(this NPC npc) => npc.GetGlobalNPC<DetourNPCHelper>();

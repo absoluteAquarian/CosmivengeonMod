@@ -1,5 +1,5 @@
-﻿namespace CosmivengeonMod.DamageClasses.Desolate{
-	public static class DesolatorPrefixValue{
+﻿namespace CosmivengeonMod.DamageClasses.Desolate {
+	public static class DesolatorPrefixValue {
 		public const float Priceless = 2f;
 		public const float ExceptionallyValuable = 1.7f;
 		public const float VeryValuable = 1.5f;

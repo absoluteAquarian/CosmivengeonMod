@@ -7,18 +7,18 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.Frostbite{
-	public class SnowballFlail : ModItem{
+namespace CosmivengeonMod.Items.Weapons.Frostbite {
+	public class SnowballFlail : ModItem {
 		protected override bool CloneNewInstances => true;
 
 		public const float ProjectileVelocity = 12f;
 
-		public override void SetStaticDefaults(){
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("The Snowball");
 			Tooltip.SetDefault("Almost certainly banned in an elementary school playground");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.BallOHurt);
 			Item.useAnimation = 45;
 			Item.useTime = 45;
@@ -33,18 +33,18 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 			Item.value = Item.sellPrice(silver: 30);
 		}
 
-		public override void ModifyTooltips(List<TooltipLine> tooltips){
+		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			TooltipLine nameLine = tooltips.Find(t => t.Name == "ItemName");
 
 			//If we've got a prefix, move it to between the "The" and "Snowball"
-			if(Item.prefix > 0){
+			if (Item.prefix > 0) {
 				List<string> text = Item.Name.Split(' ').ToList();
 				text.Insert(1, Lang.prefix[Item.prefix].Value);
 				nameLine.Text = string.Join(" ", text.ToArray());
 			}
 		}
 
-		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback){
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
 			type = ModContent.ProjectileType<SnowballFlailProjectile>();
 			damage = (int)(damage * 0.72f);
 			return true;

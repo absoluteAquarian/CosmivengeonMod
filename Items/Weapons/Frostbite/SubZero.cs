@@ -2,15 +2,15 @@
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.Frostbite{
-	public class SubZero : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Weapons.Frostbite {
+	public class SubZero : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Sub-Zero");
 			Tooltip.SetDefault("An insanely fast, short-ranged attack" +
 				"\nTargets explode into a burst of ice sparks when are killed by this weapon");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.DamageType = DamageClass.Melee/* tModPorter Suggestion: Consider MeleeNoSpeed for no attack speed scaling */;
 			Item.useStyle = ItemUseStyleID.Swing;
 			Item.rare = ItemRarityID.Blue;
@@ -27,7 +27,7 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite{
 			Item.value = Item.sellPrice(silver: 5, copper: 40);
 		}
 
-		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit){
+		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit) {
 			target.AddBuff(BuffID.Frostburn, 4 * 60);
 		}
 	}

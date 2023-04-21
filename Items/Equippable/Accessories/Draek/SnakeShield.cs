@@ -5,12 +5,12 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Equippable.Accessories.Draek{
+namespace CosmivengeonMod.Items.Equippable.Accessories.Draek {
 	[AutoloadEquip(EquipType.Shield)]
-	public class SnakeShield : ModItem{
+	public class SnakeShield : ModItem {
 		public static int BaseDamage = 65;
 
-		public override void SetStaticDefaults(){
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Shield of the Serpent");
 			Tooltip.SetDefault("Allows user to perform serpentine dashes" +
 				"\nDashes travel twice as far as the Shield of Cthulhu’s dash" +
@@ -18,7 +18,7 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek{
 				"\n  debuffs for several seconds");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.rare = ItemRarityID.Expert;
 			Item.width = 30;
 			Item.height = 32;
@@ -39,11 +39,11 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek{
 				|| pre == PrefixID.Wild || pre == PrefixID.Rash || pre == PrefixID.Intrepid || pre == PrefixID.Violent
 				|| pre == PrefixID.Arcane;
 
-		public override void UpdateAccessory(Player player, bool hideVisual){
+		public override void UpdateAccessory(Player player, bool hideVisual) {
 			SnakeShieldPlayer mp = player.GetModPlayer<SnakeShieldPlayer>();
 
 			//If the dash is not active, immediately return so we don't do any of the logic for it
-			if(!mp.DashActive)
+			if (!mp.DashActive)
 				return;
 
 			//This is where we set the afterimage effect.  You can replace these two lines with whatever you want to happen during the dash
@@ -57,11 +57,11 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek{
 			mp.CheckSoCHitEffect();
 
 			//If the dash has just started, apply the dash velocity in whatever direction we wanted to dash towards
-			if(mp.DashTimer == SnakeShieldPlayer.MAX_DASH_TIMER){
+			if (mp.DashTimer == SnakeShieldPlayer.MAX_DASH_TIMER) {
 				Vector2 newVelocity = player.velocity;
-					
+
 				//Only apply the dash velocity if our current speed in the wanted direction is less than DashVelocity
-				if((mp.DashDir == SnakeShieldPlayer.DashLeft && player.velocity.X > -mp.DashVelocity) || (mp.DashDir == SnakeShieldPlayer.DashRight && player.velocity.X < mp.DashVelocity)){
+				if ((mp.DashDir == SnakeShieldPlayer.DashLeft && player.velocity.X > -mp.DashVelocity) || (mp.DashDir == SnakeShieldPlayer.DashRight && player.velocity.X < mp.DashVelocity)) {
 					//X-velocity is set here
 					int dashDirection = mp.DashDir == SnakeShieldPlayer.DashRight ? 1 : -1;
 					newVelocity.X = dashDirection * mp.DashVelocity;
@@ -74,7 +74,7 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek{
 			mp.DashTimer--;
 			mp.DashDelay--;
 
-			if(mp.DashDelay == 0){
+			if (mp.DashDelay == 0) {
 				//The dash has ended.  Reset the fields
 				mp.DashDelay = SnakeShieldPlayer.MAX_DASH_DELAY;
 				mp.DashTimer = SnakeShieldPlayer.MAX_DASH_TIMER;
@@ -83,7 +83,7 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek{
 			}
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<JewelOfOronitus>());
 			recipe.AddIngredient(ItemID.EoCShield);

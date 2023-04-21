@@ -1,8 +1,7 @@
 ﻿using Terraria;
-using Terraria.ID;
 
-namespace CosmivengeonMod.Utility.Extensions{
-	public static partial class Extensions{
+namespace CosmivengeonMod.Utility.Extensions {
+	public static partial class Extensions {
 		/// <summary>
 		/// Checks whether the mouse is inside this NPC's collision box or within <paramref name="pixels"/> distance of the collision box.
 		/// </summary>
@@ -18,7 +17,7 @@ namespace CosmivengeonMod.Utility.Extensions{
 		/// </summary>
 		/// <param name="npc">The NPC instance.</param>
 		/// <param name="factor">The scale factor that this <paramref name="npc"/>'s health is scaled by.</param>
-		public static void ScaleHealthBy(this NPC npc, float factor){
+		public static void ScaleHealthBy(this NPC npc, float factor) {
 			float bossScale = MiscUtils.CalculateBossHealthScale(out _);
 
 			npc.lifeMax = (int)(npc.lifeMax * Main.GameModeInfo.EnemyMaxLifeMultiplier);

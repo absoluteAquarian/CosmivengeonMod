@@ -4,13 +4,13 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 
-namespace CosmivengeonMod.Tiles.Trophies{
-	public abstract class BaseTrophy<T> : ModTile where T : ModItem{
+namespace CosmivengeonMod.Tiles.Trophies {
+	public abstract class BaseTrophy<T> : ModTile where T : ModItem {
 		//Needed so that tML doesn't try to load this class
 #pragma warning disable IDE0060
-		protected BaseTrophy(bool b = false){ }
+		protected BaseTrophy(bool b = false) { }
 #pragma warning restore IDE0060
-		
+
 		public override void SetStaticDefaults() {
 			Main.tileFrameImportant[Type] = true;
 			Main.tileLavaDeath[Type] = true;
@@ -26,7 +26,7 @@ namespace CosmivengeonMod.Tiles.Trophies{
 			AddMapEntry(new Color(120, 85, 60), name);
 		}
 
-		public override void KillMultiTile(int i, int j, int frameX, int frameY){
+		public override void KillMultiTile(int i, int j, int frameX, int frameY) {
 			Item.NewItem(i, j, 16, 16, ModContent.ItemType<T>());
 		}
 	}

@@ -4,14 +4,14 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.Draek{
-	public class EarthBolt : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Weapons.Draek {
+	public class EarthBolt : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Earthen Tome");
 			Tooltip.SetDefault("Casts a slow-moving bolt of green energy.\nBolts have a chance to poison foes, and can pierce up to 3 enemies at once");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.autoReuse = true;
 			Item.rare = ItemRarityID.Green;
 			Item.mana = 9;
@@ -31,7 +31,7 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 			Item.value = Item.sellPrice(0, 2, 50, 0);
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
 			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);

@@ -3,8 +3,8 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Placeable.MusicBoxes{
-	public class DraekBox : ModItem{
+namespace CosmivengeonMod.Items.Placeable.MusicBoxes {
+	public class DraekBox : ModItem {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Music Box (Draek)");
 		}

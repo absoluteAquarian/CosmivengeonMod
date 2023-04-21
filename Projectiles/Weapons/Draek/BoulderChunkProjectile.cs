@@ -7,11 +7,11 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Projectiles.Weapons.Draek{
-	public class BoulderChunkProjectile : ModProjectile{
+namespace CosmivengeonMod.Projectiles.Weapons.Draek {
+	public class BoulderChunkProjectile : ModProjectile {
 		public const float MAX_VELOCITY = 11.1f;
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Projectile.width = 40;
 			Projectile.height = 40;
 			Projectile.aiStyle = 0;
@@ -24,15 +24,15 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 		private int oldPenetrate;
 
-		public override void AI(){
-			if(oldPenetrate != Projectile.penetrate){
-				if(Projectile.penetrate == 1)
+		public override void AI() {
+			if (oldPenetrate != Projectile.penetrate) {
+				if (Projectile.penetrate == 1)
 					Projectile.damage = (int)(Projectile.damage * 0.45f);
 				oldPenetrate = Projectile.penetrate;
 			}
 
 			Projectile.velocity.X *= 0.983f;
-			
+
 			Projectile.velocity.Y += 8f / 60f;
 
 			Projectile.velocity.Y.Clamp(-MAX_VELOCITY, MAX_VELOCITY);
@@ -40,7 +40,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 			UpdateRotation();
 		}
 
-		public override bool OnTileCollide(Vector2 oldVelocity){
+		public override bool OnTileCollide(Vector2 oldVelocity) {
 			//Create some dust
 			Collision.HitTiles(Projectile.position + Projectile.velocity, Projectile.velocity, Projectile.width, Projectile.height);
 			//Play the "tile hit" sound
@@ -52,9 +52,9 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 			return false;
 		}
 
-		public override void Kill(int timeLeft){
+		public override void Kill(int timeLeft) {
 			//Only spawn one projectile - multiplayer compatability
-			if(Projectile.owner == Main.myPlayer){
+			if (Projectile.owner == Main.myPlayer) {
 				//Drop the item (100% chance)
 				int item = Item.NewItem(Projectile.getRect(), ModContent.ItemType<BoulderChunk>());
 
@@ -64,7 +64,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 			}
 		}
 
-		private void UpdateRotation(){
+		private void UpdateRotation() {
 			int spinDirection = (Projectile.velocity.X == 0) ? 0 : ((Projectile.velocity.X > 0) ? 1 : -1);
 			float spinFactor = Math.Min(
 				Math.Max(

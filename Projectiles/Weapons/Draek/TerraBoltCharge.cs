@@ -1,14 +1,13 @@
 ﻿using CosmivengeonMod.API.Managers;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Projectiles.Weapons.Draek{
-	public class TerraBoltCharge : ModProjectile{
+namespace CosmivengeonMod.Projectiles.Weapons.Draek {
+	public class TerraBoltCharge : ModProjectile {
 		public override string Texture => "CosmivengeonMod/Projectiles/Weapons/Draek/TerraBoltProjectile";
 
 		public ref float Charge => ref Projectile.ai[0];
@@ -19,7 +18,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 		private int wait;
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Projectile.width = 10;
 			Projectile.height = 10;
 			Projectile.tileCollide = false;
@@ -30,9 +29,9 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 		private int animTimer;
 
-		public override bool PreDraw(ref Color lightColor){
+		public override bool PreDraw(ref Color lightColor) {
 			//Only draw the things during the charge animation
-			if(State > 0)
+			if (State > 0)
 				return false;
 
 			Player owner = Main.player[Projectile.owner];
@@ -55,96 +54,96 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 		private int forceDir;
 
-		public override void AI(){
+		public override void AI() {
 			Player owner = Main.player[Projectile.owner];
 
 			animTimer++;
 
 			float targetTime = 15 / PlayerLoader.UseTimeMultiplier(owner, owner.HeldItem);
 
-			if(State < 2 && wait < targetTime - 1)
+			if (State < 2 && wait < targetTime - 1)
 				owner.ChangeDir(forceDir = owner.Center.X < Main.MouseWorld.X ? 1 : -1);
 			else
 				owner.ChangeDir(forceDir);
 
-			if(State == 0)
+			if (State == 0)
 				Projectile.Center = owner.Center;
-			else if(State == 1){
+			else if (State == 1) {
 				float curRot = owner.DirectionTo(Projectile.Center).ToRotation();
 				float targetRot = owner.DirectionTo(Main.MouseWorld).ToRotation();
 
-				if(Math.Abs(curRot - targetRot) > MathHelper.ToRadians(15))
+				if (Math.Abs(curRot - targetRot) > MathHelper.ToRadians(15))
 					Projectile.Center = MathHelper.Lerp(curRot, targetRot, 0.25f).ToRotationVector2() * SpawnDistance + owner.Center;
-				else if(wait >= targetTime - 1 && wait < targetTime)
+				else if (wait >= targetTime - 1 && wait < targetTime)
 					Projectile.Center = targetRot.ToRotationVector2() * SpawnDistance + owner.Center;
 			}
 
-			if(State < 2)
+			if (State < 2)
 				Projectile.timeLeft = 60;
 
-			if(State == 1)
+			if (State == 1)
 				wait++;
 
 			//Spawn light where the thing is
-			if(State == 0){
+			if (State == 0) {
 				Vector2 loc = owner.gravDir > 0 ? owner.Top - new Vector2(0, 20) : owner.Bottom + new Vector2(0, 20);
 				Lighting.AddLight(loc, Color.Green.ToVector3() * 1.3f);
-			}else if(State == 1)
+			} else if (State == 1)
 				Lighting.AddLight(Projectile.Center, Color.Green.ToVector3() * 1.3f);
 
-			if(State == 0 && Projectile.soundDelay == 0){
+			if (State == 0 && Projectile.soundDelay == 0) {
 				Projectile.soundDelay = 18;
 
 				SoundEngine.PlaySound(SoundID.Item15, owner.Center);
 			}
 
 			//Only drain mana when the charge stage increases
-			if(State == 0 && owner.channel && ((int)Charge % (MaxCharge / 4) != 0 || owner.CheckMana(owner.HeldItem.mana, pay: true)))
+			if (State == 0 && owner.channel && ((int)Charge % (MaxCharge / 4) != 0 || owner.CheckMana(owner.HeldItem.mana, pay: true)))
 				Charge++;
-			else if(!owner.channel && State == 0){
+			else if (!owner.channel && State == 0) {
 				State = 1;
 				wait = 0;
 				return;
 			}
 
-			if(Charge >= MaxCharge && State == 0){
+			if (Charge >= MaxCharge && State == 0) {
 				State = 1;
 				wait = 0;
-			}else if(State == 1){
-				if(wait >= targetTime)
+			} else if (State == 1) {
+				if (wait >= targetTime)
 					SpawnProjectile();
 			}
 		}
 
-		public int BodyIndex(){
+		public int BodyIndex() {
 			Player owner = Main.player[Projectile.owner];
 
-			if(State == 0)
+			if (State == 0)
 				return 5;
-			else if(wait < 15 / PlayerLoader.UseTimeMultiplier(owner, owner.HeldItem) - 1)
+			else if (wait < 15 / PlayerLoader.UseTimeMultiplier(owner, owner.HeldItem) - 1)
 				return 6;
-			else{
+			else {
 				float rotation = owner.DirectionTo(Projectile.Center).ToRotation();
 
-				if(Math.Abs(rotation) < MathHelper.ToRadians(45) || Math.Abs(MathHelper.Pi - Math.Abs(rotation)) < MathHelper.ToRadians(45))
+				if (Math.Abs(rotation) < MathHelper.ToRadians(45) || Math.Abs(MathHelper.Pi - Math.Abs(rotation)) < MathHelper.ToRadians(45))
 					return 3;
-				else if(rotation > 0)
+				else if (rotation > 0)
 					return 4;
 				return 2;
 			}
 		}
 
-		private float GetChargeFactor(){
+		private float GetChargeFactor() {
 			float factor;
 			float max = MaxCharge;
 
-			if(Charge < max / 4f)
+			if (Charge < max / 4f)
 				factor = 1f;
-			else if(Charge >= max / 4f && Charge < max / 2f)
+			else if (Charge >= max / 4f && Charge < max / 2f)
 				factor = 2f;
-			else if(Charge >= max / 2f && Charge < max * 3f / 4f)
+			else if (Charge >= max / 2f && Charge < max * 3f / 4f)
 				factor = 3f;
-			else if(Charge >= max * 3f / 4f && Charge < max)
+			else if (Charge >= max * 3f / 4f && Charge < max)
 				factor = 4f;
 			else
 				factor = 5f;
@@ -154,7 +153,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 
 		public override bool ShouldUpdatePosition() => false;
 
-		private void SpawnProjectile(){
+		private void SpawnProjectile() {
 			Projectile.timeLeft = 12;
 			State = 2;
 
@@ -174,7 +173,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 			Vector2 spawnCenter = owner.Center;
 			Vector2 direction = owner.DirectionTo(Main.MouseWorld);
 			Vector2 offset = direction * SpawnDistance;
-			if(Collision.CanHit(spawnCenter, 0, 0, spawnCenter + offset, 0, 0))
+			if (Collision.CanHit(spawnCenter, 0, 0, spawnCenter + offset, 0, 0))
 				spawnCenter += offset;
 
 			Projectile spawn = Projectile.NewProjectileDirect(spawnCenter,

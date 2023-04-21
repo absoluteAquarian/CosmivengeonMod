@@ -2,18 +2,18 @@
 using Terraria;
 using Terraria.ID;
 
-namespace CosmivengeonMod.API.Edits.Detours.Desomode{
-	public static class DetourProjectile{
-		public static void HookStatusPlayer(On.Terraria.Projectile.orig_StatusPlayer orig, Projectile self, int i){
-			if(WorldEvents.desoMode){
+namespace CosmivengeonMod.API.Edits.Detours.Desomode {
+	public static class DetourProjectile {
+		public static void HookStatusPlayer(On.Terraria.Projectile.orig_StatusPlayer orig, Projectile self, int i) {
+			if (WorldEvents.desoMode) {
 				Player player = Main.player[i];
 
-				if(self.type == ProjectileID.Skull){
+				if (self.type == ProjectileID.Skull) {
 					int num = Main.rand.Next(3);
-					if(num == 2)
+					if (num == 2)
 						num = Main.rand.Next(3);
 
-					switch(num){
+					switch (num) {
 						case 0:
 							player.AddBuff(BuffID.Bleeding, Main.rand.Next(60, 180));
 							break;
@@ -24,9 +24,9 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 							player.AddBuff(BuffID.Cursed, Main.rand.Next(60, 90));
 							break;
 					}
-				}else
+				} else
 					orig(self, i);
-			}else
+			} else
 				orig(self, i);
 		}
 	}

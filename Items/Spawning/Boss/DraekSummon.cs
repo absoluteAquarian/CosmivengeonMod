@@ -5,14 +5,14 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Spawning.Boss{
-	public class DraekSummon : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Spawning.Boss {
+	public class DraekSummon : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Mysterious Geode");
 			Tooltip.SetDefault("Challenges the defender of the forest\nMust be used in the Forest biome");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.width = 20;
 			Item.height = 20;
 			Item.maxStack = 99;
@@ -30,7 +30,7 @@ namespace CosmivengeonMod.Items.Spawning.Boss{
 		public override bool? UseItem(Player player)/* tModPorter Suggestion: Return null instead of false */
 			=> MiscUtils.SummonBossNearPlayer(player, ModContent.NPCType<Draek>(), 50f);
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
 			recipe.AddIngredient(ItemID.Emerald, 1);

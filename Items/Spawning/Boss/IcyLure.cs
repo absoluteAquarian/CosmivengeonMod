@@ -6,15 +6,15 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Spawning.Boss{
-	public class IcyLure : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Spawning.Boss {
+	public class IcyLure : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Icy Lure");
 			Tooltip.SetDefault("Attracts an elemental frost lizard." +
 				"\nMust be used in the Snow biome.");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.width = 20;
 			Item.height = 20;
 			Item.maxStack = 99;
@@ -26,7 +26,7 @@ namespace CosmivengeonMod.Items.Spawning.Boss{
 			Item.consumable = true;
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>(), 2);
 			recipe.AddIngredient(ItemID.SnowBlock, 50);

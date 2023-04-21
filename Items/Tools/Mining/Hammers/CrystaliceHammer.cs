@@ -3,13 +3,13 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Tools.Mining.Hammers{
-	public class CrystaliceHammer : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Tools.Mining.Hammers {
+	public class CrystaliceHammer : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Crystalice Hammer");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			//Slightly better than Silver
 			Item.CloneDefaults(ItemID.SilverHammer);
 
@@ -23,7 +23,7 @@ namespace CosmivengeonMod.Items.Tools.Mining.Hammers{
 			Item.rare = ItemRarityID.Blue;
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>(), 2);
 			recipe.AddIngredient(ItemID.SnowBlock, 15);

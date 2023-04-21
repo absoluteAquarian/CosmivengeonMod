@@ -2,13 +2,13 @@
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Materials{
-	public class RaechonShell : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Materials {
+	public class RaechonShell : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Rock Plating");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.maxStack = 99;
 			Item.rare = ItemRarityID.Blue;
 			Item.width = 24;

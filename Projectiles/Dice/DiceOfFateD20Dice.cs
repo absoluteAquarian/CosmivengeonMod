@@ -13,15 +13,15 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Projectiles.Dice{
-	public class DiceOfFateD20Dice : ModProjectile{
+namespace CosmivengeonMod.Projectiles.Dice {
+	public class DiceOfFateD20Dice : ModProjectile {
 		public override string Texture => "CosmivengeonMod/Items/Tools/Dice/DiceOfFateD20";
 
-		public override void SetStaticDefaults(){
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("D20");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Projectile.tileCollide = true;
 			Projectile.width = 34;
 			Projectile.height = 34;
@@ -35,64 +35,64 @@ namespace CosmivengeonMod.Projectiles.Dice{
 
 		private float realAlpha = 0;
 
-		private int GetMaxLuck(int unluckyFactor){
-			if(unluckyFactor == 0)
+		private int GetMaxLuck(int unluckyFactor) {
+			if (unluckyFactor == 0)
 				return 20;
-			else if(unluckyFactor < 3)
+			else if (unluckyFactor < 3)
 				return 15;
-			else if(unluckyFactor < 5)
+			else if (unluckyFactor < 5)
 				return 10;
 			else
 				return 8;
 		}
 
-		public override void AI(){
+		public override void AI() {
 			float oldYVel = Projectile.velocity.Y;
 			Projectile.velocity.Y += 21f / 60f;
 
 			Projectile.velocity.X *= 1f - 1.5f / 60f;
 
-			if(Math.Abs(Projectile.velocity.X) < 0.08f)
+			if (Math.Abs(Projectile.velocity.X) < 0.08f)
 				Projectile.velocity.X = 0;
 
 			//Keep it alive as long as it hasn't stopped yet
-			if(!chooseNumber){
+			if (!chooseNumber) {
 				Projectile.timeLeft = 60;
 				Projectile.netUpdate = true;
 			}
 
 			//Only the server should update the projectile
-			if(Main.myPlayer != Projectile.owner || Main.netMode == NetmodeID.MultiplayerClient)
+			if (Main.myPlayer != Projectile.owner || Main.netMode == NetmodeID.MultiplayerClient)
 				return;
 
-			if(Projectile.velocity.LengthSquared() > 10 * 10)
+			if (Projectile.velocity.LengthSquared() > 10 * 10)
 				Projectile.velocity = Vector2.Normalize(Projectile.velocity) * 10f;
 
-			if(!chooseNumber){
-				if(Main.rand.NextFloat() * 5f * (Projectile.velocity.Length() / 10f) >= 0.5f){
+			if (!chooseNumber) {
+				if (Main.rand.NextFloat() * 5f * (Projectile.velocity.Length() / 10f) >= 0.5f) {
 					effects = Main.rand.NextBool() ? SpriteEffects.None : SpriteEffects.FlipVertically;
 					Projectile.rotation = Main.rand.NextFloat(0, MathHelper.TwoPi);
 				}
-			}else{
+			} else {
 				realAlpha += 255f / 90f;
 				Projectile.alpha = (int)realAlpha;
 			}
 
-			if(Projectile.oldVelocity.X == 0 && Projectile.velocity.X == 0f && oldYVel == 0 && !chooseNumber){
+			if (Projectile.oldVelocity.X == 0 && Projectile.velocity.X == 0f && oldYVel == 0 && !chooseNumber) {
 				chooseNumber = true;
 				Projectile.timeLeft = 90;
 
 				//Roll was set by a command if "random" isn't -1
-				if(random == -1){
+				if (random == -1) {
 					//Events for a 1 and 20 are very extreme.  Make sure they only happen after two random calls
 					random = Main.rand.Next(1, 21);
-					if((random == 1 || random == 20) && Main.rand.NextFloat() > 0.2f)
+					if ((random == 1 || random == 20) && Main.rand.NextFloat() > 0.2f)
 						random = Main.rand.Next(1, 21);
 
 					//If the unlucky factor is > 0, then make bad rolls happen more often that good rolls
 					int unlucky = (int)Projectile.ai[0];
 					int maxLuck = GetMaxLuck(unlucky);
-					if(random > maxLuck)
+					if (random > maxLuck)
 						random = Main.rand.Next(1, maxLuck + 1);
 				}
 
@@ -110,44 +110,44 @@ namespace CosmivengeonMod.Projectiles.Dice{
 
 		public override bool? CanCutTiles() => true;
 
-		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac){
+		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) {
 			fallThrough = false;
 			return true;
 		}
 
-		public override bool OnTileCollide(Vector2 oldVelocity){
-			if(Projectile.velocity.Y != oldVelocity.Y){
+		public override bool OnTileCollide(Vector2 oldVelocity) {
+			if (Projectile.velocity.Y != oldVelocity.Y) {
 				Projectile.velocity.Y = (int)(-oldVelocity.Y * (oldVelocity.Y > 0 ? 0.78f : 1f));
 
 				//Stop bouncing if the bounce up was too slow
-				if(-0.3f < Projectile.velocity.Y && Projectile.velocity.Y < 0)
+				if (-0.3f < Projectile.velocity.Y && Projectile.velocity.Y < 0)
 					Projectile.velocity.Y = 0;
 			}
-			if(Projectile.velocity.X != oldVelocity.X)
+			if (Projectile.velocity.X != oldVelocity.X)
 				Projectile.velocity.X = (int)(-oldVelocity.X * 0.78f);
 
 			return false;
 		}
 
-		public override bool PreDraw(ref Color lightColor){
+		public override bool PreDraw(ref Color lightColor) {
 			Texture2D texture = ModContent.GetTexture(Texture);
 			spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, lightColor, Projectile.rotation, texture.Size() / 2f, Projectile.scale, effects, 0f);
 			return false;
 		}
 
-		public override void Kill(int timeLeft){
+		public override void Kill(int timeLeft) {
 			Player owner = Main.player[Projectile.owner];
 
 			//Stuff should not run on clients other than the one for the owner (or the server)
-			if(Main.myPlayer != owner.whoAmI || Main.netMode == NetmodeID.MultiplayerClient)
+			if (Main.myPlayer != owner.whoAmI || Main.netMode == NetmodeID.MultiplayerClient)
 				return;
 
-			void InformEveryone(string result){
+			void InformEveryone(string result) {
 				string toPrint = $"{owner.name} rolled a {((random == 1 || random == 20) ? $"NAT {random}" : random.ToString())} and received: {result}";
 
-				if(Main.netMode == NetmodeID.SinglePlayer)
+				if (Main.netMode == NetmodeID.SinglePlayer)
 					Main.NewText(toPrint);
-				else if(Main.netMode == NetmodeID.Server)
+				else if (Main.netMode == NetmodeID.Server)
 					ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral(toPrint), Color.White);
 			}
 
@@ -155,7 +155,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 			//Only one effect is chosen per roll
 			int rollEvent;
 			bool validEvent;
-			switch(random){
+			switch (random) {
 				#region Roll 1
 				case 1:
 					/*   Effects:
@@ -170,40 +170,40 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 */
 					int teleXDungeon = 0, teleYDungeon = 0, teleXHell = 0, teleYHell = 0;
 					bool dungeonChecked = false, hellChecked = false;
-					do{
+					do {
 						rollEvent = Main.rand.Next(0, 5);
 
-						if(rollEvent == 3){
-							if(owner.difficulty == 0){
-								if(!dungeonChecked && !NPC.downedBoss3){
+						if (rollEvent == 3) {
+							if (owner.difficulty == 0) {
+								if (!dungeonChecked && !NPC.downedBoss3) {
 									dungeonChecked = true;
 									validEvent = TryTeleportPlayerToDungeon(out teleXDungeon, out teleYDungeon);
-								}else
+								} else
 									validEvent = false;
-							}else
+							} else
 								validEvent = false;
-						}else if(rollEvent == 4){
-							if(!hellChecked){
+						} else if (rollEvent == 4) {
+							if (!hellChecked) {
 								hellChecked = true;
 								validEvent = TryTeleportPlayerToBrazil(out teleXHell, out teleYHell);
-							}else
+							} else
 								validEvent = false;
-						}else
+						} else
 							validEvent = true;
-					}while(!validEvent);
+					} while (!validEvent);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							//Ouch!
 							InformEveryone(owner.difficulty == 0 ? "Death." : "Pain.");
 
-							if(owner.difficulty == 0)
+							if (owner.difficulty == 0)
 								owner.KillMe(PlayerDeathReason.ByCustomReason($"{owner.name} got unlucky!"), 9999, 0);
-							else{
+							else {
 								int life = owner.statLife;
 								int newLife = owner.statLife / (owner.difficulty == 1 ? 2 : 4);
 
-								if(owner.statLife < 1)
+								if (owner.statLife < 1)
 									owner.statLife = 1;
 
 								owner.Hurt(PlayerDeathReason.ByCustomReason($"{owner.name} got unlucky!"), life - newLife, 0, Crit: true);
@@ -212,9 +212,9 @@ namespace CosmivengeonMod.Projectiles.Dice{
 						case 1:
 							InformEveryone("Holes in their pockets!");
 
-							for(int i = 0; i < 54; i++){
+							for (int i = 0; i < 54; i++) {
 								Item item = owner.inventory[i];
-								if(item.type == ItemID.CopperCoin || item.type == ItemID.SilverCoin || item.type == ItemID.GoldCoin || item.type == ItemID.PlatinumCoin){
+								if (item.type == ItemID.CopperCoin || item.type == ItemID.SilverCoin || item.type == ItemID.GoldCoin || item.type == ItemID.PlatinumCoin) {
 									Item.NewItem(owner.Center, item.type, item.stack);
 									item.TurnToAir();
 								}
@@ -223,7 +223,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 						case 2:
 							InformEveryone("Two nasty debuffs!");
 
-							for(int i = 0; i < 2; i++){
+							for (int i = 0; i < 2; i++) {
 								(int, int) debuff = Main.rand.Next(new (int, int)[]{
 									(BuffID.Suffocation, 120 * 60),
 									(BuffID.CursedInferno, 180 * 60),
@@ -260,28 +260,28 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 */
 					rollEvent = Main.rand.Next(0, 4);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("A horde of monsters!");
 
-							for(int i = 0; i < 20; i++){
+							for (int i = 0; i < 20; i++) {
 								int randX, randY;
 								int tries = 20;
-								do{
+								do {
 									randX = Main.rand.Next(-5 * 16, 5 * 16 + 1) + (int)owner.Bottom.X;
 									randY = Main.rand.Next(-2 * 16, 1) + (int)owner.Bottom.Y;
 
 									tries--;
-									if(tries <= 0)
+									if (tries <= 0)
 										break;
-								}while(Framing.GetTileSafely(randX / 16, randY / 16).HasTile);
+								} while (Framing.GetTileSafely(randX / 16, randY / 16).HasTile);
 
 								int hordeType;
-								if(!Main.hardMode)
+								if (!Main.hardMode)
 									hordeType = Main.rand.NextFloat() > 0.2f ? NPCID.Zombie : NPCID.UndeadMiner;
-								else if(!NPC.downedPlantBoss)
+								else if (!NPC.downedPlantBoss)
 									hordeType = NPCID.PossessedArmor;
-								else if(!NPC.downedMoonlord)
+								else if (!NPC.downedMoonlord)
 									hordeType = WorldGen.crimson ? NPCID.Herpling : NPCID.Corruptor;
 								else
 									hordeType = Main.rand.Next(new int[]{
@@ -315,9 +315,9 @@ namespace CosmivengeonMod.Projectiles.Dice{
 						case 1:
 							InformEveryone("An inventory full of junk!");
 
-							for(int i = 0; i < 50; i++){
+							for (int i = 0; i < 50; i++) {
 								Item item = owner.inventory[i];
-								if(item.IsAir){
+								if (item.IsAir) {
 									item = owner.inventory[i] = new Item();
 									item.SetDefaults(Main.rand.Next(new int[]{
 										ItemID.OldShoe, ItemID.TinCan, ItemID.FishingSeaweed
@@ -329,13 +329,13 @@ namespace CosmivengeonMod.Projectiles.Dice{
 						case 2:
 							InformEveryone($"A terrible {(Main.hardMode ? "day" : "night")} to have a curse.");
 
-							if(Main.hardMode){
+							if (Main.hardMode) {
 								//Set the world to a solar eclipse
 								Main.time = 0;
 								Main.dayTime = true;
 
 								Main.eclipse = true;
-							}else{
+							} else {
 								//Set the world to a blood moon
 								Main.time = 0;
 								Main.dayTime = false;
@@ -344,13 +344,13 @@ namespace CosmivengeonMod.Projectiles.Dice{
 							}
 
 							//Let everyone know that something wack happened
-							if(Main.netMode == NetmodeID.MultiplayerClient)
+							if (Main.netMode == NetmodeID.MultiplayerClient)
 								NetMessage.SendData(MessageID.WorldData);
 							break;
 						case 3:
 							InformEveryone(WorldEvents.desoMode ? "Heavy fatigue and no mana!" : "No mana!");
 
-							if(WorldEvents.desoMode){
+							if (WorldEvents.desoMode) {
 								StaminaPlayer mp = owner.GetModPlayer<StaminaPlayer>();
 								mp.stamina.ForceExhaustion();
 							}
@@ -372,7 +372,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 */
 					rollEvent = Main.rand.Next(0, 4);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("Bad shop prices for 10 minutes!");
 
@@ -409,11 +409,11 @@ namespace CosmivengeonMod.Projectiles.Dice{
 						case 3:
 							InformEveryone("Cleared buffs!");
 
-							for(int i = 0; i < Player.MaxBuffs; i++){
-								if(owner.buffType[i] == 0 || owner.buffTime[i] == 0)
+							for (int i = 0; i < Player.MaxBuffs; i++) {
+								if (owner.buffType[i] == 0 || owner.buffTime[i] == 0)
 									continue;
 
-								if(!Main.debuff[owner.buffType[i]]){
+								if (!Main.debuff[owner.buffType[i]]) {
 									owner.DelBuff(i);
 									i--;
 								}
@@ -432,10 +432,10 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 */
 					rollEvent = Main.rand.Next(0, 3);
 
-					if(rollEvent == 0 && owner.SpawnX == Main.spawnTileX && owner.SpawnY == Main.spawnTileY)
-						while((rollEvent = Main.rand.Next(0, 3)) == 0);
+					if (rollEvent == 0 && owner.SpawnX == Main.spawnTileX && owner.SpawnY == Main.spawnTileY)
+						while ((rollEvent = Main.rand.Next(0, 3)) == 0) ;
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("Their spawnpoint removed!");
 
@@ -445,9 +445,9 @@ namespace CosmivengeonMod.Projectiles.Dice{
 							//Teleportation potion effect
 							InformEveryone("A free teleportation to somewhere in the world!");
 
-							if(Main.netMode == NetmodeID.SinglePlayer)
+							if (Main.netMode == NetmodeID.SinglePlayer)
 								owner.TeleportationPotion();
-							else if(Main.netMode == NetmodeID.MultiplayerClient)
+							else if (Main.netMode == NetmodeID.MultiplayerClient)
 								NetMessage.SendData(MessageID.TeleportationPotion);
 							break;
 						case 2:
@@ -468,19 +468,19 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 */
 					rollEvent = Main.rand.Next(0, 3);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("One dead town NPC!");
 
 							List<int> townies = new List<int>();
 
-							for(int i = 0; i < Main.maxNPCs; i++){
+							for (int i = 0; i < Main.maxNPCs; i++) {
 								NPC npc = Main.npc[i];
-								if(npc.active && npc.townNPC)
+								if (npc.active && npc.townNPC)
 									townies.Add(i);
 							}
 
-							if(townies.Count > 0){
+							if (townies.Count > 0) {
 								NPC victim = Main.npc[Main.rand.Next(townies)];
 
 								victim.StrikeNPCNoInteraction(victim.lifeMax * 4, 0f, 0, crit: true);
@@ -517,11 +517,11 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 *   - (Desolation Mode only) completely drain the player's Stamina
 					 *   - completely drain the player's Mana
 					 */
-					do{
+					do {
 						rollEvent = Main.rand.Next(0, 3);
-					}while(rollEvent == 1 && !WorldEvents.desoMode);
+					} while (rollEvent == 1 && !WorldEvents.desoMode);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("Bad shop prices for 4 minutes!");
 
@@ -550,7 +550,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 */
 					rollEvent = Main.rand.Next(0, 2);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("A slap to the face!");
 
@@ -577,11 +577,11 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 *   - freeze the player for 5 seconds
 					 *   - stone the player for 5 seconds
 					 */
-					do{
+					do {
 						rollEvent = Main.rand.Next(0, 6);
-					}while(rollEvent == 0 && Main.rand.NextFloat() >= 0.1f);
+					} while (rollEvent == 0 && Main.rand.NextFloat() >= 0.1f);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("Nothing!");
 							break;
@@ -623,11 +623,11 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 *   - give the player 50 dirt
 					 *   - give the player a broken Copper weapon/tool
 					 */
-					do{
+					do {
 						rollEvent = Main.rand.Next(0, 4);
-					}while(rollEvent == 0 && Main.rand.NextFloat() >= 0.25f);
+					} while (rollEvent == 0 && Main.rand.NextFloat() >= 0.25f);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("Nothing!");
 							break;
@@ -668,11 +668,11 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 *   - give the player 1-5 Copper/Tin Bars, 1-4 Iron/Lead Bars, 1-3 Silver/Tungsten Bars or 1-2 Gold/Platinum Bars
 					 *   - give the player an Amethyst, Topaz or Sapphire
 					 */
-					do{
+					do {
 						rollEvent = Main.rand.Next(0, 4);
-					}while(rollEvent == 0 && Main.rand.NextFloat() >= 0.5f);
+					} while (rollEvent == 0 && Main.rand.NextFloat() >= 0.5f);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("Nothing!");
 							break;
@@ -723,11 +723,11 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 *   - give the player 20 Silver Coins
 					 *   - give the player 1-5 Journeyman's Bait or Appentice Bait
 					 */
-					do{
+					do {
 						rollEvent = Main.rand.Next(0, 3);
-					}while(rollEvent == 0 && Main.rand.NextFloat() >= 0.5f);
+					} while (rollEvent == 0 && Main.rand.NextFloat() >= 0.5f);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("Nothing!");
 							break;
@@ -755,11 +755,11 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 *   - give the player 3 Amethyst, 2 Topaz, 2 Sapphire, 1 Emerald, 1 Ruby or 1 Diamond
 					 *   - give the player 1 Gold Coin
 					 */
-					do{
+					do {
 						rollEvent = Main.rand.Next(0, 4);
-					}while(rollEvent == 0 && Main.rand.NextFloat() >= 0.25f);
+					} while (rollEvent == 0 && Main.rand.NextFloat() >= 0.25f);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("Nothing!");
 							break;
@@ -791,7 +791,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 								(ItemID.Ruby, 1),
 								(ItemID.Diamond, 1)
 							});
-							
+
 							item = new Item();
 							item.SetDefaults(drop.Item1);
 
@@ -816,11 +816,11 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 *   - increased fishing skill for 1 day
 					 *   - a random early accessory (Aglet, Anklet of the Wind, Cloud in a Bottle, Hermes Boots)
 					 */
-					do{
+					do {
 						rollEvent = Main.rand.Next(0, 4);
-					}while(rollEvent == 0 && Main.rand.NextFloat() >= 0.1f);
+					} while (rollEvent == 0 && Main.rand.NextFloat() >= 0.1f);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("Nothing!");
 							break;
@@ -865,11 +865,11 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 *   - (Only post-EoW/BoC) gives the player 18-35 Tissue Samples/Shadow Scale and 8-15 Demonite Bars
 					 *   - (Only in Hardmode) gives the player 8-12 Hellstone bars
 					 */
-					do{
+					do {
 						rollEvent = Main.rand.Next(0, 5);
-					}while((rollEvent == 3 && !NPC.downedBoss2) || (rollEvent == 4 && !Main.hardMode));
+					} while ((rollEvent == 3 && !NPC.downedBoss2) || (rollEvent == 4 && !Main.hardMode));
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("5 Gold Coins!");
 
@@ -901,7 +901,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 								(ItemID.Ruby, 3),
 								(ItemID.Diamond, 1)
 							});
-							
+
 							item = new Item();
 							item.SetDefaults(drop.Item1);
 
@@ -936,11 +936,11 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 *   - a random small buff
 					 */
 					bool noAngler = !NPC.AnyNPCs(NPCID.Angler);
-					do{
+					do {
 						rollEvent = Main.rand.Next(0, 4);
-					}while(rollEvent == 2 && noAngler);
+					} while (rollEvent == 2 && noAngler);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("Decreased shop prices!");
 							break;
@@ -987,13 +987,13 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 *   - the player is given 1-5 Master Bait
 					 *   - (Hardmode only) the player is given 1 Truffle Worm
 					 */
-					do{
+					do {
 						rollEvent = Main.rand.Next(0, 7);
-					}while((rollEvent == 1 && !Main.hardMode)
+					} while ((rollEvent == 1 && !Main.hardMode)
 						|| (rollEvent == 4 && !(NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3))
 						|| (rollEvent == 6 && !Main.hardMode));
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("20 Gold Coins!");
 
@@ -1017,7 +1017,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 								? "6 Life Fruit"
 								: "10 Life Crystals");
 
-							if(Main.hardMode)
+							if (Main.hardMode)
 								owner.QuickSpawnItem(ItemID.LifeFruit, 6);
 							else
 								owner.QuickSpawnItem(ItemID.LifeCrystal, 10);
@@ -1059,11 +1059,11 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 *   - (Post-Lunatic Cultist only) 1-4 fragments for each type of Lunar Pillar
 					 *   - (Post-Moon Lord only) 1-5 Luminite Bars
 					 */
-					do{
+					do {
 						rollEvent = Main.rand.Next(0, 4);
-					}while((rollEvent == 2 && !NPC.downedPlantBoss) || (rollEvent == 3 && !NPC.downedAncientCultist) || (rollEvent == 4 && !NPC.downedMoonlord));
+					} while ((rollEvent == 2 && !NPC.downedPlantBoss) || (rollEvent == 3 && !NPC.downedAncientCultist) || (rollEvent == 4 && !NPC.downedMoonlord));
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("One powerful buff!");
 
@@ -1095,8 +1095,8 @@ namespace CosmivengeonMod.Projectiles.Dice{
 						case 3:
 							InformEveryone("Lunar pillar fragments!");
 
-							int[] fragments = new int[]{ ItemID.FragmentSolar, ItemID.FragmentNebula, ItemID.FragmentVortex, ItemID.FragmentStardust };
-							for(int i = 0; i < 4; i++)
+							int[] fragments = new int[] { ItemID.FragmentSolar, ItemID.FragmentNebula, ItemID.FragmentVortex, ItemID.FragmentStardust };
+							for (int i = 0; i < 4; i++)
 								owner.QuickSpawnItem(fragments[i], Main.rand.Next(1, 5));
 							break;
 						case 4:
@@ -1121,7 +1121,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 */
 					rollEvent = Main.rand.Next(0, 5);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("1 Platinum Coin!");
 
@@ -1143,7 +1143,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 							int[] types = new int[]{
 								ItemID.Wood, ItemID.BorealWood, ItemID.PalmWood, ItemID.Pearlwood, ItemID.RichMahogany, ItemID.Shadewood, ItemID.Ebonwood
 							};
-							for(int i = 0; i < types.Length; i++)
+							for (int i = 0; i < types.Length; i++)
 								owner.QuickSpawnItem(types[i], 100);
 							break;
 						case 4:
@@ -1166,7 +1166,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 */
 					rollEvent = Main.rand.Next(0, 5);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("A lot of health recovered!");
 
@@ -1191,31 +1191,31 @@ namespace CosmivengeonMod.Projectiles.Dice{
 								(BuffID.Sharpened, 10 * 60 * 60)
 							};
 							int added = 0;
-							for(int i = 0; i < 3; i++){
+							for (int i = 0; i < 3; i++) {
 								(int, int) buff = Main.rand.Next(buffs);
-								if(buff.Item1 == -1){
+								if (buff.Item1 == -1) {
 									owner.AddBuff(BuffID.NebulaUpDmg3, 3 * 60 * 60);
 									owner.AddBuff(BuffID.NebulaUpLife3, 3 * 60 * 60);
 									owner.AddBuff(BuffID.NebulaUpMana3, 3 * 60 * 60);
 									added += 3;
-								}else if(buff.Item1 == -2){
+								} else if (buff.Item1 == -2) {
 									owner.AddBuff(BuffID.BeetleEndurance3, 3 * 60 * 60);
 									owner.AddBuff(BuffID.BeetleMight3, 3 * 60 * 60);
 									added += 2;
-								}else{
+								} else {
 									owner.AddBuff(buff.Item1, buff.Item2);
 									added++;
 								}
 
-								if(added >= 3)
+								if (added >= 3)
 									return;
 							}
 							break;
 						case 3:
 							InformEveryone("All debuffs cleared!");
 
-							for(int i = 0; i < Player.MaxBuffs; i++){
-								if(Main.debuff[owner.buffType[i]]){
+							for (int i = 0; i < Player.MaxBuffs; i++) {
+								if (Main.debuff[owner.buffType[i]]) {
 									owner.DelBuff(i);
 									i--;
 								}
@@ -1245,7 +1245,7 @@ namespace CosmivengeonMod.Projectiles.Dice{
 					 */
 					rollEvent = Main.rand.Next(0, 7);
 
-					switch(rollEvent){
+					switch (rollEvent) {
 						case 0:
 							InformEveryone("100 Platinum coins!");
 
@@ -1283,26 +1283,26 @@ namespace CosmivengeonMod.Projectiles.Dice{
 							break;
 					}
 					break;
-				#endregion
+					#endregion
 			}
 		}
 
-		private static bool TryTeleportPlayerToDungeon(out int x, out int y){
+		private static bool TryTeleportPlayerToDungeon(out int x, out int y) {
 			List<(int, int)> dungeonWalls = new List<(int, int)>();
 
 			bool dungeonLeft = Main.dungeonX < Main.maxTilesX / 2;
-			for(y = (int)Main.rockLayer + 100; y < Main.maxTilesY - 200; y++){
-				for(x = dungeonLeft ? 0 : Main.maxTilesX - 1; dungeonLeft ? x < Main.maxTilesX / 3 : x > Main.maxTilesX * 2 / 3; x = dungeonLeft ? x + 1 : x - 1){
+			for (y = (int)Main.rockLayer + 100; y < Main.maxTilesY - 200; y++) {
+				for (x = dungeonLeft ? 0 : Main.maxTilesX - 1; dungeonLeft ? x < Main.maxTilesX / 3 : x > Main.maxTilesX * 2 / 3; x = dungeonLeft ? x + 1 : x - 1) {
 					Tile tile = Framing.GetTileSafely(x, y);
-					if(Main.wallDungeon[tile.WallType])
+					if (Main.wallDungeon[tile.WallType])
 						dungeonWalls.Add((x, y));
 				}
 
-				if(dungeonWalls.Count > 0)
+				if (dungeonWalls.Count > 0)
 					break;
 			}
 
-			if(dungeonWalls.Count == 0){
+			if (dungeonWalls.Count == 0) {
 				x = 0;
 				y = 0;
 				return false;
@@ -1314,10 +1314,10 @@ namespace CosmivengeonMod.Projectiles.Dice{
 			return true;
 		}
 
-		private static bool TryTeleportPlayerToBrazil(out int x, out int y){
+		private static bool TryTeleportPlayerToBrazil(out int x, out int y) {
 			Tile tile;
 			int tries = 4000;
-			do{
+			do {
 				x = Main.rand.Next(0, Main.maxTilesX);
 				y = Main.rand.Next(Main.maxTilesY - 200, Main.maxTilesY);
 
@@ -1325,12 +1325,12 @@ namespace CosmivengeonMod.Projectiles.Dice{
 
 				tries--;
 
-				if(tries <= 0){
+				if (tries <= 0) {
 					x = 0;
 					y = 0;
 					return false;
 				}
-			}while(tile.HasTile || !(tile.LiquidType == LiquidID.Lava) || tile.LiquidAmount < 200);
+			} while (tile.HasTile || !(tile.LiquidType == LiquidID.Lava) || tile.LiquidAmount < 200);
 
 			return true;
 		}

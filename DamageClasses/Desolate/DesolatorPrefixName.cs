@@ -1,5 +1,5 @@
-﻿namespace CosmivengeonMod.DamageClasses.Desolate{
-	public static class DesolatorPrefixName{
+﻿namespace CosmivengeonMod.DamageClasses.Desolate {
+	public static class DesolatorPrefixName {
 		public const string Chaotic = "Chaotic";
 		public const string Unholy = "Unholy";
 		public const string Prideful = "Prideful";

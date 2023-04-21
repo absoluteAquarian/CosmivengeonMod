@@ -2,8 +2,8 @@
 using Terraria;
 using Terraria.ID;
 
-namespace CosmivengeonMod.Items.Lore{
-	public class IceforgedRelic : HidableTooltip{
+namespace CosmivengeonMod.Items.Lore {
+	public class IceforgedRelic : HidableTooltip {
 		public override string ItemName => "Iceforged Relic";
 
 		public override string FlavourText => "Unusual living conditions have always lead to strange adaptations." +
@@ -17,7 +17,7 @@ namespace CosmivengeonMod.Items.Lore{
 				"\nand became a new species.  Frostibite appears to be the latest member" +
 				"\nof this bizarre ecological miracle.";
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.maxStack = 1;
 			Item.rare = ItemRarityID.Blue;
 			Item.consumable = false;

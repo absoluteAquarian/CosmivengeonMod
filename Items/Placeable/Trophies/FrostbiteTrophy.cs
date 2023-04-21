@@ -3,8 +3,8 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Placeable.Trophies{
-	public class FrostbiteTrophy : ModItem{
+namespace CosmivengeonMod.Items.Placeable.Trophies {
+	public class FrostbiteTrophy : ModItem {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Frostbite Trophy");
 		}

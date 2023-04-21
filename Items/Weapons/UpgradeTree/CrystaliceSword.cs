@@ -3,16 +3,16 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.UpgradeTree{
-	public class CrystaliceSword : ModItem{
+namespace CosmivengeonMod.Items.Weapons.UpgradeTree {
+	public class CrystaliceSword : ModItem {
 		public override bool OnlyShootOnSwing/* tModPorter Note: Removed. If you returned true, set Item.useTime to a multiple of Item.useAnimation */ => true;
 
-		public override void SetStaticDefaults(){
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Crystalice Sword");
 			Tooltip.SetDefault("Has a chance to inflict [c/00dddd:Frostburn].");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.damage = 15;
 			Item.DamageType = DamageClass.Melee/* tModPorter Suggestion: Consider MeleeNoSpeed for no attack speed scaling */;
 			Item.useTurn = false;
@@ -28,7 +28,7 @@ namespace CosmivengeonMod.Items.Weapons.UpgradeTree{
 			Item.autoReuse = false;
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ModContent.ItemType<FrostCrystal>());
 			recipe.AddIngredient(ItemID.SnowBlock, 10);
@@ -37,8 +37,8 @@ namespace CosmivengeonMod.Items.Weapons.UpgradeTree{
 			recipe.Register();
 		}
 
-		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit){
-			if(Main.rand.NextFloat() < 0.5f)
+		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit) {
+			if (Main.rand.NextFloat() < 0.5f)
 				target.AddBuff(BuffID.Frostburn, 6 * 60);
 		}
 	}

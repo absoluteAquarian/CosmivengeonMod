@@ -7,14 +7,14 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Items.Weapons.Draek{
-	public class BasiliskStaff : ModItem{
-		public override void SetStaticDefaults(){
+namespace CosmivengeonMod.Items.Weapons.Draek {
+	public class BasiliskStaff : ModItem {
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Basilisk Staff");
 			Tooltip.SetDefault("Summons a baby basilisk to fight for you.");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Item.useStyle = ItemUseStyleID.Swing;
 			Item.shoot = ModContent.ProjectileType<BabySnek>();
 			Item.scale = 0.6667f;
@@ -33,7 +33,7 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 			Item.DamageType = DamageClass.Summon;
 		}
 
-		public override void AddRecipes(){
+		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ItemID.StoneBlock, 50);
 			recipe.AddIngredient(ModContent.ItemType<DraekScales>(), 15);
@@ -42,12 +42,12 @@ namespace CosmivengeonMod.Items.Weapons.Draek{
 			recipe.Register();
 		}
 
-		public override void UseStyle(Player player, Rectangle heldItemFrame){
-			if(player.whoAmI == Main.myPlayer && player.itemTime == 0)
+		public override void UseStyle(Player player, Rectangle heldItemFrame) {
+			if (player.whoAmI == Main.myPlayer && player.itemTime == 0)
 				player.AddBuff(Item.buffType, 3600);
 		}
 
-		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback){
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
 			position = Main.MouseWorld;  //Make the summon spawn at the cursor
 			return true;
 		}

@@ -2,9 +2,9 @@
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Projectiles.Weapons.Draek{
+namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 	//Some code copied from ExampleYoyoProjectile
-	public class RockslideProjectile : ModProjectile{
+	public class RockslideProjectile : ModProjectile {
 		public override void SetStaticDefaults() {
 			//The following sets are only applicable to yoyo that use aiStyle 99.
 			//YoyosLifeTimeMultiplier is how long in seconds the yoyo will stay out before automatically returning to the player. 
@@ -39,16 +39,16 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek{
 		//ai[0] being negative makes the yoyo move back towards the player
 		//Any AI method can be used for dust, spawning projectiles, etc specific to your yoyo.
 
-		public override void PostAI(){
+		public override void PostAI() {
 			//Add a green light from the projectile
 			Lighting.AddLight(Projectile.Center, 0f, 1f, 0f);
 
-			if(Main.rand.Next(8) == 0)
+			if (Main.rand.Next(8) == 0)
 				Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, 74);
 		}
 
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
-			if(Main.rand.NextFloat() <= 0.125)
+		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+			if (Main.rand.NextFloat() <= 0.125)
 				target.AddBuff(BuffID.Poisoned, 10 * 60);
 		}
 	}

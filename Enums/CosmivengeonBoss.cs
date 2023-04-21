@@ -1,5 +1,5 @@
-﻿namespace CosmivengeonMod.Enums{
-	public enum CosmivengeonBoss{
+﻿namespace CosmivengeonMod.Enums {
+	public enum CosmivengeonBoss {
 		Draek, Frostbite
 	}
 }

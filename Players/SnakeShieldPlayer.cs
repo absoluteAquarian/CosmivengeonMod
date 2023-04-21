@@ -6,9 +6,9 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Players{
+namespace CosmivengeonMod.Players {
 	//Used with CosmivengeonMod.Items.Equippable.Accessories.Draek.SnakeShield
-	public class SnakeShieldPlayer : ModPlayer{
+	public class SnakeShieldPlayer : ModPlayer {
 		//These indicate what direction is what in the timer arrays used
 		public const int DashUp = 0;
 		public const int DashDown = 1;
@@ -31,9 +31,9 @@ namespace CosmivengeonMod.Players{
 
 		public int HitNPCIndex = -1;
 
-		public override void ResetEffects(){
+		public override void ResetEffects() {
 			//ResetEffects() is called not long after player.doubleTapCardinalTimer's values have been set
-			
+
 			//Check if the ExampleDashAccessory is equipped and also check against this priority:
 			// If the Shield of Cthulhu, Master Ninja Gear, Tabi and/or Solar Armour set is equipped, prevent this accessory from doing its dash effect
 			//The priority is used to prevent undesirable effects.
@@ -41,31 +41,31 @@ namespace CosmivengeonMod.Players{
 			bool dashAccessoryEquipped = false;
 
 			//This is the loop used in vanilla to update/check the not-vanity accessories
-			for(int i = 3; i < 8 + Player.extraAccessorySlots; i++){
+			for (int i = 3; i < 8 + Player.extraAccessorySlots; i++) {
 				Item item = Player.armor[i];
 
 				//Set the flag for the ExampleDashAccessory being equipped if we have it equipped OR immediately return if any of the accessories are
 				// one of the higher-priority ones
-				if(item.type == ModContent.ItemType<SnakeShield>())
+				if (item.type == ModContent.ItemType<SnakeShield>())
 					dashAccessoryEquipped = true;
-				else if(item.type == ItemID.EoCShield || item.type == ItemID.MasterNinjaGear || item.type == ItemID.Tabi)
+				else if (item.type == ItemID.EoCShield || item.type == ItemID.MasterNinjaGear || item.type == ItemID.Tabi)
 					return;
 			}
 
 			//If we don't have the ExampleDashAccessory equipped or the player has the Solor armor set equipped, return immediately
 			//Also return if the player is currently on a mount, since dashes on a mount look weird, or if the dash was already activated
-			if(!dashAccessoryEquipped || Player.setSolar || Player.mount.Active || DashActive)
+			if (!dashAccessoryEquipped || Player.setSolar || Player.mount.Active || DashActive)
 				return;
 
 			//When a directional key is pressed and released, vanilla starts a 15 tick (1/4 second) timer during which a second press activates a dash
 			//If the timers are set to 15, then this is the first press just processed by the vanilla logic.  Otherwise, it's a double-tap
-			if(Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[DashRight] < 15)
+			if (Player.controlRight && Player.releaseRight && Player.doubleTapCardinalTimer[DashRight] < 15)
 				DashDir = DashRight;
-			else if(Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[DashLeft] < 15)
+			else if (Player.controlLeft && Player.releaseLeft && Player.doubleTapCardinalTimer[DashLeft] < 15)
 				DashDir = DashLeft;
-			else{
+			else {
 				DashDir = 0;
-				return;	 //No dash was activated, return
+				return;  //No dash was activated, return
 			}
 
 			DashActive = true;
@@ -77,26 +77,26 @@ namespace CosmivengeonMod.Players{
 		}
 
 		//Copy of the SoC's code in Player.DashMovement(), but changed to fit this accessory
-		public void CheckSoCHitEffect(){
-			if(HitNPCIndex < 0){
+		public void CheckSoCHitEffect() {
+			if (HitNPCIndex < 0) {
 				//Vanilla uses the player's hitbox and adds 4px to each direction, then offsets it by half of the player's velocity.
 				//We'll a larger component of the velocity since the dash is faster
 				Rectangle collisionCheck = new Rectangle((int)(Player.position.X + Player.velocity.X * 2f - 4), (int)(Player.position.Y + Player.velocity.Y * 2f - 4), Player.width + 8, Player.height + 8);
-				for(int i = 0; i < Main.maxNPCs; i++){
+				for (int i = 0; i < Main.maxNPCs; i++) {
 					NPC npc = Main.npc[i];
-					if(npc.active && !npc.dontTakeDamage && !npc.friendly && collisionCheck.Intersects(npc.getRect()) && (npc.noTileCollide || Player.CanHit(npc))){
+					if (npc.active && !npc.dontTakeDamage && !npc.friendly && collisionCheck.Intersects(npc.getRect()) && (npc.noTileCollide || Player.CanHit(npc))) {
 						float damageWithMultiplier = SnakeShield.BaseDamage * Player.GetDamage(DamageClass.Melee);
 						float knockback = 9f;
 						bool crit = Main.rand.Next(100) < Player.GetCritChance(DamageClass.Generic);
 
-						if(Player.kbGlove)
+						if (Player.kbGlove)
 							knockback *= 2f;
-						if(Player.kbBuff)
+						if (Player.kbBuff)
 							knockback *= 1.5f;
 
 						int direction = Player.velocity.X == 0 ? Player.direction : Math.Sign(Player.velocity.X);
 
-						if(Player.whoAmI == Main.myPlayer){
+						if (Player.whoAmI == Main.myPlayer) {
 							Player.ApplyDamageToNPC(npc, (int)damageWithMultiplier, knockback, direction, crit);
 							npc.AddBuff(BuffID.Poisoned, 8 * 60);
 							npc.AddBuff(ModContent.BuffType<PrimordialWrath>(), (int)(4.5f * 60));
@@ -113,7 +113,7 @@ namespace CosmivengeonMod.Players{
 						HitNPCIndex = i;
 					}
 				}
-			}else if((!Player.controlLeft || Player.velocity.X >= 0f) && (!Player.controlRight || Player.velocity.X <= 0f))
+			} else if ((!Player.controlLeft || Player.velocity.X >= 0f) && (!Player.controlRight || Player.velocity.X <= 0f))
 				Player.velocity.X *= 0.95f;
 		}
 	}

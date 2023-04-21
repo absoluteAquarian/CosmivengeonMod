@@ -6,17 +6,17 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
-	public class IceScepterWall : ModProjectile{
+namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
+	public class IceScepterWall : ModProjectile {
 		public override string Texture => "CosmivengeonMod/NPCs/Bosses/FrostbiteBoss/Summons/FrostbiteWall";
 
 		public static readonly float Scale = 0.87f;
 
-		public override void SetStaticDefaults(){
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Frozen Totem");
 		}
 
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Projectile.sentry = true;
 			Projectile.width = 30;
 			Projectile.height = 116;
@@ -27,15 +27,15 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 
 		private int AI_Timer = -1;
 
-		public override void AI(){
+		public override void AI() {
 			Projectile.TryDecrementAlpha(10);
 
 			//copied from FrostbiteWall AI
-			if(AI_Timer < 0)
+			if (AI_Timer < 0)
 				AI_Timer = Main.rand.Next(48, 90);
-			else if(AI_Timer == 0){
+			else if (AI_Timer == 0) {
 				//Spawn some Frostbite ice projectiles (the breath ones)
-				for(int i = 0; i < 6; i++){
+				for (int i = 0; i < 6; i++) {
 					Projectile.NewProjectile(
 						Projectile.Top + new Vector2(0, 16),
 						new Vector2(0, -12).RotatedByRandom(MathHelper.ToRadians(40)),
@@ -59,7 +59,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite{
 
 		public override bool OnTileCollide(Vector2 oldVelocity) => false;
 
-		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac){
+		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) {
 			fallThrough = false;
 			return base.TileCollideStyle(ref width, ref height, ref fallThrough);
 		}

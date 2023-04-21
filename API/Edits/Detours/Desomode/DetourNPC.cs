@@ -8,11 +8,11 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.API.Edits.Detours.Desomode{
-	public static class DetourNPC{
+namespace CosmivengeonMod.API.Edits.Detours.Desomode {
+	public static class DetourNPC {
 		public static int[] DesomodeAITypes;
 
-		public static void Load(){
+		public static void Load() {
 			DesomodeAITypes = new int[]{
 				//Bosses
 				NPCID.KingSlime,
@@ -32,38 +32,38 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			};
 		}
 
-		public static void Unload(){
+		public static void Unload() {
 			DesomodeAITypes = null;
 		}
 
-		public static void NPC_SetDefaults(On.Terraria.NPC.orig_SetDefaults orig, NPC self, int Type, float scaleOverride){
+		public static void NPC_SetDefaults(On.Terraria.NPC.orig_SetDefaults orig, NPC self, int Type, float scaleOverride) {
 			orig(self, Type, scaleOverride);
 
 			int p1 = ModContent.NPCType<Draek>();
 			int p2 = ModContent.NPCType<DraekP2Head>();
 			float scale = MiscUtils.CalculateBossHealthScale(out _);
 
-			if(self.type == p1){
+			if (self.type == p1) {
 				self.lifeMax = Draek.BaseHealth;
-				
-				if(Main.expertMode)
+
+				if (Main.expertMode)
 					self.ScaleHealthBy(Draek.GetHealthAugmentation());
-				
+
 				int hp = Main.expertMode ? GetDraekMaxHealth(scale) : Draek.BaseHealth + DraekP2Head.BaseHealth;
 				(self.ModNPC as Draek).HealthThreshold = hp - self.lifeMax;
 				self.lifeMax = hp;
 
 				self.life = self.lifeMax;
-			}else if(self.type == p2){
+			} else if (self.type == p2) {
 				self.lifeMax = DraekP2Head.BaseHealth;
 
-				if(Main.expertMode)
+				if (Main.expertMode)
 					self.ScaleHealthBy(DraekP2Head.GetHealthAugmentation());
-				
+
 				int curMax = self.lifeMax;
 				(self.ModNPC as DraekP2Head).ActualMaxHealth = curMax;
 				self.lifeMax = Main.expertMode ? GetDraekMaxHealth(scale) : Draek.BaseHealth + DraekP2Head.BaseHealth;
-				
+
 				self.life = curMax;
 			}
 
@@ -71,7 +71,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			self.GetGlobalNPC<StatsNPC>().baseEndurance = self.GetGlobalNPC<StatsNPC>().endurance;
 
 			//World is in Desolation Mode and the boss is a boss (wow)
-			if(WorldEvents.desoMode && self.boss){
+			if (WorldEvents.desoMode && self.boss) {
 				float normalFactor = 5f;
 				float expertFactor = 2.5f;
 				self.value *= normalFactor / expertFactor;
@@ -81,13 +81,13 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			self.Desomode().QB_baseSize = self.Size;
 		}
 
-		public static int NPC_GetBossHeadTextureIndex(On.Terraria.NPC.orig_GetBossHeadTextureIndex orig, NPC self){
+		public static int NPC_GetBossHeadTextureIndex(On.Terraria.NPC.orig_GetBossHeadTextureIndex orig, NPC self) {
 			//Force EoC's icon to not show up if it's in the desomode attack and invisible
 			//Force BoC's icon to not show up while it's in Phase 2
 			bool hideEoC = self.type == NPCID.EyeofCthulhu && self.ai[0] == 6f && self.alpha > 150;
 			bool hideBoC = self.type == NPCID.BrainofCthulhu && self.ai[0] < 0f;
 
-			if(WorldEvents.desoMode && (hideEoC || hideBoC))
+			if (WorldEvents.desoMode && (hideEoC || hideBoC))
 				return -1;
 			return orig(self);
 		}
@@ -96,10 +96,10 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 			=> (int)(Draek.BaseHealth * Main.GameModeInfo.EnemyMaxLifeMultiplier * Draek.GetHealthAugmentation() * bossScale
 				+ DraekP2Head.BaseHealth * Main.GameModeInfo.EnemyMaxLifeMultiplier * DraekP2Head.GetHealthAugmentation() * bossScale);
 
-		public static void NPC_VanillaAI(On.Terraria.NPC.orig_VanillaAI orig, NPC self){
+		public static void NPC_VanillaAI(On.Terraria.NPC.orig_VanillaAI orig, NPC self) {
 			//Desolation mode AI changes
-			if(WorldEvents.desoMode && DesomodeAITypes.Contains(self.type)){
-				switch(self.type){
+			if (WorldEvents.desoMode && DesomodeAITypes.Contains(self.type)) {
+				switch (self.type) {
 					//Bosses
 					case NPCID.KingSlime:
 						DesolationModeBossAI.AI_KingSlime(self);
@@ -138,7 +138,7 @@ namespace CosmivengeonMod.API.Edits.Detours.Desomode{
 						DesolationModeMonsterAI.AI_TheHungryII(self);
 						break;
 				}
-			}else
+			} else
 				orig(self);
 		}
 	}

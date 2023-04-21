@@ -3,14 +3,14 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
 
-namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
-	public class DraekSwordExtra : ModProjectile{
+namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss {
+	public class DraekSwordExtra : ModProjectile {
 		public override string Texture => "CosmivengeonMod/Assets/Empty";
 
-		public override void SetStaticDefaults(){
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Forsaken Oronoblade");
 		}
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Projectile.height = 30;
 			Projectile.width = 30;
 			Projectile.friendly = false;
@@ -25,12 +25,12 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 
 		Projectile owner = null;
 
-		public override void AI(){
+		public override void AI() {
 			owner = Main.projectile[(int)Projectile.ai[0]];
 
 			Projectile.damage = owner.damage;
-			
-			if(!owner.active || owner.type != ModContent.ProjectileType<DraekSword>()){
+
+			if (!owner.active || owner.type != ModContent.ProjectileType<DraekSword>()) {
 				Projectile.Kill();
 				return;
 			}
@@ -45,7 +45,7 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss{
 			Projectile.Center = center;
 		}
 
-		public override void OnHitPlayer(Player target, int damage, bool crit){
+		public override void OnHitPlayer(Player target, int damage, bool crit) {
 			(owner?.ModProjectile as DraekSword)?.OnHitPlayer(target, damage, crit);
 		}
 	}
