@@ -2,9 +2,11 @@
 using CosmivengeonMod.Enums;
 using CosmivengeonMod.Worlds;
 using Microsoft.Xna.Framework;
+using StructureHelper;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -286,6 +288,12 @@ namespace CosmivengeonMod.Utility{
 
 			RemoteClient client = Netplay.Clients[whoAmI];
 			return client.State == 10 && client.Socket.GetRemoteAddress().IsLocalHost();
+		}
+
+		public static Point16 GetStructureDimensions(string path){
+			Point16 dims = Point16.Zero;
+			Generator.GetDimensions(path, CoreMod.Instance, ref dims);
+			return dims;
 		}
 	}
 }

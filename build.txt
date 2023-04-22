@@ -6,4 +6,4 @@ buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*, Properties\*, READM
 includePDB = true
 hideCode = false
 hideResources = true
-modReferences = SubworldLibrary
+modReferences = SubworldLibrary, StructureHelper
