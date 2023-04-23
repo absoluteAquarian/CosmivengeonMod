@@ -14,23 +14,38 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 		/// Runs a modified AI for the Brain of Cthulhu
 		/// </summary>
 		public static void AI_BrainOfCthulhu(NPC npc) {
+			/*    NOTES
+			 *  - ai[0]: State variable.  state > 0 is slow movement while creepers are alive, state < 0 is faster movement in Phase 2
+			 *  - ai[1]: Teleport X-position
+			 *  - ai[2]: Teleport Y-position
+			 *  - ai[3]: Indirect alpha assignment when starting a teleport during Phase 2 (not needed???)
+			 *  - localAI[0]: Flag for initial Creeper spawns
+			 *  - localAI[1]: Teleport delay timer
+			 *  - localAI[2]: Flag for roar and gore spawning when transitioning to Phase 2
+			 *  - localAI[3]: "All targets dead" timer and acceleration
+			 */
 			NPC.crimsonBoss = npc.whoAmI;
 
 			//Spawn the Creepers
 			if (Main.netMode != NetmodeID.MultiplayerClient && npc.localAI[0] == 0f) {
 				npc.localAI[0] = 1f;
 
-				for (int num761 = 0; num761 < 30; num761++) {
-					float num762 = npc.Center.X;
-					float num763 = npc.Center.Y;
+				// Vanilla sets the creeper count to 20 in non-FTW and 40 in FTW via NPC.GetBrainOfCthuluCreepersCount
+				int creeperCount = 30;
+				if (Main.getGoodWorld)
+					creeperCount = 48;
 
-					num762 += Main.rand.Next(-npc.width, npc.width);
-					num763 += Main.rand.Next(-npc.height, npc.height);
+				for (int i = 0; i < creeperCount; i++) {
+					float spawnX = npc.Center.X;
+					float spawnY = npc.Center.Y;
 
-					int num764 = NPC.NewNPC(npc.GetSource_FromAI(), (int)num762, (int)num763, 267);
+					spawnX += Main.rand.Next(-npc.width, npc.width);
+					spawnY += Main.rand.Next(-npc.height, npc.height);
 
-					Main.npc[num764].velocity = new Vector2(Main.rand.Next(-30, 31), Main.rand.Next(-30, 31)) * 0.1f;
-					Main.npc[num764].netUpdate = true;
+					int spawned = NPC.NewNPC(npc.GetSource_FromAI(), (int)spawnX, (int)spawnY, NPCID.Creeper);
+
+					Main.npc[spawned].velocity = new Vector2(Main.rand.Next(-30, 31), Main.rand.Next(-30, 31)) * 0.1f;
+					Main.npc[spawned].netUpdate = true;
 				}
 			}
 
@@ -38,8 +53,8 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 			if (Main.netMode != NetmodeID.MultiplayerClient) {
 				npc.TargetClosest(true);
 
-				int num765 = 6000;
-				if (npc.DistanceSQ(npc.Target().Center) > num765 * num765) {
+				int maxDistance = 6000;
+				if (Math.Abs(npc.Center.X - npc.Target().Center.X) + Math.Abs(npc.Center.Y - npc.Target().Center.Y) > maxDistance) {
 					npc.active = false;
 					npc.life = 0;
 
@@ -52,7 +67,13 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				BoC_AttackCheck(npc);
 
 			if (npc.ai[0] < 0f) {
-				//Check for the transition to phase 2
+				// 1.4.4 addition
+				/*
+				if (Main.getGoodWorld)
+					NPC.brainOfGravity = npc.whoAmI;
+				*/
+
+				// Perform the visual transition to phase 2
 				if (npc.localAI[2] == 0f) {
 					SoundEngine.PlaySound(SoundID.NPCHit1, npc.position);
 					npc.localAI[2] = 1f;
@@ -61,7 +82,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 					Gore.NewGore(npc.GetSource_FromAI(), npc.position, new Vector2(Main.rand.Next(-30, 31), Main.rand.Next(-30, 31)) * 0.2f, 394, 1f);
 					Gore.NewGore(npc.GetSource_FromAI(), npc.position, new Vector2(Main.rand.Next(-30, 31), Main.rand.Next(-30, 31)) * 0.2f, 395, 1f);
 
-					for (int num766 = 0; num766 < 20; num766++)
+					for (int i = 0; i < 20; i++)
 						Dust.NewDust(npc.position, npc.width, npc.height, DustID.Blood, Main.rand.Next(-30, 31) * 0.2f, Main.rand.Next(-30, 31) * 0.2f);
 
 					SoundEngine.PlaySound(SoundID.Roar, npc.position);
@@ -75,75 +96,31 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				npc.dontCountMe = true;
 
 				npc.TargetClosest(true);
-				Vector2 vector94 = npc.Center;
-				float num767 = npc.Target().Center.X - vector94.X;
-				float num768 = npc.Target().Center.Y - vector94.Y;
-				float num769 = (float)Math.Sqrt(num767 * num767 + num768 * num768);
-				float num770 = 8f;
+				Vector2 npcCenter = npc.Center;
+				float distanceToTargetX = npc.Target().Center.X - npcCenter.X;
+				float distanceToTargetY = npc.Target().Center.Y - npcCenter.Y;
+				float distanceToTarget = (float)Math.Sqrt(distanceToTargetX * distanceToTargetX + distanceToTargetY * distanceToTargetY);
+				float movementFactor = 8f;
 
-				num769 = num770 / num769;
-				num767 *= num769;
-				num768 *= num769;
+				distanceToTarget = movementFactor / distanceToTarget;
+				distanceToTargetX *= distanceToTarget;
+				distanceToTargetY *= distanceToTarget;
 
-				npc.velocity.X = (npc.velocity.X * 50f + num767) / 51f;
-				npc.velocity.Y = (npc.velocity.Y * 50f + num768) / 51f;
+				npc.velocity.X = (npc.velocity.X * 50f + distanceToTargetX) / 51f;
+				npc.velocity.Y = (npc.velocity.Y * 50f + distanceToTargetY) / 51f;
 
 				if (npc.ai[0] == -1f) {
-					//Before teleporting
+					// Before teleporting
 
 					if (Main.netMode != NetmodeID.MultiplayerClient) {
-						//Attacking the boss delays the teleport by 5 ticks
-						npc.localAI[1] += 1f;
-						if (npc.justHit)
-							npc.localAI[1] -= Main.rand.Next(5);
-
-						int num771 = 60 + Main.rand.Next(120);
+						int maxDelayTimer = 60 + Main.rand.Next(120);
 						if (Main.netMode != NetmodeID.SinglePlayer)
-							num771 += Main.rand.Next(30, 90);
+							maxDelayTimer += Main.rand.Next(30, 90);
 
-						if (npc.localAI[1] >= num771) {
-							npc.localAI[1] = 0f;
-							npc.TargetClosest(true);
-
-							int num772 = 0;
-							int num773;
-							int num774;
-
-							//Find a valid position to teleport to
-							while (true) {
-								num772++;
-								num773 = (int)npc.Target().Center.X / 16;
-								num774 = (int)npc.Target().Center.Y / 16;
-
-								if (Main.rand.NextBool(2))
-									num773 += Main.rand.Next(15, 21);
-								else
-									num773 -= Main.rand.Next(15, 21);
-
-								if (Main.rand.NextBool(2))
-									num774 += Main.rand.Next(15, 21);
-								else
-									num774 -= Main.rand.Next(15, 21);
-
-								if (!WorldGen.SolidTile(num773, num774))
-									break;
-
-								//Teleport after 100 checks regardless of whether the target tile was solid or not
-								if (num772 > 100)
-									break;
-							}
-
-							npc.ai[3] = 0f;
-							npc.ai[0] = -2f;
-							npc.ai[1] = num773;
-							npc.ai[2] = num774;
-							npc.netUpdate = true;
-							npc.netSpam = 0;
-						}
+						BoC_CheckTeleport(npc, maxDelayTimer, 10, 12, hitsDelayTeleport: true, checkLineOfSight: false, ai0ResetTo: -2f);
 					}
 				} else if (npc.ai[0] == -2f) {
-					//Teleporting
-
+					// Teleporting
 					npc.velocity *= 0.9f;
 
 					//Teleports happen much slower in singleplayer
@@ -165,9 +142,8 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 
 					npc.alpha = (int)npc.ai[3];
 				} else if (npc.ai[0] == -3f) {
-					//After teleporting
-
-					//Boss fading in happens much slower in singleplayer 
+					// After teleporting
+					// Boss fading in happens much slower in singleplayer 
 					if (Main.netMode != NetmodeID.SinglePlayer)
 						npc.ai[3] -= 15f;
 					else
@@ -183,37 +159,40 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 					npc.alpha = (int)npc.ai[3];
 				}
 			} else {
-				//Move towards the player
-
+				// Move towards the player
 				npc.TargetClosest(true);
 
-				Vector2 vector95 = new Vector2(npc.Center.X, npc.Center.Y);
-				float num775 = npc.Target().Center.X - vector95.X;
-				float num776 = npc.Target().Center.Y - vector95.Y;
-				float num777 = (float)Math.Sqrt(num775 * num775 + num776 * num776);
-				float num778 = 1f;
+				Vector2 npcCenter = new Vector2(npc.Center.X, npc.Center.Y);
+				float distanceToTargetX = npc.Target().Center.X - npcCenter.X;
+				float distanceToTargetY = npc.Target().Center.Y - npcCenter.Y;
+				float distanceToTarget = (float)Math.Sqrt(distanceToTargetX * distanceToTargetX + distanceToTargetY * distanceToTargetY);
+				float movementFactor = 1f;
 
-				if (num777 < num778) {
-					//Boss's velocity vector length is always at least 1
-					npc.velocity.X = num775;
-					npc.velocity.Y = num776;
+				if (Main.getGoodWorld)
+					movementFactor *= 3;
+
+				if (distanceToTarget < movementFactor) {
+					// Boss's velocity vector length is always at least 1
+					npc.velocity.X = distanceToTargetX;
+					npc.velocity.Y = distanceToTargetY;
 				} else {
-					num777 = num778 / num777;
-					npc.velocity.X = num775 * num777;
-					npc.velocity.Y = num776 * num777;
+					distanceToTarget = movementFactor / distanceToTarget;
+					npc.velocity.X = distanceToTargetX * distanceToTarget;
+					npc.velocity.Y = distanceToTargetY * distanceToTarget;
 				}
 
 				if (npc.ai[0] == 0f) {
 					if (Main.netMode != NetmodeID.MultiplayerClient) {
-						int num779 = 0;
+						int creeperCount = 0;
 
-						//Count how many Creepers are alive
-						for (int num780 = 0; num780 < 200; num780++)
-							if (Main.npc[num780].active && Main.npc[num780].type == NPCID.Creeper)
-								num779++;
+						// Count how many Creepers are alive
+						for (int i = 0; i < Main.maxNPCs; i++) {
+							if (Main.npc[i].active && Main.npc[i].type == NPCID.Creeper)
+								creeperCount++;
+						}
 
 						//If no Creepers are alive, start the transition to phase 2
-						if (num779 == 0) {
+						if (creeperCount == 0) {
 							npc.ai[0] = -1f;
 							npc.localAI[1] = 0f;
 							npc.alpha = 0;
@@ -221,51 +200,13 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 						}
 
 						//Teleports happen every 2-5 seconds
-						npc.localAI[1] += 1f;
-						if (npc.localAI[1] >= 120 + Main.rand.Next(300)) {
-							//Try to teleport near the player
-
-							npc.localAI[1] = 0f;
-							npc.TargetClosest(true);
-							int num781 = 0;
-							int num782;
-							int num783;
-
-							while (true) {
-								num781++;
-								num782 = (int)npc.Target().Center.X / 16;
-								num783 = (int)npc.Target().Center.Y / 16;
-								int x, y;
-								do {
-									x = Main.rand.Next(-50, 51);
-									y = Main.rand.Next(-50, 51);
-								} while (Math.Abs(x) <= 8 || Math.Abs(y) <= 8);
-
-								num782 += x;
-								num783 += y;
-
-								//Only teleport if the target tile is within line-of-sight of the player
-								if (!WorldGen.SolidTile(num782, num783) && Collision.CanHit(new Vector2(num782, num783) * 16, 1, 1, npc.Target().position, npc.Target().width, npc.Target().height)) {
-									break;
-								}
-
-								//Teleport after 100 checks regardless of whether the target tile is solid or not
-								if (num781 > 100) {
-									break;
-								}
-							}
-
-							npc.ai[0] = 1f;
-							npc.ai[1] = num782;
-							npc.ai[2] = num783;
-							npc.netUpdate = true;
-						}
+						BoC_CheckTeleport(npc, 120 + Main.rand.Next(300), 12, 40, hitsDelayTeleport: false, checkLineOfSight: true, ai0ResetTo: 1f);
 					}
 				} else if (npc.ai[0] == 1f) {
 					//Before teleporting - boss slowly fades away
 					//Teleporting - boss is completely invisible
-
 					npc.alpha += 5;
+
 					if (npc.alpha >= 255) {
 						SoundEngine.PlaySound(SoundID.Item8, npc.Center);
 						npc.alpha = 255;
@@ -275,8 +216,8 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 					}
 				} else if (npc.ai[0] == 2f) {
 					//After teleporting - boss slowly fades in
-
 					npc.alpha -= 5;
+
 					if (npc.alpha <= 0) {
 						npc.alpha = 0;
 						npc.ai[0] = 0f;
@@ -284,17 +225,17 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				}
 			}
 
-			//If the target player is dead or not in the Crimson biome
+			// If the target player is dead or not in the Crimson biome
 			if (npc.Target().dead || !npc.Target().ZoneCrimson) {
 				//Increment the timer until it reaches 2 seconds
 				if (npc.localAI[3] < 120f)
 					npc.localAI[3] += 1f;
 
-				//If the timer has reached more than 1 second, increase the NPC's velocity faster and faster
+				// If the timer has reached more than 1 second, increase the NPC's velocity faster and faster
 				if (npc.localAI[3] > 60f)
 					npc.velocity.Y += (npc.localAI[3] - 60f) * 0.25f;
 
-				//And make the NPC semi-transparent for good measure
+				// And make the NPC semi-transparent for good measure
 				npc.ai[0] = 2f;
 				npc.alpha = 10;
 				return;
@@ -305,6 +246,57 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				npc.localAI[3] -= 1f;
 		}
 
+		private static void BoC_CheckTeleport(NPC npc, int maxDelayTimer, int minTeleportDistance, int maxTeleportDistance, bool hitsDelayTeleport, bool checkLineOfSight, float ai0ResetTo) {
+			// Attacking the boss delays the teleport by 5 ticks
+			npc.localAI[1] += 1f;
+			if (hitsDelayTeleport && npc.justHit)
+				npc.localAI[1] -= Main.rand.Next(5);
+
+			if (npc.localAI[1] >= maxDelayTimer) {
+				npc.localAI[1] = 0f;
+				npc.TargetClosest(true);
+
+				int teleportAttempts = 0;
+				Player target = npc.Target();
+
+				// Find a valid position to teleport to
+				do {
+					teleportAttempts++;
+								
+					int targetTileX = (int)target.Center.X / 16;
+					int targetTileY = (int)target.Center.Y / 16;
+
+					float tileStride = 16f;
+
+					int teleportOffsetX = Main.rand.Next(minTeleportDistance, maxTeleportDistance + 1);
+					int teleportOffsetY = Main.rand.Next(minTeleportDistance, maxTeleportDistance + 1);
+
+					if (Main.rand.NextBool(2))
+						teleportOffsetX *= -1;
+
+					if (Main.rand.NextBool(2))
+						teleportOffsetY *= -1;
+
+					Vector2 possibleTarget = new Vector2(teleportOffsetX * 16, teleportOffsetY * 16);
+					if (Vector2.Dot(target.velocity.SafeNormalize(Vector2.UnitY), possibleTarget.SafeNormalize(Vector2.UnitY)) > 0f)
+						possibleTarget += possibleTarget.SafeNormalize(Vector2.Zero) * tileStride * target.velocity.Length();
+
+					targetTileX += (int)(possibleTarget.X / 16f);
+					targetTileY += (int)(possibleTarget.Y / 16f);
+
+					if (teleportAttempts > 100 || (!WorldGen.SolidTile(targetTileX, targetTileY) && (!checkLineOfSight || teleportAttempts > 75 || Collision.CanHit(new Vector2(targetTileX * 16, targetTileX * 16), 1, 1, target.position, target.width, target.height)))) {
+						npc.ai[3] = 0f;
+						npc.ai[0] = ai0ResetTo;
+						npc.ai[1] = targetTileX;
+						npc.ai[2] = targetTileY;
+						npc.netUpdate = true;
+						npc.netSpam = 0;
+						break;
+					}
+				} while (teleportAttempts <= 100);
+			}
+		}
+
 		private static readonly SoundStyle zapSound = new SoundStyle("Cosmivengeon/Sounds/Custom/Zap") {
 			PlayOnlyIfFocused = true,
 			Volume = 0.75f,
@@ -312,8 +304,10 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 		};
 
 		private static void BoC_AttackCheck(NPC npc) {
+			var helperData = npc.Helper();
+
 			//First psychic attack
-			npc.Helper().Timer++;
+			helperData.Timer++;
 
 			int offset = BrainPsychicMine.Attack_Timer_Max - BrainPsychicMine.Attack_Death_Delay;
 			int timerMax;
@@ -322,8 +316,8 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 			else
 				timerMax = (int)(2.5f * 60 + offset);
 
-			if (npc.Helper().Timer > timerMax) {
-				npc.Helper().Timer = 0;
+			if (helperData.Timer > timerMax) {
+				helperData.Timer = 0;
 
 				int proj = MiscUtils.SpawnProjectileSynced(npc.GetSource_FromAI(),
 					npc.Target().Center, Vector2.Zero,
@@ -338,15 +332,15 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 			}
 
 			//Second psychic attack
-			npc.Helper().Timer2++;
+			helperData.Timer2++;
 
 			int target = npc.ai[0] < 0f ? 180 : 300;
 
-			if (npc.Helper().Timer2 == target - 60)
+			if (helperData.Timer2 == target - 60)
 				SoundEngine.PlaySound(zapSound, npc.Target().Center - new Vector2(0, 50 * 16));
 
-			if (npc.Helper().Timer2 > target) {
-				npc.Helper().Timer2 = 0;
+			if (helperData.Timer2 > target) {
+				helperData.Timer2 = 0;
 
 				int dir = npc.Target().velocity.X > 0 ? 1 : -1;
 

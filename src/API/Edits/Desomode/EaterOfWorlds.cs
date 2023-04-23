@@ -111,8 +111,8 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 						//Vanilla segments range from 45 to 55 in Normal Mode and 49 to 60 segments in Expert Mode
 						//Desolation Mode will have the segments range from 55 to 68
 						// In 1.4:
-						//Vanilla sets the segment count to 65 in Normal Mode and 70 in Expert Mode, then increases it
-						npc.ai[2] = NPC.GetEaterOfWorldsSegmentsCount();
+						//Vanilla sets the segment count to 65 in Normal Mode and 70 in Expert Mode via NPC.GetEaterOfWorldsSegmentsCount
+						npc.ai[2] = 75;
 
 						npc.Desomode().EoW_WormSegmentsCount = (int)npc.ai[2];
 						helperData.EoW_SegmentType = wRand.Get();
