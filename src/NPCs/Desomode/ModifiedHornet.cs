@@ -22,6 +22,7 @@ namespace CosmivengeonMod.NPCs.Desomode {
 		}
 
 		public override void AI() {
+			// TODO: check if this code needs to be updated for 1.4.3.6
 			if (NPC.target < 0 || NPC.target == 255 || Main.player[NPC.target].dead)
 				NPC.TargetClosest();
 
@@ -122,7 +123,7 @@ namespace CosmivengeonMod.NPCs.Desomode {
 							int num21 = (int)(10f * NPC.scale);
 
 							int num22 = 55;
-							int num23 = Projectile.NewProjectile(vector2.X, vector2.Y, num18, num19, num22, num21, 0f, Main.myPlayer);
+							int num23 = Projectile.NewProjectile(NPC.GetSource_FromAI(), vector2.X, vector2.Y, num18, num19, num22, num21, 0f, Main.myPlayer);
 							Main.projectile[num23].timeLeft = 300;
 							NPC.ai[1] = 101f;
 							NPC.netUpdate = true;

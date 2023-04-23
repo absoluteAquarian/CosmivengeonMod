@@ -9,7 +9,7 @@ using CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons;
 using CosmivengeonMod.NPCs.Global;
 using CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss;
 using CosmivengeonMod.Utility;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -18,6 +18,8 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.GameContent.ItemDropRules;
+using CosmivengeonMod.Items.Placeable.Trophies;
 
 namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 	//Head NPC will contain any custom behaviour, as the other segments just follow it
@@ -53,7 +55,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 			NPC.noTileCollide = true;
 			NPC.knockBackResist = 0f;
 
-			NPC.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);    //Stone tile hit sound
+			NPC.HitSound = SoundID.Tink;    //Stone tile hit sound
 			NPC.DeathSound = SoundID.NPCDeath60;    //Phantasm Dragon death sound
 
 			NPC.buffImmune[BuffID.Poisoned] = true;
@@ -74,8 +76,6 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 			customBodySegments = true;
 
 			NPC.value = Draek.Value;
-
-			bossBag/* tModPorter Note: Removed. Spawn the treasure bag alongside other loot via npcLoot.Add(ItemDropRule.BossBag(type)) */ = ModContent.ItemType<DraekBag>();
 
 			MiscUtils.PlayMusic(this, CosmivengeonBoss.Draek);
 		}
@@ -198,58 +198,44 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 		}
 
 		public override void OnKill() {
-			WorldEvents.downedDraekBoss = true;
-
-			if (Main.expertMode)
-				NPC.DropBossBags();
-			else
-				NormalModeDrops(npc: NPC);
-
-			Debug.CheckWorldFlagUpdate(nameof(WorldEvents.downedDraekBoss));
+			Debug.CheckWorldFlagUpdate(ref WorldEvents.downedDraekBoss);
 		}
 
-		public static void NormalModeDrops(Player player = null, NPC npc = null, bool quickSpawn = false) {
-			int[] drops = new int[]{
-				ModContent.ItemType<BasiliskStaff>(),
-				ModContent.ItemType<BoulderChunk>(),
-				ModContent.ItemType<EarthBolt>(),
-				ModContent.ItemType<ForsakenOronoblade>(),
-				ModContent.ItemType<Rockslide>(),
-				ModContent.ItemType<Scalestorm>(),
-				ModContent.ItemType<SlitherWand>(),
-				ModContent.ItemType<Stoneskipper>()
-			};
+		public override void ModifyNPCLoot(NPCLoot npcLoot) {
+			npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<DraekBag>()));
 
-			int dropType, dropAmount = 1;
+			AddDrops(npcLoot, restrictNormalDrops: true);
 
-			dropType = Main.rand.Next(drops);
+			npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<DraekTrophy>(), 10));
 
-			if (dropType == ModContent.ItemType<BoulderChunk>())
-				dropAmount = Main.rand.Next(20, 41);
+			npcLoot.AddInstancedDrop(static () => !WorldEvents.downedDraekBoss, ModContent.ItemType<StoneTablet>(), "Mods.CosmivengeonMod.LootText.FirstKill", literal: false);
+		}
 
-			if (player != null && quickSpawn) {
-				player.QuickSpawnItem(dropType, dropAmount);
-				player.QuickSpawnItem(ModContent.ItemType<DraekScales>(), Main.rand.Next(20, 31));
+		public static void AddDrops(ILoot loot, bool restrictNormalDrops) {
+			var weaponDrop = new OneFromRulesRule(1,
+				ItemDropRule.OneFromOptions(1,
+					ModContent.ItemType<BasiliskStaff>(),
+					ModContent.ItemType<EarthBolt>(),
+					ModContent.ItemType<ForsakenOronoblade>(),
+					ModContent.ItemType<Rockslide>(),
+					ModContent.ItemType<Scalestorm>(),
+					ModContent.ItemType<SlitherWand>(),
+					ModContent.ItemType<Stoneskipper>()),
+				ItemDropRule.Common(ModContent.ItemType<BoulderChunk>(), 1, 20, 40));
 
-				if (Main.rand.NextFloat() < 0.1)
-					player.QuickSpawnItem(ModContent.ItemType<DraekMask>());
+			var materialDrop = ItemDropRule.Common(ModContent.ItemType<DraekScales>(), 1, 20, 30);
 
-				if (!WorldEvents.obtainedLore_DraekBoss) {
-					player.QuickSpawnItem(ModContent.ItemType<StoneTablet>());
-					Debug.CheckWorldFlagUpdate(nameof(WorldEvents.obtainedLore_DraekBoss));
-				}
-			} else if (npc != null) {
-				Item.NewItem(npc.getRect(), dropType, dropAmount);
-				Item.NewItem(npc.getRect(), ModContent.ItemType<DraekScales>(), Main.rand.Next(20, 31));
-
-				if (Main.rand.NextFloat() < 0.1)
-					Item.NewItem(npc.getRect(), ModContent.ItemType<DraekMask>());
-
-				if (!WorldEvents.obtainedLore_DraekBoss) {
-					Item.NewItem(npc.getRect(), ModContent.ItemType<StoneTablet>());
-					Debug.CheckWorldFlagUpdate(nameof(WorldEvents.obtainedLore_DraekBoss));
-				}
+			if (restrictNormalDrops) {
+				var normalOnly = new LeadingConditionRule(new Conditions.NotExpert());
+				normalOnly.OnSuccess(weaponDrop);
+				normalOnly.OnSuccess(materialDrop);
+				loot.Add(normalOnly);
+			} else {
+				loot.Add(weaponDrop);
+				loot.Add(materialDrop);
 			}
+
+			loot.Add(ItemDropRule.Common(ModContent.ItemType<DraekMask>(), 10, 1, 1));
 		}
 
 		public static void ExpertStatsHelper(NPC npc) {
@@ -397,7 +383,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 		}
 
 		public static void SpawnDust(NPC npc) {
-			Dust dust = Dust.NewDustDirect(npc.position, npc.width, npc.height, 74);
+			Dust dust = Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.GreenFairy);
 			dust.velocity = Vector2.Zero;
 			dust.noGravity = true;
 		}
@@ -486,7 +472,8 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 
 		private void AI_Spit() {
 			if (spitTimer < 0 && Main.netMode != NetmodeID.MultiplayerClient) {
-				MiscUtils.SpawnProjectileSynced(NPC.Center,
+				MiscUtils.SpawnProjectileSynced(NPC.GetSource_FromAI(),
+					NPC.Center,
 					Vector2.Zero,
 					ModContent.ProjectileType<DraekAcidSpit>(),
 					20,
@@ -522,7 +509,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 
 			Vector2 range = NPC.Center + new Vector2(Main.rand.NextFloat(-5 * 16, 5 * 16), Main.rand.NextFloat(-5 * 16, 5 * 16));
 
-			MiscUtils.SpawnNPCSynced(range, ModContent.NPCType<DraekWyrmSummon_Head>(), ai2: NPC.whoAmI);
+			MiscUtils.SpawnNPCSynced(NPC.GetSource_FromAI(), range, ModContent.NPCType<DraekWyrmSummon_Head>(), ai2: NPC.whoAmI);
 
 			SummonedWyrms++;
 
@@ -574,7 +561,8 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 				if (attackTimer > rockDelay) {
 					float rockSpawnOffset = Main.rand.NextFloat(-3, 3);
 
-					MiscUtils.SpawnProjectileSynced(NPC.Center + new Vector2(rockSpawnOffset, 0),
+					MiscUtils.SpawnProjectileSynced(NPC.GetSource_FromAI(),
+						NPC.Center + new Vector2(rockSpawnOffset, 0),
 						Vector2.Zero,
 						ModContent.ProjectileType<DraekRock>(),
 						30 + (Main.expertMode ? 30 : 0),
@@ -645,7 +633,8 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 			}
 
 			if (attackTimer > DesoMode_RockDelay) {
-				MiscUtils.SpawnProjectileSynced(NPC.Center,
+				MiscUtils.SpawnProjectileSynced(NPC.GetSource_FromAI(),
+					NPC.Center,
 					new Vector2(0, -15),
 					ModContent.ProjectileType<DraekRock>(),
 					75,
@@ -675,7 +664,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 				attackProgress++;
 
 				if (CurrentPhase == Phase_2_DesoMode && attackPhase >= DesoMode_Berserker)
-					SoundEngine.PlaySound(new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0), NPC.Center);
+					SoundEngine.PlaySound(SoundID.ForceRoar, NPC.Center);
 			}
 		}
 
@@ -687,7 +676,8 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 			int amount = Main.rand.Next(10, 17);
 
 			for (int i = 0; i < amount; i++) {
-				MiscUtils.SpawnProjectileSynced(NPC.Center,
+				MiscUtils.SpawnProjectileSynced(NPC.GetSource_FromAI(),
+					NPC.Center,
 					new Vector2(0, -7),
 					ModContent.ProjectileType<DraekRockExplosion>(),
 					20,
@@ -697,7 +687,12 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 				);
 			}
 
-			SoundEngine.PlaySound(SoundID.Item14.WithPitchVariance(0.6f).WithVolume(0.8f), NPC.Center);
+			var sound = SoundID.Item14 with {
+				PitchVariance = 0.6f,
+				Volume = 0.8f
+			};
+
+			SoundEngine.PlaySound(sound, NPC.Center);
 
 			switchSubPhases = true;
 		}
@@ -760,7 +755,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 
 			NPC.dontCountMe = true;
 
-			NPC.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);    //Stone tile hit sound
+			NPC.HitSound = SoundID.Tink;    //Stone tile hit sound
 			NPC.DeathSound = SoundID.NPCDeath60;    //Phantasm Dragon death sound
 		}
 
@@ -803,8 +798,8 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 
 				//Spawn the dust
 				for (int i = 0; i < 60; i++) {
-					Dust.NewDust(NPC.Center, 50, 50, 74, Main.rand.NextFloat(-8, 8), Main.rand.NextFloat(-8, 8));
-					Dust.NewDust(NPC.Center, 50, 50, 107, Main.rand.NextFloat(-8, 8), Main.rand.NextFloat(-8, 8));
+					Dust.NewDust(NPC.Center, 50, 50, DustID.GreenFairy, Main.rand.NextFloat(-8, 8), Main.rand.NextFloat(-8, 8));
+					Dust.NewDust(NPC.Center, 50, 50, DustID.TerraBlade, Main.rand.NextFloat(-8, 8), Main.rand.NextFloat(-8, 8));
 				}
 
 				parent.ai[1] = 0f;
@@ -812,7 +807,8 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 				Vector2 spawnOrigin = Main.player[NPC.target].Center;
 				Vector2 positionOffset = new Vector2(Main.rand.NextFloat(-1, 1), Main.rand.NextFloat(-1, 1)) * 48f;
 				for (int i = 0; i < 3; i++) {
-					MiscUtils.SpawnProjectileSynced(NPC.Center,
+					MiscUtils.SpawnProjectileSynced(NPC.GetSource_FromAI(),
+						NPC.Center,
 						Vector2.Zero,
 						ModContent.ProjectileType<DraekLaser>(),
 						50,
@@ -864,7 +860,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 
 			NPC.dontCountMe = true;
 
-			NPC.HitSound = new Terraria.Audio.LegacySoundStyle(SoundID.Tink, 0);    //Stone tile hit sound
+			NPC.HitSound = SoundID.Tink;    //Stone tile hit sound
 			NPC.DeathSound = SoundID.NPCDeath60;    //Phantasm Dragon death sound
 		}
 

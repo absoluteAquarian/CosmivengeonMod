@@ -1,8 +1,8 @@
 ﻿using CosmivengeonMod.Utility;
-using CosmivengeonMod.Utility.Extensions;
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
+using Terraria.ID;
 
 namespace CosmivengeonMod.Projectiles.Summons {
 	public class BabySnek : WalkingSummon {
@@ -285,7 +285,7 @@ namespace CosmivengeonMod.Projectiles.Summons {
 		}
 
 		public override void SpawnFlyDust() {
-			Dust dust = Dust.NewDustDirect(Projectile.Center, 6, 6, 66);
+			Dust dust = Dust.NewDustDirect(Projectile.Center, 6, 6, DustID.RainbowTorch);
 			dust.noGravity = true;
 		}
 

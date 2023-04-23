@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Terraria;
 
-namespace CosmivengeonMod.Utility.Extensions {
+namespace CosmivengeonMod.Utility {
 	public static partial class Extensions {
 		public static bool WithinDistance(this Entity ent, Vector2 pos, float distance)
 			=> ent.DistanceSQ(pos) < distance * distance;

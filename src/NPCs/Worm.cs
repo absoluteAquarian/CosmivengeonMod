@@ -94,7 +94,7 @@ namespace CosmivengeonMod.NPCs {
 						}
 					}
 					// When we're out of that loop, we want to 'close' the worm with a tail part!
-					latestNPC = NPC.NewNPC((int)NPC.Center.X, (int)NPC.Center.Y, tailType, NPC.whoAmI, 0, latestNPC);
+					latestNPC = NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.Center.X, (int)NPC.Center.Y, tailType, NPC.whoAmI, 0, latestNPC);
 					Main.npc[latestNPC].realLife = NPC.whoAmI;
 					Main.npc[latestNPC].ai[3] = NPC.whoAmI;
 
@@ -135,7 +135,7 @@ namespace CosmivengeonMod.NPCs {
 						vector2.Y = (float)(j * 16);
 						if (NPC.position.X + NPC.width > vector2.X && NPC.position.X < vector2.X + 16.0 && (NPC.position.Y + NPC.height > (double)vector2.Y && NPC.position.Y < vector2.Y + 16.0)) {
 							collision = true;
-							if (Main.rand.Next(100) == 0 && Main.tile[i, j].HasUnactuatedTile)
+							if (Main.rand.NextBool(100)&& Main.tile[i, j].HasUnactuatedTile)
 								WorldGen.KillTile(i, j, true, true, false);
 						}
 					}
@@ -349,7 +349,7 @@ namespace CosmivengeonMod.NPCs {
 			// will determine the movement of this new NPC.
 			// Under there, we also set the realLife value of the new NPC, because of what is explained above.
 			//		(in AI() method)
-			latestNPC = NPC.NewNPC((int)NPC.Center.X, (int)NPC.Center.Y, type, NPC.whoAmI, 0, latestNPC, 1);
+			latestNPC = NPC.NewNPC(NPC.GetSource_FromThis(), (int)NPC.Center.X, (int)NPC.Center.Y, type, NPC.whoAmI, 0, latestNPC, 1);
 			Main.npc[latestNPC].realLife = NPC.whoAmI;
 			Main.npc[latestNPC].ai[3] = NPC.whoAmI;
 			return latestNPC;

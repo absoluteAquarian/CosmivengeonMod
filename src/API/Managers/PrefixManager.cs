@@ -7,9 +7,19 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.API.Managers {
 	public static class PrefixManager {
+		private class Loadable : ILoadable {
+			public void Load(Mod mod) {
+				PrefixManager.Load();
+			}
+
+			public void Unload() {
+				PrefixManager.Unload();
+			}
+		}
+
 		public static Dictionary<string, ModPrefix> desolatorPrefixes;
 
-		public static void Load() {
+		private static void Load() {
 			LoadDesolatePrefixes();
 		}
 
@@ -48,48 +58,23 @@ namespace CosmivengeonMod.API.Managers {
 				damageMult: 1.12f, knockbackMult: 1.09f, useTimeMult: 0.85f, scaleMult: 1.14f, shootSpeedMult: 1.34f, critBonus: 15);
 		}
 
-		public static void Unload() {
+		private static void Unload() {
 			desolatorPrefixes = null;
 		}
 
 		private static void AddDesolatePrefixType(string name, float chance, float valueMult, PrefixCategory category, float damageMult = 1f, float knockbackMult = 1f, float useTimeMult = 1f, float scaleMult = 1f, float shootSpeedMult = 1f, float manaMult = 1f, int critBonus = 0) {
-			CoreMod.Instance.AddPrefix(name, new DesolatorPrefix(chance, valueMult, category, damageMult, knockbackMult, useTimeMult, scaleMult, shootSpeedMult, manaMult, critBonus));
+			var prefix = new DesolatorPrefix(name, chance, valueMult, category, damageMult, knockbackMult, useTimeMult, scaleMult, shootSpeedMult, manaMult, critBonus);
+			CoreMod.Instance.AddContent(prefix);
 
-			desolatorPrefixes.Add(name, CoreMod.Instance.GetPrefix(name));
+			desolatorPrefixes.Add(name, prefix);
 		}
 
-		public static DesolatorPrefix GetDesolatorPrefix(byte type) {
+		public static DesolatorPrefix GetDesolatorPrefix(int type) {
 			foreach (ModPrefix prefix in desolatorPrefixes.Values)
 				if (prefix.Type == type)
 					return prefix as DesolatorPrefix;
 
 			return null;
-		}
-
-		public static void ApplyDesolatorPrefix(Item item, DesolatorPrefix prefix) {
-			//I'm having to do this manually because the prefix code is fucking awful and I hate it
-			item.damage = (int)Math.Round(item.damage * prefix.DamageMultiplier);
-			item.knockBack *= prefix.KnockbackMultiplier;
-			item.useTime = item.useAnimation = (int)Math.Round(item.useAnimation * prefix.UseTimeMultiplier);
-			item.scale *= prefix.ScaleMultiplier;
-			item.shootSpeed *= prefix.ShootSpeedMultiplier;
-			item.mana = (int)Math.Round(item.mana * prefix.ManaMultiplier);
-			item.crit += prefix.CritBonus;
-
-			float valueMult = prefix.ValueMultiplier;
-			prefix.PostApply(item, valueMult);
-
-			if (item.rare > ItemRarityID.Expert + 1) {
-				if (item.rare < ItemRarityID.Gray)
-					item.rare = ItemRarityID.Gray;
-
-				if (item.rare > ItemRarityID.Purple)
-					item.rare = ItemRarityID.Purple;
-			}
-
-			valueMult *= valueMult;
-			item.value = (int)(item.value * valueMult);
-			item.prefix = prefix.Type;
 		}
 	}
 }

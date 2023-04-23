@@ -5,8 +5,6 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Items.Weapons.UpgradeTree {
 	public class CrystaliceSword : ModItem {
-		public override bool OnlyShootOnSwing/* tModPorter Note: Removed. If you returned true, set Item.useTime to a multiple of Item.useAnimation */ => true;
-
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Crystalice Sword");
 			Tooltip.SetDefault("Has a chance to inflict [c/00dddd:Frostburn].");
@@ -14,12 +12,12 @@ namespace CosmivengeonMod.Items.Weapons.UpgradeTree {
 
 		public override void SetDefaults() {
 			Item.damage = 15;
-			Item.DamageType = DamageClass.Melee/* tModPorter Suggestion: Consider MeleeNoSpeed for no attack speed scaling */;
+			Item.DamageType = DamageClass.Melee;
 			Item.useTurn = false;
 			Item.width = 50;
 			Item.height = 50;
-			Item.useTime = 40;
-			Item.useAnimation = 28;
+			Item.useTime = 38;
+			Item.useAnimation = 38;
 			Item.useStyle = ItemUseStyleID.Swing;
 			Item.knockBack = 4.3f;
 			Item.value = Item.sellPrice(silver: 50);

@@ -1,11 +1,10 @@
 ﻿using CosmivengeonMod.API.Managers;
 using CosmivengeonMod.DataStructures;
-using CosmivengeonMod.Utility.Extensions;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Desomode {
@@ -24,7 +23,12 @@ namespace CosmivengeonMod.Projectiles.Desomode {
 
 		private List<Vector2> points;
 
-		public SoundEffectInstance zap;
+		// Uses the "thunder1" sound effect from http://starmen.net/mother2/soundfx/
+		private static readonly SoundStyle zapSound = new SoundStyle("CosmivengeonMod/Sounds/Custom/PsychicAttackZap") {
+			PlayOnlyIfFocused = true,
+			Volume = 0.6f,
+			SoundLimitBehavior = SoundLimitBehavior.ReplaceOldest
+		};
 
 		public const int FinalHeight = 120 * 16;
 
@@ -81,10 +85,8 @@ namespace CosmivengeonMod.Projectiles.Desomode {
 				}
 			}
 
-			if (Projectile.timeLeft <= earliestFrame * factor + Death_Delay) {
-				zap?.Stop();
-				zap = Mod.PlayCustomSound(Projectile.Top + new Vector2(0, 8), "PsychicAttackZap");
-			}
+			if (Projectile.timeLeft <= earliestFrame * factor + Death_Delay)
+				SoundEngine.PlaySound(zapSound, Projectile.Top + new Vector2(0, 8));
 
 			if (fastAttack)
 				Projectile.timeLeft--;

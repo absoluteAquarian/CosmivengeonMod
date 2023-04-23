@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Desomode {
 	public class KingSlimeSpike : ModProjectile {
-		public override string Texture => $"Terraria/Projectile_{ProjectileID.SpikedSlimeSpike}";
+		public override string Texture => $"Terraria/Images/Projectile_{ProjectileID.SpikedSlimeSpike}";
 
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault(Lang.GetProjectileName(ProjectileID.SpikedSlimeSpike).Value);

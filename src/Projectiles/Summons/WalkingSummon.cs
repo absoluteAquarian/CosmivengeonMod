@@ -27,7 +27,7 @@ namespace CosmivengeonMod.Projectiles.Summons {
 		public AnimationStates AnimationState = AnimationStates.Idle;
 
 		public int StandBehindDistance
-			=> (!ownerPlayer.dJumpEffectSandstorm ? -ownerPlayer.direction : (Projectile.Center.X >= ownerPlayer.Center.X).ToDirectionInt()) * 30 * (Projectile.minionPos + 1);
+			=> -ownerPlayer.direction * 30 * (Projectile.minionPos + 1);
 
 		internal Player ownerPlayer = null;
 		internal MinionPlayer minionOwner = null;
@@ -97,7 +97,7 @@ afterTargetSet:
 				//If we're close to the intended target position, stop flying or go idle
 				//Otherwise, if the player is too far away AND the player is in a mount that can fly/hover and it's active AND the player isn't close to any solid tiles below them
 				//Otherwise, just walk towards the player
-				if (Projectile.DistanceSQ(OwnerPositionOffset) < GoIdleDistance * GoIdleDistance && !((ownerPlayer.mount?.Active ?? false) && (ownerPlayer.mount.CanFly || ownerPlayer.mount.CanHover) && !Collision.SolidCollision(ownerPlayer.position, ownerPlayer.width, 8 * 16))) {
+				if (Projectile.DistanceSQ(OwnerPositionOffset) < GoIdleDistance * GoIdleDistance && !((ownerPlayer.mount?.Active ?? false) && (ownerPlayer.mount.CanFly() || ownerPlayer.mount.CanHover()) && !Collision.SolidCollision(ownerPlayer.position, ownerPlayer.width, 8 * 16))) {
 					State = ActionStates.None;
 					AnimationState = AnimationStates.Idle;
 					Projectile.tileCollide = true;

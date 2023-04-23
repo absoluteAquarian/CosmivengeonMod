@@ -1,5 +1,6 @@
 ﻿using CosmivengeonMod.Buffs.Harmful;
 using Terraria.DataStructures;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Players {
@@ -34,7 +35,7 @@ namespace CosmivengeonMod.Players {
 
 		public override bool PreKill(double damage, int hitDirection, bool pvp, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource) {
 			if (Player.HasBuff(ModContent.BuffType<PrimordialWrath>()))
-				damageSource = PlayerDeathReason.ByCustomReason($"{Player.name}'s flesh was melted off.");
+				damageSource = PlayerDeathReason.ByCustomReason(Language.GetTextValue("Mods.CosmivengeonMod.KillReason.PrimordialWrath", Player.name));
 			return true;
 		}
 	}

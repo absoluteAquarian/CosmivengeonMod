@@ -11,7 +11,7 @@ namespace CosmivengeonMod.Abilities {
 		private Vector2 offset = Vector2.Zero;
 		public Vector2 Position => Parent.position + offset;
 		public float Scale = 1f;
-		public static Texture2D DrawTexture => ModContent.GetTexture("CosmivengeonMod/Abilities/EnergizedParticle");
+		public static Texture2D DrawTexture => ModContent.Request<Texture2D>("CosmivengeonMod/Abilities/EnergizedParticle").Value;
 		public bool Active = false;
 
 		private bool deleted = false;
@@ -23,18 +23,21 @@ namespace CosmivengeonMod.Abilities {
 			Active = true;
 		}
 
-		public DrawData GetDrawData()
-			=> new DrawData(
-				DrawTexture,
+		public DrawData GetDrawData() {
+			var texture = DrawTexture;
+
+			return new DrawData(
+				texture,
 				Position - Main.screenPosition,
-				new Rectangle(0, 0, DrawTexture.Width, DrawTexture.Height),
+				null,
 				Lighting.GetColor((int)(Position.X / 16f), (int)(Position.Y / 16f)),
 				0f,
-				new Vector2(DrawTexture.Width / 2f, DrawTexture.Height / 2f),
+				texture.Size() / 2f,
 				Scale,
 				SpriteEffects.None,
 				0
 			);
+		}
 
 		public void Update() {
 			if (!Active) {

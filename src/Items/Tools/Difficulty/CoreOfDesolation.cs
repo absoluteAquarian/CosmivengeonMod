@@ -1,8 +1,7 @@
-﻿using CosmivengeonMod.API;
-using CosmivengeonMod.DataStructures;
+﻿using CosmivengeonMod.DataStructures;
 using CosmivengeonMod.Players;
 using CosmivengeonMod.Utility;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria;
@@ -10,6 +9,7 @@ using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Localization;
 
 namespace CosmivengeonMod.Items.Tools.Difficulty {
 	public class CoreOfDesolation : HidableTooltip {
@@ -68,9 +68,6 @@ namespace CosmivengeonMod.Items.Tools.Difficulty {
 				return false;
 			}
 
-			bool calamityRevengeance = (bool?)ModReferences.Calamity.Call("Difficulty", "Rev") ?? false;
-			bool calamityDeath = (bool?)ModReferences.Calamity.Call("Difficulty", "Death") ?? false;
-
 			if (player.GetModPlayer<StaminaPlayer>().stamina.Active || player.GetModPlayer<StaminaPlayer>().stamina.Exhaustion)
 				return false;
 			if (!Main.expertMode)
@@ -78,17 +75,10 @@ namespace CosmivengeonMod.Items.Tools.Difficulty {
 			if (WorldEvents.desoMode && !Debug.debug_toggleDesoMode)
 				Main.NewText("Nice try, but the deed has already been done.", MiscUtils.TausFavouriteColour);
 
-			//Disable Calamity's modes if they are active
-			bool disableModeDisabler = true;
-			if (!disableModeDisabler && Main.expertMode && (calamityRevengeance || calamityDeath)) {
-				CoreMod.DeactivateCalamityRevengeance();
-				CoreMod.DeactivateCalamityDeath();
-			}
-
 			return Main.expertMode && (!WorldEvents.desoMode || Debug.debug_toggleDesoMode);
 		}
 
-		public override bool? UseItem(Player player)/* tModPorter Suggestion: Return null instead of false */{
+		public override bool? UseItem(Player player) {
 			SoundEngine.PlaySound(SoundID.ForceRoar, player.Center);
 
 			if (!WorldEvents.desoMode) {
@@ -102,7 +92,7 @@ namespace CosmivengeonMod.Items.Tools.Difficulty {
 			for (int i = 0; i < Main.maxNPCs; i++) {
 				NPC npc = Main.npc[i];
 				if (npc.active && npc.boss)
-					player.KillMe(PlayerDeathReason.ByCustomReason($"{player.name} was consumed by the chaos."), 9999, 0);
+					player.KillMe(PlayerDeathReason.ByCustomReason(Language.GetTextValue("Mods.CosmivengeonMod.KillReason.DesoModeInstaKill", player.name)), 9999, 0);
 			}
 
 			return true;

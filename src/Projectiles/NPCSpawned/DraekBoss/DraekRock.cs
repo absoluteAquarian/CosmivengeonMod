@@ -1,4 +1,4 @@
-﻿using CosmivengeonMod.Worlds;
+﻿using CosmivengeonMod.Systems;
 using Terraria;
 using Terraria.ModLoader;
 

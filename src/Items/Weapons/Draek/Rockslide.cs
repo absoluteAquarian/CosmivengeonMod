@@ -27,7 +27,7 @@ namespace CosmivengeonMod.Items.Weapons.Draek {
 			Item.damage = 20;
 			Item.rare = ItemRarityID.Green;
 
-			Item.DamageType = DamageClass.Melee/* tModPorter Suggestion: Consider MeleeNoSpeed for no attack speed scaling */;
+			Item.DamageType = DamageClass.Melee;
 			Item.channel = true;
 			Item.noMelee = true;
 			Item.noUseGraphic = true;

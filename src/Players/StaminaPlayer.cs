@@ -1,7 +1,7 @@
 ﻿using CosmivengeonMod.Abilities;
 using CosmivengeonMod.Enums;
 using CosmivengeonMod.Utility;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria;
@@ -9,12 +9,16 @@ using Terraria.DataStructures;
 using Terraria.GameInput;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.ID;
 
 namespace CosmivengeonMod.Players {
 	public class StaminaPlayer : ModPlayer {
 		public Stamina stamina;
 
-		private List<EnergizedParticle> energizedParticles;
+		public int exhaustionAnimationTimer = 0;
+		public int shakeTimer = 0;
+
+		internal List<EnergizedParticle> energizedParticles;
 
 		public override void Initialize() {
 			stamina = new Stamina(Player);
@@ -25,10 +29,9 @@ namespace CosmivengeonMod.Players {
 			stamina.Reset();
 		}
 
-		public override void SaveData(TagCompound tag)/* tModPorter Suggestion: Edit tag parameter instead of returning new TagCompound */
-			=> new TagCompound() {
-				["stamina"] = stamina.GetTagCompound()
-			};
+		public override void SaveData(TagCompound tag) {
+			tag["stamina"] = stamina.GetTagCompound();
+		}
 
 		public override void LoadData(TagCompound tag) {
 			stamina.ParseCompound(tag.GetCompound("stamina"));
@@ -171,17 +174,21 @@ namespace CosmivengeonMod.Players {
 				a = 1f;
 
 				if (Main.rand.NextFloat() < 0.18f) {
-					int index = Dust.NewDust(drawInfo.drawPlayer.position, drawInfo.drawPlayer.width, drawInfo.drawPlayer.height, 18);
+					int index = Dust.NewDust(drawInfo.drawPlayer.position, drawInfo.drawPlayer.width, drawInfo.drawPlayer.height, DustID.CorruptGibs);
 					Main.dust[index].velocity = new Vector2(0, Main.rand.NextFloat(1.75f, 3.25f) * 0.2f);
-					Main.playerDrawDust.Add(index);
+					drawInfo.DustCache.Add(index);
 				}
 			}
 
 			//This is used to ensure stuff only updates once per tick
 			lastUpdate = (int)Main.GameUpdateCount;
 		}
+	}
 
-		public static readonly PlayerLayer EnergizedParticles = new PlayerLayer("CosmivengeonMod", "Energized Buff Particles", PlayerLayer.MiscEffectsFront, delegate (PlayerDrawSet drawInfo) {
+	internal class EnergizedParticlesLayer : PlayerDrawLayer {
+		public override Position GetDefaultPosition() => new AfterParent(PlayerDrawLayers.BeetleBuff);
+
+		protected override void Draw(ref PlayerDrawSet drawInfo) {
 			if (drawInfo.shadow != 0 || !WorldEvents.desoMode)
 				return;
 
@@ -191,18 +198,10 @@ namespace CosmivengeonMod.Players {
 				foreach (EnergizedParticle particle in modPlayer.energizedParticles) {
 					if (particle.Active) {
 						DrawData data = particle.GetDrawData();
-						Main.playerDrawData.Add(data);
+						drawInfo.DrawDataCache.Add(data);
 					}
 				}
 			}
-		});
-
-		public int exhaustionAnimationTimer = 0;
-		public int shakeTimer = 0;
-
-		public override void ModifyDrawLayers(List<PlayerLayer> layers) {
-			EnergizedParticles.visible = true;
-			layers.Add(EnergizedParticles);
 		}
 	}
 }

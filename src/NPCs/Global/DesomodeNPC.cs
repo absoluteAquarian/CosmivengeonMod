@@ -1,8 +1,7 @@
-﻿using CosmivengeonMod.API.Edits.Detours.Desomode;
+﻿using CosmivengeonMod.API.Edits.Desomode;
 using CosmivengeonMod.Buffs.Harmful;
 using CosmivengeonMod.Utility;
-using CosmivengeonMod.Utility.Extensions;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -10,6 +9,7 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using ReLogic.Content;
 
 namespace CosmivengeonMod.NPCs.Global {
 	public class DesomodeNPC : GlobalNPC {
@@ -21,6 +21,15 @@ namespace CosmivengeonMod.NPCs.Global {
 
 		public float QB_baseScale;
 		public Vector2 QB_baseSize;
+
+		public override void BossHeadSlot(NPC npc, ref int index) {
+			// Formerly DetourNPC::NPC_GetBossHeadTextureIndex()
+			bool hideEoC = npc.type == NPCID.EyeofCthulhu && npc.ai[0] == 6f && npc.alpha > 150;
+			bool hideBoC = npc.type == NPCID.BrainofCthulhu && npc.ai[0] < 0f;
+
+			if (WorldEvents.desoMode && (hideEoC || hideBoC))
+				index = -1;
+		}
 
 		public override void OnHitByProjectile(NPC npc, Projectile projectile, int damage, float knockback, bool crit) {
 			//Desolation mode Eater of Worlds head segment destroys any piercing projectiles that hit it
@@ -66,11 +75,11 @@ namespace CosmivengeonMod.NPCs.Global {
 		}
 
 		public override bool PreAI(NPC npc) {
-			if (!WorldEvents.desoMode || Main.wof < 0 || Main.wof >= Main.maxNPCs)
+			if (!WorldEvents.desoMode || Main.wofNPCIndex < 0 || Main.wofNPCIndex >= Main.maxNPCs)
 				return true;
 
 			//If the Wall of Flesh was snapped fowards, keep "The Hungry"s in front of it
-			NPC wof = Main.npc[Main.wof];
+			NPC wof = Main.npc[Main.wofNPCIndex];
 			if (npc.type == NPCID.TheHungry && wof.Helper().Flag2) {
 				float targetX = wof.Center.X + wof.direction * 6 * 16;
 
@@ -140,7 +149,7 @@ namespace CosmivengeonMod.NPCs.Global {
 		}
 
 		private void EoW_DrawOutline(SpriteBatch spriteBatch, NPC npc, string segment) {
-			Texture2D texture = ModContent.GetTexture($"CosmivengeonMod/NPCs/Desomode/EoW outline {segment}");
+			Texture2D texture = ModContent.Request<Texture2D>($"CosmivengeonMod/NPCs/Desomode/EoW outline {segment}", AssetRequestMode.ImmediateLoad).Value;
 			spriteBatch.Draw(texture, npc.Center - Main.screenPosition, null, EoW_GetOutlineColor(npc), npc.rotation, texture.Size() / 2f, npc.scale, SpriteEffects.None, 0);
 		}
 
@@ -178,7 +187,7 @@ namespace CosmivengeonMod.NPCs.Global {
 				if (npc.Helper().EoW_SegmentType == DesolationModeBossAI.EoW_SegmentType_SpawnEaters) {
 					int spawns = Main.rand.Next(0, 4);
 					for (int i = 0; i < spawns; i++) {
-						int index = MiscUtils.SpawnNPCSynced(npc.Center, NPCID.EaterofSouls);
+						int index = MiscUtils.SpawnNPCSynced(npc.GetSource_Death(), npc.Center, NPCID.EaterofSouls);
 						if (index != Main.maxNPCs) {
 							NPC spawn = Main.npc[index];
 							spawn.noTileCollide = true;

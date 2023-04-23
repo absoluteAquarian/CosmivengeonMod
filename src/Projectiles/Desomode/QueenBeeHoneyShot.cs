@@ -42,7 +42,12 @@ namespace CosmivengeonMod.Projectiles.Desomode {
 			if (Projectile.ai[0] == 0f) {
 				Projectile.ai[0] = 1f;
 
-				SoundEngine.PlaySound(SoundID.Item95.WithPitchVariance(0.15f).WithVolume(1.5f), Projectile.Center);
+				var sound = SoundID.Item95 with {
+					PitchVariance = 0.15f,
+					Volume = 1.5f
+				};
+
+				SoundEngine.PlaySound(sound, Projectile.Center);
 			}
 
 			if (Main.rand.NextFloat() < 0.6f) {
@@ -59,10 +64,10 @@ namespace CosmivengeonMod.Projectiles.Desomode {
 			for (int i = cacheMax; i >= 0; i--) {
 				float opacity = i * 0.2f;
 
-				spriteBatch.Draw(texture, Projectile.oldPos[cacheMax - i] + Projectile.Size / 2f - Main.screenPosition, null, lightColor * opacity, Projectile.rotation, texture.Size() / 2f, Projectile.scale, (SpriteEffects)draw, 0);
+				Main.EntitySpriteDraw(texture, Projectile.oldPos[cacheMax - i] + Projectile.Size / 2f - Main.screenPosition, null, lightColor * opacity, Projectile.rotation, texture.Size() / 2f, Projectile.scale, (SpriteEffects)draw, 0);
 			}
 
-			spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, lightColor, Projectile.rotation, texture.Size() / 2f, Projectile.scale, (SpriteEffects)draw, 0);
+			Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, null, lightColor, Projectile.rotation, texture.Size() / 2f, Projectile.scale, (SpriteEffects)draw, 0);
 			return false;
 		}
 

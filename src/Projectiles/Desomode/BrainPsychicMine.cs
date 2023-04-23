@@ -1,12 +1,12 @@
 ﻿using CosmivengeonMod.API.Managers;
 using CosmivengeonMod.DataStructures;
-using CosmivengeonMod.Utility.Extensions;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Utilities;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -23,7 +23,21 @@ namespace CosmivengeonMod.Projectiles.Desomode {
 
 		private Vector2 storedPosition;
 
-		public SoundEffectInstance teleport;
+		public SlotId teleport = SlotId.Invalid;
+
+		// Uses the "teleport" sound effect from http://starmen.net/mother2/soundfx/
+		private static readonly SoundStyle teleportSound = new SoundStyle("CosmivengeonMod/Sounds/Custom/PsychicAttackLeadup") {
+			PlayOnlyIfFocused = true,
+			Volume = 0.5f,
+			SoundLimitBehavior = SoundLimitBehavior.IgnoreNew
+		};
+
+		// Uses the "freeze3" sound effect from http://starmen.net/mother2/soundfx/
+		private static readonly SoundStyle crashSound = new SoundStyle("CosmivengeonMod/Sounds/Custom/PsychicAttackCrash") {
+			PlayOnlyIfFocused = true,
+			Volume = 0.75f,
+			SoundLimitBehavior = SoundLimitBehavior.IgnoreNew
+		};
 
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Psychic Explosion");
@@ -38,14 +52,16 @@ namespace CosmivengeonMod.Projectiles.Desomode {
 
 		public override void AI() {
 			//Playing cool sound effects
-			if (Projectile.timeLeft > Attack_Death_Delay)
-				teleport = Mod.PlayCustomSound(Projectile.Center, "PsychicAttackLeadup");
-			else {
-				if (teleport != null) {
-					teleport?.Stop();
-					teleport = null;
+			if (Projectile.timeLeft > Attack_Death_Delay) {
+				if (!teleport.IsValid)
+					teleport = SoundEngine.PlaySound(teleportSound, Projectile.Center);
+			} else {
+				if (SoundEngine.TryGetActiveSound(teleport, out var sound)) {
+					sound.Stop();
+					teleport = SlotId.Invalid;
 				}
-				Mod.PlayCustomSound(Projectile.Center, "PsychicAttackCrash");
+
+				SoundEngine.PlaySound(crashSound, Projectile.Center);
 			}
 
 			float rotation = MathHelper.ToRadians(1.25f * 6f);
@@ -111,7 +127,7 @@ namespace CosmivengeonMod.Projectiles.Desomode {
 			return false;
 		}
 
-		private void DrawPrims(List<Vector2> points, Color color) {
+		private static void DrawPrims(List<Vector2> points, Color color) {
 			PrimitivePacket packet = new PrimitivePacket(PrimitiveType.LineStrip);
 
 			packet.AddDraw(PrimitiveDrawing.ToPrimitive(points[0], color), PrimitiveDrawing.ToPrimitive(points[1], color));

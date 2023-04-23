@@ -3,6 +3,7 @@ using Terraria;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.DamageClasses.Desolate {
+	[Autoload(false)]
 	public sealed class DesolatorPrefix : ModPrefix {
 		private readonly PrefixCategory category;
 		public override PrefixCategory Category => category;
@@ -19,9 +20,9 @@ namespace CosmivengeonMod.DamageClasses.Desolate {
 		public readonly float ManaMultiplier = 1f;
 		public readonly int CritBonus = 0;
 
-		//No RollChance because source code go brrrrrrrr
+		private readonly string name;
 
-		public DesolatorPrefix() { }
+		public override string Name => name;
 
 		/// <summary>
 		/// Creates a new <seealso cref="DesolatorPrefix"/>, a custom prefix that can be applied to Desolator items.
@@ -36,7 +37,8 @@ namespace CosmivengeonMod.DamageClasses.Desolate {
 		/// <param name="shootSpeedMult">The shot projectile speed modifier.</param>
 		/// <param name="manaMult">The mana usage modifier.</param>
 		/// <param name="critBonus">The crit bonus.</param>
-		public DesolatorPrefix(float chance, float valueMult, PrefixCategory category, float damageMult = 1f, float knockbackMult = 1f, float useTimeMult = 1f, float scaleMult = 1f, float shootSpeedMult = 1f, float manaMult = 1f, int critBonus = 0) {
+		public DesolatorPrefix(string name, float chance, float valueMult, PrefixCategory category, float damageMult = 1f, float knockbackMult = 1f, float useTimeMult = 1f, float scaleMult = 1f, float shootSpeedMult = 1f, float manaMult = 1f, int critBonus = 0) {
+			this.name = name;
 			Chance = chance;
 			ValueMultiplier = valueMult;
 			this.category = category;
@@ -59,8 +61,6 @@ namespace CosmivengeonMod.DamageClasses.Desolate {
 			critBonus += CritBonus;
 		}
 
-		public override bool IsLoadingEnabled(Mod mod)/* tModPorter Suggestion: If you return false for the purposes of manual loading, use the [Autoload(false)] attribute on your class instead */ => false;
-
 		public override void ModifyValue(ref float valueMult) => valueMult = ValueMultiplier;
 
 		public override void Apply(Item item) {
@@ -81,7 +81,7 @@ namespace CosmivengeonMod.DamageClasses.Desolate {
 			PostApply(item, valueMult);
 		}
 
-		public void PostApply(Item item, float valueMult) {
+		internal void PostApply(Item item, float valueMult) {
 			switch (valueMult) {
 				case DesolatorPrefixValue.Priceless:
 					item.rare += 3;

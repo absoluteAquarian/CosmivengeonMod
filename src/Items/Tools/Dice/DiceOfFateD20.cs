@@ -4,6 +4,7 @@ using CosmivengeonMod.Projectiles.Dice;
 using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System.Text;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -12,12 +13,11 @@ using Terraria.ModLoader.IO;
 
 namespace CosmivengeonMod.Items.Tools.Dice {
 	public class DiceOfFateD20 : HidableTooltip {
-		public override void SaveData(TagCompound tag)/* tModPorter Suggestion: Edit tag parameter instead of returning new TagCompound */
-			=> new TagCompound() {
-				["recharge"] = rechargeTimer,
-				["pushLuck"] = dontPushYourLuck,
-				["unlucky"] = unluckyFactor
-			};
+		public override void SaveData(TagCompound tag) {
+			tag["recharge"] = rechargeTimer;
+			tag["pushLuck"] = dontPushYourLuck;
+			tag["unlucky"] = unluckyFactor;
+		}
 
 		public override void LoadData(TagCompound tag) {
 			rechargeTimer = tag.GetInt("recharge");
@@ -103,38 +103,42 @@ namespace CosmivengeonMod.Items.Tools.Dice {
 			TooltipLine tooltip = tooltips[line];
 			DicePlayer mp = Main.LocalPlayer.GetModPlayer<DicePlayer>();
 
-			string replacement;
-			if (mp.badShop || mp.goodShop || mp.forceReversedGravity || mp.fishDontWantMe || (!mp.fishDontWantMe && mp.fishTimer > 0) || mp.moreIFrames || mp.noStaminaDecay || mp.extraLives > 0 || mp.godmodeTimer > 0 || mp.buffDamageTimer > 0 || mp.endlessClipTimer > 0 || mp.endlessManaTimer > 0) {
-				replacement = "Active effects:";
+			StringBuilder replacement = new();
+			if (mp.badShop || mp.goodShop || mp.forceReversedGravity || mp.fishDontWantMe || (!mp.fishDontWantMe && mp.fishTimer > 0) || mp.moreIFrames || mp.noStaminaDecay || mp.extraLives > 0 || mp.godmodeTimer > 0 || mp.buffDamageTimer > 0 || mp.endlessClipTimer > 0 || mp.endlessManaTimer > 0 || mp.nebulaBuffsTimer > 0 || mp.beetleBuffsTimer > 0) {
+				replacement.Append("Active effects:");
 
 				if (mp.badShop)
-					replacement += $"\n - Increased shop prices ({TimeString(mp.shopModifierTimer)})";
+					replacement.Append($"\n - Increased shop prices ({TimeString(mp.shopModifierTimer)})");
 				if (mp.goodShop)
-					replacement += $"\n - Decreased shop prices ({TimeString(mp.shopModifierTimer)})";
+					replacement.Append($"\n - Decreased shop prices ({TimeString(mp.shopModifierTimer)})");
 				if (mp.forceReversedGravity)
-					replacement += $"\n - Forced reverse gravity ({TimeString(mp.forcedGravityTimer)})";
+					replacement.Append($"\n - Forced reverse gravity ({TimeString(mp.forcedGravityTimer)})");
 				if (mp.fishDontWantMe)
-					replacement += $"\n - Decreased fishing skill ({TimeString(mp.fishTimer)})";
+					replacement.Append($"\n - Decreased fishing skill ({TimeString(mp.fishTimer)})");
 				else if (!mp.fishDontWantMe && mp.fishTimer > 0)
-					replacement += $"\n - Increased fishing skill ({TimeString(mp.fishTimer)})";
+					replacement.Append($"\n - Increased fishing skill ({TimeString(mp.fishTimer)})");
 				if (mp.moreIFrames)
-					replacement += $"\n - Increased immunity frames on hit ({TimeString(mp.moreIFrameTimer)})";
+					replacement.Append($"\n - Increased immunity frames on hit ({TimeString(mp.moreIFrameTimer)})");
 				if (mp.noStaminaDecay)
-					replacement += $"\n - No Stamina Decay ({TimeString(mp.nsdTimer)})";
+					replacement.Append($"\n - No Stamina Decay ({TimeString(mp.nsdTimer)})");
 				if (mp.extraLives > 0)
-					replacement += $"\n - Extra Lives: {mp.extraLives}";
+					replacement.Append($"\n - Extra Lives: {mp.extraLives}");
+				if (mp.nebulaBuffsTimer > 0)
+					replacement.Append($"\n - Nebula Boosts ({TimeString(mp.nebulaBuffsTimer)})");
+				if (mp.beetleBuffsTimer > 0)
+					replacement.Append($"\n - Beetle Armor Buffs ({TimeString(mp.beetleBuffsTimer)})");
 				if (mp.godmodeTimer > 0)
-					replacement += $"\n - Godmode ({TimeString(mp.godmodeTimer)})";
+					replacement.Append($"\n - Godmode ({TimeString(mp.godmodeTimer)})");
 				if (mp.buffDamageTimer > 0)
-					replacement += $"\n - Double damage ({TimeString(mp.buffDamageTimer)})";
+					replacement.Append($"\n - Double damage ({TimeString(mp.buffDamageTimer)})");
 				if (mp.endlessClipTimer > 0)
-					replacement += $"\n - Infinite ammo ({TimeString(mp.endlessClipTimer)})";
+					replacement.Append($"\n - Infinite ammo ({TimeString(mp.endlessClipTimer)})");
 				if (mp.endlessManaTimer > 0)
-					replacement += $"\n - Infinite mana ({TimeString(mp.endlessManaTimer)})";
+					replacement.Append($"\n - Infinite mana ({TimeString(mp.endlessManaTimer)})");
 			} else
-				replacement = "Active effects:\n - none";
+				replacement.Append("Active effects:\n - none");
 
-			tooltip.Text = tooltip.Text.Replace("~!~", replacement);
+			tooltip.Text = tooltip.Text.Replace("~!~", replacement.ToString());
 		}
 
 		public override void UpdateInventory(Player player) {
@@ -169,11 +173,11 @@ namespace CosmivengeonMod.Items.Tools.Dice {
 			if (dontPushYourLuck > 0)
 				unluckyFactor++;
 
-			//Gotta wait 10 minutes
+			// Gotta wait 10 minutes
 			rechargeTimer = Debug.debug_fastDiceOfFateRecharge ? 0 : 10 * 60 * 60;
 			dontPushYourLuck = 10 * 60;
 
-			Projectile.NewProjectile(position, new Vector2(speedX, speedY), type, damage, knockBack, player.whoAmI, unluckyFactor);
+			Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, unluckyFactor);
 
 			return false;
 		}

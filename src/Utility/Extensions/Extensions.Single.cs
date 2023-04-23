@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace CosmivengeonMod.Utility.Extensions {
+namespace CosmivengeonMod.Utility {
 	public static partial class Extensions {
 		/// <summary>
 		/// Mirrors the angle (in radians) over the X-axis and/or Y-axis.

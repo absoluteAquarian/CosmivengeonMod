@@ -38,7 +38,7 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite {
 			for (int i = 0; i < Main.maxProjectiles; i++) {
 				Projectile projectile = Main.projectile[i];
 
-				if (!projectile.active || !(projectile.ModProjectile is IceDiskProjectile))
+				if (!projectile.active || projectile.ModProjectile is not IceDiskProjectile)
 					continue;
 
 				if (projectile.ai[0] == 0)  //Existing disk is following the mouse.  Don't spawn another one

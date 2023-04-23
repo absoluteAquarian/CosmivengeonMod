@@ -98,9 +98,10 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 			}
 
 			//Only drain mana when the charge stage increases
-			if (State == 0 && owner.channel && ((int)Charge % (MaxCharge / 4) != 0 || owner.CheckMana(owner.HeldItem.mana, pay: true)))
+			if (State == 0 && owner.channel && ((int)Charge % (MaxCharge / 4) != 0 && owner.CheckMana(owner.HeldItem.mana, pay: true)))
 				Charge++;
-			else if (!owner.channel && State == 0) {
+			else if (State == 0) {
+				// State ended prematurely for any reason
 				State = 1;
 				wait = 0;
 				return;
@@ -176,7 +177,8 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 			if (Collision.CanHit(spawnCenter, 0, 0, spawnCenter + offset, 0, 0))
 				spawnCenter += offset;
 
-			Projectile spawn = Projectile.NewProjectileDirect(spawnCenter,
+			Projectile spawn = Projectile.NewProjectileDirect(Projectile.GetSource_FromAI(),
+				spawnCenter,
 				direction * speed * factor,
 				ModContent.ProjectileType<TerraBoltProjectile>(),
 				(int)(damage * factor),

@@ -1,4 +1,5 @@
 ﻿using CosmivengeonMod.Items.Materials;
+using CosmivengeonMod.Players;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -15,13 +16,13 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Crystalice {
 		public override void SetDefaults() {
 			Item.width = 18;
 			Item.height = 12;
-			Item.defense = 3;
+			Item.defense = 2;
 			Item.rare = ItemRarityID.Blue;
 			Item.value = Item.sellPrice(silver: 11, copper: 90);
 		}
 
 		public override void UpdateEquip(Player player) {
-			player.moveSpeed *= 0.85f;
+			player.GetModPlayer<ArmorsPlayer>().crystaliceLegs = true;
 			player.iceSkate = true;
 		}
 

@@ -10,7 +10,7 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Rockserpent {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Rockserpent Helmet");
 			Tooltip.SetDefault("Damage increased by 5%" +
-				"\n+2 minion slots");
+				"\n+1 minion slot");
 		}
 
 		public override void SetDefaults() {
@@ -30,7 +30,7 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Rockserpent {
 		}
 
 		public override void UpdateEquip(Player player) {
-			player.maxMinions += 2;
+			player.maxMinions++;
 			player.GetDamage(DamageClass.Generic) += 0.05f;
 		}
 

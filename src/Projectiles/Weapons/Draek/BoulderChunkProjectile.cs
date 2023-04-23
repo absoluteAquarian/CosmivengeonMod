@@ -1,5 +1,5 @@
 ﻿using CosmivengeonMod.Items.Weapons.Draek;
-using CosmivengeonMod.Utility.Extensions;
+using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
@@ -54,9 +54,9 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 
 		public override void Kill(int timeLeft) {
 			//Only spawn one projectile - multiplayer compatability
-			if (Projectile.owner == Main.myPlayer) {
+			if (Projectile.owner == Main.myPlayer && !Projectile.noDropItem) {
 				//Drop the item (100% chance)
-				int item = Item.NewItem(Projectile.getRect(), ModContent.ItemType<BoulderChunk>());
+				int item = Item.NewItem(Projectile.GetSource_DropAsItem(), Projectile.getRect(), ModContent.ItemType<BoulderChunk>());
 
 				//Sync the drop for multiplayer
 				if (Main.netMode == NetmodeID.MultiplayerClient && item >= 0)

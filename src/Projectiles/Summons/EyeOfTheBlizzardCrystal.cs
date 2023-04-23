@@ -93,8 +93,11 @@ namespace CosmivengeonMod.Projectiles.Summons {
 
 			//Don't shoot projectiles if the player has the cooldown debuff
 			if (--timer < 0 && cooldownDebuff < 0) {
-				List<NPC> closestNPCs = Main.npc.Where(n => n?.CanBeChasedBy() == true && Collision.CanHit(Projectile.Center, 0, 0, n.Center, 0, 0) && Projectile.Distance(n.Center) < 50 * 16)
-					.OrderBy(n => Projectile.Distance(n.Center))
+				const float detectionRange = 50 * 16;
+				const float detSQ = detectionRange * detectionRange;
+
+				List<NPC> closestNPCs = Main.npc.Where(n => n?.CanBeChasedBy() == true && Collision.CanHit(Projectile.Center, 0, 0, n.Center, 0, 0) && Projectile.DistanceSQ(n.Center) < detSQ)
+					.OrderBy(n => Projectile.DistanceSQ(n.Center))
 					.ToList();
 				if (closestNPCs.Any()) {
 					int randTime = !Main.hardMode ? Main.rand.Next(120, 241) : Main.rand.Next(75, 167);
@@ -106,9 +109,10 @@ namespace CosmivengeonMod.Projectiles.Summons {
 
 					NPC closest = closestNPCs.First();
 
-					SoundEngine.PlaySound(SoundID.Item28.WithVolume(0.35f), Projectile.Center);
+					SoundEngine.PlaySound(SoundID.Item28 with { Volume = 0.35f }, Projectile.Center);
 
 					Projectile.NewProjectile(
+						Projectile.GetSource_FromAI(),
 						Projectile.Center,
 						Projectile.DirectionTo(closest.Center) * CrystaliceShardProjectile.MAX_VELOCITY,
 						ModContent.ProjectileType<CrystaliceShardProjectile>(),
@@ -116,8 +120,7 @@ namespace CosmivengeonMod.Projectiles.Summons {
 						Main.hardMode ? Knockback : Knockback - 1,
 						Projectile.owner,
 						1f,
-						1f
-					);
+						1f);
 				} else
 					timer++;
 			}
@@ -130,8 +133,8 @@ namespace CosmivengeonMod.Projectiles.Summons {
 					Main.rand.Next(new int[] { 74, 107 }),
 					Main.rand.NextFloat(-1.5f, 1.5f),
 					Main.rand.NextFloat(-1.5f, 1.5f),
-					newColor: Color.Blue
-				);
+					newColor: Color.Blue);
+
 				dust.noGravity = true;
 			}
 
@@ -147,7 +150,7 @@ namespace CosmivengeonMod.Projectiles.Summons {
 			Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
 			Rectangle frame = texture.Frame(1, 6, 0, Projectile.frame);
 
-			spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, frame, Color.White, 0f, frame.Size() / 2f, Projectile.scale, SpriteEffects.None, 0);
+			Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, frame, Color.White, 0f, frame.Size() / 2f, Projectile.scale, SpriteEffects.None, 0);
 
 			return false;
 		}

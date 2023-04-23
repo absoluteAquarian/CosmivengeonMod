@@ -3,7 +3,6 @@ using CosmivengeonMod.DataStructures;
 using CosmivengeonMod.Players;
 using CosmivengeonMod.Projectiles.Summons;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +27,7 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite {
 				"\nThe crystal must recharge for 60 seconds until the player can use the ability again";
 
 		public override void SafeSetStaticDefaults() {
-			Main.RegisterItemAnimation(Item.type, new EyeOfTheBlizzardAnimation());
+			Main.RegisterItemAnimation(Item.type, new DrawAnimationVertical(ticksperframe: 9, frameCount: 6));
 		}
 
 		public override void SetDefaults() {
@@ -51,7 +50,7 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite {
 				return;
 			}
 
-			if (Equipped(player))
+			if (player.GetModPlayer<AccessoriesPlayer>().blizzardEye)
 				return;
 
 			for (int i = 0; i < Main.maxProjectiles; i++) {
@@ -60,16 +59,6 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite {
 				if (projectile.active && projectile.ModProjectile is EyeOfTheBlizzardCrystal && projectile.owner == player.whoAmI)
 					projectile.Kill();
 			}
-
-			player.GetModPlayer<AccessoriesPlayer>().blizzardEye = false;
-		}
-
-		private bool Equipped(Player player) {
-			for (int i = 3; i < 8 + player.extraAccessorySlots; i++) {
-				if (player.armor[i].type == Item.type)
-					return true;
-			}
-			return false;
 		}
 
 		private void DespawnCrystal() {
@@ -80,6 +69,10 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite {
 		}
 
 		public override void UpdateAccessory(Player player, bool hideVisual) {
+			AccessoriesPlayer mp = player.GetModPlayer<AccessoriesPlayer>();
+			mp.blizzardEye = true;
+			mp.blizzardEyeAccessory = Item;
+
 			if (player.dead || !player.active) {
 				DespawnCrystal();
 				return;
@@ -105,8 +98,6 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite {
 
 			player.AddBuff(ModContent.BuffType<EyeOfTheBlizzardBuff>(), 2);
 
-			AccessoriesPlayer mp = player.GetModPlayer<AccessoriesPlayer>();
-
 			if (--abilityTimer > 0) {
 				mp.activeBlizzardEye = true;
 			} else if (abilityTimer == 0 && !player.HasBuff(ModContent.BuffType<EyeOfTheBlizzardCooldown>())) {
@@ -116,13 +107,13 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite {
 			}
 
 			bool doubleTap = player.controlUp && player.releaseUp && player.doubleTapCardinalTimer[SnakeShieldPlayer.DashUp] < 14;
-			if (Crystal != null && abilityTimer < 0 && !((player.mount?.Active ?? false) && player.mount.CanFly) && !player.HasBuff(ModContent.BuffType<EyeOfTheBlizzardCooldown>()) && doubleTap) {
+			if (Crystal != null && abilityTimer < 0 && !((player.mount?.Active ?? false) && player.mount.CanFly()) && !player.HasBuff(ModContent.BuffType<EyeOfTheBlizzardCooldown>()) && doubleTap) {
 				abilityTimer = 5 * 60;
 
 				SoundEngine.PlaySound(SoundID.Item27, Crystal.Center);
 				for (int i = 0; i < 30; i++) {
-					Dust.NewDust(Crystal.Center - new Vector2(8, 8), 16, 16, 74, Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-8, 8), newColor: Color.Blue);
-					Dust.NewDust(Crystal.Center - new Vector2(8, 8), 16, 16, 107, Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-8, 8), newColor: Color.Blue);
+					Dust.NewDust(Crystal.Center - new Vector2(8, 8), 16, 16, DustID.GreenFairy, Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-8, 8), newColor: Color.Blue);
+					Dust.NewDust(Crystal.Center - new Vector2(8, 8), 16, 16, DustID.TerraBlade, Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-8, 8), newColor: Color.Blue);
 				}
 			}
 		}
@@ -152,21 +143,6 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Frostbite {
 
 				customIndex++;
 			} while (tooltips[customIndex].Name.StartsWith("CustomTooltip"));
-		}
-	}
-
-	public class EyeOfTheBlizzardAnimation : DrawAnimation {
-		public EyeOfTheBlizzardAnimation() {
-			FrameCount = 6;
-			TicksPerFrame = 9;
-		}
-
-		public override Rectangle GetFrame(Texture2D texture)
-			=> texture.Frame(1, FrameCount, 0, Frame);
-
-		public override void Update() {
-			if (++FrameCounter % TicksPerFrame == 0)
-				Frame = ++Frame % FrameCount;
 		}
 	}
 }

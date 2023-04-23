@@ -21,7 +21,7 @@ namespace CosmivengeonMod.UI {
 			StaminaPlayer modPlayer = Main.LocalPlayer.GetModPlayer<StaminaPlayer>();
 			Stamina stamina = modPlayer.stamina;
 
-			Texture2D texture = IsBar ? stamina.GetBarTexture() : stamina.GetBackTexture();
+			Texture2D texture = IsBar ? Stamina.GetBarTexture() : Stamina.GetBackTexture();
 			Vector2 drawPos = IsBar ? Stamina.BarDrawPos : Stamina.BackDrawPos;
 			Rectangle? sourceRect = IsBar ? (Rectangle?)stamina.GetBarRect() : null;
 

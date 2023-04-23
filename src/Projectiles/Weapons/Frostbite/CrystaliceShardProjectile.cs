@@ -1,4 +1,4 @@
-﻿using CosmivengeonMod.Utility.Extensions;
+﻿using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Audio;
@@ -31,11 +31,6 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
 			Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
 
 			Projectile.velocity.Y.Clamp(-MAX_VELOCITY, MAX_VELOCITY);
-		}
-
-		public override bool OnTileCollide(Vector2 oldVelocity) {
-			Projectile.Kill();
-			return true;
 		}
 
 		public override void Kill(int timeLeft) {

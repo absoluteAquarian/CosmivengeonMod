@@ -1,4 +1,5 @@
 ﻿using CosmivengeonMod.Items.Materials;
+using CosmivengeonMod.Players;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -20,7 +21,7 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Rockserpent {
 		}
 
 		public override void UpdateEquip(Player player) {
-			player.moveSpeed *= 1.1f;
+			player.GetModPlayer<ArmorsPlayer>().rockserpentLegs = true;
 		}
 
 		public override void AddRecipes() {

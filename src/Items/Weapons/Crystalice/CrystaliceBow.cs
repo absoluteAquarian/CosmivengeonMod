@@ -42,7 +42,7 @@ namespace CosmivengeonMod.Items.Weapons.Crystalice {
 		}
 
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
-			Projectile proj = Main.projectile[Projectile.NewProjectile(position, new Vector2(speedX, speedY), type, damage, knockBack, player.whoAmI)];
+			Projectile proj = Projectile.NewProjectileDirect(source, position, velocity, type, damage, knockback, player.whoAmI);
 			proj.GetGlobalProjectile<WeaponAffectedProjectile>().shotFromCrystaliceBow = true;
 			return false;
 		}

@@ -44,9 +44,6 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.FrostbiteBoss {
 				//Make it a melee projectile
 				if (Projectile.ai[1] == 4f) {
 					Projectile.DamageType = DamageClass.Melee;
-					Projectile.magic = false/* tModPorter Suggestion: Remove. See Item.DamageType */;
-					Projectile.ranged = false/* tModPorter Suggestion: Remove. See Item.DamageType */;
-					Projectile.thrown = false/* tModPorter Suggestion: Remove. See Item.DamageType */;
 					Projectile.minion = false;
 
 					Projectile.timeLeft = 18;
@@ -56,7 +53,7 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.FrostbiteBoss {
 			//Spawn 9 dusts randomly
 			for (int i = 0; i < 4; i++) {
 				if (Main.rand.NextFloat() < 0.8f) {
-					Dust dust = Dust.NewDustDirect(Projectile.position - new Vector2(2, 2), Projectile.width + 2, Projectile.height + 2, 92);
+					Dust dust = Dust.NewDustDirect(Projectile.position - new Vector2(2, 2), Projectile.width + 2, Projectile.height + 2, DustID.Frost);
 					dust.velocity = Vector2.Zero;
 					dust.noGravity = true;
 					dust.fadeIn = 1.15f;

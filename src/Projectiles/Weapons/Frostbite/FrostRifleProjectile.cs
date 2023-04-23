@@ -1,4 +1,4 @@
-﻿using CosmivengeonMod.Utility.Extensions;
+﻿using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Audio;
@@ -36,7 +36,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
 		}
 
 		public override void Kill(int timeLeft) {
-			SoundEngine.PlaySound(SoundID.Item27.WithVolume(0.45f), Projectile.Center);
+			SoundEngine.PlaySound(SoundID.Item27 with { Volume = 0.45f }, Projectile.Center);
 		}
 
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {

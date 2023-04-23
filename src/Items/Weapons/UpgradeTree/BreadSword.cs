@@ -7,8 +7,6 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Items.Weapons.UpgradeTree {
 	public class BreadSword : ModItem {
-		public override bool OnlyShootOnSwing/* tModPorter Note: Removed. If you returned true, set Item.useTime to a multiple of Item.useAnimation */ => true;
-
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Terracrust Blade");
 			Tooltip.SetDefault("Attacks have a guaranteed chance to [c/274e13:Poison] enemies and only a" +
@@ -17,12 +15,12 @@ namespace CosmivengeonMod.Items.Weapons.UpgradeTree {
 
 		public override void SetDefaults() {
 			Item.damage = 30;
-			Item.DamageType = DamageClass.Melee/* tModPorter Suggestion: Consider MeleeNoSpeed for no attack speed scaling */;
+			Item.DamageType = DamageClass.Melee;
 			Item.useTurn = false;
 			Item.width = 58;
 			Item.height = 58;
-			Item.useTime = 36;
-			Item.useAnimation = 26;
+			Item.useTime = 30;
+			Item.useAnimation = 30;
 			Item.useStyle = ItemUseStyleID.Swing;
 			Item.knockBack = 5.5f;
 			Item.value = Item.sellPrice(gold: 3);

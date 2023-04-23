@@ -17,10 +17,9 @@ namespace CosmivengeonMod.NPCs.Global {
 				if (item.IsAir)
 					continue;
 
-				//Increase or decrease vanilla item prices in the NPC's shop
-				//Trying to make this consistent for modded entries is too much of a pain
+				// Increase or decrease vanilla item prices in the NPC's shop
 				if (item.shopSpecialCurrency == CustomCurrencyID.None)
-					item.value = (int)((item.shopCustomPrice ?? item.value) * modifier);
+					item.shopCustomPrice = (int)(item.GetStoreValue() * modifier);
 			}
 		}
 	}

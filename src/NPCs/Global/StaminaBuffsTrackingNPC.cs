@@ -4,11 +4,12 @@ using CosmivengeonMod.DataStructures;
 using CosmivengeonMod.NPCs.Bosses.DraekBoss;
 using CosmivengeonMod.NPCs.Bosses.FrostbiteBoss;
 using CosmivengeonMod.Players;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Chat;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -21,7 +22,7 @@ namespace CosmivengeonMod.NPCs.Global {
 
 		public static Dictionary<int, List<string>> BossNames;
 
-		public static void Load() {
+		public static void LoadBossNames() {
 			BossIDs = new List<int>();
 			BuffActions = new Dictionary<int, Action<Stamina>>();
 			OnKillMessages = new Dictionary<int, string>();
@@ -63,7 +64,7 @@ namespace CosmivengeonMod.NPCs.Global {
 			OnKillMessages.Add(type, message);
 		}
 
-		public static void Unload() {
+		public static void UnloadCollections() {
 			BossIDs = null;
 			BuffActions = null;
 			OnKillMessages = null;
@@ -71,11 +72,11 @@ namespace CosmivengeonMod.NPCs.Global {
 		}
 
 		public override void OnKill(NPC npc) {
-			//If we're not in Desolation mode, don't do anything
+			// If we're not in Desolation mode, don't do anything
 			if (!Main.expertMode || !WorldEvents.desoMode)
 				return;
 
-			//If this NPC is a boss and it's a separating segment of a worm boss, force the type to be the head segment
+			// If this NPC is a boss and it's a separating segment of a worm boss, force the type to be the head segment
 			int type = npc.type;
 			if (type == NPCID.EaterofWorldsBody || type == NPCID.EaterofWorldsTail)
 				type = NPCID.EaterofWorldsHead;
@@ -84,31 +85,30 @@ namespace CosmivengeonMod.NPCs.Global {
 			var words = key.Split('.');
 			StaminaBuffData data = new StaminaBuffData(words[0], words[1]);
 
-			//If this game is a multiplayer server, handle this effect differently
 			if (Main.netMode == NetmodeID.Server) {
-				for (int i = 0; i < Main.maxNetPlayers; i++) {
-					if (!Main.player[i].active)
-						continue;
-
-					BossLogPlayer mp = Main.player[i].GetModPlayer<BossLogPlayer>();
-					//Only do the stamina buff checks on bosses that exist in the predefined Dictionaries
-					if (npc.boss && !npc.friendly && npc.playerInteraction[i] && !mp.BossesKilled.HasKey(words[0], words[1]) && BossIDs.Contains(type)) {
-						//It's a boss and it's dead; add it to the list if it's not there already and print the message for it
-						mp.BossesKilled.Add(data);
-						var lines = OnKillMessages[type].Split('\n');
-						foreach (string line in lines)
-							NetMessage.SendChatMessageToClient(NetworkText.FromLiteral(line), Color.HotPink, i);
-					}
-				}
+				// If this game is a multiplayer server, handle this effect differently
+				for (int i = 0; i < Main.maxNetPlayers; i++)
+					ProcessPlayer(npc, type, Main.player[i], true, words, data);
 			} else {
-				//This hook only runs for the server and in singleplayer, so we can be certain than this game isn't a multiplayer client here
-				BossLogPlayer mp = Main.LocalPlayer.GetModPlayer<BossLogPlayer>();
-				//Only do the stamina buff checks on bosses that exist in the predefined Dictionaries
-				if (npc.boss && !npc.friendly && npc.playerInteraction[Main.myPlayer] && !mp.BossesKilled.HasKey(words[0], words[1]) && BossIDs.Contains(type)) {
-					//It's a boss and it's dead; add it to the list if it's not there already and print the message for it
-					mp.BossesKilled.Add(data);
-					var lines = OnKillMessages[type].Split('\n');
-					foreach (string line in lines)
+				// This hook only runs for the server and in singleplayer, so we can be certain than this game isn't a multiplayer client here
+				ProcessPlayer(npc, type, Main.LocalPlayer, false, words, data);
+			}
+		}
+
+		private static void ProcessPlayer(NPC npc, int npcType, Player player, bool isClient, string[] words, StaminaBuffData data) {
+			if (!player.active)
+				return;
+
+			BossLogPlayer mp = player.GetModPlayer<BossLogPlayer>();
+			// Only do the stamina buff checks on bosses that exist in the predefined Dictionaries
+			if (npc.boss && !npc.friendly && npc.playerInteraction[player.whoAmI] && !mp.BossesKilled.HasKey(words[0], words[1]) && BossIDs.Contains(npcType)) {
+				// It's a boss and it's dead; add it to the list if it's not there already and print the message for it
+				mp.BossesKilled.Add(data);
+				var lines = OnKillMessages[npcType].Split('\n');
+				foreach (string line in lines) {
+					if (isClient)
+						ChatHelper.SendChatMessageToClient(NetworkText.FromLiteral(line), Color.HotPink, player.whoAmI);
+					else
 						Main.NewText(line, Color.HotPink);
 				}
 			}

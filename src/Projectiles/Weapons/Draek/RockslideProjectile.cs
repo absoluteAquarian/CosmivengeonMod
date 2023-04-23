@@ -43,8 +43,8 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 			//Add a green light from the projectile
 			Lighting.AddLight(Projectile.Center, 0f, 1f, 0f);
 
-			if (Main.rand.Next(8) == 0)
-				Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, 74);
+			if (Main.rand.NextBool(8))
+				Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, DustID.GreenFairy);
 		}
 
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {

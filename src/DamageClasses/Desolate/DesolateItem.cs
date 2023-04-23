@@ -1,9 +1,7 @@
 ﻿using CosmivengeonMod.API.Managers;
 using CosmivengeonMod.DataStructures;
-using CosmivengeonMod.Utility.Extensions;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using System.Collections.Generic;
-using System.Linq;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.Utilities;
@@ -19,36 +17,10 @@ namespace CosmivengeonMod.DamageClasses.Desolate {
 		public sealed override void SetDefaults() {
 			SafeSetDefaults();
 
-			Item.melee = false/* tModPorter Suggestion: Remove. See Item.DamageType */;
-			Item.ranged = false/* tModPorter Suggestion: Remove. See Item.DamageType */;
-			Item.magic = false/* tModPorter Suggestion: Remove. See Item.DamageType */;
-			Item.thrown = false/* tModPorter Suggestion: Remove. See Item.DamageType */;
-			Item.summon = false/* tModPorter Suggestion: Remove. See Item.DamageType */;
-		}
-
-		public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
-			add += player.Desolate().damageAdd;
-			mult += player.Desolate().damageMult;
-		}
-
-		public override void ModifyWeaponKnockback(Player player, ref StatModifier knockback) {
-			knockback += player.Desolate().knockback;
-		}
-
-		public override void ModifyWeaponCrit(Player player, ref float crit) {
-			crit += player.Desolate().crit;
+			Item.DamageType = ModContent.GetInstance<DesolateClass>();
 		}
 
 		public override void SafeModifyTooltips(List<TooltipLine> tooltips) {
-			TooltipLine damageLine = tooltips.FirstOrDefault(x => x.Name == "Damage" && x.Mod == "Terraria");
-			if (damageLine != null) {
-				string[] splitText = damageLine.Text.Split(' ');
-				string damageValue = splitText.First();
-				string damageWord = splitText.Last();
-
-				damageLine.Text = damageValue + " desolate " + damageWord;
-			}
-
 			int customIndex = FindCustomTooltipIndex(tooltips);
 			if (customIndex > 0) {
 				tooltips.Insert(customIndex++, new TooltipLine(Mod, "Desolator", "[c/6a00aa:Desolator]"));

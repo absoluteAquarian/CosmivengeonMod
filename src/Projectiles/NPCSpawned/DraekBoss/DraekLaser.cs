@@ -53,7 +53,7 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss {
 			Lighting.AddLight(Projectile.Center, 0f, 1f, 0f);
 
 			if (Main.rand.NextFloat() < 0.125f) {
-				Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 74);
+				Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.GreenFairy);
 				dust.velocity = Projectile.velocity * 0.3f;
 			}
 		}

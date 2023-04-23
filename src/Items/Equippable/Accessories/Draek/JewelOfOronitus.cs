@@ -20,7 +20,7 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek {
 				"\nIts original master, Oronitus, was seemingly lost to time many years ago...";
 
 		public override void SafeSetStaticDefaults() {
-			Main.RegisterItemAnimation(Item.type, new JewelOfOronitusAnimation());
+			Main.RegisterItemAnimation(Item.type, new DrawAnimationVertical(ticksperframe: 5, frameCount: 25));
 		}
 
 		public override void SetDefaults() {
@@ -40,21 +40,6 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek {
 			player.maxFallSpeed *= 1.2f;
 			player.gravity *= 1.2f;
 			player.GetModPlayer<AccessoriesPlayer>().oronitusJump.abilityActive = true;
-		}
-	}
-
-	public class JewelOfOronitusAnimation : DrawAnimation {
-		public JewelOfOronitusAnimation() {
-			FrameCount = 25;
-			TicksPerFrame = 5;
-		}
-
-		public override Rectangle GetFrame(Texture2D texture)
-			=> texture.Frame(1, FrameCount, 0, Frame);
-
-		public override void Update() {
-			if (++FrameCounter % TicksPerFrame == 0)
-				Frame = ++Frame % FrameCount;
 		}
 	}
 }

@@ -2,10 +2,10 @@
 using CosmivengeonMod.Items.Weapons.Draek;
 using CosmivengeonMod.NPCs.Bosses.DraekBoss;
 using CosmivengeonMod.Utility;
-using CosmivengeonMod.Worlds;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.GameContent.ItemDropRules;
 
 namespace CosmivengeonMod.Items.Bags {
 	public class DraekBag : ModItem {
@@ -27,22 +27,13 @@ namespace CosmivengeonMod.Items.Bags {
 			return true;
 		}
 
-		public override void OpenBossBag(Player player) {
-			if (Main.hardMode)
-				player.TryGettingDevArmor();
+		public override void ModifyItemLoot(ItemLoot itemLoot) {
+			itemLoot.Add(ItemDropRule.CoinsBasedOnNPCValue(ModContent.NPCType<DraekP2Head>()));
 
-			if (Main.expertMode && WorldEvents.desoMode && !WorldEvents.obtainedDesolator_DraekBoss) {
-				player.QuickSpawnItem(ModContent.ItemType<TerraBolt>());
-				WorldEvents.obtainedDesolator_DraekBoss = true;
+			DraekP2Head.AddDrops(itemLoot, restrictNormalDrops: false);
 
-				Debug.CheckWorldFlagUpdate(nameof(WorldEvents.obtainedDesolator_DraekBoss));
-			}
-
-			player.QuickSpawnItem(ModContent.ItemType<JewelOfOronitus>());
-
-			DraekP2Head.NormalModeDrops(player: player, quickSpawn: true);
+			itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<JewelOfOronitus>()));
+			itemLoot.Add(ItemDropRule.ByCondition(new LootConditions.DesolationMode(), ModContent.ItemType<TerraBolt>()));
 		}
-
-		public override int BossBagNPC => ModContent.NPCType<DraekP2Head>();
 	}
 }

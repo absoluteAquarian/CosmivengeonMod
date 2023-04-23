@@ -38,10 +38,10 @@ namespace CosmivengeonMod.Projectiles.Desomode {
 			for (int i = cacheMax; i >= 0; i--) {
 				float opacity = i * 0.2f;
 
-				spriteBatch.Draw(texture, Projectile.oldPos[cacheMax - i] + Projectile.Size / 2f - Main.screenPosition, null, lightColor * opacity, Projectile.rotation, texture.Size() / 2f, Projectile.scale, SpriteEffects.None, 0);
+				Main.EntitySpriteDraw(texture, Projectile.oldPos[cacheMax - i] + Projectile.Size / 2f - Main.screenPosition, null, lightColor * opacity, Projectile.rotation, texture.Size() / 2f, Projectile.scale, SpriteEffects.None, 0);
 			}
 
-			spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, lightColor, Projectile.rotation, texture.Size() / 2f, Projectile.scale, SpriteEffects.None, 0);
+			Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, null, lightColor, Projectile.rotation, texture.Size() / 2f, Projectile.scale, SpriteEffects.None, 0);
 			return false;
 		}
 	}

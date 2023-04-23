@@ -42,12 +42,12 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
 				MoveTowardsCursor();
 
 				if (Main.rand.NextFloat() < 0.35f) {
-					Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, 92, 0f, 0f, 50, Scale: 1.2f);
+					Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Frost, 0f, 0f, 50, Scale: 1.2f);
 					dust.noGravity = true;
 					dust.velocity = Vector2.Zero;
 				}
 
-				if (!Parent.channel || !(Parent.HeldItem.ModItem is IceDisk) || Projectile.Distance(Main.MouseWorld) < 2.5f * 16)
+				if (!Parent.channel || Parent.HeldItem.ModItem is not IceDisk || Projectile.Distance(Main.MouseWorld) < 2.5f * 16)
 					Projectile.ai[0] = 1f;
 			} else if (Projectile.ai[0] == 1f) {
 				int minTime = 35;
@@ -63,7 +63,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
 					float startAngle = Main.rand.NextFloat(MathHelper.PiOver2);
 
 					for (int i = 0; i < 4; i++)
-						Projectile.NewProjectile(Projectile.Center, new Vector2(5f, 0f).RotatedBy(startAngle + MathHelper.PiOver2 * i), ModContent.ProjectileType<CrystaliceShardFragmentProjectile>(), (int)(Projectile.damage * 0.32f), 3f, Projectile.owner, 1f, 0f);
+						Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.Center, new Vector2(5f, 0f).RotatedBy(startAngle + MathHelper.PiOver2 * i), ModContent.ProjectileType<CrystaliceShardFragmentProjectile>(), (int)(Projectile.damage * 0.32f), 3f, Projectile.owner, 1f, 0f);
 				}
 			}
 
@@ -89,7 +89,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
 			float angle = Main.rand.NextFloat(MathHelper.Pi);
 
 			for (int i = 0; i < 2; i++) {
-				Projectile proj = Projectile.NewProjectileDirect(Projectile.Center, new Vector2(MaxVelocity, 0f).RotatedBy(angle + MathHelper.Pi * i), Projectile.type, (int)(Projectile.damage * 0.5f), Projectile.knockBack, Projectile.owner, 2f);
+				Projectile proj = Projectile.NewProjectileDirect(Projectile.GetSource_FromAI(), Projectile.Center, new Vector2(MaxVelocity, 0f).RotatedBy(angle + MathHelper.Pi * i), Projectile.type, (int)(Projectile.damage * 0.5f), Projectile.knockBack, Projectile.owner, 2f);
 				proj.timeLeft = 37;
 			}
 

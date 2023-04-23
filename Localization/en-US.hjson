@@ -1,0 +1,96 @@
+﻿Mods: {
+	CosmivengeonMod: {
+		CrossMod: {
+			BossChecklist: {
+				BossLogSpawnInfo: {
+					Draek: "Use a [i:CosmivengeonMod/DraekSummon] in the Forest biome."
+					Frostbite: "Use a [i:CosmivengeonMod/IcyLure] in the Snow biome."
+				}
+			}
+		}
+
+		DamageClassName: {
+			DesolateClass: "desolate damage"
+		}
+
+		LootText: {
+			Desolation: "Drops only in Desolation mode"
+			FirstKill: "Drops only on the first kill"
+		}
+
+		DiceText: {
+			Loot: "Loot!"
+			LootBad: "Terrible loot!"
+			LootGreat: "Great loot!"
+			LootAmazing: "Amazing loot!"
+			LootDrop: "{0} [i/s{2}:{1}]"
+			LootWithPrefixDrop: "{0} [i/s{2},p{3}:{1}]"
+
+			PlayerRolledMessage: "{0} rolled a {1} and received: {2}"
+
+			BadLuck: {
+				BadFish: "Lowered fishing skill!"
+				BadShopPrices: "Bad shop prices for {0} minutes!"
+				BoneZone: "A one-way trip to the bone zone!"
+				Brazil: "A free passport to Brazil!"
+				Frozen: "Their own personal icicle!"
+				Horde: "A horde of monsters!"
+				JunkSpam: "An inventory full of junk!"
+				Kill: "Death."
+				KillTownie: "One dead town NPC!"
+				ManaSickness: "Mana Sickness for {0} minutes!"
+				NoBuffs: "Cleared buffs!"
+				NoMana: "No mana!"
+				NoManaDeso: "Heavy fatigue and no mana!"
+				NoMoney: "Holes in their pockets!"
+				NoSpawnpoint: "Their spawnpoint removed!"
+				NoStamina: "Heavy fatigue!"
+				Nothing: "Nothing!"
+				OneAnnoyingDebuff: "One annoying debuff!"
+				OneNastyDebuff: "One nasty debuff!"
+				Pain: "Pain."
+				PotionSickness: "Potion Sickness for {0} minutes!"
+				ReversedGravity: "Forced reverse gravity!"
+				Slapped: "A slap to the face!"
+				Stoned: "Stoned for 5 seconds!"
+				Teleport: "A free teleportation to somewhere in the world!"
+				TerribleDay: "A terrible day to have a curse."
+				TerribleNight: "A terrible night to have a curse."
+				TwoNastyDebuffs: "Two nasty debuffs!"
+			}
+
+			GoodLuck: {
+				BoneKey: "{$Mods.CosmivengeonMod.DiceText.LootAmazing} [i:BoneKey]"
+				EvilItems_Corruption: "{$Mods.CosmivengeonMod.DiceText.Loot} [i/s{0}:DemoniteBar] [i/s{1}:ShadowScale]"
+				EvilItems_Crimson: "{$Mods.CosmivengeonMod.DiceText.Loot} [i/s{0}:CrimtaneBar] [i/s{1}:TissueSample]"
+				ExtraLife: "One extra life!"
+				ExtraLifeThree: "Three extra lives!"
+				FragmentLoot: "{$Mods.CosmivengeonMod.DiceText.GreatLoot} [i/s{0}:FragmentSolar] [i/s{1}:FragmentNebula] [i/s{2}:FragmentVortex] [i/s{3}:FragmentStardust]"
+				GoodFish: "Increased fishing skill!"
+				GoodShopPrices: "Decreased shop prices!"
+				Health: "Some health recovered!"
+				HealthMore: "A lot of health recovered!"
+				Iddqd: "Godmode for 1 minute!"
+				InfiniteAmmo: "Infinite ammo for 3 minutes!"
+				InfiniteMana: "Infinite mana for 3 minutes!"
+				InfiniteStamina: "Infinite Stamina for {0} minutes!"
+				LongerIFrames: "Longer immunity frames!"
+				LotsaWood: "An abundance of wood!"
+				ManyPowerfulBuffs: "Some very powerful buffs!"
+				MoreDamage: "Doubled weapon damage for 2 minutes!"
+				NoDebuffs: "All debuffs cleared!"
+				NoPotionSickness: "Potion Sickness cured!"
+				OneNormalBuff: "One regular buff!"
+				OnePowerfulBuff: "One powerful buff!"
+				StarterKit: "A kit of starter items!"
+			}
+		}
+
+		KillReason: {
+			DesoModeInstaKill: "{0} was consumed by the chaos."
+			PrimordialWrath: "{0}'s flesh was melted off."
+			Unlucky: "{0} got unlucky!"
+			Slap: "{0} got slapped."
+		}
+	}
+}

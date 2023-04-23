@@ -1,6 +1,6 @@
 ﻿using CosmivengeonMod.Items.Weapons.Frostbite;
 using CosmivengeonMod.Projectiles.NPCSpawned.FrostbiteBoss;
-using CosmivengeonMod.Utility.Extensions;
+using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
@@ -30,7 +30,16 @@ namespace CosmivengeonMod.NPCs.Global {
 				//Spawn some projectiles
 				int numProjs = 20;
 				for (int i = 0; i < 20; i++) {
-					Projectile.NewProjectile(npc.Center, new Vector2(-9, 0).RotateDegrees(360f / numProjs * i, 180f / numProjs), ModContent.ProjectileType<FrostbiteBreath>(), item.damage, 3f, player.whoAmI, 0f, 4f);
+					Projectile.NewProjectile(
+						player.GetSource_OnHit(npc, "Cosmivengeon:SubZero Strike"),
+						npc.Center,
+						new Vector2(-9, 0).RotateDegrees(360f / numProjs * i, 180f / numProjs),
+						ModContent.ProjectileType<FrostbiteBreath>(),
+						(int)(player.GetWeaponDamage(item) * 0.15f),
+						3f,
+						player.whoAmI,
+						0f,
+						4f);
 				}
 			}
 		}

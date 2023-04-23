@@ -1,5 +1,4 @@
 ﻿using CosmivengeonMod.Projectiles.Weapons.Frostbite;
-using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
@@ -31,30 +30,32 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite {
 			Item.UseSound = SoundID.Item30;
 		}
 
+		public override bool CanUseItem(Player player) {
+			player.FindSentryRestingSpot(Item.shoot, out int worldX, out int worldY, out _);
+			worldX >>= 4;
+			worldY >>= 4;
+			worldY--;
+
+			return !WorldGen.SolidTile(worldX, worldY);
+		}
+
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
-			//Find the closest solid tile above or below the cursor and spawn the sentry there
-			int tileX = (int)Main.MouseWorld.X >> 4;
-			int tileY = (int)Main.MouseWorld.Y >> 4;
-
-			for (int i = 0; i < 50; i++) {
-				if (tileY + i <= Main.maxTilesY && MiscUtils.TileIsSolidOrPlatform(tileX, tileY + i)) {
-					tileY += i;
-					break;
-				} else if (tileY - i > 0 && MiscUtils.TileIsSolidOrPlatform(tileX, tileY - i)) {
-					tileY -= i;
-					break;
-				}
-			}
-
-			position = new Point(tileX, tileY).ToWorldCoordinates(8, 0) - new Vector2(0, 116 / 2f) * IceScepterWall.Scale;
-
 			//If any of this weapon's sentries exist, kill them
 			for (int i = 0; i < 1000; i++) {
 				if (Main.projectile[i]?.active == true && Main.projectile[i].ModProjectile is IceScepterWall)
-					Main.projectile[i].active = false;
+					Main.projectile[i].Kill();
 			}
 
 			return true;
+		}
+
+		public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
+			// Close mimic of the DD2 sentry placement logic
+			player.FindSentryRestingSpot(type, out int worldX, out int worldY, out _);
+			float pushYUp = ContentSamples.ProjectilesByType[Item.shoot].height / 2f;
+
+			position = new Vector2(worldX, worldY - pushYUp);
+			velocity = Vector2.Zero;
 		}
 	}
 }

@@ -1,5 +1,4 @@
-﻿using CosmivengeonMod.Players;
-using Terraria;
+﻿using Terraria;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Buffs.Mechanics {
@@ -9,10 +8,6 @@ namespace CosmivengeonMod.Buffs.Mechanics {
 			Description.SetDefault("Movement speed and damage dealt are increased, but defense is lowered.");
 			Main.buffNoSave[Type] = true;
 			Main.buffNoTimeDisplay[Type] = true;
-		}
-
-		public override void Update(Player player, ref int buffIndex) {
-			player.GetModPlayer<AccessoriesPlayer>().brokenFrostHorn = false;
 		}
 	}
 }

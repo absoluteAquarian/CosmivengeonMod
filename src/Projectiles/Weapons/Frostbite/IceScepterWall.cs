@@ -1,5 +1,5 @@
 ﻿using CosmivengeonMod.Projectiles.NPCSpawned.FrostbiteBoss;
-using CosmivengeonMod.Utility.Extensions;
+using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Audio;
@@ -37,6 +37,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
 				//Spawn some Frostbite ice projectiles (the breath ones)
 				for (int i = 0; i < 6; i++) {
 					Projectile.NewProjectile(
+						Projectile.GetSource_FromAI(),
 						Projectile.Top + new Vector2(0, 16),
 						new Vector2(0, -12).RotatedByRandom(MathHelper.ToRadians(40)),
 						ModContent.ProjectileType<FrostbiteBreath>(),
@@ -47,7 +48,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
 						1f
 					);
 
-					SoundEngine.PlaySound(SoundID.Item28.WithVolume(0.6f), Projectile.Top);
+					SoundEngine.PlaySound(SoundID.Item28 with { Volume = 0.6f }, Projectile.Top);
 				}
 			}
 
@@ -61,7 +62,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
 
 		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) {
 			fallThrough = false;
-			return base.TileCollideStyle(ref width, ref height, ref fallThrough);
+			return base.TileCollideStyle(ref width, ref height, ref fallThrough, ref hitboxCenterFrac);
 		}
 	}
 }

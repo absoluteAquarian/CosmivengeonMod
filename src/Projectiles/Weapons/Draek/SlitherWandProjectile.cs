@@ -1,5 +1,4 @@
 ﻿using CosmivengeonMod.Utility;
-using CosmivengeonMod.Utility.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -88,6 +87,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 				if (Main.netMode != NetmodeID.MultiplayerClient) {
 					SegmentIDs[0] = Projectile.whoAmI;
 					int proj = Projectile.NewProjectile(
+						Projectile.GetSource_FromAI(),
 						Projectile.Center,
 						Vector2.Zero,
 						ModContent.ProjectileType<SlitherWandProjectile_Body0>(),
@@ -99,6 +99,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 					);
 					SegmentIDs[1] = proj;
 					proj = Projectile.NewProjectile(
+						Projectile.GetSource_FromAI(),
 						Projectile.Center,
 						Vector2.Zero,
 						ModContent.ProjectileType<SlitherWandProjectile_Body1>(),
@@ -110,6 +111,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 					);
 					SegmentIDs[2] = proj;
 					proj = Projectile.NewProjectile(
+						Projectile.GetSource_FromAI(),
 						Projectile.Center,
 						Vector2.Zero,
 						ModContent.ProjectileType<SlitherWandProjectile_Tail>(),
@@ -343,7 +345,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 			Vector2 vector = Projectile.Center - Main.screenPosition;
 
 			if (Projectile.alpha == 0)
-				spriteBatch.Draw(texture,
+				Main.EntitySpriteDraw(texture,
 					vector,
 					null,
 					lightColor,

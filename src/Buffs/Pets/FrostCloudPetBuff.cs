@@ -17,7 +17,7 @@ namespace CosmivengeonMod.Buffs.Pets {
 			player.buffTime[buffIndex] = 18000;
 			player.GetModPlayer<PetPlayer>().cloudPet = true;
 			if (player.ownedProjectileCounts[ModContent.ProjectileType<FrostCloudPet>()] <= 0 && player.whoAmI == Main.myPlayer)
-				Projectile.NewProjectile(player.Center, Vector2.Zero, ModContent.ProjectileType<FrostCloudPet>(), 0, 0, player.whoAmI);
+				Projectile.NewProjectile(player.GetSource_FromThis(), player.Center, Vector2.Zero, ModContent.ProjectileType<FrostCloudPet>(), 0, 0, player.whoAmI);
 		}
 	}
 }

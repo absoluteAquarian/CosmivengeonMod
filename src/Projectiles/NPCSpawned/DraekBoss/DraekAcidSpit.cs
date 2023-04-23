@@ -1,4 +1,4 @@
-﻿using CosmivengeonMod.Utility.Extensions;
+﻿using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
@@ -29,7 +29,7 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss {
 				hasSpawned = true;
 				Projectile.velocity = Vector2.Normalize(new Vector2(Projectile.ai[0], Projectile.ai[1]) - Projectile.Center) * 10f;
 
-				SoundEngine.PlaySound(SoundID.NPCDeath19.WithVolume(0.6f), Projectile.Center);
+				SoundEngine.PlaySound(SoundID.NPCDeath19 with { Volume = 0.6f }, Projectile.Center);
 			}
 
 			Projectile.velocity.Y += 8f / 60f;

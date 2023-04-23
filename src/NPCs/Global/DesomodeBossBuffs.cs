@@ -1,6 +1,5 @@
-﻿using CosmivengeonMod.Buffs.Harmful;
-using CosmivengeonMod.Utility.Extensions;
-using CosmivengeonMod.Worlds;
+﻿using CosmivengeonMod.Systems;
+using CosmivengeonMod.Utility;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -12,12 +11,7 @@ namespace CosmivengeonMod.NPCs.Global {
 				return;
 
 			if (npc.type == NPCID.KingSlime) {
-				npc.SetImmune(BuffID.OnFire);
-				npc.SetImmune(BuffID.Frostburn);
-				npc.SetImmune(BuffID.CursedInferno);
-				npc.SetImmune(BuffID.ShadowFlame);
-				npc.SetImmune(BuffID.Daybreak);
-				npc.SetImmune(ModContent.BuffType<PrimordialWrath>());
+				// Buff immunity moved to LegacyBuffImmunityAssignmentDetour
 				npc.lavaImmune = true;
 			}
 		}

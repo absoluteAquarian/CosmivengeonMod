@@ -14,10 +14,18 @@ namespace CosmivengeonMod.Buffs.Mechanics {
 		}
 
 		public override void Update(Player player, ref int buffIndex) {
-			player.GetModPlayer<AccessoriesPlayer>().blizzardEye = true;
+			var mp = player.GetModPlayer<AccessoriesPlayer>();
 
-			if (player.ownedProjectileCounts[ModContent.ProjectileType<EyeOfTheBlizzardCrystal>()] < 1)
-				Projectile.NewProjectile(player.Center, Vector2.Zero, ModContent.ProjectileType<EyeOfTheBlizzardCrystal>(), EyeOfTheBlizzardCrystal.Damage, EyeOfTheBlizzardCrystal.Knockback, player.whoAmI);
+			if (mp.blizzardEye && player.ownedProjectileCounts[ModContent.ProjectileType<EyeOfTheBlizzardCrystal>()] < 1) {
+				Projectile.NewProjectile(
+					player.GetSource_Accessory(mp.blizzardEyeAccessory),
+					player.Center,
+					Vector2.Zero,
+					ModContent.ProjectileType<EyeOfTheBlizzardCrystal>(),
+					EyeOfTheBlizzardCrystal.Damage,
+					EyeOfTheBlizzardCrystal.Knockback,
+					player.whoAmI);
+			}
 		}
 	}
 }

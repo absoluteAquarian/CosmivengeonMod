@@ -57,7 +57,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 				Dust dust = Dust.NewDustDirect(Projectile.width > 4 ? Projectile.position + new Vector2(2) : Projectile.Center,
 					Math.Max(Projectile.width - 4, 0),
 					Math.Max(Projectile.height - 4, 0),
-					75);
+					DustID.CursedTorch);
 				dust.noGravity = true;
 				dust.fadeIn = 0.8f;
 				dust.velocity = Vector2.Zero;
@@ -91,7 +91,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 			Vector2 drawPos = Projectile.Center - Main.screenPosition;
 			Color color = Projectile.GetAlpha(lightColor);
 
-			spriteBatch.Draw(texture, drawPos, drawFrame, color, Projectile.rotation, drawOrigin, Projectile.scale, SpriteEffects.None, 0f);
+			Main.EntitySpriteDraw(texture, drawPos, drawFrame, color, Projectile.rotation, drawOrigin, Projectile.scale, SpriteEffects.None, 0);
 
 			//Queue the new points
 			QueuePoint(primPoints);
@@ -146,7 +146,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) {
 			width = Math.Min(width, 16);
 			height = Math.Min(height, 16);
-			return base.TileCollideStyle(ref width, ref height, ref fallThrough);
+			return base.TileCollideStyle(ref width, ref height, ref fallThrough, ref hitboxCenterFrac);
 		}
 	}
 }

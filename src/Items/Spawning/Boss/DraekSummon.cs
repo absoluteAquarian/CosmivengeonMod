@@ -20,15 +20,15 @@ namespace CosmivengeonMod.Items.Spawning.Boss {
 			Item.useAnimation = 45;
 			Item.useTime = 45;
 			Item.useStyle = ItemUseStyleID.HoldUp;
-			Item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0);
+			Item.UseSound = SoundID.Roar;
 			Item.consumable = true;
 		}
 
 		public override bool CanUseItem(Player player)
 			=> MiscUtils.TrySummonBoss(CosmivengeonBoss.Draek, player);
 
-		public override bool? UseItem(Player player)/* tModPorter Suggestion: Return null instead of false */
-			=> MiscUtils.SummonBossNearPlayer(player, ModContent.NPCType<Draek>(), 50f);
+		public override bool? UseItem(Player player)
+			=> MiscUtils.SummonBossNearPlayer(player, ModContent.NPCType<Draek>(), 50f) ? true : null;
 
 		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();

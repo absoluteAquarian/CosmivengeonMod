@@ -30,6 +30,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
 
 			if (timer++ > 0 && timer % 20 == 0) {
 				Projectile.NewProjectile(
+					Projectile.GetSource_FromAI(),
 					Projectile.Center + new Vector2(Main.rand.NextFloat(-16, 16), Main.rand.NextFloat(-4f, 0f)),
 					Vector2.Zero,
 					ModContent.ProjectileType<CrystaliceShardFragmentProjectile>(),

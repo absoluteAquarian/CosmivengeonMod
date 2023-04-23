@@ -1,6 +1,7 @@
 ﻿using CosmivengeonMod.Items.Weapons.Frostbite;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -82,7 +83,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
 			Vector2 direction = mountedCenter - Projectile.Center;
 			float rotation = direction.ToRotation() - MathHelper.PiOver2;
 
-			Texture2D chain = ModContent.GetTexture("CosmivengeonMod/Assets/Chains/SnowballFlail");
+			Texture2D chain = ModContent.Request<Texture2D>("CosmivengeonMod/Assets/Chains/SnowballFlail", AssetRequestMode.ImmediateLoad).Value;
 
 			if (Projectile.alpha == 0) {
 				int num128 = -1;
@@ -107,7 +108,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
 					projCenter += direction;
 					direction = mountedCenter - projCenter;
 
-					spriteBatch.Draw(chain, projCenter - Main.screenPosition, null, lightColor, rotation, new Vector2(chain.Width * 0.5f, chain.Height * 0.5f), 1f, SpriteEffects.None, 0f);
+					Main.EntitySpriteDraw(chain, projCenter - Main.screenPosition, null, lightColor, rotation, new Vector2(chain.Width * 0.5f, chain.Height * 0.5f), 1f, SpriteEffects.None, 0);
 				}
 			}
 

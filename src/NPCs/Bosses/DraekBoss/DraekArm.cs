@@ -3,6 +3,7 @@ using CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss;
 using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using System;
 using Terraria;
 using Terraria.Audio;
@@ -123,7 +124,8 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 
 						Vector2 positionOffset = new Vector2(Main.rand.NextFloat(-1, 1), Main.rand.NextFloat(-1, 1)) * 4f * 16;
 
-						MiscUtils.SpawnProjectileSynced(NPC.Bottom - new Vector2(0, 0.667f * NPC.height),
+						MiscUtils.SpawnProjectileSynced(NPC.GetSource_FromAI(),
+							NPC.Bottom - new Vector2(0, 0.667f * NPC.height),
 							Vector2.Zero,
 							ModContent.ProjectileType<DraekLaser>(),
 							NPC.damage,
@@ -147,15 +149,15 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 				//Spawn gores
 				Vector2 dir = NPC.rotation.ToRotationVector2();
 				Vector2 spawn = NPC.Center;
-				int gore = Gore.NewGore(spawn, Vector2.UnitY.RotatedByRandom(MathHelper.ToRadians(30)) * -5f, Mod.GetGoreSlot("Gores/DraekArm"));
+				int gore = Gore.NewGore(NPC.GetSource_Death(), spawn, Vector2.UnitY.RotatedByRandom(MathHelper.ToRadians(30)) * -5f, Mod.Find<ModGore>("DraekArm").Type);
 				Main.gore[gore].numFrames = 3;
 				Main.gore[gore].frame = (byte)Main.rand.Next(3);
 				spawn += dir * 24;
-				gore = Gore.NewGore(spawn, Vector2.UnitY.RotatedByRandom(MathHelper.ToRadians(30)) * -5f, Mod.GetGoreSlot("Gores/DraekArm"));
+				gore = Gore.NewGore(NPC.GetSource_Death(), spawn, Vector2.UnitY.RotatedByRandom(MathHelper.ToRadians(30)) * -5f, Mod.Find<ModGore>("DraekArm").Type);
 				Main.gore[gore].numFrames = 3;
 				Main.gore[gore].frame = (byte)Main.rand.Next(3);
 				spawn += dir * 24;
-				gore = Gore.NewGore(spawn, Vector2.UnitY.RotatedByRandom(MathHelper.ToRadians(30)) * -5f, Mod.GetGoreSlot("Gores/DraekArm"));
+				gore = Gore.NewGore(NPC.GetSource_Death(), spawn, Vector2.UnitY.RotatedByRandom(MathHelper.ToRadians(30)) * -5f, Mod.Find<ModGore>("DraekArm").Type);
 				Main.gore[gore].numFrames = 3;
 				Main.gore[gore].frame = (byte)Main.rand.Next(3);
 
@@ -185,7 +187,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 			if (NPC.alpha == 255)
 				return false;
 
-			Texture2D texture = Mod.GetTexture("NPCs/Draek/DraekArm_Punched");
+			Texture2D texture = Mod.Assets.Request<Texture2D>("NPCs/Draek/DraekArm_Punched", AssetRequestMode.ImmediateLoad).Value;
 			Vector2 drawOrigin = new Vector2(12, 16);
 			SpriteEffects effects = NPC.spriteDirection == -1 ? SpriteEffects.FlipVertically : SpriteEffects.None;
 

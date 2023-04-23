@@ -1,7 +1,7 @@
 ﻿using CosmivengeonMod.API.Commands;
 using CosmivengeonMod.Buffs.Harmful;
 using CosmivengeonMod.Players;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -130,10 +130,40 @@ namespace CosmivengeonMod.Projectiles.Dice {
 		}
 
 		public override bool PreDraw(ref Color lightColor) {
-			Texture2D texture = ModContent.GetTexture(Texture);
-			spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, null, lightColor, Projectile.rotation, texture.Size() / 2f, Projectile.scale, effects, 0f);
+			Texture2D texture = ModContent.Request<Texture2D>(Texture).Value;
+			Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, null, lightColor, Projectile.rotation, texture.Size() / 2f, Projectile.scale, effects, 0);
 			return false;
 		}
+
+		private void InformEveryoneLiteral(string result) {
+			Player owner = Main.player[Projectile.owner];
+
+			string dice = (random == 1 || random == 20) ? $"NAT {random}" : random.ToString();
+
+			if (Main.netMode == NetmodeID.SinglePlayer)
+				Main.NewText(Language.GetTextValue("Mods.CosmivengeonMod.DiceText.PlayerRolledMessage", owner.name, dice, result));
+			else if (Main.netMode == NetmodeID.Server)
+				ChatHelper.BroadcastChatMessage(NetworkText.FromKey("Mods.CosmivengeonMod.DiceText.PlayerRolledMessage", owner.name, dice, result), Color.White);
+		}
+
+		private void InformLootDrop(int type, int stack, string lootMsgType = "", int? prefix = null) {
+			string msg = Language.GetTextValue("Mods.CosmivengeonMod.DiceText.Loot" + lootMsgType);
+
+			if (prefix is { } p && p > 0 && p < PrefixLoader.PrefixCount)
+				InformEveryoneLiteral(Language.GetTextValue("Mods.CosmivengeonMod.DiceText.LootWithPrefixDrop", msg, type, stack, p));
+			else
+				InformEveryoneLiteral(Language.GetTextValue("Mods.CosmivengeonMod.DiceText.LootDrop", msg, type, stack));
+		}
+
+		private void InformEveryone(string key) => InformEveryoneLiteral(Language.GetTextValue("Mods.CosmivengeonMod.DiceText." + key));
+
+		private void InformEveryone(string key, object arg0) => InformEveryoneLiteral(Language.GetTextValue("Mods.CosmivengeonMod.DiceText." + key, arg0));
+
+		private void InformEveryone(string key, object arg0, object arg1) => InformEveryoneLiteral(Language.GetTextValue("Mods.CosmivengeonMod.DiceText." + key, arg0, arg1));
+
+		private void InformEveryone(string key, object arg0, object arg1, object arg2) => InformEveryoneLiteral(Language.GetTextValue("Mods.CosmivengeonMod.DiceText." + key, arg0, arg1, arg2));
+
+		private void InformEveryone(string key, params object[] args) => InformEveryoneLiteral(Language.GetTextValue("Mods.CosmivengeonMod.DiceText." + key, args));
 
 		public override void Kill(int timeLeft) {
 			Player owner = Main.player[Projectile.owner];
@@ -142,19 +172,13 @@ namespace CosmivengeonMod.Projectiles.Dice {
 			if (Main.myPlayer != owner.whoAmI || Main.netMode == NetmodeID.MultiplayerClient)
 				return;
 
-			void InformEveryone(string result) {
-				string toPrint = $"{owner.name} rolled a {((random == 1 || random == 20) ? $"NAT {random}" : random.ToString())} and received: {result}";
-
-				if (Main.netMode == NetmodeID.SinglePlayer)
-					Main.NewText(toPrint);
-				else if (Main.netMode == NetmodeID.Server)
-					ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral(toPrint), Color.White);
-			}
-
 			//Effects go from really bad (1) to really good (20), with 10 and 11 being "neutral" effects
 			//Only one effect is chosen per roll
 			int rollEvent;
 			bool validEvent;
+			int type, stack;
+
+			var lootSource = owner.GetSource_Loot();
 			switch (random) {
 				#region Roll 1
 				case 1:
@@ -195,10 +219,12 @@ namespace CosmivengeonMod.Projectiles.Dice {
 					switch (rollEvent) {
 						case 0:
 							//Ouch!
-							InformEveryone(owner.difficulty == 0 ? "Death." : "Pain.");
+							InformEveryone(owner.difficulty == 0 ? "BadLuck.Kill" : "BadLuck.Pain");
+
+							var deathReason = PlayerDeathReason.ByCustomReason(Language.GetTextValue("Mods.CosmivengeonMod.KillReason.Unlucky", owner.name));
 
 							if (owner.difficulty == 0)
-								owner.KillMe(PlayerDeathReason.ByCustomReason($"{owner.name} got unlucky!"), 9999, 0);
+								owner.KillMe(deathReason, 9999, 0);
 							else {
 								int life = owner.statLife;
 								int newLife = owner.statLife / (owner.difficulty == 1 ? 2 : 4);
@@ -206,25 +232,27 @@ namespace CosmivengeonMod.Projectiles.Dice {
 								if (owner.statLife < 1)
 									owner.statLife = 1;
 
-								owner.Hurt(PlayerDeathReason.ByCustomReason($"{owner.name} got unlucky!"), life - newLife, 0, Crit: true);
+								owner.Hurt(deathReason, life - newLife, 0, Crit: true);
 							}
 							break;
 						case 1:
-							InformEveryone("Holes in their pockets!");
+							InformEveryone("BadLuck.NoMoney");
 
 							for (int i = 0; i < 54; i++) {
 								Item item = owner.inventory[i];
 								if (item.type == ItemID.CopperCoin || item.type == ItemID.SilverCoin || item.type == ItemID.GoldCoin || item.type == ItemID.PlatinumCoin) {
-									Item.NewItem(owner.Center, item.type, item.stack);
+									int index = Item.NewItem(owner.GetSource_DropAsItem(), owner.Center, item.type, item.stack);
+									Main.item[index].noGrabDelay = 5 * 60;
+
 									item.TurnToAir();
 								}
 							}
 							break;
 						case 2:
-							InformEveryone("Two nasty debuffs!");
+							InformEveryone("BadLuck.TwoNastyDebuffs");
 
 							for (int i = 0; i < 2; i++) {
-								(int, int) debuff = Main.rand.Next(new (int, int)[]{
+								(int, int) debuff = Main.rand.Next(new (int, int)[] {
 									(BuffID.Suffocation, 120 * 60),
 									(BuffID.CursedInferno, 180 * 60),
 									(BuffID.Stoned, 60 * 60),
@@ -237,12 +265,12 @@ namespace CosmivengeonMod.Projectiles.Dice {
 							}
 							break;
 						case 3:
-							InformEveryone("A one-way trip to the bone zone!");
+							InformEveryone("BadLuck.BoneZone");
 
 							owner.Teleport(new Vector2(teleXDungeon, teleYDungeon) * 16, Style: 1);
 							break;
 						case 4:
-							InformEveryone("A free passport to Brazil!");
+							InformEveryone("BadLuck.Brazil");
 
 							owner.Teleport(new Vector2(teleXHell, teleYHell) * 16, Style: 1);
 							break;
@@ -262,7 +290,7 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("A horde of monsters!");
+							InformEveryone("BadLuck.Horde");
 
 							for (int i = 0; i < 20; i++) {
 								int randX, randY;
@@ -279,12 +307,12 @@ namespace CosmivengeonMod.Projectiles.Dice {
 								int hordeType;
 								if (!Main.hardMode)
 									hordeType = Main.rand.NextFloat() > 0.2f ? NPCID.Zombie : NPCID.UndeadMiner;
-								else if (!NPC.downedPlantBoss)
+								else if (Main.hardMode && !NPC.downedPlantBoss)
 									hordeType = NPCID.PossessedArmor;
-								else if (!NPC.downedMoonlord)
+								else if (Main.hardMode && NPC.downedPlantBoss && !NPC.downedMoonlord)
 									hordeType = WorldGen.crimson ? NPCID.Herpling : NPCID.Corruptor;
 								else
-									hordeType = Main.rand.Next(new int[]{
+									hordeType = Main.rand.Next(new int[] {
 										NPCID.SolarCorite,
 										NPCID.SolarCrawltipedeHead,
 										NPCID.SolarDrakomireRider,
@@ -308,18 +336,18 @@ namespace CosmivengeonMod.Projectiles.Dice {
 										NPCID.VortexSoldier
 									});
 
-								NPC npc = Main.npc[NPC.NewNPC(randX, randY, hordeType)];
+								NPC npc = NPC.NewNPCDirect(new EntitySource_WorldEvent("Cosmivengeon:D20 Roll"), randX, randY, hordeType);
 								npc.Bottom = new Vector2(randX, randY);
 							}
 							break;
 						case 1:
-							InformEveryone("An inventory full of junk!");
+							InformEveryone("BadLuck.JunkSpam");
 
 							for (int i = 0; i < 50; i++) {
 								Item item = owner.inventory[i];
 								if (item.IsAir) {
 									item = owner.inventory[i] = new Item();
-									item.SetDefaults(Main.rand.Next(new int[]{
+									item.SetDefaults(Main.rand.Next(new int[] {
 										ItemID.OldShoe, ItemID.TinCan, ItemID.FishingSeaweed
 									}));
 									item.stack = 1;
@@ -327,18 +355,18 @@ namespace CosmivengeonMod.Projectiles.Dice {
 							}
 							break;
 						case 2:
-							InformEveryone($"A terrible {(Main.hardMode ? "day" : "night")} to have a curse.");
+							if (Main.hardMode || Main.rand.NextBool()) {
+								InformEveryone("BadLuck.TerribleDay");
 
-							if (Main.hardMode) {
 								//Set the world to a solar eclipse
-								Main.time = 0;
-								Main.dayTime = true;
+								Main.SkipToTime(0, true);
 
 								Main.eclipse = true;
 							} else {
+								InformEveryone("BadLuck.TerribleNight");
+
 								//Set the world to a blood moon
-								Main.time = 0;
-								Main.dayTime = false;
+								Main.SkipToTime(0, false);
 
 								Main.bloodMoon = true;
 							}
@@ -348,7 +376,7 @@ namespace CosmivengeonMod.Projectiles.Dice {
 								NetMessage.SendData(MessageID.WorldData);
 							break;
 						case 3:
-							InformEveryone(WorldEvents.desoMode ? "Heavy fatigue and no mana!" : "No mana!");
+							InformEveryone(WorldEvents.desoMode ? "BadLuck.NoManaDeso" : "BadLuck.NoMana");
 
 							if (WorldEvents.desoMode) {
 								StaminaPlayer mp = owner.GetModPlayer<StaminaPlayer>();
@@ -374,14 +402,14 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("Bad shop prices for 10 minutes!");
+							InformEveryone("BadLuck.BadShopPrices", 10);
 
 							owner.GetModPlayer<DicePlayer>().SetShopModifier(good: false, duration: 10 * 60 * 60);
 							break;
 						case 1:
-							InformEveryone("One nasty debuff!");
+							InformEveryone("BadLuck.OneNastyDebuff");
 
-							(int, int) debuff = Main.rand.Next(new (int, int)[]{
+							(int, int) debuff = Main.rand.Next(new (int, int)[] {
 								(BuffID.Suffocation, 20 * 60),
 								(BuffID.CursedInferno, 18 * 60),
 								(BuffID.Stoned, 10 * 60),
@@ -393,9 +421,9 @@ namespace CosmivengeonMod.Projectiles.Dice {
 							owner.AddBuff(debuff.Item1, debuff.Item2);
 							break;
 						case 2:
-							InformEveryone("One annoying debuff!");
+							InformEveryone("BadLuck.OneAnnoyingDebuff");
 
-							debuff = Main.rand.Next(new (int, int)[]{
+							debuff = Main.rand.Next(new (int, int)[] {
 								(BuffID.Slow, 60 * 60),
 								(BuffID.Silenced, 60 * 60),
 								(BuffID.Weak, 120 * 60),
@@ -407,7 +435,7 @@ namespace CosmivengeonMod.Projectiles.Dice {
 							owner.AddBuff(debuff.Item1, debuff.Item2);
 							break;
 						case 3:
-							InformEveryone("Cleared buffs!");
+							InformEveryone("BadLuck.NoBuffs");
 
 							for (int i = 0; i < Player.MaxBuffs; i++) {
 								if (owner.buffType[i] == 0 || owner.buffTime[i] == 0)
@@ -437,21 +465,21 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("Their spawnpoint removed!");
+							InformEveryone("BadLuck.NoSpawnpoint");
 
 							owner.RemoveSpawn();
 							break;
 						case 1:
 							//Teleportation potion effect
-							InformEveryone("A free teleportation to somewhere in the world!");
+							InformEveryone("BadLuck.Teleport");
 
 							if (Main.netMode == NetmodeID.SinglePlayer)
 								owner.TeleportationPotion();
 							else if (Main.netMode == NetmodeID.MultiplayerClient)
-								NetMessage.SendData(MessageID.TeleportationPotion);
+								NetMessage.SendData(MessageID.RequestTeleportationByServer);
 							break;
 						case 2:
-							InformEveryone("Forced reverse gravity!");
+							InformEveryone("BadLuck.ReversedGravity");
 
 							owner.GetModPlayer<DicePlayer>().SetForcedGravity();
 							break;
@@ -470,7 +498,7 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("One dead town NPC!");
+							InformEveryone("BadLuck.KillTownie");
 
 							List<int> townies = new List<int>();
 
@@ -487,14 +515,14 @@ namespace CosmivengeonMod.Projectiles.Dice {
 							}
 							break;
 						case 1:
-							InformEveryone("Lowered fishing skill!");
+							InformEveryone("BadLuck.BadFish");
 
 							owner.GetModPlayer<DicePlayer>().SetFishModifier(detriment: true);
 							break;
 						case 2:
-							InformEveryone("One annoying debuff!");
+							InformEveryone("BadLuck.OneAnnoyingDebuff");
 
-							(int, int) debuff = Main.rand.Next(new (int, int)[]{
+							(int, int) debuff = Main.rand.Next(new (int, int)[] {
 								(BuffID.Slow, 15 * 60),
 								(BuffID.Silenced, 20 * 60),
 								(BuffID.Weak, 45 * 60),
@@ -523,17 +551,17 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("Bad shop prices for 4 minutes!");
+							InformEveryone("BadLuck.BadShopPrices", 4);
 
 							owner.GetModPlayer<DicePlayer>().SetShopModifier(good: false, 4 * 60 * 60);
 							break;
 						case 1:
-							InformEveryone("Heavy fatigue!");
+							InformEveryone("BadLuck.NoStamina");
 
 							owner.GetModPlayer<StaminaPlayer>().stamina.ForceExhaustion();
 							break;
 						case 2:
-							InformEveryone("No mana!");
+							InformEveryone("BadLuck.NoMana");
 
 							owner.statMana = 0;
 							owner.manaRegenDelay = 180;
@@ -552,14 +580,14 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("A slap to the face!");
+							InformEveryone("BadLuck.Slapped");
 
-							owner.Hurt(PlayerDeathReason.ByCustomReason($"{owner.name} got slapped."), 20, 0, Crit: true);
+							owner.Hurt(PlayerDeathReason.ByCustomReason(Language.GetTextValue("Mods.CosmivengeonMod.KillReason.DesoModeInstaKill", owner.name)), 20, 0, Crit: true);
 
 							owner.velocity = new Vector2(0, -8f);
 							break;
 						case 1:
-							InformEveryone("Lowered fishing skill!");
+							InformEveryone("BadLuck.BadFish");
 
 							owner.GetModPlayer<DicePlayer>().SetFishModifier(detriment: true, TimeSetter._7_30PM_day + TimeSetter._4_30AM_night);
 							break;
@@ -583,31 +611,31 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("Nothing!");
+							InformEveryone("Nothing");
 							break;
 						case 1:
-							InformEveryone("Some dirt.");
+							InformEveryone("Dirt");
 
-							owner.QuickSpawnItem(ItemID.DirtBlock, 1);
+							owner.QuickSpawnItem(lootSource, ItemID.DirtBlock, 1);
 							break;
 						case 2:
-							InformEveryone("Mana Sickness for 4 minutes!");
+							InformEveryone("BadLuck.ManaSickness", 4);
 
 							owner.AddBuff(BuffID.ManaSickness, 4 * 60 * 60);
 							break;
 						case 3:
-							InformEveryone("Potion Sickness for 2 minutes!");
+							InformEveryone("BadLuck.PotionSickness", 2);
 
 							owner.AddBuff(BuffID.PotionSickness, 2 * 60 * 60);
 							owner.potionDelay = 2 * 60;
 							break;
 						case 4:
-							InformEveryone("Their own personal icicle!");
+							InformEveryone("BadLuck.Frozen");
 
 							owner.AddBuff(BuffID.Frozen, 5 * 60);
 							break;
 						case 5:
-							InformEveryone("Stoned for 5 seconds!");
+							InformEveryone("BadLuck.Stoned");
 
 							owner.AddBuff(BuffID.Stoned, 5 * 60);
 							break;
@@ -629,20 +657,20 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("Nothing!");
+							InformEveryone("BadLuck.Nothing");
 							break;
 						case 1:
-							InformEveryone("1 copper coin!");
+							owner.QuickSpawnItem(lootSource, ItemID.CopperCoin, 1);
 
-							owner.QuickSpawnItem(ItemID.CopperCoin, 1);
+							InformLootDrop(ItemID.CopperCoin, 1, "Bad");
 							break;
 						case 2:
-							InformEveryone("A small pile of dirt.");
+							owner.QuickSpawnItem(lootSource, ItemID.DirtBlock, 50);
 
-							owner.QuickSpawnItem(ItemID.DirtBlock, 50);
+							InformLootDrop(ItemID.DirtBlock, 50, "Bad");
 							break;
 						case 3:
-							int drop = Main.rand.Next(new int[]{
+							int drop = Main.rand.Next(new int[] {
 								ItemID.CopperPickaxe,
 								ItemID.CopperAxe,
 								ItemID.CopperHammer,
@@ -651,10 +679,9 @@ namespace CosmivengeonMod.Projectiles.Dice {
 								ItemID.CopperBow
 							});
 
-							int i = Item.NewItem(owner.Center, drop, 1, prefixGiven: PrefixID.Broken, noGrabDelay: true);
-							Item item = Main.item[i];
+							Item.NewItem(lootSource, owner.Center, drop, 1, prefixGiven: PrefixID.Broken, noGrabDelay: true);
 
-							InformEveryone($"One [i/p{item.prefix}:{item.type}]!");
+							InformLootDrop(drop, 1, "Bad", PrefixID.Broken);
 							break;
 					}
 					break;
@@ -674,15 +701,15 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("Nothing!");
+							InformEveryone("BadLoot.Nothing");
 							break;
 						case 1:
-							InformEveryone("1 Silver Coin!");
+							owner.QuickSpawnItem(lootSource, ItemID.SilverCoin, 1);
 
-							owner.QuickSpawnItem(ItemID.SilverCoin, 1);
+							InformLootDrop(ItemID.SilverCoin, 1);
 							break;
 						case 2:
-							(int, int) drop = Main.rand.Next(new (int, int)[]{
+							(type, stack) = Main.rand.Next(new (int, int)[] {
 								(WorldGen.SavedOreTiers.Copper == TileID.Copper ? ItemID.CopperBar : ItemID.TinBar,
 									Main.rand.Next(1, 6)),
 								(WorldGen.SavedOreTiers.Iron == TileID.Iron ? ItemID.IronBar : ItemID.LeadBar,
@@ -693,23 +720,22 @@ namespace CosmivengeonMod.Projectiles.Dice {
 									Main.rand.Next(1, 3))
 							});
 
-							Item item = new Item();
-							item.SetDefaults(drop.Item1);
+							Item item = new Item(type, stack);
 
-							owner.QuickSpawnItem(item, drop.Item2);
+							owner.QuickSpawnClonedItem(lootSource, item, item.stack);
 
-							InformEveryone($"{drop.Item2} {item.Name}{(drop.Item2 > 1 ? "s" : "")}!");
+							InformLootDrop(type, stack);
 							break;
 						case 3:
-							int type = Main.rand.Next(new int[]{
+							type = Main.rand.Next(new int[] {
 								ItemID.Amethyst,
 								ItemID.Topaz,
 								ItemID.Sapphire
 							});
 
-							owner.QuickSpawnItem(type, 1);
+							owner.QuickSpawnItem(lootSource, type, 1);
 
-							InformEveryone($"1 {Lang.GetItemName(type)}!");
+							InformLootDrop(type, 1);
 							break;
 					}
 
@@ -729,19 +755,20 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("Nothing!");
+							InformEveryone("BadLuck.Nothing");
 							break;
 						case 1:
-							InformEveryone("20 Silver Coins!");
+							owner.QuickSpawnItem(lootSource, ItemID.SilverCoin, 20);
 
-							owner.QuickSpawnItem(ItemID.SilverCoin, 20);
+							InformLootDrop(ItemID.SilverCoin, 20);
 							break;
 						case 2:
-							(int, int) drop = (Main.rand.NextFloat() < 0.6f ? ItemID.JourneymanBait : ItemID.ApprenticeBait, Main.rand.Next(1, 6));
+							type = Main.rand.NextFloat() < 0.6f ? ItemID.JourneymanBait : ItemID.ApprenticeBait;
+							stack = Main.rand.Next(1, 6);
 
-							InformEveryone($"{drop.Item2} {Lang.GetItemName(drop.Item1)}");
+							owner.QuickSpawnItem(lootSource, type, stack);
 
-							owner.QuickSpawnItem(drop.Item1, drop.Item2);
+							InformLootDrop(type, stack);
 							break;
 					}
 					break;
@@ -761,10 +788,10 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("Nothing!");
+							InformEveryone("BadLuck.Nothing");
 							break;
 						case 1:
-							(int, int) drop = Main.rand.Next(new (int, int)[]{
+							(type, stack) = Main.rand.Next(new (int, int)[] {
 								(WorldGen.SavedOreTiers.Copper == TileID.Copper ? ItemID.CopperBar : ItemID.TinBar,
 									Main.rand.Next(3, 11)),
 								(WorldGen.SavedOreTiers.Iron == TileID.Iron ? ItemID.IronBar : ItemID.LeadBar,
@@ -775,15 +802,14 @@ namespace CosmivengeonMod.Projectiles.Dice {
 									Main.rand.Next(1, 5))
 							});
 
-							Item item = new Item();
-							item.SetDefaults(drop.Item1);
+							Item item = new Item(type, stack);
 
-							owner.QuickSpawnItem(item, drop.Item2);
+							owner.QuickSpawnClonedItem(lootSource, item, item.stack);
 
-							InformEveryone($"{drop.Item2} {item.Name}{(drop.Item2 > 1 ? "s" : "")}!");
+							InformLootDrop(type, stack, "Great");
 							break;
 						case 2:
-							drop = Main.rand.Next(new (int, int)[]{
+							(type, stack) = Main.rand.Next(new (int, int)[] {
 								(ItemID.Amethyst, 3),
 								(ItemID.Topaz, 2),
 								(ItemID.Sapphire, 2),
@@ -792,17 +818,16 @@ namespace CosmivengeonMod.Projectiles.Dice {
 								(ItemID.Diamond, 1)
 							});
 
-							item = new Item();
-							item.SetDefaults(drop.Item1);
+							item = new Item(type, stack);
 
-							owner.QuickSpawnItem(item, drop.Item2);
+							owner.QuickSpawnClonedItem(lootSource, item, stack);
 
-							InformEveryone($"{drop.Item2} {item.Name}{(drop.Item2 > 1 ? "s" : "")}!");
+							InformLootDrop(type, stack, "Great");
 							break;
 						case 3:
-							InformEveryone("1 Gold Coin!");
+							owner.QuickSpawnItem(lootSource, ItemID.GoldCoin, 1);
 
-							owner.QuickSpawnItem(ItemID.GoldCoin, 1);
+							InformLootDrop(ItemID.GoldCoin, 1, "Great");
 							break;
 					}
 					break;
@@ -822,34 +847,34 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("Nothing!");
+							InformEveryone("BadLuck.Nothing");
 							break;
 						case 1:
-							InformEveryone("A kit of starter items!");
+							InformEveryone("GoodLuck.StarterKit");
 
-							owner.QuickSpawnItem(ItemID.Wood, 100);
-							owner.QuickSpawnItem(ItemID.StoneBlock, 50);
-							owner.QuickSpawnItem(ItemID.Gel, 60);
-							owner.QuickSpawnItem(ItemID.LifeCrystal, 2);
-							owner.QuickSpawnItem(ItemID.ManaCrystal, 2);
+							owner.QuickSpawnItem(lootSource, ItemID.Wood, 100);
+							owner.QuickSpawnItem(lootSource, ItemID.StoneBlock, 50);
+							owner.QuickSpawnItem(lootSource, ItemID.Gel, 60);
+							owner.QuickSpawnItem(lootSource, ItemID.LifeCrystal, 2);
+							owner.QuickSpawnItem(lootSource, ItemID.ManaCrystal, 2);
 							break;
 						case 2:
-							InformEveryone("Increased fishing skill!");
+							InformEveryone("GoodLuck.GoodFish");
 
 							owner.GetModPlayer<DicePlayer>().SetFishModifier(detriment: false, duration: TimeSetter._7_30PM_day + TimeSetter._4_30AM_night);
 							break;
 						case 3:
-							int drop = Main.rand.Next(new int[]{
+							int drop = Main.rand.Next(new int[] {
 								ItemID.Aglet,
 								ItemID.AnkletoftheWind,
 								ItemID.CloudinaBottle,
 								ItemID.HermesBoots
 							});
 
-							int i = Item.NewItem(owner.Center, drop, 1, prefixGiven: -1, noGrabDelay: true);
+							int i = Item.NewItem(lootSource, owner.Center, drop, 1, prefixGiven: -1, noGrabDelay: true);
 							Item item = Main.item[i];
 
-							InformEveryone($"One [i/p{item.prefix}:{item.type}]!");
+							InformLootDrop(drop, 1, "Great", item.prefix);
 							break;
 					}
 
@@ -871,12 +896,12 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("5 Gold Coins!");
+							owner.QuickSpawnItem(lootSource, ItemID.GoldCoin, 5);
 
-							owner.QuickSpawnItem(ItemID.GoldCoin, 5);
+							InformLootDrop(ItemID.GoldCoin, 5, "Great");
 							break;
 						case 1:
-							(int, int) drop = Main.rand.Next(new (int, int)[]{
+							(type, stack) = Main.rand.Next(new (int, int)[] {
 								(WorldGen.SavedOreTiers.Iron == TileID.Iron ? ItemID.IronBar : ItemID.LeadBar,
 									Main.rand.Next(6, 21)),
 								(WorldGen.SavedOreTiers.Silver == TileID.Silver ? ItemID.SilverBar : ItemID.TungstenBar,
@@ -885,15 +910,14 @@ namespace CosmivengeonMod.Projectiles.Dice {
 									Main.rand.Next(4, 9))
 							});
 
-							Item item = new Item();
-							item.SetDefaults(drop.Item1);
+							Item item = new Item(type, stack);
 
-							owner.QuickSpawnItem(item, drop.Item2);
+							owner.QuickSpawnClonedItem(lootSource, item, stack);
 
-							InformEveryone($"{drop.Item2} {item.Name}s!");
+							InformLootDrop(type, stack, "Great");
 							break;
 						case 2:
-							drop = Main.rand.Next(new (int, int)[]{
+							(type, stack) = Main.rand.Next(new (int, int)[] {
 								(ItemID.Amethyst, 10),
 								(ItemID.Topaz, 8),
 								(ItemID.Sapphire, 7),
@@ -902,26 +926,27 @@ namespace CosmivengeonMod.Projectiles.Dice {
 								(ItemID.Diamond, 1)
 							});
 
-							item = new Item();
-							item.SetDefaults(drop.Item1);
+							item = new Item(type, stack);
 
-							owner.QuickSpawnItem(item, drop.Item2);
+							owner.QuickSpawnClonedItem(lootSource, item, stack);
 
-							InformEveryone($"{drop.Item2} {item.Name}{(drop.Item2 > 1 ? "s" : "")}!");
+							InformLootDrop(type, stack, "Great");
 							break;
 						case 3:
-							(int, int) material = (WorldGen.crimson ? ItemID.TissueSample : ItemID.ShadowScale, Main.rand.Next(18, 36));
-							(int, int) bar = (WorldGen.crimson ? ItemID.CrimtaneBar : ItemID.DemoniteBar, Main.rand.Next(8, 16));
+							(type, stack) = (WorldGen.crimson ? ItemID.CrimtaneBar : ItemID.DemoniteBar, Main.rand.Next(8, 16));
+							
+							owner.QuickSpawnItem(lootSource, type, stack);
 
-							owner.QuickSpawnItem(bar.Item1, bar.Item2);
-							owner.QuickSpawnItem(material.Item1, material.Item2);
+							(int type2, int stack2) = (WorldGen.crimson ? ItemID.TissueSample : ItemID.ShadowScale, Main.rand.Next(18, 36));
 
-							InformEveryone($"Some {(WorldGen.crimson ? "Crimtane Bars and Tissue Samples" : "Demonite Bars and Shadow Scales")}!");
+							owner.QuickSpawnItem(lootSource, type2, stack2);
+
+							InformEveryone("GoodLuck.EvilItems_" + (WorldGen.crimson ? "Crimson" : "Corruption"), stack, stack2);
 							break;
 						case 4:
-							InformEveryone("Some Hellstone bars!");
+							owner.QuickSpawnItem(lootSource, ItemID.HellstoneBar, stack = Main.rand.Next(8, 13));
 
-							owner.QuickSpawnItem(ItemID.HellstoneBar, Main.rand.Next(8, 13));
+							InformLootDrop(ItemID.HellstoneBar, stack);
 							break;
 					}
 					break;
@@ -942,25 +967,32 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("Decreased shop prices!");
+							InformEveryone("GoodLuck.GoodShopPrices");
 							break;
 						case 1:
-							InformEveryone("Some health recovered!");
+							int healAmount = (int)(owner.statLifeMax2 * 0.2f);
+							
+							owner.statLife += healAmount;
+							if (owner.statLife > owner.statLifeMax2)
+								owner.statLife = owner.statLifeMax2;
 
-							owner.HealEffect((int)(owner.statLifeMax2 * 0.2f), broadcast: true);
+							owner.HealEffect(healAmount, broadcast: false);
+
+							NetMessage.SendData(MessageID.SpiritHeal, number: owner.whoAmI, number2: healAmount);  // Heals on other clients
+
+							InformEveryone("GoodLuck.Health");
 							break;
 						case 2:
-							InformEveryone("A random quest fish!");
+							Item quest = new Item(Main.rand.Next(Main.anglerQuestItemNetIDs));
 
-							Item quest = new Item();
-							quest.SetDefaults(Main.rand.Next(Main.anglerQuestItemNetIDs));
+							owner.QuickSpawnItem(lootSource, quest, 1);
 
-							owner.QuickSpawnItem(quest, 1);
+							InformLootDrop(quest.type, 1);
 							break;
 						case 3:
-							InformEveryone("A random regular buff!");
+							InformEveryone("GoodLuck.OneNormalBuff");
 
-							(int, int) buff = Main.rand.Next(new (int, int)[]{
+							(int, int) buff = Main.rand.Next(new (int, int)[] {
 								(BuffID.Regeneration, 2 * 60 * 60),
 								(BuffID.Swiftness, 3 * 60 * 60),
 								(BuffID.Thorns, 5 * 60 * 60),
@@ -990,61 +1022,61 @@ namespace CosmivengeonMod.Projectiles.Dice {
 					do {
 						rollEvent = Main.rand.Next(0, 7);
 					} while ((rollEvent == 1 && !Main.hardMode)
-						|| (rollEvent == 4 && !(NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3))
+						|| (rollEvent == 4 && !NPC.downedMechBossAny)
 						|| (rollEvent == 6 && !Main.hardMode));
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("20 Gold Coins!");
+							owner.QuickSpawnItem(lootSource, ItemID.GoldCoin, 20);
 
-							owner.QuickSpawnItem(ItemID.GoldCoin, 20);
+							InformLootDrop(ItemID.GoldCoin, 20, "Amazing");
 							break;
 						case 1:
-							int drop = Main.rand.Next(new int[]{
+							int drop = Main.rand.Next(new int[] {
 								ItemID.CobaltBar, ItemID.PalladiumBar, ItemID.MythrilBar, ItemID.OrichalcumBar, ItemID.AdamantiteBar, ItemID.TitaniumBar
 							});
-
-							Item item = new Item();
-							item.SetDefaults(drop);
-
 							int count = Main.rand.Next(1, 11);
-							owner.QuickSpawnItem(item, count);
 
-							InformEveryone($"{count} {item.Name}{(count > 1 ? "s" : "")}");
+							Item item = new Item(drop, count);
+
+							owner.QuickSpawnClonedItem(lootSource, item, count);
+
+							InformLootDrop(drop, count, "Great");
 							break;
 						case 2:
-							InformEveryone(Main.hardMode
-								? "6 Life Fruit"
-								: "10 Life Crystals");
+							if (Main.hardMode) {
+								owner.QuickSpawnItem(lootSource, ItemID.LifeFruit, 6);
 
-							if (Main.hardMode)
-								owner.QuickSpawnItem(ItemID.LifeFruit, 6);
-							else
-								owner.QuickSpawnItem(ItemID.LifeCrystal, 10);
+								InformLootDrop(ItemID.LifeFruit, 6, "Great");
+							} else {
+								owner.QuickSpawnItem(lootSource, ItemID.LifeCrystal, 10);
+
+								InformLootDrop(ItemID.LifeCrystal, 10, "Great");
+							}
 							break;
 						case 3:
-							InformEveryone("Decreased shop prices!");
+							InformEveryone("GoodLuck.GoodShopPrices");
 
 							owner.GetModPlayer<DicePlayer>().SetShopModifier(good: true, duration: TimeSetter._7_30PM_day + TimeSetter._4_30AM_night);
 							break;
 						case 4:
 							count = Main.rand.Next(1, 9);
 
-							owner.QuickSpawnItem(ItemID.HallowedBar, count);
+							owner.QuickSpawnItem(lootSource, ItemID.HallowedBar, count);
 
-							InformEveryone($"{count} Hallowed Bar{(count > 1 ? "s" : "")}");
+							InformLootDrop(ItemID.HallowedBar, count, "Great");
 							break;
 						case 5:
 							count = Main.rand.Next(1, 6);
 
-							owner.QuickSpawnItem(ItemID.MasterBait, count);
+							owner.QuickSpawnItem(lootSource, ItemID.MasterBait, count);
 
-							InformEveryone($"{count} Master Bait!");
+							InformLootDrop(ItemID.MasterBait, count, "Great");
 							break;
 						case 6:
-							InformEveryone("1 Truffle Worm!");
+							owner.QuickSpawnItem(lootSource, ItemID.TruffleWorm, 1);
 
-							owner.QuickSpawnItem(ItemID.TruffleWorm, 1);
+							InformLootDrop(ItemID.TruffleWorm, 1, "Great");
 							break;
 					}
 					break;
@@ -1065,9 +1097,9 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("One powerful buff!");
+							InformEveryone("GoodLuck.OnePowerfulBuff");
 
-							(int, int) buff = Main.rand.Next(new (int, int)[]{
+							(int, int) buff = Main.rand.Next(new (int, int)[] {
 								(BuffID.Wrath, 10 * 60 * 60),
 								(BuffID.Rage, 10 * 60 * 60),
 								(BuffID.Endurance, 6 * 60 * 60),
@@ -1081,30 +1113,31 @@ namespace CosmivengeonMod.Projectiles.Dice {
 							owner.AddBuff(buff.Item1, buff.Item2);
 							break;
 						case 1:
-							InformEveryone("Longer intangibility!");
+							InformEveryone("GoodLuck.LongerIFrames");
 
 							owner.GetModPlayer<DicePlayer>().SetMoreIFrames(5 * 60 * 60);
 							break;
 						case 2:
 							int count = Main.rand.Next(1, 7);
 
-							owner.QuickSpawnItem(ItemID.ChlorophyteBar, count);
+							owner.QuickSpawnItem(lootSource, ItemID.ChlorophyteBar, count);
 
-							InformEveryone($"{count} Chlorophyte Bar{(count > 1 ? "s" : "")}");
+							InformLootDrop(ItemID.ChlorophyteBar, count, "Great");
 							break;
 						case 3:
-							InformEveryone("Lunar pillar fragments!");
-
 							int[] fragments = new int[] { ItemID.FragmentSolar, ItemID.FragmentNebula, ItemID.FragmentVortex, ItemID.FragmentStardust };
+							int[] fragmentCount = new int[4];
 							for (int i = 0; i < 4; i++)
-								owner.QuickSpawnItem(fragments[i], Main.rand.Next(1, 5));
+								owner.QuickSpawnItem(lootSource, fragments[i], fragmentCount[i] = Main.rand.Next(1, 5));
+
+							InformEveryone("GoodLuck.FragmentLoot", fragmentCount[0], fragmentCount[1], fragmentCount[2], fragmentCount[3]);
 							break;
 						case 4:
 							count = Main.rand.Next(1, 6);
 
-							owner.QuickSpawnItem(ItemID.LunarBar, count);
+							owner.QuickSpawnItem(lootSource, ItemID.LunarBar, count);
 
-							InformEveryone($"{count} Luminite Bar{(count > 1 ? "s" : "")}");
+							InformLootDrop(ItemID.LunarBar, count, "Amazing");
 							break;
 					}
 					break;
@@ -1123,33 +1156,33 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("1 Platinum Coin!");
+							owner.QuickSpawnItem(lootSource, ItemID.PlatinumCoin, 1);
 
-							owner.QuickSpawnItem(ItemID.PlatinumCoin, 1);
+							InformLootDrop(ItemID.PlatinumCoin, 1, "Amazing");
 							break;
 						case 1:
-							InformEveryone("Decreased shop prices!");
+							InformEveryone("GoodLuck.GoodShopPrices");
 
 							owner.GetModPlayer<DicePlayer>().SetShopModifier(good: true, duration: TimeSetter._7_30PM_day + TimeSetter._4_30AM_night);
 							break;
 						case 2:
-							InformEveryone("No Stamina Decay for 2 minutes!");
+							InformEveryone("GoodLuck.InfiniteStamina", 2);
 
 							owner.GetModPlayer<DicePlayer>().SetNSD(2 * 60 * 60);
 							break;
 						case 3:
-							InformEveryone("An abundance of wood!");
+							InformEveryone("GoodLuck.LotsaWood");
 
-							int[] types = new int[]{
+							int[] types = new int[] {
 								ItemID.Wood, ItemID.BorealWood, ItemID.PalmWood, ItemID.Pearlwood, ItemID.RichMahogany, ItemID.Shadewood, ItemID.Ebonwood
 							};
 							for (int i = 0; i < types.Length; i++)
-								owner.QuickSpawnItem(types[i], 100);
+								owner.QuickSpawnItem(lootSource, types[i], 100);
 							break;
 						case 4:
-							InformEveryone("1 Bone Key!");
+							InformEveryone("GoodLuck.BoneKey");
 
-							owner.QuickSpawnItem(ItemID.BoneKey, 1);
+							owner.QuickSpawnItem(lootSource, ItemID.BoneKey, 1);
 							break;
 					}
 					break;
@@ -1168,19 +1201,27 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("A lot of health recovered!");
+							int healAmount = (int)(owner.statLifeMax2 * 0.5f);
+							
+							owner.statLife += healAmount;
+							if (owner.statLife > owner.statLifeMax2)
+								owner.statLife = owner.statLifeMax2;
 
-							owner.HealEffect((int)(owner.statLifeMax2 * 0.5f), broadcast: true);
+							owner.HealEffect(healAmount, broadcast: false);
+
+							NetMessage.SendData(MessageID.SpiritHeal, number: owner.whoAmI, number2: healAmount);  // Heals on other clients
+
+							InformEveryone("GoodLuck.HealthMore");
 							break;
 						case 1:
-							InformEveryone("One extra life!");
+							InformEveryone("GoodLuck.ExtraLife");
 
 							owner.GetModPlayer<DicePlayer>().extraLives++;
 							break;
 						case 2:
-							InformEveryone("Some very good buffs!");
+							InformEveryone("GoodLuck.ManyPowerfulBuffs");
 
-							(int, int)[] buffs = new (int, int)[]{
+							(int, int)[] buffs = new (int, int)[] {
 								(BuffID.Lifeforce, 6 * 60 * 60),
 								(BuffID.ShadowDodge, 1 * 60 * 60),
 								(BuffID.RapidHealing, 3 * 60 * 60),
@@ -1194,13 +1235,10 @@ namespace CosmivengeonMod.Projectiles.Dice {
 							for (int i = 0; i < 3; i++) {
 								(int, int) buff = Main.rand.Next(buffs);
 								if (buff.Item1 == -1) {
-									owner.AddBuff(BuffID.NebulaUpDmg3, 3 * 60 * 60);
-									owner.AddBuff(BuffID.NebulaUpLife3, 3 * 60 * 60);
-									owner.AddBuff(BuffID.NebulaUpMana3, 3 * 60 * 60);
+									owner.GetModPlayer<DicePlayer>().nebulaBuffsTimer = 3 * 60 * 60;
 									added += 3;
 								} else if (buff.Item1 == -2) {
-									owner.AddBuff(BuffID.BeetleEndurance3, 3 * 60 * 60);
-									owner.AddBuff(BuffID.BeetleMight3, 3 * 60 * 60);
+									owner.GetModPlayer<DicePlayer>().beetleBuffsTimer = 3 * 60 * 60;
 									added += 2;
 								} else {
 									owner.AddBuff(buff.Item1, buff.Item2);
@@ -1212,7 +1250,7 @@ namespace CosmivengeonMod.Projectiles.Dice {
 							}
 							break;
 						case 3:
-							InformEveryone("All debuffs cleared!");
+							InformEveryone("GoodLuck.NoDebuffs");
 
 							for (int i = 0; i < Player.MaxBuffs; i++) {
 								if (Main.debuff[owner.buffType[i]]) {
@@ -1223,7 +1261,7 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 							break;
 						case 4:
-							InformEveryone("Healing potion sickness cured!");
+							InformEveryone("GoodLuck.NoPotionSickness");
 
 							owner.ClearBuff(BuffID.PotionSickness);
 							owner.potionDelay = 0;
@@ -1247,37 +1285,37 @@ namespace CosmivengeonMod.Projectiles.Dice {
 
 					switch (rollEvent) {
 						case 0:
-							InformEveryone("100 Platinum coins!");
+							owner.QuickSpawnItem(lootSource, ItemID.PlatinumCoin, 100);
 
-							owner.QuickSpawnItem(ItemID.PlatinumCoin, 100);
+							InformLootDrop(ItemID.PlatinumCoin, 100, "Amazing");
 							break;
 						case 1:
-							InformEveryone("Godmode for 1 minute!");
+							InformEveryone("GoodLuck.Iddqd");
 
 							owner.GetModPlayer<DicePlayer>().godmodeTimer = 1 * 60 * 60;
 							break;
 						case 2:
-							InformEveryone("Three extra lives!");
+							InformEveryone("GoodLuck.ExtraLifeThree");
 
 							owner.GetModPlayer<DicePlayer>().extraLives += 3;
 							break;
 						case 3:
-							InformEveryone("No Stamina Decay for 4 minutes!");
+							InformEveryone("GoodLuck.InfiniteStamina", 4);
 
 							owner.GetModPlayer<DicePlayer>().SetNSD(4 * 60 * 60);
 							break;
 						case 4:
-							InformEveryone("Doubled weapon damage!");
+							InformEveryone("GoodLuck.MoreDamage");
 
 							owner.GetModPlayer<DicePlayer>().buffDamageTimer = 2 * 60 * 60;
 							break;
 						case 5:
-							InformEveryone("Infinite ammo for 3 minutes!");
+							InformEveryone("GoodLuck.InfiniteAmmo");
 
 							owner.GetModPlayer<DicePlayer>().endlessClipTimer = 3 * 60 * 60;
 							break;
 						case 6:
-							InformEveryone("Infinite mana for 3 minutes!");
+							InformEveryone("GoodLuck.InfiniteMana");
 
 							owner.GetModPlayer<DicePlayer>().endlessManaTimer = 3 * 60 * 60;
 							break;
@@ -1321,7 +1359,7 @@ namespace CosmivengeonMod.Projectiles.Dice {
 				x = Main.rand.Next(0, Main.maxTilesX);
 				y = Main.rand.Next(Main.maxTilesY - 200, Main.maxTilesY);
 
-				tile = Framing.GetTileSafely(x, y);
+				tile = Main.tile[x, y];
 
 				tries--;
 

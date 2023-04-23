@@ -20,7 +20,7 @@ namespace CosmivengeonMod.Items.Tools {
 			Item.rare = ItemRarityID.Blue;
 		}
 
-		private string GetFlavorText(Player player) {
+		private static string GetFlavorText(Player player) {
 			if (player.whoAmI != Main.myPlayer || Main.netMode == NetmodeID.Server)
 				return "";
 
@@ -97,13 +97,13 @@ namespace CosmivengeonMod.Items.Tools {
 			recipe.Register();
 		}
 
-		private string GetUnitsDiffString(int original, int current) {
+		private static string GetUnitsDiffString(int original, int current) {
 			int diff = current - original;
 			string sign = GetSign(diff);
 			return $"{current} units ({sign}{diff} units)";
 		}
 
-		private string GetPercentDiffString(float defaultRate, float multiplier) {
+		private static string GetPercentDiffString(float defaultRate, float multiplier) {
 			float current = defaultRate * multiplier;
 			int cur = (int)((current - 1) * 100);
 			int diff = (int)((current - defaultRate) * 100);
@@ -112,7 +112,7 @@ namespace CosmivengeonMod.Items.Tools {
 			return $"{signCur}{cur}% ({signDiff}{diff}%)";
 		}
 
-		private string GetRatesString(float current, float defaultRate) {
+		private static string GetRatesString(float current, float defaultRate) {
 			current *= 60 * 10000;
 			defaultRate *= 60 * 10000;
 			int diff = (int)(current - defaultRate);
@@ -121,7 +121,7 @@ namespace CosmivengeonMod.Items.Tools {
 			return $"{signCur}{current} units/s ({signDiff}{diff} units/s)";
 		}
 
-		private string GetSign(float value)
+		private static string GetSign(float value)
 			=> value > 0 ? "+" : (value < 0 ? "" : "+/-");
 	}
 }

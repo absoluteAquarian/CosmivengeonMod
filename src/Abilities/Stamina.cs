@@ -2,8 +2,7 @@
 using CosmivengeonMod.NPCs.Global;
 using CosmivengeonMod.Players;
 using CosmivengeonMod.Utility;
-using CosmivengeonMod.Utility.Extensions;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
@@ -268,7 +267,7 @@ End:
 
 			//-0.035 per second while not using a weapon
 			bool notUsingItem = Parent.itemAnimation == 0 && Parent.reuseDelay == 0;
-			bool itemIsWeapon = !Parent.HeldItem.IsAir && Parent.HeldItem.damage > 0 && Parent.HeldItem.useStyle != 0;
+			bool itemIsWeapon = !Parent.HeldItem.IsAir && Parent.HeldItem.damage > 0 && Parent.HeldItem.useStyle != ItemUseStyleID.None;
 			if (AttackPunishment > 0 && (notUsingItem || !itemIsWeapon)) {
 				AttackPunishment -= (Active ? 0.01f : 0.035f) / 60f;
 
@@ -277,18 +276,12 @@ End:
 			}
 		}
 
-		public Texture2D GetBackTexture() {
-			if (Empty)
-				return TextureAssets.MagicPixel.Value;
-
-			return ModContent.GetTexture("CosmivengeonMod/Abilities/BarFrame");
+		public static Texture2D GetBackTexture() {
+			return ModContent.Request<Texture2D>("CosmivengeonMod/Abilities/BarFrame").Value;
 		}
 
-		public Texture2D GetBarTexture() {
-			if (Empty)
-				return TextureAssets.MagicPixel.Value;
-
-			return ModContent.GetTexture("CosmivengeonMod/Abilities/Bar");
+		public static Texture2D GetBarTexture() {
+			return ModContent.Request<Texture2D>("CosmivengeonMod/Abilities/Bar").Value;
 		}
 
 		public Texture2D GetIconTexture() {
@@ -307,7 +300,7 @@ End:
 					name = "_Red";
 			}
 
-			return ModContent.GetTexture($"Cosmivengeon/Abilities/BarFrameEnergyIcon{name}");
+			return ModContent.Request<Texture2D>($"Cosmivengeon/Abilities/BarFrameEnergyIcon{name}").Value;
 		}
 
 		/// <summary>

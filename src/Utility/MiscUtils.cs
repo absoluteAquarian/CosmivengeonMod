@@ -1,11 +1,12 @@
 ﻿using CosmivengeonMod.DataStructures;
 using CosmivengeonMod.Enums;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Terraria;
 using Terraria.Chat;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -118,6 +119,7 @@ namespace CosmivengeonMod.Utility {
 
 		public static float CalculateBossHealthScale(out int playerCount) {
 			//This is what vanila does
+			// TODO: was this changed in 1.4?
 			playerCount = 0;
 			float healthFactor = 1f;
 			float component = 0.35f;
@@ -144,24 +146,26 @@ namespace CosmivengeonMod.Utility {
 			return healthFactor;
 		}
 
-		public static int SpawnProjectileSynced(Vector2 position, Vector2 velocity, int type, int damage, float knockback, float ai0 = 0f, float ai1 = 0f, int owner = -1) {
+		public static int SpawnProjectileSynced(IEntitySource source, Vector2 position, Vector2 velocity, int type, int damage, float knockback, float ai0 = 0f, float ai1 = 0f, int owner = -1) {
 			if (owner == -1)
 				owner = Main.myPlayer;
 
-			int proj = Projectile.NewProjectile(position, velocity, type, TrueDamage(damage), knockback, owner, ai0, ai1);
+			int proj = Projectile.NewProjectile(source, position, velocity, type, TrueDamage(damage), knockback, owner, ai0, ai1);
 			if (Main.netMode != NetmodeID.SinglePlayer)
 				NetMessage.SendData(MessageID.SyncProjectile, number: proj);
 
 			return proj;
 		}
 
-		public static int SpawnNPCSynced(Vector2 spawn, int type, float ai0 = 0f, float ai1 = 0f, float ai2 = 0f, float ai3 = 0f) {
+		public static int SpawnNPCSynced(IEntitySource source, Vector2 spawn, int type, float ai0 = 0f, float ai1 = 0f, float ai2 = 0f, float ai3 = 0f) {
 			int npc = Main.maxNPCs;
+			
 			if (Main.netMode != NetmodeID.MultiplayerClient) {
-				npc = NPC.NewNPC((int)spawn.X, (int)spawn.Y, type, 0, ai0, ai1, ai2, ai3, 255);
+				npc = NPC.NewNPC(source, (int)spawn.X, (int)spawn.Y, type, 0, ai0, ai1, ai2, ai3, 255);
 
 				NetMessage.SendData(MessageID.SyncNPC, number: npc);
 			}
+
 			return npc;
 		}
 
@@ -209,7 +213,7 @@ namespace CosmivengeonMod.Utility {
 			targetY = (int)(player.Center.Y + offset.Y);
 
 			//Try to spawn the new NPC.  If that failed, then "npc" will be 200
-			int npc = NPC.NewNPC(targetX, targetY, npcID);
+			int npc = NPC.NewNPC(NPC.GetBossSpawnSource(player.whoAmI), targetX, targetY, npcID);
 
 			//Only display the text if we could spawn the NPC
 			if (npc < Main.npc.Length) {
@@ -241,7 +245,7 @@ namespace CosmivengeonMod.Utility {
 
 			float targetY = Main.rand.NextFloat(maxNegY, maxPosY) + player.Center.Y;
 
-			int npc = NPC.NewNPC((int)targetX, (int)targetY, npcID);
+			int npc = NPC.NewNPC(NPC.GetBossSpawnSource(player.whoAmI), (int)targetX, (int)targetY, npcID);
 			string name = Main.npc[npc].TypeName;
 
 			//Display the "X has awoken!" text since we aren't using NPC.SpawnOnPlayer(int, int)

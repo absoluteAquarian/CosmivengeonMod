@@ -1,7 +1,8 @@
-﻿using CosmivengeonMod.Utility.Extensions;
+﻿using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
+using Terraria.ID;
 
 namespace CosmivengeonMod.Projectiles.Summons {
 	public class BabyIceProwler : WalkingSummon {
@@ -59,7 +60,7 @@ namespace CosmivengeonMod.Projectiles.Summons {
 		}
 
 		public override void SpawnFlyDust() {
-			Dust dust = Dust.NewDustDirect(Projectile.Bottom, 6, 6, 66);
+			Dust dust = Dust.NewDustDirect(Projectile.Bottom, 6, 6, DustID.RainbowTorch);
 			dust.noGravity = true;
 		}
 

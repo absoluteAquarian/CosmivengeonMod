@@ -6,16 +6,21 @@ using Terraria.ModLoader;
 namespace CosmivengeonMod.Players {
 	public class ArmorsPlayer : ModPlayer {
 		public bool setBonus_Rockserpent;
+		public bool rockserpentLegs;
 		public bool setBonus_Crystalice;
+		public bool crystaliceLegs;
 
 		public override void ResetEffects() {
 			setBonus_Rockserpent = false;
 			setBonus_Crystalice = false;
+			crystaliceLegs = false;
 		}
 
-		public override void UpdateDead() {
-			setBonus_Rockserpent = false;
-			setBonus_Crystalice = false;
+		public override void PostUpdateRunSpeeds() {
+			if (crystaliceLegs)
+				Player.runAcceleration *= 0.85f;
+			else if (rockserpentLegs)
+				Player.runAcceleration *= 1.1f;
 		}
 
 		public override void OnHitNPC(Item item, NPC target, int damage, float knockback, bool crit)

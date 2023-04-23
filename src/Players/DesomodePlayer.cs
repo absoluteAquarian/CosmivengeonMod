@@ -1,6 +1,6 @@
-﻿using CosmivengeonMod.API.Edits.Detours.Desomode;
+﻿using CosmivengeonMod.API.Edits.Desomode;
 using CosmivengeonMod.Buffs.Harmful;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using System;
 using System.Linq;
@@ -56,13 +56,13 @@ namespace CosmivengeonMod.Players {
 				return;
 
 			//PreUpdateMovement() is called a bit after the tongued velocity is applied... perfect!
-			if (Main.wof >= 0) {
+			if (Main.wofNPCIndex >= 0) {
 				//Handle player being too far in front of the WoF
-				float dist = Math.Abs(Player.Center.X - Main.npc[Main.wof].Center.X);
+				float dist = Math.Abs(Player.Center.X - Main.npc[Main.wofNPCIndex].Center.X);
 				if (Player.position.Y / 16 >= Main.maxTilesY - 200 && dist > 100 * 16) {
 					Player.tongued = true;
 
-					Player.velocity = Player.DirectionTo(Main.npc[Main.wof].Center);
+					Player.velocity = Player.DirectionTo(Main.npc[Main.wofNPCIndex].Center);
 				}
 
 				bool licked = Player.tongued || Player.HasBuff(BuffID.TheTongue);
@@ -82,7 +82,7 @@ namespace CosmivengeonMod.Players {
 					else
 						extra = 10;
 
-					float desiredVel = Math.Abs(Main.npc[Main.wof].velocity.X) + extra;
+					float desiredVel = Math.Abs(Main.npc[Main.wofNPCIndex].velocity.X) + extra;
 					if (length < desiredVel)
 						Player.velocity = dir * desiredVel;
 				}
@@ -135,50 +135,49 @@ namespace CosmivengeonMod.Players {
 			}
 		}
 
+		private static readonly int[] SlimeTypes = new int[] {
+			NPCID.ArmedZombieSlimed,
+			NPCID.BabySlime,
+			NPCID.BigSlimedZombie,
+			NPCID.BlackSlime,
+			NPCID.BlueSlime,
+			NPCID.CorruptSlime,
+			NPCID.DungeonSlime,
+			NPCID.GreenSlime,
+			NPCID.IceSlime,
+			NPCID.IlluminantSlime,
+			NPCID.JungleSlime,
+			NPCID.KingSlime,
+			NPCID.LavaSlime,
+			NPCID.MotherSlime,
+			NPCID.PurpleSlime,
+			NPCID.RainbowSlime,
+			NPCID.RedSlime,
+			NPCID.SandSlime,
+			NPCID.SlimedZombie,
+			NPCID.Slimeling,
+			NPCID.SlimeMasked,
+			NPCID.Slimer,
+			NPCID.Slimer2,
+			NPCID.SlimeRibbonGreen,
+			NPCID.SlimeRibbonRed,
+			NPCID.SlimeRibbonWhite,
+			NPCID.SlimeRibbonYellow,
+			NPCID.SlimeSpiked,
+			NPCID.SmallSlimedZombie,
+			NPCID.SpikedIceSlime,
+			NPCID.SpikedJungleSlime,
+			NPCID.UmbrellaSlime,
+			NPCID.YellowSlime,
+			NPCID.Pinky
+		};
+
 		public override void ModifyHitByNPC(NPC npc, ref int damage, ref bool crit) {
 			if (!WorldEvents.desoMode)
 				return;
 
-			int[] slimeTypes = new int[]{
-				NPCID.ArmedZombieSlimed,
-				NPCID.BabySlime,
-				NPCID.BigSlimedZombie,
-				NPCID.BlackSlime,
-				NPCID.BlueSlime,
-				NPCID.CorruptSlime,
-				NPCID.DungeonSlime,
-				NPCID.GreenSlime,
-				NPCID.IceSlime,
-				NPCID.IlluminantSlime,
-				NPCID.JungleSlime,
-				NPCID.KingSlime,
-				NPCID.LavaSlime,
-				NPCID.MotherSlime,
-				NPCID.PurpleSlime,
-				NPCID.RainbowSlime,
-				NPCID.RedSlime,
-				NPCID.SandSlime,
-				NPCID.SlimedZombie,
-				NPCID.Slimeling,
-				NPCID.SlimeMasked,
-				NPCID.Slimer,
-				NPCID.Slimer2,
-				NPCID.SlimeRibbonGreen,
-				NPCID.SlimeRibbonRed,
-				NPCID.SlimeRibbonWhite,
-				NPCID.SlimeRibbonYellow,
-				NPCID.SlimeSpiked,
-				NPCID.SmallSlimedZombie,
-				NPCID.SpikedIceSlime,
-				NPCID.SpikedJungleSlime,
-				NPCID.UmbrellaSlime,
-				NPCID.YellowSlime,
-				NPCID.Pinky
-			};
-
-			if (Player.HasBuff(BuffID.Slimed) && slimeTypes.Contains(npc.type)) {
+			if (Player.HasBuff(BuffID.Slimed) && SlimeTypes.Contains(npc.type))
 				damage = (int)Math.Max(damage * 1.35f, damage + 1);
-			}
 		}
 
 		public override void PreUpdateBuffs() {

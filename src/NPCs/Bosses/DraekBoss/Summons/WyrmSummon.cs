@@ -1,6 +1,6 @@
 ﻿using CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss;
 using CosmivengeonMod.Utility;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using System.IO;
 using Terraria;
@@ -55,7 +55,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons {
 			maxDigDistance = 16 * MiscUtils.GetModeChoice(15, 10, 7);
 			customBodySegments = true;
 
-			NPC.HitSound = new LegacySoundStyle(SoundID.Tink, 0);   //Stone tile hit sound
+			NPC.HitSound = SoundID.Tink;   //Stone tile hit sound
 
 			bossID = (int)NPC.ai[1];
 
@@ -108,7 +108,8 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons {
 			//Occasionally spit acid
 			if (WorldEvents.desoMode) {
 				if (AcidSpitTimer < 0) {
-					MiscUtils.SpawnProjectileSynced(NPC.position,
+					MiscUtils.SpawnProjectileSynced(NPC.GetSource_FromAI(),
+						NPC.position,
 						Vector2.Zero,
 						ModContent.ProjectileType<DraekAcidSpit>(),
 						20,
@@ -136,7 +137,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons {
 					FastChargeTimer = 120;
 					NPC.defense = 0;
 
-					SoundEngine.PlaySound(SoundID.Item27.WithVolume(0.35f), NPC.Center);
+					SoundEngine.PlaySound(SoundID.Item27 with { Volume = 0.35f }, NPC.Center);
 
 					NPC.netUpdate = true;
 				} else if (fastCharge && FastChargeTimer == 0) {
@@ -151,7 +152,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons {
 			}
 
 			if (fastCharge && Main.rand.NextFloat() < 0.85f) {
-				Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, 74);
+				Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.GreenFairy);
 				dust.velocity = Vector2.Zero;
 				dust.noGravity = true;
 			}
@@ -179,13 +180,13 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons {
 
 			NPC.dontCountMe = true;
 
-			NPC.HitSound = new LegacySoundStyle(SoundID.Tink, 0);   //Stone tile hit sound
+			NPC.HitSound = SoundID.Tink;   //Stone tile hit sound
 		}
 
 		public override void AI() {
 			if (Main.npc[(int)NPC.ai[3]].ModNPC is DraekWyrmSummon_Head head) {
 				if (head.fastCharge && Main.rand.NextFloat() < 0.1667) {
-					Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, 74);
+					Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.GreenFairy);
 					dust.velocity = Vector2.Zero;
 					dust.noGravity = true;
 				}
@@ -226,7 +227,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons {
 
 			NPC.dontCountMe = true;
 
-			NPC.HitSound = new LegacySoundStyle(SoundID.Tink, 0);   //Stone tile hit sound
+			NPC.HitSound = SoundID.Tink;   //Stone tile hit sound
 		}
 	}
 }

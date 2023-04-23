@@ -34,7 +34,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons {
 				spawned = true;
 				NPC.TargetClosest(false);
 				activeTime = (int)NPC.ai[0];
-				NPC.damage = (int)NPC.ai[1];
+				NPC.defDamage = NPC.damage = (int)NPC.ai[1];
 				shouldShootBolts = NPC.ai[2] == 1;
 
 				NPC.netUpdate = true;
@@ -60,6 +60,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons {
 					//Spawn some Frostbite ice projectiles (the breath ones)
 					for (int i = 0; i < 6; i++) {
 						MiscUtils.SpawnProjectileSynced(
+							NPC.GetSource_FromAI(),
 							NPC.Top + new Vector2(0, 16),
 							new Vector2(0, -7).RotatedByRandom(MathHelper.ToRadians(15)),
 							ModContent.ProjectileType<FrostbiteBreath>(),

@@ -14,7 +14,7 @@ namespace CosmivengeonMod.API.Commands {
 
 		public override string Description => "Sets the time.  <time string> is a string, such as \"4:30\" (without the quotes) or \"dawn\".";
 
-		public static readonly string[] Keywords = new string[]{
+		public static readonly string[] Keywords = new string[] {
 			"dawn",			//6:00 AM
 			"midnight",		//12:00 AM
 			"night",		//7:29 PM
@@ -25,7 +25,7 @@ namespace CosmivengeonMod.API.Commands {
 			"afternoon"		//2:30 PM
 		};
 
-		public static readonly int[] KeyTimes = new int[]{
+		public static readonly int[] KeyTimes = new int[] {
 			_12PM - ToTicks(6),			//dawn
 			_12AM,						//midnight
 			_7_30PM_day - 1,			//night

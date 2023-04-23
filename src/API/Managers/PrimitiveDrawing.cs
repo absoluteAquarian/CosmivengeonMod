@@ -1,5 +1,5 @@
 ﻿using CosmivengeonMod.DataStructures;
-using CosmivengeonMod.Utility.Extensions;
+using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;

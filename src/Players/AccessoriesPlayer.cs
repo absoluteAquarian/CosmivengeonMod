@@ -15,6 +15,7 @@ namespace CosmivengeonMod.Players {
 		public bool frostHorn;
 		public bool brokenFrostHorn;
 		public bool blizzardEye;
+		public Item blizzardEyeAccessory;
 		public bool activeBlizzardEye;
 
 		public override void ResetEffects() {
@@ -22,6 +23,7 @@ namespace CosmivengeonMod.Players {
 			frostHorn = false;
 			brokenFrostHorn = false;
 			blizzardEye = false;
+			blizzardEyeAccessory = null;
 			activeBlizzardEye = false;
 
 			oronitusJump.abilityActive = false;
@@ -70,8 +72,8 @@ namespace CosmivengeonMod.Players {
 
 				SoundEngine.PlaySound(SoundID.Item27, Player.Top);
 				for (int i = 0; i < 60; i++) {
-					Dust dust = Dust.NewDustDirect(Player.Top - new Vector2(8, 8), 16, 16, 74, Main.rand.NextFloat(-2.5f, 2.5f), Main.rand.NextFloat(-8, 8), newColor: Color.Blue);
-					Dust dust2 = Dust.NewDustDirect(Player.Top - new Vector2(8, 8), 16, 16, 107, Main.rand.NextFloat(-2.5f, 2.5f), Main.rand.NextFloat(-8, 8), newColor: Color.Blue);
+					Dust dust = Dust.NewDustDirect(Player.Top - new Vector2(8, 8), 16, 16, DustID.GreenFairy, Main.rand.NextFloat(-2.5f, 2.5f), Main.rand.NextFloat(-8, 8), newColor: Color.Blue);
+					Dust dust2 = Dust.NewDustDirect(Player.Top - new Vector2(8, 8), 16, 16, DustID.TerraBlade, Main.rand.NextFloat(-2.5f, 2.5f), Main.rand.NextFloat(-8, 8), newColor: Color.Blue);
 					dust.noGravity = true;
 					dust2.noGravity = true;
 				}

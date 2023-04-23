@@ -1,4 +1,4 @@
-﻿using CosmivengeonMod.Utility.Extensions;
+﻿using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using System;
 using System.IO;
@@ -34,7 +34,7 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity {
 
 		private int faceDir;
 
-		private Vector2[] CoordVectors => new Vector2[]{
+		private Vector2[] CoordVectors => new Vector2[] {
 			NPC.TopLeft    + new Vector2(-8),     NPC.Top    + new Vector2(0, -8), NPC.TopRight    + new Vector2(8, -8),
 			NPC.Left       + new Vector2(-8, 0),  NPC.Center,                      NPC.Right       + new Vector2(8, 0),
 			NPC.BottomLeft + new Vector2(-8, 8),  NPC.Bottom + new Vector2(0, 8),  NPC.BottomRight + new Vector2(8)

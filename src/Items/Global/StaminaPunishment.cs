@@ -10,10 +10,13 @@ namespace CosmivengeonMod.Items.Global {
 
 			var mp = player.GetModPlayer<StaminaPlayer>();
 
-			//If the stamina is recharging, punish the player for attacking
-			//Items that "channel" will apply a lesser penalty during the use
+			// If the stamina is recharging, punish the player for attacking
+			// Items that "channel" will apply a lesser penalty during the use
 			if (mp.stamina.Recharging && mp.stamina.Value < mp.stamina.MaxValue) {
 				float amt = player.HeldItem.useAnimation / 15f;
+
+				if (item.channel && player.channel)
+					amt *= 0.35f;
 
 				mp.stamina.AddAttackPunishment(amt / 40f);
 			}

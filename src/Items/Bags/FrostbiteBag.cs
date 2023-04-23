@@ -1,6 +1,9 @@
 ﻿using CosmivengeonMod.Items.Equippable.Accessories.Frostbite;
+using CosmivengeonMod.Items.Weapons.Frostbite;
 using CosmivengeonMod.NPCs.Bosses.FrostbiteBoss;
+using CosmivengeonMod.Utility;
 using Terraria;
+using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -22,15 +25,13 @@ namespace CosmivengeonMod.Items.Bags {
 
 		public override bool CanRightClick() => true;
 
-		public override void OpenBossBag(Player player) {
-			if (Main.hardMode)
-				player.TryGettingDevArmor();
+		public override void ModifyItemLoot(ItemLoot itemLoot) {
+			itemLoot.Add(ItemDropRule.CoinsBasedOnNPCValue(ModContent.NPCType<Frostbite>()));
 
-			player.QuickSpawnItem(ModContent.ItemType<EyeOfTheBlizzard>());
+			Frostbite.AddDrops(itemLoot, restrictNormalDrops: false);
 
-			Frostbite.NormalModeDrops(player: player, quickSpawn: true);
+			itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<EyeOfTheBlizzard>()));
+			itemLoot.Add(ItemDropRule.ByCondition(new LootConditions.DesolationMode(), ModContent.ItemType<FrostRifle>()));
 		}
-
-		public override int BossBagNPC => ModContent.NPCType<Frostbite>();
 	}
 }

@@ -7,8 +7,7 @@ using CosmivengeonMod.Items.Weapons.Frostbite;
 using CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons;
 using CosmivengeonMod.Projectiles.NPCSpawned.FrostbiteBoss;
 using CosmivengeonMod.Utility;
-using CosmivengeonMod.Utility.Extensions;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -19,6 +18,9 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.GameContent.ItemDropRules;
+using CosmivengeonMod.Items.Materials;
+using CosmivengeonMod.Items.Placeable.Trophies;
 
 namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss {
 	[AutoloadBossHead]
@@ -45,8 +47,6 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss {
 
 			NPC.value = Item.buyPrice(gold: 2, silver: 75);
 
-			bossBag/* tModPorter Note: Removed. Spawn the treasure bag alongside other loot via npcLoot.Add(ItemDropRule.BossBag(type)) */ = ModContent.ItemType<FrostbiteBag>();
-
 			NPC.buffImmune[BuffID.Frostburn] = true;
 			NPC.buffImmune[BuffID.OnFire] = true;
 			NPC.buffImmune[BuffID.Poisoned] = true;
@@ -54,7 +54,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss {
 			MiscUtils.PlayMusic(this, CosmivengeonBoss.Frostbite);
 
 			if (!Main.expertMode && !WorldEvents.desoMode)
-				Subphases = new int[]{
+				Subphases = new int[] {
 					AI_Attack_Walk,
 					AI_Attack_Charge,
 					AI_Attack_Walk,
@@ -63,7 +63,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss {
 					AI_Attack_Stomp
 				};
 			else if (Main.expertMode && !WorldEvents.desoMode)
-				Subphases = new int[]{
+				Subphases = new int[] {
 					AI_Attack_Walk,
 					AI_Attack_Charge,
 					AI_Attack_Walk,
@@ -113,54 +113,43 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss {
 			=> Main.rand.NextFloat(MiscUtils.GetModeChoice(5, 3, 2), MiscUtils.GetModeChoice(6, 4, 3));
 
 		public override void OnKill() {
-			WorldEvents.downedFrostbiteBoss = true;
-
-			if (Main.expertMode)
-				NPC.DropBossBags();
-			else
-				NormalModeDrops(npc: NPC);
-
-			Debug.CheckWorldFlagUpdate(nameof(WorldEvents.downedFrostbiteBoss));
+			Debug.CheckWorldFlagUpdate(ref WorldEvents.downedFrostbiteBoss);
 		}
 
-		public static void NormalModeDrops(Player player = null, NPC npc = null, bool quickSpawn = false) {
-			int[] drops = new int[]{
+		public override void ModifyNPCLoot(NPCLoot npcLoot) {
+			npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<FrostbiteBag>()));
+
+			AddDrops(npcLoot, restrictNormalDrops: true);
+
+			npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<FrostbiteTrophy>(), 10));
+
+			npcLoot.AddInstancedDrop(static () => !WorldEvents.downedFrostbiteBoss, ModContent.ItemType<IceforgedRelic>(), "Mods.CosmivengeonMod.LootText.FirstKill", literal: false);
+		}
+
+		public static void AddDrops(ILoot loot, bool restrictNormalDrops) {
+			var weaponOrEquipDrop = ItemDropRule.OneFromOptions(1,
 				ModContent.ItemType<FrostbiteFlamethrower>(),
 				ModContent.ItemType<SnowballFlail>(),
 				ModContent.ItemType<IceDisk>(),
 				ModContent.ItemType<BlizzardRod>(),
-				ModContent.ItemType<FrostRifle>(),
 				ModContent.ItemType<SubZero>(),
 				ModContent.ItemType<IceScepter>(),
 				ModContent.ItemType<FrostDemonHorn>(),
-				ModContent.ItemType<SnowscaleCoat>()
-			};
+				ModContent.ItemType<SnowscaleCoat>());
 
-			int dropType, dropAmount = 1;
+			var materialDrop = ItemDropRule.Common(ModContent.ItemType<FrostCrystal>(), 1, 10, 20);
 
-			dropType = Main.rand.Next(drops);
-
-			if (player != null && quickSpawn) {
-				player.QuickSpawnItem(dropType, dropAmount);
-
-				if (Main.rand.NextFloat() < 0.1)
-					player.QuickSpawnItem(ModContent.ItemType<FrostbiteMask>());
-
-				if (!WorldEvents.obtainedLore_FrostbiteBoss) {
-					player.QuickSpawnItem(ModContent.ItemType<IceforgedRelic>());
-					Debug.CheckWorldFlagUpdate(nameof(WorldEvents.obtainedLore_FrostbiteBoss));
-				}
-			} else if (npc != null) {
-				Item.NewItem(npc.getRect(), dropType, dropAmount);
-
-				if (Main.rand.NextFloat() < 0.1)
-					Item.NewItem(npc.getRect(), ModContent.ItemType<FrostbiteMask>());
-
-				if (!WorldEvents.obtainedLore_FrostbiteBoss) {
-					Item.NewItem(npc.getRect(), ModContent.ItemType<IceforgedRelic>());
-					Debug.CheckWorldFlagUpdate(nameof(WorldEvents.obtainedLore_FrostbiteBoss));
-				}
+			if (restrictNormalDrops) {
+				var normalOnly = new LeadingConditionRule(new Conditions.NotExpert());
+				normalOnly.OnSuccess(weaponOrEquipDrop);
+				normalOnly.OnSuccess(materialDrop);
+				loot.Add(normalOnly);
+			} else {
+				loot.Add(weaponOrEquipDrop);
+				loot.Add(materialDrop);
 			}
+
+			loot.Add(ItemDropRule.Common(ModContent.ItemType<FrostbiteMask>(), 10, 1, 1));
 		}
 
 		public override bool CheckActive() {
@@ -280,7 +269,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss {
 				drawColor = Color.White * 0.65f;
 
 				for (int i = 0; i < 10; i++) {
-					Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, 76);
+					Dust dust = Dust.NewDustDirect(NPC.position, NPC.width, NPC.height, DustID.Snow);
 					dust.noGravity = true;
 					dust.velocity = Vector2.Zero;
 				}
@@ -497,7 +486,7 @@ skipAI:
 					subphaseIndex = -1;
 					switchSubPhase = true;
 
-					Subphases = new int[]{
+					Subphases = new int[] {
 						AI_Attack_Walk,
 						AI_Attack_Charge,
 						AI_Attack_Walk,
@@ -516,7 +505,7 @@ skipAI:
 					subphaseIndex = -1;
 					switchSubPhase = true;
 
-					Subphases = new int[]{
+					Subphases = new int[] {
 						AI_Attack_Walk,
 						AI_Attack_Charge,
 						AI_Attack_Walk,
@@ -545,7 +534,7 @@ skipAI:
 					subphaseIndex = -1;
 					switchSubPhase = true;
 
-					Subphases = new int[]{
+					Subphases = new int[] {
 						AI_Attack_Walk,
 						AI_Attack_Charge,
 						AI_Attack_Walk,
@@ -671,7 +660,7 @@ skipAI:
 				else {
 					AI_AttackProgress++;
 					AI_Timer = -1;
-					SoundEngine.PlaySound(new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0), NPC.Center);
+					SoundEngine.PlaySound(SoundID.ForceRoar, NPC.Center);
 					NPC.netUpdate = true;
 				}
 			} else if (AI_AttackProgress == 2) {
@@ -710,7 +699,8 @@ skipAI:
 				//Get the speed vector based on this angle
 				Vector2 flameSpeed = angle.ToRotationVector2() * speed;
 				//Finally, spawn the projectile
-				MiscUtils.SpawnProjectileSynced(start,
+				MiscUtils.SpawnProjectileSynced(NPC.GetSource_FromAI(),
+					start,
 					flameSpeed.RotatedByRandom(MathHelper.ToRadians(3)),
 					ModContent.ProjectileType<FrostbiteBreath>(),
 					30,
@@ -754,7 +744,8 @@ skipAI:
 				Vector2 spawn = NPC.spriteDirection == -1 ? NPC.TopRight : NPC.position;
 
 				//Spawn the icicles
-				MiscUtils.SpawnProjectileSynced(spawn,
+				MiscUtils.SpawnProjectileSynced(NPC.GetSource_FromAI(),
+					spawn,
 					new Vector2(speedX + speedXFactor * curIcicle, speedY),
 					ModContent.ProjectileType<FrostbiteIcicle>(),
 					MiscUtils.GetModeChoice(16, 28, 35),
@@ -790,10 +781,11 @@ skipAI:
 					AI_AttackProgress++;
 			} else if (AI_AttackProgress == 3) {
 				//Spawn a shitton of the flame particles and play an explosion sound
-				SoundEngine.PlaySound(SoundID.Item14.WithVolume(0.75f), NPC.Bottom);
+				SoundEngine.PlaySound(SoundID.Item14 with { Volume = 0.75f }, NPC.Bottom);
 
 				for (int i = 0; i < 30; i++) {
-					MiscUtils.SpawnProjectileSynced(NPC.Bottom,
+					MiscUtils.SpawnProjectileSynced(NPC.GetSource_FromAI(),
+						NPC.Bottom,
 						new Vector2(0, -9).RotatedByRandom(MathHelper.ToRadians(60)),
 						ModContent.ProjectileType<FrostbiteBreath>(),
 						30,
@@ -819,7 +811,7 @@ skipAI:
 
 				for (int i = 0; i < 2; i++) {
 					Vector2 offset = Target.Top + new Vector2(i == 0 ? 10 * 16f : -10 * 16f, -2 * 16);
-					MiscUtils.SpawnNPCSynced(offset, ModContent.NPCType<FrostbiteWall>(), wallTimeLeft, 80, wallsShootBolts ? 1 : 0);
+					MiscUtils.SpawnNPCSynced(NPC.GetSource_FromAI(), offset, ModContent.NPCType<FrostbiteWall>(), wallTimeLeft, 80, wallsShootBolts ? 1 : 0);
 				}
 			} else if (AI_AttackProgress == 1 && AI_Timer == 0) {
 				AI_AttackProgress++;
@@ -846,7 +838,8 @@ skipAI:
 				Vector2 speedToTarget = Vector2.Normalize(Target.Center - start) * speed;
 
 				//Spawn the snowball
-				MiscUtils.SpawnProjectileSynced(start,
+				MiscUtils.SpawnProjectileSynced(NPC.GetSource_FromAI(),
+					start,
 					speedToTarget,
 					ModContent.ProjectileType<FrostbiteRock>(),
 					70,
@@ -885,7 +878,7 @@ skipAI:
 				Vector2 initialSpeed = angle.ToRotationVector2() * (FrostCloud.TargetSpeed + 8);
 				initialSpeed = initialSpeed.RotatedByRandom(MathHelper.ToRadians(5f));
 
-				MiscUtils.SpawnNPCSynced(spawn, ModContent.NPCType<FrostCloud>(), NPC.whoAmI, initialSpeed.X, initialSpeed.Y);
+				MiscUtils.SpawnNPCSynced(NPC.GetSource_FromAI(), spawn, ModContent.NPCType<FrostCloud>(), NPC.whoAmI, initialSpeed.X, initialSpeed.Y);
 
 				AI_AttackProgress++;
 				AI_Timer = 20;

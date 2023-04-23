@@ -1,6 +1,7 @@
 ﻿using CosmivengeonMod.Items.Materials;
 using CosmivengeonMod.NPCs.Monsters.Purity;
 using Terraria;
+using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -25,11 +26,9 @@ namespace CosmivengeonMod.NPCs.Monsters.Snow {
 			NPC.DeathSound = SoundID.NPCDeath27;
 		}
 
-		public override void OnKill() {
-			if (Main.rand.NextFloat() < 0.4f)
-				Item.NewItem(NPC.Hitbox, ModContent.ItemType<FrostCrystal>(), Main.rand.Next(1, 4));
-			if (Main.rand.NextFloat() < 0.1f)
-				Item.NewItem(NPC.Hitbox, ModContent.ItemType<ProwlerFang>());
+		public override void ModifyNPCLoot(NPCLoot npcLoot) {
+			npcLoot.Add(new CommonDrop(ModContent.ItemType<FrostCrystal>(), 5, 1, 3, 2));
+			npcLoot.Add(new CommonDrop(ModContent.ItemType<ProwlerFang>(), 10));
 		}
 
 		public override float SpawnChance(NPCSpawnInfo spawnInfo) {

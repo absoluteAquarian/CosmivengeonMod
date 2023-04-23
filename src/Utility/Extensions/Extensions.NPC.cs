@@ -1,6 +1,6 @@
 ﻿using Terraria;
 
-namespace CosmivengeonMod.Utility.Extensions {
+namespace CosmivengeonMod.Utility {
 	public static partial class Extensions {
 		/// <summary>
 		/// Checks whether the mouse is inside this NPC's collision box or within <paramref name="pixels"/> distance of the collision box.

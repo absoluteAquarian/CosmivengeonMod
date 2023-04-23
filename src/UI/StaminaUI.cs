@@ -2,6 +2,7 @@
 using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.UI;
@@ -37,7 +38,7 @@ namespace CosmivengeonMod.UI {
 			StaminaPlayer modPlayer = player.GetModPlayer<StaminaPlayer>();
 			Vector2 positionOffset = new Vector2(-10, -180);
 			float scale = 2f;
-			Texture2D animationTexture = ModContent.GetTexture("CosmivengeonMod/Abilities/ExhaustionAnimation");
+			Texture2D animationTexture = ModContent.Request<Texture2D>("CosmivengeonMod/Abilities/ExhaustionAnimation", AssetRequestMode.ImmediateLoad).Value;
 			Vector2 animationCenter = animationTexture.Frame(1, 10).Size() / 2f;
 
 			if (modPlayer.stamina.Exhaustion) {

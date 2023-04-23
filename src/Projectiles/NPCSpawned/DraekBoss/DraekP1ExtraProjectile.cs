@@ -1,6 +1,6 @@
 ﻿using CosmivengeonMod.Buffs.Harmful;
 using CosmivengeonMod.NPCs.Bosses.DraekBoss;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.GameContent;

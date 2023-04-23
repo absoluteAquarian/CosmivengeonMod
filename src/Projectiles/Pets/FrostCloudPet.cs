@@ -1,5 +1,5 @@
 ﻿using CosmivengeonMod.Players;
-using CosmivengeonMod.Utility.Extensions;
+using CosmivengeonMod.Utility;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;

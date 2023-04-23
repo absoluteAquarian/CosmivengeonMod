@@ -1,5 +1,4 @@
 ﻿using CosmivengeonMod.Utility;
-using CosmivengeonMod.Utility.Extensions;
 using Microsoft.Xna.Framework;
 using System;
 using System.Linq;
@@ -58,7 +57,7 @@ namespace CosmivengeonMod.Items.Tools.Debugging {
 			return true;
 		}
 
-		public override bool? UseItem(Player player)/* tModPorter Suggestion: Return null instead of false */{
+		public override bool? UseItem(Player player) {
 			int regen;
 			Rectangle location;
 			if (player.altFunctionUse == 2 && closestNPCtoMouse != null && canHealNPC) {
@@ -72,7 +71,7 @@ namespace CosmivengeonMod.Items.Tools.Debugging {
 				location = new Rectangle((int)player.TopLeft.X - 5, (int)player.Top.Y - 20, player.width + 5, 20);
 				player.statLife += regen;
 			} else
-				return false;
+				return null;
 
 			CombatText.NewText(location, CombatText.HealLife, regen, dot: true);
 

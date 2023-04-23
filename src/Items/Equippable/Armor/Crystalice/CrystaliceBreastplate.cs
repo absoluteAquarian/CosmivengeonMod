@@ -13,7 +13,7 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Crystalice {
 		public override void SetDefaults() {
 			Item.width = 30;
 			Item.height = 20;
-			Item.defense = 4;
+			Item.defense = 3;
 			Item.rare = ItemRarityID.Blue;
 			Item.value = Item.sellPrice(silver: 16, copper: 75);
 		}

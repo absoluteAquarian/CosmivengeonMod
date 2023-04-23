@@ -9,7 +9,7 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Crystalice {
 	public class CrystaliceHelmet : ModItem {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Crystalice Hood");
-			Tooltip.SetDefault("Damage increased by 10%" +
+			Tooltip.SetDefault("Damage increased by 4%" +
 				"\n+1 minion slot");
 		}
 
@@ -22,7 +22,7 @@ namespace CosmivengeonMod.Items.Equippable.Armor.Crystalice {
 		}
 
 		public override void UpdateEquip(Player player) {
-			player.GetDamage(DamageClass.Generic) += 0.1f;
+			player.GetDamage(DamageClass.Generic) += 0.04f;
 			player.maxMinions++;
 		}
 

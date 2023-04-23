@@ -1,11 +1,12 @@
 ﻿using CosmivengeonMod.Buffs.Harmful;
 using CosmivengeonMod.NPCs.Bosses.DraekBoss;
-using CosmivengeonMod.Utility.Extensions;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
+using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
 using Terraria.ModLoader;
+using Terraria.ID;
 
 namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss {
 	public class DraekSword : ModProjectile {
@@ -62,8 +63,8 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss {
 				//All AI types have the same initial movement
 				Projectile.velocity = Vector2.Normalize(target.Center - Projectile.Center) * 20f;
 
-				extra = Projectile.NewProjectile(Projectile.position, Vector2.Zero, ModContent.ProjectileType<DraekSwordExtra>(), Projectile.damage, Projectile.knockBack, Main.myPlayer, Projectile.whoAmI, -1);
-				extra2 = Projectile.NewProjectile(Projectile.position, Vector2.Zero, ModContent.ProjectileType<DraekSwordExtra>(), Projectile.damage, Projectile.knockBack, Main.myPlayer, Projectile.whoAmI, 1);
+				extra = Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.position, Vector2.Zero, ModContent.ProjectileType<DraekSwordExtra>(), Projectile.damage, Projectile.knockBack, Main.myPlayer, Projectile.whoAmI, -1);
+				extra2 = Projectile.NewProjectile(Projectile.GetSource_FromAI(), Projectile.position, Vector2.Zero, ModContent.ProjectileType<DraekSwordExtra>(), Projectile.damage, Projectile.knockBack, Main.myPlayer, Projectile.whoAmI, 1);
 
 				if (extra == Main.maxProjectiles || extra2 == Main.maxProjectiles) {
 					Projectile.Kill();
@@ -249,7 +250,7 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss {
 
 		private void SpawnDustInner(Vector2 position, Vector2 box, float chance) {
 			if (Main.rand.NextFloat() < chance) {
-				Dust dust = Dust.NewDustDirect(position - box / 2f, (int)box.X, (int)box.Y, 74);
+				Dust dust = Dust.NewDustDirect(position - box / 2f, (int)box.X, (int)box.Y, DustID.GreenFairy);
 				dust.velocity = Vector2.Zero;
 				dust.noGravity = true;
 			}

@@ -1,6 +1,6 @@
 ﻿using CosmivengeonMod.Projectiles.NPCSpawned.FrostbiteBoss;
 using CosmivengeonMod.Utility;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using System;
 using System.IO;
@@ -102,7 +102,8 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons {
 					NPC.velocity = Vector2.Normalize(NPC.velocity) * TargetSpeed;
 
 				if (Math.Abs(NPC.Center.X - TargetPosition.X) < 2 * 16f && AI_Timer % 20 == 0) {
-					MiscUtils.SpawnProjectileSynced(NPC.Center + new Vector2(Main.rand.NextFloat(-24, 24), 0),
+					MiscUtils.SpawnProjectileSynced(NPC.GetSource_FromAI(),
+						NPC.Center + new Vector2(Main.rand.NextFloat(-24, 24), 0),
 						Vector2.Zero,
 						ModContent.ProjectileType<FrostbiteIcicle>(),
 						20,

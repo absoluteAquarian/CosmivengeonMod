@@ -45,7 +45,7 @@ namespace CosmivengeonMod.Projectiles.NPCSpawned.DraekBoss {
 			Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
 			Rectangle frame = texture.Frame(1, 3, 0, Projectile.frame);
 
-			spriteBatch.Draw(texture, Projectile.Center - Main.screenPosition, frame, lightColor, Projectile.rotation, frame.Size() / 2f, Projectile.scale, SpriteEffects.None, 0);
+			Main.EntitySpriteDraw(texture, Projectile.Center - Main.screenPosition, frame, lightColor, Projectile.rotation, frame.Size() / 2f, Projectile.scale, SpriteEffects.None, 0);
 
 			return false;
 		}

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Terraria;
 
-namespace CosmivengeonMod.Utility.Extensions {
+namespace CosmivengeonMod.Utility {
 	public static partial class Extensions {
 		/// <summary>
 		/// Equivalent to <paramref name="vector"/>.RotatedBy(<paramref name="rotateBy"/>).RotatedByRandom(<paramref name="rotateByRandom"/>)

@@ -39,7 +39,7 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite {
 			=> Main.rand.NextFloat() < 0.35f;
 
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
-			Vector2 newVelocity = new Vector2(speedX, speedY).RotatedByRandom(MathHelper.ToRadians(2f));
+			Vector2 newVelocity = velocity.RotatedByRandom(MathHelper.ToRadians(2f));
 			Vector2 newPosition = Vector2.Normalize(newVelocity) * 4f * 16f;
 
 			newPosition += ((Vector2)HoldoutOffset()).RotatedBy(newVelocity.ToRotation());
@@ -48,12 +48,13 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite {
 				position += newPosition;
 
 			Projectile.NewProjectile(
+				source,
 				position,
 				newVelocity,
 				type,
 				damage,
-				knockBack,
-				Item.playerIndexTheItemIsReservedFor,
+				knockback,
+				player.whoAmI,
 				0f,
 				1f
 			);

@@ -2,7 +2,6 @@
 using CosmivengeonMod.Projectiles.Weapons.Draek;
 using Microsoft.Xna.Framework;
 using Terraria;
-using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -47,10 +46,8 @@ namespace CosmivengeonMod.Items.Weapons.Draek {
 
 		public override Vector2? HoldoutOffset() => new Vector2(-5, -8);
 
-		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
-			speedX = 0;
-			speedY = 0;
-			return true;
+		public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
+			velocity = Vector2.Zero;
 		}
 	}
 }

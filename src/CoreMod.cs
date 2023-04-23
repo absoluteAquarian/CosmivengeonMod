@@ -1,6 +1,5 @@
 using CosmivengeonMod.API;
-using CosmivengeonMod.API.Edits;
-using CosmivengeonMod.API.Edits.Detours.Desomode;
+using CosmivengeonMod.API.Edits.Desomode;
 using CosmivengeonMod.API.Managers;
 using CosmivengeonMod.DataStructures;
 using CosmivengeonMod.Enums;
@@ -12,13 +11,14 @@ using CosmivengeonMod.Players;
 using CosmivengeonMod.Tiles.MusicBoxes;
 using CosmivengeonMod.UI;
 using CosmivengeonMod.Utility;
-using CosmivengeonMod.Worlds;
+using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
+using ReLogic.Content.Sources;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using Terraria;
 using Terraria.Graphics.Effects;
@@ -26,6 +26,7 @@ using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.ModLoader.Core;
 using Terraria.UI;
 
 namespace CosmivengeonMod {
@@ -74,37 +75,28 @@ namespace CosmivengeonMod {
 		//Stamina use hotkey
 		public static ModKeybind StaminaHotKey;
 
-		private StaminaUI staminaUI;
-		private UserInterface userInterface;
+		private static readonly MethodInfo Mod_get_File = typeof(Mod).GetProperty("File", BindingFlags.NonPublic | BindingFlags.Instance).GetGetMethod();
+
+		public override IContentSource CreateDefaultContentSource() => new PossibleAssetsDirectoryRedirectContentSource(Mod_get_File.Invoke(this, null) as TmodFile);
 
 		public override void Load() {
 			StaminaHotKey = KeybindLoader.RegisterKeybind(this, "Toggle Stamina Use", "G");
 
 			ModReferences.Load();
 
-			EditsLoader.Load();
-
-			PrefixManager.Load();
-
-			StaminaBuffsTrackingNPC.Load();
+			StaminaBuffsTrackingNPC.LoadBossNames();
 
 			//Only run this segment if we're not loading on a server
 			if (!Main.dedServ && Main.netMode != NetmodeID.Server) {
-				staminaUI = new StaminaUI();
-				staminaUI.Activate();
-
-				userInterface = new UserInterface();
-				userInterface.SetState(staminaUI);
-
 				//Add music boxes
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/Frigid_Feud"),
+				MusicLoader.AddMusicBox(this, MusicLoader.GetMusicSlot("Sounds/Music/Frigid_Feud"),
 					ModContent.ItemType<FrostbiteBox>(),
 					ModContent.TileType<FrostbiteBoxTile>());
-				AddMusicBox(GetSoundSlot(SoundType.Music, "Sounds/Music/Successor_of_the_Jewel"),
+				MusicLoader.AddMusicBox(this, MusicLoader.GetMusicSlot("Sounds/Music/Successor_of_the_Jewel"),
 					ModContent.ItemType<DraekBox>(),
 					ModContent.TileType<DraekBoxTile>());
 
-				Ref<Effect> eocEffect = new Ref<Effect>(GetEffect("Effects/screen_eoc"));
+				Ref<Effect> eocEffect = new Ref<Effect>(ModContent.Request<Effect>("Effects/screen_eoc", AssetRequestMode.ImmediateLoad).Value);
 
 				FilterCollection.Screen_EoC = new Filter(new ScreenShaderData(eocEffect, "ScreenDarken"), EffectPriority.High);
 
@@ -233,73 +225,12 @@ namespace CosmivengeonMod {
 			CrossMod.Load();
 		}
 
-		public static void DeactivateCalamityRevengeance() {
-			if (!ModReferences.Calamity.Active)
-				return;
-
-			if (ModReferences.Calamity.Instance.Version >= new Version("1.4.2.108"))
-				ModReferences.Calamity.Call("SetDifficulty", "Rev", false);
-			else
-				ModReferences.Calamity.Instance.GetModWorld("CalamityWorld").GetType().GetField("revenge", BindingFlags.Public | BindingFlags.Static).SetValue(null, false);
-		}
-
-		public static void DeactivateCalamityDeath() {
-			if (!ModReferences.Calamity.Active)
-				return;
-
-			if (ModReferences.Calamity.Instance.Version >= new Version("1.4.2.108"))
-				ModReferences.Calamity.Call("SetDifficulty", "Death", false);
-			else
-				ModReferences.Calamity.Instance.GetModWorld("CalamityWorld").GetType().GetField("death", BindingFlags.Public | BindingFlags.Static).SetValue(null, false);
-		}
-
-		public override void UpdateUI(GameTime gameTime)/* tModPorter Note: Removed. Use ModSystem.UpdateUI */{
-			StaminaUI.Visible = !Main.gameMenu && WorldEvents.desoMode;
-			if (StaminaUI.Visible)
-				userInterface?.Update(gameTime);
-		}
-
-		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)/* tModPorter Note: Removed. Use ModSystem.ModifyInterfaceLayers */{
-			//Copied from ExampleMod :thinkies:
-			int mouseIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Mouse Text"));
-			if (mouseIndex != -1) {
-				layers.Insert(mouseIndex, new LegacyGameInterfaceLayer(
-					"CosmivengeonMod: Stamina UI",
-					delegate {
-						if (StaminaUI.Visible)
-							userInterface.Draw(Main.spriteBatch, new GameTime());
-						return true;
-					},
-					InterfaceScaleType.UI)
-				);
-			}
-		}
-
-		public override void AddRecipeGroups()/* tModPorter Note: Removed. Use ModSystem.AddRecipeGroups */{
-			RegisterRecipeGroup(RecipeGroups.EvilDrops, ItemID.ShadowScale, new int[]{
-				ItemID.ShadowScale, ItemID.TissueSample
-			});
-			RegisterRecipeGroup(RecipeGroups.EvilBars, ItemID.DemoniteBar, new int[]{
-				ItemID.DemoniteBar, ItemID.CrimtaneBar
-			});
-			RegisterRecipeGroup(RecipeGroups.Tier4Bars, ItemID.GoldBar, new int[]{
-				ItemID.GoldBar, ItemID.PlatinumBar
-			});
-			RegisterRecipeGroup(RecipeGroups.WeirdPlant, ItemID.StrangePlant1, new int[]{
-				ItemID.StrangePlant1, ItemID.StrangePlant2, ItemID.StrangePlant3, ItemID.StrangePlant4
-			});
-		}
-
 		public override void Unload() {
 			StaminaHotKey = null;
-			staminaUI = null;
-			userInterface = null;
 
 			ModReferences.Unload();
 
-			PrefixManager.Unload();
-
-			StaminaBuffsTrackingNPC.Unload();
+			StaminaBuffsTrackingNPC.UnloadCollections();
 
 			if (FilterCollection.Screen_EoC?.Active ?? false)
 				FilterCollection.Screen_EoC.Deactivate();
@@ -310,9 +241,6 @@ namespace CosmivengeonMod {
 
 			BossPackage.bossInfo = null;
 		}
-
-		private static void RegisterRecipeGroup(string groupName, int itemForAnyName, int[] validTypes)
-			=> RecipeGroup.RegisterGroup(groupName, new RecipeGroup(() => $"{Language.GetTextValue("LegacyMisc.37")} {Lang.GetItemNameValue(itemForAnyName)}", validTypes));
 
 		public override void HandlePacket(BinaryReader reader, int whoAmI) {
 			MessageType message = (MessageType)reader.ReadByte();
@@ -351,23 +279,28 @@ namespace CosmivengeonMod {
 
 		public override object Call(params object[] args) {
 			/*		Possible commands:
-			 *	"GetDifficulty"/"Difficulty", "Desolation"/"desoMode"/"deso"
-			 *	"SetDifficulty",              "Desolation"/"desoMode"/"deso", true/false
+			 *	"GetDesolation"/"Desolation"
+			 *	"SetDesolation",              true/false
 			 */
-			if (args.Length == 2
-					&& new string[] { "getdifficulty", "difficulty" }.Contains(((string)args[0]).ToLower())
-					&& new string[] { "desolation", "desomode", "deso" }.Contains(((string)args[1]).ToLower())) {
-				return WorldEvents.desoMode;
-			} else if (args.Length == 3
-					&& (string)args[0] == "SetDifficulty"
-					&& new string[] { "desolation", "desomode", "deso" }.Contains(((string)args[1]).ToLower())) {
-				if (bool.TryParse((string)args[2], out bool value)) {
-					WorldEvents.desoMode = value;
-					return value;
-				}
-			}
+			if (args[0] is not string command)
+				throw new ArgumentException("First argument is expected to be a command string");
 
-			return null;
+			switch (command.ToLower()) {
+				case "getdesolation":
+				case "desolation":
+					if (args[1] is string arg && arg.ToLower() is "desolation" or "desomode" or "deso") {
+						return WorldEvents.desoMode;
+					} else
+						throw new Exception("Invalid argument list detected for command: " + command);
+				case "setdesolation":
+					if (args[1] is string flag && bool.TryParse(flag, out bool value)) {
+						WorldEvents.desoMode = value;
+						return null;
+					} else
+						throw new Exception("Invalid argument list detected for command: " + command);
+				default:
+					throw new Exception("Unknown command: " + command);
+			}
 		}
 	}
 }

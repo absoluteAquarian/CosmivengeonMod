@@ -28,7 +28,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 
 		public override void AI() {
 			//Spawn some dust
-			int dustIndex = Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, 74);
+			int dustIndex = Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, DustID.GreenFairy);
 
 			Main.dust[dustIndex].velocity = Vector2.Zero;
 
@@ -72,7 +72,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 				Vector2 drawPos = Projectile.oldPos[k] - Main.screenPosition + drawOrigin + new Vector2(0f, Projectile.gfxOffY);
 				Color color = Projectile.GetAlpha(lightColor) * ((float)(Projectile.oldPos.Length - k) / (float)Projectile.oldPos.Length);
 
-				spriteBatch.Draw(TextureAssets.Projectile[Projectile.type].Value, drawPos, null, color, Projectile.rotation, drawOrigin, scale, SpriteEffects.None, 0f);
+				Main.EntitySpriteDraw(TextureAssets.Projectile[Projectile.type].Value, drawPos, null, color, Projectile.rotation, drawOrigin, scale, SpriteEffects.None, 0);
 
 				scale *= 0.9f;
 			}

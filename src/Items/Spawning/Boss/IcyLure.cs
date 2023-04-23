@@ -22,7 +22,7 @@ namespace CosmivengeonMod.Items.Spawning.Boss {
 			Item.useAnimation = 45;
 			Item.useTime = 45;
 			Item.useStyle = ItemUseStyleID.HoldUp;
-			Item.UseSound = new Terraria.Audio.LegacySoundStyle(SoundID.Roar, 0);
+			Item.UseSound = SoundID.Roar;
 			Item.consumable = true;
 		}
 
@@ -38,7 +38,7 @@ namespace CosmivengeonMod.Items.Spawning.Boss {
 		public override bool CanUseItem(Player player)
 			=> MiscUtils.TrySummonBoss(CosmivengeonBoss.Frostbite, player);
 
-		public override bool? UseItem(Player player)/* tModPorter Suggestion: Return null instead of false */
-			=> MiscUtils.SummonBossAbovePlayer(player, ModContent.NPCType<Frostbite>(), -50 * 16, 50 * 16, -10 * 16, -5 * 16);
+		public override bool? UseItem(Player player)
+			=> MiscUtils.SummonBossAbovePlayer(player, ModContent.NPCType<Frostbite>(), -50 * 16, 50 * 16, -10 * 16, -5 * 16) ? true : null;
 	}
 }

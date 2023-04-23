@@ -1,6 +1,7 @@
 ﻿using CosmivengeonMod.Items.Materials;
 using CosmivengeonMod.Utility;
 using Terraria;
+using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -25,9 +26,8 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity {
 			NPC.DeathSound = SoundID.NPCDeath27;
 		}
 
-		public override void OnKill() {
-			if (Main.rand.NextFloat() < 0.4f)
-				Item.NewItem(NPC.Hitbox, ModContent.ItemType<RaechonShell>());
+		public override void ModifyNPCLoot(NPCLoot npcLoot) {
+			npcLoot.Add(new CommonDrop(ModContent.ItemType<RaechonShell>(), chanceDenominator: 5, chanceNumerator: 2));
 		}
 
 		public override float SpawnChance(NPCSpawnInfo spawnInfo) {

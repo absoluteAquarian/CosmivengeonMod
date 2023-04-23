@@ -37,7 +37,7 @@ namespace CosmivengeonMod.Items.Weapons.Frostbite {
 			position = Main.MouseWorld;
 
 			//Generate a new projectile
-			int projWhoAmI = Projectile.NewProjectile(position, Vector2.Zero, type, damage, knockBack, player.whoAmI);
+			int projWhoAmI = Projectile.NewProjectile(source, position, Vector2.Zero, type, damage, knockback, player.whoAmI);
 
 			//Go to the next index
 			LastCloudSpawnedIndex = ++LastCloudSpawnedIndex % SpawnedClouds.Length;

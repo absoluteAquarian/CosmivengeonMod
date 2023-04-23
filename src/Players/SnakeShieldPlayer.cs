@@ -85,9 +85,9 @@ namespace CosmivengeonMod.Players {
 				for (int i = 0; i < Main.maxNPCs; i++) {
 					NPC npc = Main.npc[i];
 					if (npc.active && !npc.dontTakeDamage && !npc.friendly && collisionCheck.Intersects(npc.getRect()) && (npc.noTileCollide || Player.CanHit(npc))) {
-						float damageWithMultiplier = SnakeShield.BaseDamage * Player.GetDamage(DamageClass.Melee);
+						float damageWithMultiplier = Player.GetDamage(DamageClass.Melee).ApplyTo(SnakeShield.BaseDamage);
 						float knockback = 9f;
-						bool crit = Main.rand.Next(100) < Player.GetCritChance(DamageClass.Generic);
+						bool crit = Main.rand.Next(100) < Player.GetCritChance(DamageClass.Melee);
 
 						if (Player.kbGlove)
 							knockback *= 2f;

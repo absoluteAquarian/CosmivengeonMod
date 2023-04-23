@@ -1,6 +1,7 @@
 ﻿using CosmivengeonMod.Projectiles.Dice;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.API.Commands {
@@ -42,7 +43,8 @@ namespace CosmivengeonMod.API.Commands {
 			}
 
 			//Successful roll
-			Projectile proj = Projectile.NewProjectileDirect(caller.Player.Center,
+			Projectile proj = Projectile.NewProjectileDirect(new EntitySource_DebugCommand(Command),
+				caller.Player.Center,
 				Vector2.UnitX.RotatedByRandom(MathHelper.Pi) * 4f,
 				ModContent.ProjectileType<DiceOfFateD20Dice>(),
 				0,
