@@ -20,16 +20,26 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 			 *  - ai[3]: Used to keep track of what 1/20th section of the max health the boss is in.
 			 *           Once the boss goes down into a new section, more slime minions are spanwed.
 			 *           In Desolation mode, this is changed to every 1/12th section due to more slimes spawning.
-			 *  - localAi[0]: Unused by vanilla code
+			 *  - localAI[0]: Formerly unused by vanilla, now acts as a timer for forcing teleports directly on the player (anti-rope cheese)
 			 *  - localAI[1]: The X-position of the target player's Bottom coordinate
 			 *  - localAI[2]: The Y-position of the target player's Bottom coordinate
 			 *  - localAI[3]: The flag for if the boss has done the first tick of its AI execution.
 			 *                The initial value for ai[0] and the initial player target are set when this is 0.
 			 */
+			var helperData = npc.Helper();
 
 			float mainTimerProgress = 1f;
+			float getGoodScaleFactor = 1f;
+			bool forceScaleOverride = false;
 			bool dontUpdateJumpCounter = false;
 			bool dontSpawnFadeDust = false;
+			float getGoodScale = 2f;
+
+			if (Main.getGoodWorld) {
+				getGoodScale -= 1f - (float)npc.life / (float)npc.lifeMax;
+				getGoodScaleFactor *= getGoodScale;
+			}
+
 			npc.aiAction = 0;
 
 			//Initializing ai[3]
@@ -37,30 +47,45 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				npc.ai[3] = npc.lifeMax;
 
 			//Initializing boss AI things:  ai[0] and npc.target
-			if (npc.localAI[3] == 0f && Main.netMode != NetmodeID.MultiplayerClient) {
-				npc.ai[0] = -100f;
+			if (npc.localAI[3] == 0f) {
 				npc.localAI[3] = 1f;
-				npc.TargetClosest(true);
-				npc.netUpdate = true;
+				forceScaleOverride = true;
+
+				if (Main.netMode != NetmodeID.MultiplayerClient) {
+					npc.ai[0] = -100f;
+					npc.TargetClosest(true);
+					npc.netUpdate = true;
+				}
 			}
 
-			//If the current target is dead, try to find a new target
-			//If that new target is dead, reverse direction immediately and set timeLeft to 0 (instantly despawns when too far away)
-			if (npc.Target().dead) {
+			//If the current target is dead or too far away, try to find a new target
+			//If that new target is dead or too far away, reverse direction immediately and encourage despawning
+			int maxTargetDistance = 3000;
+			if (npc.Target().dead || Vector2.Distance(npc.Center, npc.Target().Center) > maxTargetDistance) {
 				npc.TargetClosest(true);
 
-				if (npc.Target().dead) {
-					npc.timeLeft = 0;
+				if (npc.Target().dead || Vector2.Distance(npc.Center, npc.Target().Center) > maxTargetDistance) {
+					npc.EncourageDespawn(10);
+
 					if (npc.Target().Center.X < npc.Center.X)
 						npc.direction = 1;
 					else
 						npc.direction = -1;
+
+					if (Main.netMode != NetmodeID.MultiplayerClient && npc.ai[1] != 5f) {
+						npc.netUpdate = true;
+						npc.ai[2] = 0f;
+						npc.ai[0] = 0f;
+						npc.ai[1] = 5f;
+						npc.localAI[1] = Main.maxTilesX * 16;
+						npc.localAI[2] = Main.maxTilesY * 16;
+					}
 				}
 			}
 
 			//The boss has finished the hops or was hopping AND the teleport timer has finished
 			//(This runs after king slime fades away via the dust stuff)
-			if (!npc.Target().dead && npc.ai[2] >= 300f && npc.ai[1] < 5f && npc.velocity.Y == 0f) {
+			if (!npc.Target().dead && npc.timeLeft > 10 && npc.ai[2] >= 300f && npc.ai[1] < 5f && npc.velocity.Y == 0f) {
 				npc.ai[2] = 0f;
 				npc.ai[0] = 0f;
 				npc.ai[1] = 5f;
@@ -74,6 +99,9 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 					//Teleports can be at a random tile within a 20x20 tile square centered on the player target
 					int teleportPosVariance = 10;
 
+					// Unused variable, but kept for consistency with vanilla AI
+					int debugTeleportFluff = 0;
+
 					//Teleports must be in a 14x14 tile square centered on the player target
 					int teleportCheckVariance = 7;
 
@@ -82,8 +110,10 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 
 					//If the boss is too far away from the player, just teleport directly onto them (very cheeky)
 					//Vanilla (125 tiles): 2000 * 2000
-					if (npc.DistanceSQ(npc.Target().Center) > 50 * 50 * 256) {
-						//More than 50 tiles away
+					if (npc.localAI[0] >= 360f || npc.DistanceSQ(npc.Target().Center) > 50 * 50 * 256) {
+						if (npc.localAI[0] >= 360f)
+							npc.localAI[0] = 360f;
+
 						teleportFound = true;
 						positionsChecked = 100;
 					}
@@ -95,7 +125,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 						int teleportY = Main.rand.Next(targetTileCenter.Y - teleportPosVariance, targetTileCenter.Y + 1);
 
 						bool teleportOutsideVarianceRange = Math.Abs(teleportX - targetTileCenter.X) > teleportCheckVariance || Math.Abs(teleportY - targetTileCenter.Y) > teleportCheckVariance;
-						bool teleportNotOnNPCLocation = teleportY != npcTileCenter.Y || teleportX != npcTileCenter.X;
+						bool teleportNotOnNPCLocation = teleportY >= npcTileCenter.Y - debugTeleportFluff || teleportY <= npcTileCenter.Y - debugTeleportFluff || teleportX >= npcTileCenter.X - debugTeleportFluff || teleportX <= npcTileCenter.X - debugTeleportFluff;
 
 						if (teleportOutsideVarianceRange && teleportNotOnNPCLocation && !Main.tile[teleportX, teleportY].HasUnactuatedTile) {
 							int teleportYOffset = 0;
@@ -114,8 +144,8 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 
 							teleportY += teleportYOffset;
 
-							//Only teleport to the tile if it doesn't have lava and we can't see the player
-							if (!(Main.tile[teleportX, teleportY].LiquidType == LiquidID.Lava) && !Collision.CanHitLine(npc.Center, 0, 0, npc.Target().Center, 0, 0)) {
+							//Only teleport to the tile if it doesn't have lava and we can see the player
+							if (!(Main.tile[teleportX, teleportY].LiquidType == LiquidID.Lava) && Collision.CanHitLine(npc.Center, 0, 0, npc.Target().Center, 0, 0)) {
 								npc.localAI[1] = teleportX * 16 + 8;
 								npc.localAI[2] = teleportY * 16 + 16;
 								break;
@@ -146,14 +176,28 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 			}
 
 			//Increment the "do the fade" timer if the boss can't see the player or the player is too far above the boss
-			if (!Collision.CanHitLine(npc.Center, 0, 0, npc.Target().Center, 0, 0))
-				npc.ai[2]++;
-			//Vanilla:  > 320f
-			if (Math.Abs(npc.Top.Y - npc.Target().Bottom.Y) > 160f)
-				npc.ai[2]++;
+			bool cannotReachPlayer = !Collision.CanHitLine(npc.Center, 0, 0, npc.Target().Center, 0, 0) || Math.Abs(npc.Top.Y - npc.Target().Bottom.Y) > 160f;
 			//Desolation mode:  also increment ai[2] if the boss is too far away from the player
-			if (npc.DistanceSQ(npc.Target().Center) > 50 * 50 * 256)
+			bool bossTooFarAway = npc.DistanceSQ(npc.Target().Center) > 50 * 50 * 256;
+
+			if (cannotReachPlayer || bossTooFarAway) {
 				npc.ai[2]++;
+
+				if (Main.netMode != NetmodeID.MultiplayerClient)
+					npc.localAI[0]++;
+			} else if (Main.netMode != NetmodeID.MultiplayerClient) {
+				npc.localAI[0]--;
+				if (npc.localAI[0] < 0)
+					npc.localAI[0] = 0;
+			}
+
+			// Forcibly disable hopping when the boss is about to despawn
+			if (npc.timeLeft < 10 && (npc.ai[0] != 0f || npc.ai[1] != 0f)) {
+				npc.ai[0] = 0f;
+				npc.ai[1] = 0f;
+				npc.netUpdate = true;
+				dontUpdateJumpCounter = false;
+			}
 
 			if (npc.ai[1] == 5f) {
 				//This code runs immediately after a teleport
@@ -167,8 +211,9 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 					dontSpawnFadeDust = true;
 
 				if (npc.ai[0] == 60f)
-					Gore.NewGore(npc.Center + new Vector2(-40f, -npc.height / 2f), npc.velocity, 734, 1f);
+					Gore.NewGore(npc.GetSource_FromAI(), npc.Center + new Vector2(-40f, -npc.height / 2f), npc.velocity, 734, 1f);
 
+				// Do the teleport
 				if (npc.ai[0] >= 60f && Main.netMode != NetmodeID.MultiplayerClient) {
 					npc.Bottom = new Vector2(npc.localAI[1], npc.localAI[2]);
 					npc.ai[1] = 6f;
@@ -182,6 +227,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				}
 
 				if (!dontSpawnFadeDust) {
+					// Spawn dusts while fading away
 					for (int num240 = 0; num240 < 10; num240++) {
 						int num241 = Dust.NewDust(npc.position + Vector2.UnitX * -20f, npc.width + 40, npc.height, DustID.TintableDust, npc.velocity.X, npc.velocity.Y, 150, new Color(78, 136, 255, 80), 2f);
 						Main.dust[num241].noGravity = true;
@@ -219,7 +265,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 			npc.dontTakeDamage = npc.hide = dontSpawnFadeDust;
 
 			//Small hop count is updated here
-			npc.Helper().Timer2 = npc.life >= npc.lifeMax * 0.75f ? 1 : 4 - (int)(4f * npc.life / npc.lifeMax + 1);
+			helperData.Timer2 = npc.life >= npc.lifeMax * 0.75f ? 1 : 4 - (int)(4f * npc.life / npc.lifeMax + 1);
 
 			//If we just landed from a jump or are still on the ground, do these things
 			if (npc.velocity.Y == 0f) {
@@ -246,15 +292,16 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 
 					//Do the jumps
 					//Vanilla AI:
-					//ai[0] == 3: big jump
-					//ai[0] == 2: small jump
-					//ai[0] == 0 or 1: normal jump
+					//ai[1] == 3: big jump
+					//ai[1] == 2: small jump
+					//ai[1] == 0 or 1: normal jump
 					//Desolation mode AI:
-					//ai[0] == 3: big jump
-					//ai[0] == 2: small jumps while helper's Timer3 > 0 (if health is less than 300, only do small hops)
-					//ai[0] == 0 or 1: normal jump (immediately jumps to ai[0] = 2 if health is < 33% max)
+					//ai[1] == 3: big jump
+					//ai[1] == 2: small jumps while helper's Timer3 > 0 (if health is less than 300, only do small hops)
+					//ai[1] == 0 or 1: normal jump (immediately jumps to ai[0] = 2 if health is < 33% max)
 
 					// EDIT: hop velocities slowed slightly (5/8/6 → 4.35/7.2/5.15)
+					// 1.4:  hop velocities were changed??? (3.5/4.5/4 → 4.35/7.2/5.15)
 					if (npc.ai[0] >= 0f) {
 						npc.netUpdate = true;
 						npc.TargetClosest(true);
@@ -265,17 +312,17 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 							npc.velocity.X += 4.35f * npc.direction;
 							npc.ai[0] = -200f;
 							npc.ai[1] = 0f;
-						} else if (hpLow || (npc.ai[1] == 2f && npc.Helper().Timer3 > 0)) {
-							npc.Helper().Timer3--;
+						} else if (hpLow || (npc.ai[1] == 2f && helperData.Timer3 > 0)) {
+							helperData.Timer3--;
 
 							npc.velocity.Y = -6f;
 							npc.velocity.X = 7.2f * npc.direction;
-							npc.ai[0] = npc.Helper().Timer3 == 0 ? -120f : 60f;
+							npc.ai[0] = helperData.Timer3 == 0 ? -120f : 60f;
 
-							if (npc.Helper().Timer3 == 0 && !hpLow)
+							if (helperData.Timer3 == 0 && !hpLow)
 								npc.ai[1]++;
 						} else {
-							npc.Helper().Timer3 = npc.Helper().Timer2;
+							helperData.Timer3 = helperData.Timer2;
 
 							npc.velocity.Y = -8f;
 							npc.velocity.X += 5.15f * npc.direction;
@@ -289,12 +336,18 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 					} else if (npc.ai[0] >= -30f)
 						npc.aiAction = 1;
 				}
-			} else if (npc.target < 255 && ((npc.direction == 1 && npc.velocity.X < 3f) || (npc.direction == -1 && npc.velocity.X > -3f))) {
+			} else if (npc.target < Main.maxPlayers) {
 				//Make turning around easier
-				if ((npc.direction == -1 && npc.velocity.X < 0.1f) || (npc.direction == 1 && npc.velocity.X > -0.1f))
-					npc.velocity.X += 0.2f * npc.direction;
-				else
-					npc.velocity.X *= 0.93f;
+				float maxVelocity = 3f;
+				if (Main.getGoodWorld)
+					maxVelocity = 6f;
+
+				if ((npc.direction == 1 && npc.velocity.X < maxVelocity) || (npc.direction == -1 && npc.velocity.X > -maxVelocity)) {
+					if ((npc.direction == -1 && npc.velocity.X < 0.1f) || (npc.direction == 1 && npc.velocity.X > -0.1f))
+						npc.velocity.X += 0.2f * npc.direction;
+					else
+						npc.velocity.X *= 0.93f;
+				}
 			}
 
 			//Desolation mode AI:  fires larger King Slime spike projectiles at the player constantly AND faster as King Slime loses health
@@ -303,35 +356,35 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				if (Math.Abs(npc.Target().Center.X - npc.Center.X) < 6 * 16 * npc.scale) {
 					//Update the spike shoot timer
 					if (npc.life > 300)
-						npc.Helper().Timer++;
+						helperData.Timer++;
 
 					//5 projectiles in a cone above King Slime
 					// EDIT: timer increased: 70 → 100
-					if (npc.life > 300 && npc.Helper().Timer > 100) {
-						npc.Helper().Timer = 0;
+					if (npc.life > 300 && helperData.Timer > 100) {
+						helperData.Timer = 0;
 						for (int i = -2; i < 3; i++) {
 							Vector2 rotatedVelocity = (-Vector2.UnitY).RotatedBy(MathHelper.ToRadians(20 * i)) * 8f;
-							int proj = Projectile.NewProjectile(npc.Top + new Vector2(0, 20), rotatedVelocity, ModContent.ProjectileType<KingSlimeSpike>(), MiscUtils.TrueDamage(40), 0.33f, Main.myPlayer);
+							int proj = Projectile.NewProjectile(npc.GetSource_FromAI(), npc.Top + new Vector2(0, 20), rotatedVelocity, ModContent.ProjectileType<KingSlimeSpike>(), MiscUtils.TrueDamage(40), 0.33f, Main.myPlayer);
 							NetMessage.SendData(MessageID.SyncProjectile, number: proj);
 						}
 					}
 				} else {
 					//Update the spike shoot timer
-					npc.Helper().Timer++;
+					helperData.Timer++;
 					if (npc.life < npc.lifeMax * 0.75f)
-						npc.Helper().Timer++;
+						helperData.Timer++;
 					if (npc.life < npc.lifeMax * 0.5f)
-						npc.Helper().Timer++;
+						helperData.Timer++;
 					//Slower spike shooting during panic phase
 					if (npc.life < npc.lifeMax * 0.25f && npc.life > 300)
-						npc.Helper().Timer += 2;
+						helperData.Timer += 2;
 					else if (npc.life <= 300)
-						npc.Helper().Timer--;
+						helperData.Timer--;
 
 					//Timer used to be 130, now it's 200
 					// EDIT: timer increased: 200 → 250
-					if (npc.Helper().Timer >= 250) {
-						npc.Helper().Timer = 0;
+					if (helperData.Timer >= 250) {
+						helperData.Timer = 0;
 
 						Vector2 velocity = Vector2.Zero;
 						float rangeX = npc.Target().Top.X - npc.Center.X;
@@ -346,7 +399,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 						//Three projectile in a sort-of cone pointed towards the player
 						for (int i = -1; i < 2; i++) {
 							Vector2 rotatedVelocity = velocity.RotatedBy(MathHelper.ToRadians(15 * i));
-							int proj = Projectile.NewProjectile(npc.Top + new Vector2(0, 20), rotatedVelocity, ModContent.ProjectileType<KingSlimeSpike>(), MiscUtils.TrueDamage(40), 0.33f, Main.myPlayer);
+							int proj = Projectile.NewProjectile(npc.GetSource_FromAI(), npc.Top + new Vector2(0, 20), rotatedVelocity, ModContent.ProjectileType<KingSlimeSpike>(), MiscUtils.TrueDamage(40), 0.33f, Main.myPlayer);
 							NetMessage.SendData(MessageID.SyncProjectile, number: proj);
 						}
 					}
@@ -362,9 +415,10 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				float lifeFactor = (float)npc.life / npc.lifeMax;
 				lifeFactor = lifeFactor * 0.5f + 0.75f;
 				lifeFactor *= mainTimerProgress;
+				lifeFactor *= getGoodScaleFactor;
 
 				//Change the boss's size
-				if (lifeFactor != npc.scale) {
+				if (lifeFactor != npc.scale || forceScaleOverride) {
 					npc.position.X += npc.width / 2;
 					npc.position.Y += npc.height;
 					npc.scale = lifeFactor;
@@ -425,7 +479,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 			int x = (int)(npc.position.X + Main.rand.Next(npc.width - 32));
 			int y = (int)(npc.position.Y + Main.rand.Next(npc.height - 32));
 
-			int summonWhoAmI = NPC.NewNPC(x, y, type);
+			int summonWhoAmI = NPC.NewNPC(npc.GetSource_FromAI(), x, y, type);
 			NPC hitSummon = Main.npc[summonWhoAmI];
 
 			//Vanilla: hitSummon.velocity.X = Main.rand.Next(-15, 16) * 0.1f;
@@ -437,7 +491,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 			hitSummon.ai[0] = -200 * Main.rand.Next(3);
 			hitSummon.ai[1] = 0f;
 
-			if (Main.netMode == NetmodeID.Server && summonWhoAmI < 200)
+			if (Main.netMode == NetmodeID.Server && summonWhoAmI < Main.maxNPCs)
 				NetMessage.SendData(MessageID.SyncNPC, number: summonWhoAmI);
 		}
 	}
