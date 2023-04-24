@@ -94,8 +94,6 @@ namespace CosmivengeonMod {
 				Ref<Effect> eocEffect = new Ref<Effect>(Assets.Request<Effect>("Effects/screen_eoc", AssetRequestMode.ImmediateLoad).Value);
 
 				FilterCollection.Screen_EoC = new Filter(new ScreenShaderData(eocEffect, "ScreenDarken"), EffectPriority.High);
-
-				PrimitiveDrawing.Init(Main.graphics.GraphicsDevice);
 			}
 
 			//Vanilla bosses

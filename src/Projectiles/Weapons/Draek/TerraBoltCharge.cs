@@ -1,4 +1,5 @@
 ﻿using CosmivengeonMod.API.Managers;
+using GraphicsLib.Primitives;
 using Microsoft.Xna.Framework;
 using System;
 using Terraria;
@@ -47,7 +48,7 @@ namespace CosmivengeonMod.Projectiles.Weapons.Draek {
 				: owner.Bottom + new Vector2(0, 20);
 
 			//Draw a filled circle with the edges fading to transparency
-			PrimitiveDrawing.DrawFilledCircle(spawn, sin * 12, Color.Lime, fadeEdge: true);
+			PrimitiveDrawing.DrawFilledCircle(spawn, sin * 12, color: Color.Lime, edge: Color.Lime * 0.13f);
 
 			return false;
 		}

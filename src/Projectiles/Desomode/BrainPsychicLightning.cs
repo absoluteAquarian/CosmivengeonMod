@@ -1,5 +1,6 @@
 ﻿using CosmivengeonMod.API.Managers;
 using CosmivengeonMod.DataStructures;
+using GraphicsLib.Primitives;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
