@@ -67,7 +67,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				BoC_AttackCheck(npc);
 
 			if (npc.ai[0] < 0f) {
-				// 1.4.4 addition
+				// TODO 1.4.4: implement this
 				/*
 				if (Main.getGoodWorld)
 					NPC.brainOfGravity = npc.whoAmI;

@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.Graphics.Effects;
 using Terraria.ID;
+using static Terraria.ModLoader.PlayerDrawLayer;
 
 namespace CosmivengeonMod.API.Edits.Desomode {
 	public static partial class DesolationModeBossAI {
@@ -159,6 +160,9 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				dust.velocity.Y *= 0.1f;
 			}
 
+			npc.reflectsProjectiles = false;
+
+			// TODO 1.4.4:  Main.dayTime should be Main.IsItDay()
 			if (Main.dayTime || targetIsDead) {
 				npc.velocity.Y -= 0.04f;
 
@@ -170,21 +174,23 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				if (npc.ai[0] == 6f)
 					npc.rotation = rotationToTarget;
 
-				if (npc.timeLeft > 10) {
-					npc.timeLeft = 10;
-					return;
-				}
-			} else if (npc.ai[0] == 1f || npc.ai[0] == 2f) {
+				npc.EncourageDespawn(10);
+				return;
+			}
+			
+			// NOTE: if (npc.ai[0] == 0f) block is removed due to it only applying to Phase 1 and desomode skips phase 1
+
+			if (npc.ai[0] == 1f || npc.ai[0] == 2f) {
 				//Do the transition to phase 2 (spawn gores and more minions)
 
-				//Rotation acceleration increased from 0.005 to 0.05
+				//Rotation acceleration increased from 0.005 to 0.0125
 				if (npc.ai[0] == 1f) {
-					npc.ai[2] += 0.05f;
+					npc.ai[2] += 0.0125f;
 
 					if (npc.ai[2] > 0.5)
 						npc.ai[2] = 0.5f;
 				} else {
-					npc.ai[2] -= 0.05f;
+					npc.ai[2] -= 0.0125f;
 					if (npc.ai[2] < 0f)
 						npc.ai[2] = 0f;
 				}
@@ -192,13 +198,26 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				npc.rotation += npc.ai[2];
 				npc.ai[1] += 1f;
 
-				//Modulo decreased from 25 to 2
-				if (npc.ai[1] % 2f == 0f) {
+				if (Main.getGoodWorld)
+					npc.reflectsProjectiles = true;
+
+				//Modulo decreased from 20/10 to 10/5
+				int mod = 10;
+				// Vanilla: increased spawn rate happens at 33% HP
+				// NOTE: Forced fast charges happen at 65% HP
+				if (Main.getGoodWorld && npc.life < npc.lifeMax * 0.8f)
+					mod = 5;
+
+				if (npc.ai[1] % mod == 0f) {
 					//Vanilla: Spawn extra minions during the transition to phase 2
 
 					float num29 = 5f;
 					Vector2 vector4 = npc.Center;
 					Vector2 pos = new Vector2(Main.rand.Next(-200, 200), Main.rand.Next(-200, 200));
+
+					if (Main.getGoodWorld)
+						pos *= 3;
+
 					float num32 = pos.Length();
 					num32 = num29 / num32;
 
@@ -209,8 +228,8 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 					EyeOfCthulhu_SpawnSummon(npc, position2, vector5, belchSound: false);
 				}
 
-				//Time shortened from 100 to 10
-				if (npc.ai[1] == 10f) {
+				//Time shortened from 100 to 40
+				if (npc.ai[1] == 40f) {
 					npc.ai[0] += 1f;
 					npc.ai[1] = 0f;
 
@@ -222,9 +241,9 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 						//Spawn the mouth gores
 						for (int num34 = 0; num34 < 2; num34++) {
 							//No GoreID's for these?  smh
-							Gore.NewGore(npc.position, new Vector2(Main.rand.Next(-30, 31), Main.rand.Next(-30, 31)) * 0.2f, 8);
-							Gore.NewGore(npc.position, new Vector2(Main.rand.Next(-30, 31), Main.rand.Next(-30, 31)) * 0.2f, 7);
-							Gore.NewGore(npc.position, new Vector2(Main.rand.Next(-30, 31), Main.rand.Next(-30, 31)) * 0.2f, 6);
+							Gore.NewGore(npc.GetSource_FromAI(), npc.position, new Vector2(Main.rand.Next(-30, 31), Main.rand.Next(-30, 31)) * 0.2f, 8);
+							Gore.NewGore(npc.GetSource_FromAI(), npc.position, new Vector2(Main.rand.Next(-30, 31), Main.rand.Next(-30, 31)) * 0.2f, 7);
+							Gore.NewGore(npc.GetSource_FromAI(), npc.position, new Vector2(Main.rand.Next(-30, 31), Main.rand.Next(-30, 31)) * 0.2f, 6);
 						}
 
 						for (int num35 = 0; num35 < 20; num35++)
@@ -239,18 +258,14 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 
 				if (Math.Abs(npc.velocity.X) < 0.1f)
 					npc.velocity.X = 0f;
-				if (Math.Abs(npc.velocity.Y) < 0.1f) {
+				if (Math.Abs(npc.velocity.Y) < 0.1f)
 					npc.velocity.Y = 0f;
-
-					goto sendData;
-				}
 			} else if (npc.ai[0] != 6f) {
 				//Vanilla Phase 2: No iris and no longer spawns minions (desomode does keep spawning them though)
-
 				//Not at the panic phase yet
 				if (onlyDoFastCharges) {
 					npc.defense = 15;
-					npc.damage = 60;
+					npc.damage = npc.GetAttackDamage_ScaledByStrength(60);
 				}
 
 				if (npc.ai[1] == 0f && onlyDoFastCharges)
@@ -260,50 +275,37 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 					//Hovering near the player
 					npc.Helper().Timer++;
 
-					float num36 = 6f;
-					float num37 = 0.07f;
+					float speed = 6f;
+					float acceleration = 0.07f;
 
 					Vector2 diff = npc.Target().Center - new Vector2(0, 120) - npc.Center;
 
-					float num40 = diff.Length();
+					float distance = diff.Length();
 
-					if (num40 > 400f) {
-						num36 += 1f;
-						num37 += 0.05f;
-					}
-					if (num40 > 600f) {
-						num36 += 1f;
-						num37 += 0.05f;
-					}
-					if (num40 > 800f) {
-						num36 += 1f;
-						num37 += 0.05f;
-					}
+					if (distance > 400f) {
+						speed += 1f;
+						acceleration += 0.05f;
 
-					num40 = num36 / num40;
-					diff *= num40;
+						if (distance > 600f) {
+							speed += 1f;
+							acceleration += 0.05f;
 
-					//These two blocks are repeated in a lot of places
-					// TODO: abstraction
-					if (npc.velocity.X < diff.X) {
-						npc.velocity.X += num37;
-						if (npc.velocity.X < 0f && diff.X > 0f)
-							npc.velocity.X += num37;
-					} else if (npc.velocity.X > diff.X) {
-						npc.velocity.X -= num37;
-						if (npc.velocity.X > 0f && diff.X < 0f)
-							npc.velocity.X -= num37;
+							if (distance > 800f) {
+								speed += 1f;
+								acceleration += 0.05f;
+							}
+						}
 					}
 
-					if (npc.velocity.Y < diff.Y) {
-						npc.velocity.Y += num37;
-						if (npc.velocity.Y < 0f && diff.Y > 0f)
-							npc.velocity.Y += num37;
-					} else if (npc.velocity.Y > diff.Y) {
-						npc.velocity.Y -= num37;
-						if (npc.velocity.Y > 0f && diff.Y < 0f)
-							npc.velocity.Y -= num37;
+					if (Main.getGoodWorld) {
+						speed += 1f;
+						acceleration += 0.1f;
 					}
+
+					distance = speed / distance;
+					diff *= distance;
+
+					EyeOfCthulhu_MovementAcceleration(npc, acceleration, diff);
 
 					npc.ai[2] += 1f;
 
@@ -312,7 +314,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 						npc.ai[2] = 0f;
 						npc.ai[3] = 0f;
 
-						if (npc.life < npc.lifeMax * 0.35)
+						if (npc.life < npc.lifeMax * 0.4)
 							npc.ai[1] = 3f;
 
 						npc.target = 255;
@@ -320,20 +322,21 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 					}
 				} else if (npc.ai[1] == 1f) {
 					//Charging
-
 					SoundEngine.PlaySound(SoundID.ForceRoar, npc.position);
 
 					npc.rotation = rotationToTarget;
 
-					float num41 = 7.5f;
+					float chargeStrength = 7.5f;
 					if (npc.ai[3] == 1f)
-						num41 *= 1.15f;
+						chargeStrength *= 1.15f;
 					if (npc.ai[3] == 2f)
-						num41 *= 1.3f;
+						chargeStrength *= 1.3f;
+					if (Main.getGoodWorld)
+						chargeStrength *= 1.2f;
 
 					Vector2 diff = npc.Target().Center - npc.Center;
 					float num44 = diff.Length();
-					num44 = num41 / num44;
+					num44 = chargeStrength / num44;
 					npc.velocity = diff * num44;
 
 					npc.ai[1] = 2f;
@@ -343,7 +346,6 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 						npc.netSpam = 10;
 				} else if (npc.ai[1] == 2f) {
 					//Currently in a charge
-
 					npc.ai[2] += 1f;
 
 					if (npc.ai[2] >= 50f) {
@@ -413,7 +415,8 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 						}
 
 						diff -= npc.Target().velocity * num50 / new Vector2(1, 4);
-						diff *= 1f + Main.rand.Next(-10, 11) * 0.01f;
+						diff.X *= 1f + Main.rand.Next(-10, 11) * 0.01f;
+						diff.Y *= 1f + Main.rand.Next(-10, 11) * 0.01f;
 
 						float length = diff.Length();
 						float origLength = length;
@@ -423,17 +426,19 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 
 						npc.velocity += new Vector2(Main.rand.Next(-20, 21) * 0.1f, Main.rand.Next(-20, 21) * 0.1f);
 
-						if (origLength < 100f && Math.Abs(npc.velocity.X) > Math.Abs(npc.velocity.Y)) {
-							float num55 = Math.Abs(npc.velocity.X);
-							float num56 = Math.Abs(npc.velocity.Y);
+						if (origLength < 100f) {
+							if (Math.Abs(npc.velocity.X) > Math.Abs(npc.velocity.Y)) {
+								float num55 = Math.Abs(npc.velocity.X);
+								float num56 = Math.Abs(npc.velocity.Y);
 
-							if (npc.Center.X > npc.Target().Center.X)
-								num56 *= -1f;
-							if (npc.Center.Y > npc.Target().Center.Y)
-								num55 *= -1f;
+								if (npc.Center.X > npc.Target().Center.X)
+									num56 *= -1f;
+								if (npc.Center.Y > npc.Target().Center.Y)
+									num55 *= -1f;
 
-							npc.velocity.X = num56;
-							npc.velocity.Y = num55;
+								npc.velocity.X = num56;
+								npc.velocity.Y = num55;
+							}
 						} else if (Math.Abs(npc.velocity.X) > Math.Abs(npc.velocity.Y)) {
 							float num57 = (Math.Abs(npc.velocity.X) + Math.Abs(npc.velocity.Y)) / 2f;
 							float num58 = num57;
@@ -487,6 +492,15 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 						if (npc.ai[3] >= 5f) {
 							npc.ai[1] = 0f;
 							npc.ai[3] = 0f;
+
+							if (npc.target >= 0 && Main.getGoodWorld && Collision.CanHit(npc.position, npc.width, npc.height, npc.Target().position, npc.width, npc.height)) {
+								SoundEngine.PlaySound(SoundID.ForceRoar, npc.position);
+								npc.ai[0] = 2f;
+								npc.ai[1] = 0f;
+								npc.ai[2] = 0f;
+								npc.ai[3] = 1f;
+								npc.netUpdate = true;
+							}
 						} else
 							npc.ai[1] = 3f;
 					}
@@ -497,30 +511,13 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 					float num62 = 9f;
 					float num63 = 0.3f;
 
-					Vector2 diff = npc.Target().Center + new Vector2(0, 400f) - npc.Center;
+					Vector2 diff = npc.Target().Center + new Vector2(0, 600f) - npc.Center;
 
 					float num66 = diff.Length();
 					num66 = num62 / num66;
 					diff *= num66;
-					if (npc.velocity.X < diff.X) {
-						npc.velocity.X += num63;
-						if (npc.velocity.X < 0f && diff.X > 0f)
-							npc.velocity.X += num63;
-					} else if (npc.velocity.X > diff.X) {
-						npc.velocity.X -= num63;
-						if (npc.velocity.X > 0f && diff.X < 0f)
-							npc.velocity.X -= num63;
-					}
-
-					if (npc.velocity.Y < diff.Y) {
-						npc.velocity.Y += num63;
-						if (npc.velocity.Y < 0f && diff.Y > 0f)
-							npc.velocity.Y += num63;
-					} else if (npc.velocity.Y > diff.Y) {
-						npc.velocity.Y -= num63;
-						if (npc.velocity.Y > 0f && diff.Y < 0f)
-							npc.velocity.Y -= num63;
-					}
+					
+					EyeOfCthulhu_MovementAcceleration(npc, num63, diff);
 
 					npc.ai[2] += 1f;
 
@@ -718,11 +715,29 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 			}
 
 			if (sendGlobalNPCData)
-				goto sendData;
+				DetourNPCHelper.SendData(npc.whoAmI);
+		}
 
-			return;
-sendData:
-			DetourNPCHelper.SendData(npc.whoAmI);
+		private static void EyeOfCthulhu_MovementAcceleration(NPC npc, float movementFactor, Vector2 maxVelocity) {
+			if (npc.velocity.X < maxVelocity.X) {
+				npc.velocity.X += movementFactor;
+				if (npc.velocity.X < 0f && maxVelocity.X > 0f)
+					npc.velocity.X += movementFactor;
+			} else if (npc.velocity.X > maxVelocity.X) {
+				npc.velocity.X -= movementFactor;
+				if (npc.velocity.X > 0f && maxVelocity.X < 0f)
+					npc.velocity.X -= movementFactor;
+			}
+
+			if (npc.velocity.Y < maxVelocity.Y) {
+				npc.velocity.Y += movementFactor;
+				if (npc.velocity.Y < 0f && maxVelocity.Y > 0f)
+					npc.velocity.Y += movementFactor;
+			} else if (npc.velocity.Y > maxVelocity.Y) {
+				npc.velocity.Y -= movementFactor;
+				if (npc.velocity.Y > 0f && maxVelocity.Y < 0f)
+					npc.velocity.Y -= movementFactor;
+			}
 		}
 
 		private static void EyeOfCthulhu_SpawnBloodDustWalls(NPC npc) {
@@ -769,7 +784,7 @@ sendData:
 		private static void EyeOfCthulhu_SpawnSummon(NPC npc, Vector2 position, Vector2 velocity, bool belchSound = true) {
 			if (Main.netMode != NetmodeID.MultiplayerClient) {
 				//Spawn the minion
-				int spawn = NPC.NewNPC((int)position.X, (int)position.Y, NPCID.ServantofCthulhu, Target: npc.target);
+				int spawn = NPC.NewNPC(npc.GetSource_FromAI(), (int)position.X, (int)position.Y, NPCID.ServantofCthulhu, Target: npc.target);
 				Main.npc[spawn].velocity = velocity;
 				if (Main.netMode == NetmodeID.Server && spawn < 200)
 					NetMessage.SendData(MessageID.SyncNPC, number: spawn);
