@@ -7,7 +7,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Desomode {
 	public class SkeletronBone : ModProjectile {
-		public override string Texture => $"Terraria/Projectile_{ProjectileID.SkeletonBone}";
+		public override string Texture => $"Terraria/Images/Projectile_{ProjectileID.SkeletonBone}";
 
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Bone");

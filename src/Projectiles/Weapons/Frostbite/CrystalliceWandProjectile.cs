@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Projectiles.Weapons.Frostbite {
 	public class CrystaliceWandProjectile : ModProjectile {
-		public override string Texture => "Terraria/Projectile_" + ProjectileID.FrostBoltSword;
+		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.FrostBoltSword;
 
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Frost Shard");

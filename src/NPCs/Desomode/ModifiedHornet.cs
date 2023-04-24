@@ -7,7 +7,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.NPCs.Desomode {
 	public class ModifiedHornet : ModNPC {
-		public override string Texture => $"Terraria/NPC_{NPCID.Hornet}";
+		public override string Texture => $"Terraria/Images/NPC_{NPCID.Hornet}";
 
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Angry Hornet");
