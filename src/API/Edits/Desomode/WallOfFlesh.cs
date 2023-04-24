@@ -306,7 +306,9 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 					for (int i = -3; i < 4; i++) {
 						float y = npc.Target().Center.Y + i * 10 * 16;
 
-						Projectile proj = Projectile.NewProjectileDirect(new Vector2(x, y), Vector2.UnitX * npc.direction * 1.85f, ProjectileID.DemonSickle, MiscUtils.TrueDamage(80), 0f, Main.myPlayer);
+						int damage = MiscUtils.TrueDamage(Main.masterMode ? 120 : 80);
+
+						Projectile proj = Projectile.NewProjectileDirect(new Vector2(x, y), Vector2.UnitX * npc.direction * 1.85f, ProjectileID.DemonSickle, damage, 0f, Main.myPlayer);
 						proj.tileCollide = false;
 						proj.timeLeft = 4 * 60;
 					}
@@ -336,7 +338,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 							float y = npc.Target().Center.Y + i * offY;
 
 							Vector2 pos = new Vector2(x, y);
-							Projectile proj = Projectile.NewProjectileDirect(pos, npc.Target().DirectionFrom(pos) * 9, ProjectileID.ImpFireball, MiscUtils.TrueDamage(66), 0f, Main.myPlayer);
+							Projectile proj = Projectile.NewProjectileDirect(pos, npc.Target().DirectionFrom(pos) * 9, ProjectileID.ImpFireball, MiscUtils.TrueDamage(Main.masterMode ? 88 : 66), 0f, Main.myPlayer);
 							proj.friendly = false;
 							proj.hostile = true;
 							proj.tileCollide = false;
@@ -528,6 +530,9 @@ chooseAgain:
 						num365 += 2f;
 					}
 
+					if (Main.masterMode)
+						num366 += 40;
+
 					vector35 = npc.Center;
 					num360 = npc.Target().Center.X - vector35.X;
 					num361 = npc.Target().Center.Y - vector35.Y;
@@ -692,7 +697,7 @@ chooseAgain:
 			if (npc.ai[3] >= Main.rand.Next(350, 600)) {
 				npc.ai[3] = 0;
 
-				int dmg = MiscUtils.TrueDamage(50);
+				int dmg = MiscUtils.TrueDamage(Main.masterMode ? 80 : 50);
 				Vector2 target = Main.npc[Main.wof].Target().Center;
 				target.Y -= 3 * 16;
 				Projectile proj = Projectile.NewProjectileDirect(npc.Center, npc.DirectionTo(target) * 4f, ProjectileID.IchorSplash, dmg, 3f, Main.myPlayer);

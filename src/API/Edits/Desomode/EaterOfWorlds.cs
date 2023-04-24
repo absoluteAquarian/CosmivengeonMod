@@ -56,8 +56,11 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 							if (Collision.CanHitLine(npc.Center, 1, 1, npc.Target().Center, 1, 1)) {
 								if (spawnVileSpit)
 									NPC.NewNPC(npc.GetSource_FromAI(), spawnX, spawnY, NPCID.VileSpit, ai1: 1f);
-								else if (Main.rand.NextFloat() < cursedChance)
-									Projectile.NewProjectile(npc.GetSource_FromAI(), spawnX, spawnY, toPlayer.X, toPlayer.Y, ProjectileID.CursedFlameHostile, MiscUtils.TrueDamage(60), 3.5f, Main.myPlayer);
+								else if (Main.rand.NextFloat() < cursedChance) {
+									int damage = MiscUtils.TrueDamage(Main.masterMode ? 80 : 60);
+
+									Projectile.NewProjectile(npc.GetSource_FromAI(), spawnX, spawnY, toPlayer.X, toPlayer.Y, ProjectileID.CursedFlameHostile, damage, 3.5f, Main.myPlayer);
+								}
 							}
 						}
 					}
@@ -75,8 +78,11 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 						if (Collision.CanHitLine(npc.Center, 1, 1, npc.Target().Center, 1, 1)) {
 							if (spawnVileSpit)
 								NPC.NewNPC(npc.GetSource_FromAI(), spawnX, spawnY, NPCID.VileSpit, ai1: 1f);
-							else if (Main.rand.NextFloat() < cursedChance)
-								Projectile.NewProjectile(npc.GetSource_FromAI(), spawnX, spawnY, toPlayer.X, toPlayer.Y, ProjectileID.CursedFlameHostile, MiscUtils.TrueDamage(60), 3.5f, Main.myPlayer);
+							else if (Main.rand.NextFloat() < cursedChance) {
+								int damage = MiscUtils.TrueDamage(Main.masterMode ? 80 : 60);
+
+								Projectile.NewProjectile(npc.GetSource_FromAI(), spawnX, spawnY, toPlayer.X, toPlayer.Y, ProjectileID.CursedFlameHostile, damage, 3.5f, Main.myPlayer);
+							}
 						}
 					}
 				}

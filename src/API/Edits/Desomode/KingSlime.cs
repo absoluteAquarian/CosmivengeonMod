@@ -364,7 +364,9 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 						helperData.Timer = 0;
 						for (int i = -2; i < 3; i++) {
 							Vector2 rotatedVelocity = (-Vector2.UnitY).RotatedBy(MathHelper.ToRadians(20 * i)) * 8f;
-							int proj = Projectile.NewProjectile(npc.GetSource_FromAI(), npc.Top + new Vector2(0, 20), rotatedVelocity, ModContent.ProjectileType<KingSlimeSpike>(), MiscUtils.TrueDamage(40), 0.33f, Main.myPlayer);
+							int damage = MiscUtils.TrueDamage(Main.masterMode ? 60 : 40);
+
+							int proj = Projectile.NewProjectile(npc.GetSource_FromAI(), npc.Top + new Vector2(0, 20), rotatedVelocity, ModContent.ProjectileType<KingSlimeSpike>(), damage, 0.33f, Main.myPlayer);
 							NetMessage.SendData(MessageID.SyncProjectile, number: proj);
 						}
 					}
@@ -399,7 +401,9 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 						//Three projectile in a sort-of cone pointed towards the player
 						for (int i = -1; i < 2; i++) {
 							Vector2 rotatedVelocity = velocity.RotatedBy(MathHelper.ToRadians(15 * i));
-							int proj = Projectile.NewProjectile(npc.GetSource_FromAI(), npc.Top + new Vector2(0, 20), rotatedVelocity, ModContent.ProjectileType<KingSlimeSpike>(), MiscUtils.TrueDamage(40), 0.33f, Main.myPlayer);
+							int damage = MiscUtils.TrueDamage(Main.masterMode ? 60 : 40);
+
+							int proj = Projectile.NewProjectile(npc.GetSource_FromAI(), npc.Top + new Vector2(0, 20), rotatedVelocity, ModContent.ProjectileType<KingSlimeSpike>(), damage, 0.33f, Main.myPlayer);
 							NetMessage.SendData(MessageID.SyncProjectile, number: proj);
 						}
 					}

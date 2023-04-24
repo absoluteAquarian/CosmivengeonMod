@@ -322,7 +322,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				int proj = MiscUtils.SpawnProjectileSynced(npc.GetSource_FromAI(),
 					npc.Target().Center, Vector2.Zero,
 					ModContent.ProjectileType<BrainPsychicMine>(),
-					80,
+					Main.masterMode ? 100 : 80,
 					4f,
 					ai1: npc.target,
 					owner: Main.myPlayer);
@@ -353,7 +353,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 
 					int proj = MiscUtils.SpawnProjectileSynced(npc.GetSource_FromAI(), position, Vector2.Zero,
 						ModContent.ProjectileType<BrainPsychicLightning>(),
-						65,
+						Main.masterMode ? 90 : 65,
 						3.5f);
 
 					BrainPsychicLightning lightning = Main.projectile[proj].ModProjectile as BrainPsychicLightning;

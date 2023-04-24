@@ -489,7 +489,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 						shootTarget += targetVelocity;
 						shootTarget = Vector2.Normalize(shootTarget) * stingerVelocity;
 
-						int num633 = MiscUtils.TrueDamage(80);
+						int num633 = MiscUtils.TrueDamage(Main.masterMode ? 120 : 80);
 						int num634 = ProjectileID.Stinger;
 						if (Main.rand.NextFloat() < 0.085f) {
 							// Recalculate the velocity without the randomness
@@ -499,7 +499,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 
 							num634 = ModContent.ProjectileType<QueenBeeHoneyShot>();
 							shootTarget *= 1.8f;
-							num633 = MiscUtils.TrueDamage(150);
+							num633 = MiscUtils.TrueDamage(Main.masterMode ? 200 : 150);
 
 							npc.ai[1] += 9f;
 						}

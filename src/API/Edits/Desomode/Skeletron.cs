@@ -29,7 +29,9 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 			 *   
 			 *   ai[3]      | Unused
 			 */
+			var helperData = npc.Helper();
 
+			npc.reflectsProjectiles = false;
 			npc.defense = npc.defDefense;
 
 			//Spawn these hands
@@ -40,86 +42,100 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				if (npc.ai[0] == 2f)
 					SoundEngine.PlaySound(SoundID.Roar, npc.Center);
 
-				int num154 = NPC.NewNPC((int)(npc.position.X + npc.width / 2), (int)npc.position.Y + npc.height / 2, 36, npc.whoAmI);
-				Main.npc[num154].ai[0] = -1f;
-				Main.npc[num154].ai[1] = npc.whoAmI;
-				Main.npc[num154].target = npc.target;
-				Main.npc[num154].netUpdate = true;
-				Main.npc[num154].Helper().Timer = Main.rand.Next(30, 51);
+				NPC hand = NPC.NewNPCDirect(npc.GetSource_FromAI(), (int)(npc.position.X + npc.width / 2), (int)npc.position.Y + npc.height / 2, NPCID.SkeletronHand, npc.whoAmI);
+				hand.ai[0] = -1f;
+				hand.ai[1] = npc.whoAmI;
+				hand.target = npc.target;
+				hand.netUpdate = true;
+				hand.Helper().Timer = Main.rand.Next(30, 51);
 
-				DetourNPCHelper.SendData(num154);
-
-				if (npc.ai[0] == 2f)
-					Main.npc[num154].life = 500;
-
-				num154 = NPC.NewNPC((int)(npc.position.X + npc.width / 2), (int)npc.position.Y + npc.height / 2, 36, npc.whoAmI);
-				Main.npc[num154].ai[0] = 1f;
-				Main.npc[num154].ai[1] = npc.whoAmI;
-				Main.npc[num154].ai[3] = 150f;
-				Main.npc[num154].target = npc.target;
-				Main.npc[num154].netUpdate = true;
-				Main.npc[num154].Helper().Timer = Main.rand.Next(30, 51);
+				DetourNPCHelper.SendData(hand.whoAmI);
 
 				if (npc.ai[0] == 2f)
-					Main.npc[num154].life = 500;
+					hand.life /= 3;
 
-				DetourNPCHelper.SendData(num154);
+				hand = NPC.NewNPCDirect(npc.GetSource_FromAI(), (int)(npc.position.X + npc.width / 2), (int)npc.position.Y + npc.height / 2, NPCID.SkeletronHand, npc.whoAmI);
+				hand.ai[0] = 1f;
+				hand.ai[1] = npc.whoAmI;
+				hand.ai[3] = 150f;
+				hand.target = npc.target;
+				hand.netUpdate = true;
+				hand.Helper().Timer = Main.rand.Next(30, 51);
+
+				if (npc.ai[0] == 2f)
+					hand.life /= 3;
+
+				DetourNPCHelper.SendData(hand.whoAmI);
+			}
+
+			if (Main.netMode == NetmodeID.MultiplayerClient && npc.localAI[0] == 0f) {
+				npc.localAI[0] = 1f;
+				SoundEngine.PlaySound(SoundID.Roar, npc.position);
 			}
 
 			//Target is dead or too far away
-			if (npc.Target().dead || Math.Abs(npc.position.X - npc.Target().position.X) > 2000f || Math.Abs(npc.position.Y - npc.Target().position.Y) > 2000f) {
+			Player target = npc.Target();
+
+			if (target.dead || Math.Abs(npc.position.X - target.position.X) > 2000f || Math.Abs(npc.position.Y - target.position.Y) > 2000f) {
 				npc.TargetClosest();
-				if (npc.Target().dead || Math.Abs(npc.position.X - npc.Target().position.X) > 2000f || Math.Abs(npc.position.Y - npc.Target().position.Y) > 2000f)
+
+				target = npc.Target();
+
+				if (target.dead || Math.Abs(npc.position.X - target.position.X) > 2000f || Math.Abs(npc.position.Y - target.position.Y) > 2000f)
 					npc.ai[1] = 3f;
 			}
 
 			//It's daytime and the boss isn't already spinning
 			//Get A N G E R Y
+			// TODO 1.4.4: Main.dayTime should be Main.IsItDay()
 			if (Main.dayTime && npc.ai[1] != 3f && npc.ai[1] != 2f) {
 				npc.ai[1] = 2f;
 				SoundEngine.PlaySound(SoundID.Roar, npc.position);
 			}
 
-			int num155 = 0;
-			for (int num156 = 0; num156 < 200; num156++) {
-				if (Main.npc[num156].active && Main.npc[num156].type == npc.type + 1)
-					num155++;
+			int activeHands = 0;
+			for (int i = 0; i < 200; i++) {
+				if (Main.npc[i].active && Main.npc[i].type == npc.type + 1)
+					activeHands++;
 			}
 
-			npc.defense += num155 * 25;
-			if ((num155 < 2 || npc.life < npc.lifeMax * 0.75) && npc.ai[1] == 0f) {
-				float num157 = 150;
-				if (num155 == 0)
-					num157 = 60;
-				if (num155 != 0 && npc.life < npc.lifeMax * 0.25f)
-					num157 = 100;
+			npc.defense += activeHands * 25;
+			if ((activeHands < 2 || npc.life < npc.lifeMax * 0.75) && npc.ai[1] == 0f) {
+				float skullSpawnRate = 80f;
+				if (activeHands == 0)
+					skullSpawnRate /= 2f;
+				if (activeHands != 0 && npc.life < npc.lifeMax * 0.25f)
+					skullSpawnRate = 100;  // Force skull spawn rate to be slower than normal
 
-				if (Main.netMode != NetmodeID.MultiplayerClient && npc.ai[2] % num157 == 0f) {
-					Vector2 center3 = npc.Center;
-					if (Collision.CanHit(center3, 1, 1, npc.Target().position, npc.Target().width, npc.Target().height)) {
-						float num161 = 3f;
-						if (num155 == 0)
-							num161 += 2f;
+				if (Main.getGoodWorld)
+					skullSpawnRate *= 0.8f;
 
-						float num162 = npc.Target().position.X + npc.Target().width * 0.5f - center3.X + Main.rand.Next(-20, 21);
-						float num163 = npc.Target().position.Y + npc.Target().height * 0.5f - center3.Y + Main.rand.Next(-20, 21);
-						float num164 = (float)Math.Sqrt(num162 * num162 + num163 * num163);
-						num164 = num161 / num164;
-						num162 *= num164;
-						num163 *= num164;
+				if (Main.netMode != NetmodeID.MultiplayerClient && npc.ai[2] % skullSpawnRate == 0f) {
+					Vector2 npcCenter = npc.Center;
+					if (Collision.CanHit(npcCenter, 1, 1, target.position, target.width, target.height)) {
+						float skullSpeed = 3f;
+						if (activeHands == 0)
+							skullSpeed += 2f;
 
-						Vector2 vector16 = new Vector2(num162 * 1f + Main.rand.Next(-50, 51) * 0.01f, num163 * 1f + Main.rand.Next(-50, 51) * 0.01f);
-						vector16.Normalize();
-						vector16 *= num161;
-						vector16 += npc.velocity;
-						num162 = vector16.X;
-						num163 = vector16.Y;
-						int num165 = MiscUtils.TrueDamage(90);
-						int num166 = ProjectileID.Skull;
-						center3 += vector16 * 5f;
+						float distanceToTargetX = target.position.X + target.width * 0.5f - npcCenter.X + Main.rand.Next(-20, 21);
+						float distanceToTargetY = target.position.Y + target.height * 0.5f - npcCenter.Y + Main.rand.Next(-20, 21);
+						float distanceToTarget = (float)Math.Sqrt(distanceToTargetX * distanceToTargetX + distanceToTargetY * distanceToTargetY);
+						distanceToTarget = skullSpeed / distanceToTarget;
+						distanceToTargetX *= distanceToTarget;
+						distanceToTargetY *= distanceToTarget;
 
-						int num167 = Projectile.NewProjectile(center3.X, center3.Y, num162, num163, num166, num165, 0f, Main.myPlayer, -1f);
-						Main.projectile[num167].timeLeft = 300;
+						Vector2 directionToTarget = new Vector2(distanceToTargetX + Main.rand.Next(-50, 51) * 0.01f, distanceToTargetY + Main.rand.Next(-50, 51) * 0.01f);
+						directionToTarget.Normalize();
+						directionToTarget *= skullSpeed;
+						directionToTarget += npc.velocity;
+						distanceToTargetX = directionToTarget.X;
+						distanceToTargetY = directionToTarget.Y;
+						int damage = MiscUtils.TrueDamage(Main.masterMode ? 150 : 90);
+						int type = ProjectileID.Skull;
+						npcCenter += directionToTarget * 5f;
+
+						int skull = Projectile.NewProjectile(npc.GetSource_FromAI(), npcCenter.X, npcCenter.Y, distanceToTargetX, distanceToTargetY, type, damage, 0f, Main.myPlayer, -1f);
+						Main.projectile[skull].timeLeft = 300;
 					}
 				}
 			}
@@ -138,122 +154,159 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				npc.rotation = npc.velocity.X / 15f;
 				//Normal: 0.02, 2, 0.05, 8
 				//Expert: 0.03, 4, 0.07, 9.5
-				float num168 = 0.04f;
-				float num169 = 8f;
-				float num170 = 0.1f;
-				float num171 = 12f;
+				float accelerationY = 0.04f;
+				float maxVelocityY = 8f;
+				float accelerationX = 0.1f;
+				float maxVelocityX = 12f;
 
-				if (npc.position.Y > npc.Target().position.Y - 250f) {
+				if (Main.getGoodWorld) {
+					accelerationY += 0.01f;
+					maxVelocityY += 1f;
+					accelerationX += 0.05f;
+					maxVelocityX += 2f;
+				}
+
+				if (npc.position.Y > target.position.Y - 250f) {
 					if (npc.velocity.Y > 0f)
 						npc.velocity.Y *= 0.98f;
 
-					npc.velocity.Y -= num168;
-					if (npc.velocity.Y > num169)
-						npc.velocity.Y = num169;
-				} else if (npc.position.Y < npc.Target().position.Y - 250f) {
+					npc.velocity.Y -= accelerationY;
+					if (npc.velocity.Y > maxVelocityY)
+						npc.velocity.Y = maxVelocityY;
+				} else if (npc.position.Y < target.position.Y - 250f) {
 					if (npc.velocity.Y < 0f)
 						npc.velocity.Y *= 0.98f;
 
-					npc.velocity.Y += num168;
-					if (npc.velocity.Y < 0f - num169)
-						npc.velocity.Y = 0f - num169;
+					npc.velocity.Y += accelerationY;
+					if (npc.velocity.Y < 0f - maxVelocityY)
+						npc.velocity.Y = 0f - maxVelocityY;
 				}
 
-				if (npc.position.X + npc.width / 2 > npc.Target().position.X + npc.Target().width / 2) {
+				if (npc.position.X + npc.width / 2 > target.position.X + target.width / 2) {
 					if (npc.velocity.X > 0f)
 						npc.velocity.X *= 0.98f;
 
-					npc.velocity.X -= num170;
-					if (npc.velocity.X > num171)
-						npc.velocity.X = num171;
+					npc.velocity.X -= accelerationX;
+					if (npc.velocity.X > maxVelocityX)
+						npc.velocity.X = maxVelocityX;
 				}
 
-				if (npc.position.X + npc.width / 2 < npc.Target().position.X + npc.Target().width / 2) {
+				if (npc.position.X + npc.width / 2 < target.position.X + target.width / 2) {
 					if (npc.velocity.X < 0f)
 						npc.velocity.X *= 0.98f;
 
-					npc.velocity.X += num170;
-					if (npc.velocity.X < 0f - num171)
-						npc.velocity.X = 0f - num171;
+					npc.velocity.X += accelerationX;
+					if (npc.velocity.X < 0f - maxVelocityX)
+						npc.velocity.X = 0f - maxVelocityX;
 				}
 			} else if (npc.ai[1] == 1f) {
+				if (Main.getGoodWorld) {
+					if (activeHands > 0)
+						npc.reflectsProjectiles = true;
+					else if (Main.netMode != NetmodeID.MultiplayerClient && npc.ai[2] % 200f == 0f && NPC.CountNPCS(NPCID.DarkCaster) < 6) {
+						int maxAttempts = 1000;
+						for (int i = 0; i < maxAttempts; i++) {
+							int spawnX = (int)(npc.Center.X / 16f) + Main.rand.Next(-50, 51);
+
+							int spawnY;
+							for (spawnY = (int)(npc.Center.Y / 16f) + Main.rand.Next(-50, 51); spawnY < Main.maxTilesY - 10 && !WorldGen.SolidTile(spawnX, spawnY); spawnY++);
+
+							spawnY--;
+
+							if (!WorldGen.SolidTile(spawnX, spawnY)) {
+								int spawnedCaster = NPC.NewNPC(Entity.GetSource_NaturalSpawn(), spawnX * 16 + 8, spawnY * 16, 32);
+
+								if (Main.netMode == NetmodeID.Server && spawnedCaster < Main.maxNPCs)
+									NetMessage.SendData(MessageID.SyncNPC, number: spawnedCaster);
+
+								break;
+							}
+						}
+					}
+				}
+
 				npc.defense -= npc.defDefense;
 				npc.ai[2] += 1f;
 				if (npc.ai[2] == 2f)
 					SoundEngine.PlaySound(SoundID.Roar, npc.position);
 
-				//300 ticks --> 120 ticks
+				// Vanilla: 400 ticks
+				// Desolation Mode: 300 ticks --> 120 ticks
 				if (npc.ai[2] >= 300f - 180f * (1f - (float)npc.life / npc.lifeMax)) {
 					npc.ai[2] = 0f;
 					npc.ai[1] = 0f;
 				}
 
 				npc.rotation += npc.direction * 0.3f;
-				Vector2 vector17 = new Vector2(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-				float num172 = npc.Target().position.X + npc.Target().width / 2 - vector17.X;
-				float num173 = npc.Target().position.Y + npc.Target().height / 2 - vector17.Y;
-				float num174 = (float)Math.Sqrt(num172 * num172 + num173 * num173);
-				float num175 = 5.75f;
+				Vector2 npcCenter = new Vector2(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
+				float distanceToTargetX = target.position.X + target.width / 2 - npcCenter.X;
+				float distanceToTargetY = target.position.Y + target.height / 2 - npcCenter.Y;
+				float distanceToTarget = (float)Math.Sqrt(distanceToTargetX * distanceToTargetX + distanceToTargetY * distanceToTargetY);
+				float chargeStrength = 5.75f;
 
 				npc.damage = (int)(npc.defDamage * 1.3);
-				if (num174 > 150f)
-					num175 *= 1.05f;
-				if (num174 > 200f)
-					num175 *= 1.1f;
-				if (num174 > 250f)
-					num175 *= 1.1f;
-				if (num174 > 300f)
-					num175 *= 1.1f;
-				if (num174 > 350f)
-					num175 *= 1.1f;
-				if (num174 > 400f)
-					num175 *= 1.1f;
-				if (num174 > 450f)
-					num175 *= 1.1f;
-				if (num174 > 500f)
-					num175 *= 1.1f;
-				if (num174 > 550f)
-					num175 *= 1.1f;
-				if (num174 > 600f)
-					num175 *= 1.1f;
+				if (distanceToTarget > 150f)
+					chargeStrength *= 1.05f;
+				if (distanceToTarget > 200f)
+					chargeStrength *= 1.1f;
+				if (distanceToTarget > 250f)
+					chargeStrength *= 1.1f;
+				if (distanceToTarget > 300f)
+					chargeStrength *= 1.1f;
+				if (distanceToTarget > 350f)
+					chargeStrength *= 1.1f;
+				if (distanceToTarget > 400f)
+					chargeStrength *= 1.1f;
+				if (distanceToTarget > 450f)
+					chargeStrength *= 1.1f;
+				if (distanceToTarget > 500f)
+					chargeStrength *= 1.1f;
+				if (distanceToTarget > 550f)
+					chargeStrength *= 1.1f;
+				if (distanceToTarget > 600f)
+					chargeStrength *= 1.1f;
 
-				switch (num155) {
+				switch (activeHands) {
 					case 0:
-						num175 *= 1.2f;
+						chargeStrength *= 1.2f;
 						break;
 					case 1:
-						num175 *= 1.1f;
+						chargeStrength *= 1.1f;
 						break;
 				}
 
-				num174 = num175 / num174;
-				npc.velocity.X = num172 * num174;
-				npc.velocity.Y = num173 * num174;
+				if (Main.getGoodWorld)
+					chargeStrength *= 1.3f;
+
+				distanceToTarget = chargeStrength / distanceToTarget;
+				npc.velocity.X = distanceToTargetX * distanceToTarget;
+				npc.velocity.Y = distanceToTargetY * distanceToTarget;
 			} else if (npc.ai[1] == 2f) {
 				npc.damage = 1000;
 				npc.defense = 9999;
 
 				npc.rotation += npc.direction * 0.3f;
 
-				Vector2 vector18 = new Vector2(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-				float num176 = npc.Target().position.X + npc.Target().width / 2 - vector18.X;
-				float num177 = npc.Target().position.Y + npc.Target().height / 2 - vector18.Y;
-				float num178 = (float)Math.Sqrt(num176 * num176 + num177 * num177);
+				Vector2 npcCenter = new Vector2(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
+				float distanceToTargetX = target.position.X + target.width / 2 - npcCenter.X;
+				float distanceToTargetY = target.position.Y + target.height / 2 - npcCenter.Y;
+				float distanceToTarget = (float)Math.Sqrt(distanceToTargetX * distanceToTargetX + distanceToTargetY * distanceToTargetY);
 
-				num178 = 8f / num178;
-				npc.velocity.X = num176 * num178;
-				npc.velocity.Y = num177 * num178;
+				// Vanilla:  8f velocity
+				distanceToTarget = 9.5f / distanceToTarget;
+				npc.velocity.X = distanceToTargetX * distanceToTarget;
+				npc.velocity.Y = distanceToTargetY * distanceToTarget;
 			} else if (npc.ai[1] == 3f) {
 				npc.velocity.Y += 0.1f;
 				if (npc.velocity.Y < 0f)
 					npc.velocity.Y *= 0.95f;
 
 				npc.velocity.X *= 0.95f;
-				if (npc.timeLeft > 50)
-					npc.timeLeft = 50;
+				
+				npc.EncourageDespawn(50);
 			}
 
-			if (npc.ai[1] != 2f && npc.ai[1] != 3f && num155 != 0) {
+			if (npc.ai[1] != 2f && npc.ai[1] != 3f && activeHands != 0) {
 				int num179 = Dust.NewDust(new Vector2(npc.position.X + npc.width / 2 - 15f - npc.velocity.X * 5f, npc.position.Y + npc.height - 2f), 30, 10, DustID.Blood, (0f - npc.velocity.X) * 0.2f, 3f, 0, default, 2f);
 				Main.dust[num179].noGravity = true;
 				Main.dust[num179].velocity.X *= 1.3f;
@@ -288,9 +341,13 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 			 *   
 			 *   ai[3]         | Timer
 			 */
+			var helperData = npc.Helper();
+			var skeletron = npc.Following();
+
+			Player target = npc.Target();
 
 			npc.spriteDirection = -(int)npc.ai[0];
-			if (!npc.Following().active || npc.Following().aiStyle != 11) {
+			if (!skeletron.active || skeletron.aiStyle != 11) {
 				npc.ai[2] += 10f;
 				if (npc.ai[2] > 50f || Main.netMode != NetmodeID.Server) {
 					npc.life = -1;
@@ -300,23 +357,23 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 			}
 
 			if (npc.ai[2] == 0f || npc.ai[2] == 3f) {
-				if (npc.Following().ai[1] == 3f && npc.timeLeft > 10)
-					npc.timeLeft = 10;
+				if (skeletron.ai[1] == 3f && npc.timeLeft > 10)
+					npc.EncourageDespawn(10);
 
 				float retreatFriction = 0.92f;
 				float retreatFactorX = 0.3f;
 				float retreatFactorY = 1.2f;
 				float velCapX = 11f;
 				float velCapY = 9f;
-				if (npc.Following().ai[1] != 0f) {
-					if (npc.position.Y > npc.Following().position.Y - 100f) {
+				if (skeletron.ai[1] != 0f) {
+					if (npc.position.Y > skeletron.position.Y - 100f) {
 						if (npc.velocity.Y > 0f)
 							npc.velocity.Y *= retreatFriction;
 
 						npc.velocity.Y -= retreatFactorY;
 						if (npc.velocity.Y > velCapY)
 							npc.velocity.Y = velCapY;
-					} else if (npc.position.Y < npc.Following().position.Y - 100f) {
+					} else if (npc.position.Y < skeletron.position.Y - 100f) {
 						if (npc.velocity.Y < 0f)
 							npc.velocity.Y *= retreatFriction;
 
@@ -325,7 +382,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 							npc.velocity.Y = -velCapY;
 					}
 
-					if (npc.position.X + npc.width / 2 > npc.Following().position.X + npc.Following().width / 2 - 120f * npc.ai[0]) {
+					if (npc.position.X + npc.width / 2 > skeletron.position.X + skeletron.width / 2 - 120f * npc.ai[0]) {
 						if (npc.velocity.X > 0f)
 							npc.velocity.X *= retreatFriction;
 
@@ -334,7 +391,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 							npc.velocity.X = velCapX;
 					}
 
-					if (npc.position.X + npc.width / 2 < npc.Following().position.X + npc.Following().width / 2 - 120f * npc.ai[0]) {
+					if (npc.position.X + npc.width / 2 < skeletron.position.X + skeletron.width / 2 - 120f * npc.ai[0]) {
 						if (npc.velocity.X < 0f)
 							npc.velocity.X *= retreatFriction;
 
@@ -355,14 +412,14 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 					retreatFactorY = 0.08f;
 					velCapY = 7f;
 
-					if (npc.position.Y > npc.Following().position.Y + 230f) {
+					if (npc.position.Y > skeletron.position.Y + 230f) {
 						if (npc.velocity.Y > 0f)
 							npc.velocity.Y *= retreatFriction;
 
 						npc.velocity.Y -= retreatFactorY;
 						if (npc.velocity.Y > velCapY)
 							npc.velocity.Y = velCapY;
-					} else if (npc.position.Y < npc.Following().position.Y + 230f) {
+					} else if (npc.position.Y < skeletron.position.Y + 230f) {
 						if (npc.velocity.Y < 0f)
 							npc.velocity.Y *= retreatFriction;
 
@@ -371,7 +428,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 							npc.velocity.Y = -velCapY;
 					}
 
-					if (npc.position.X + npc.width / 2 > npc.Following().position.X + npc.Following().width / 2 - 200f * npc.ai[0]) {
+					if (npc.position.X + npc.width / 2 > skeletron.position.X + skeletron.width / 2 - 200f * npc.ai[0]) {
 						if (npc.velocity.X > 0f)
 							npc.velocity.X *= retreatFriction;
 
@@ -380,7 +437,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 							npc.velocity.X = velCapX;
 					}
 
-					if (npc.position.X + npc.width / 2 < npc.Following().position.X + npc.Following().width / 2 - 200f * npc.ai[0]) {
+					if (npc.position.X + npc.width / 2 < skeletron.position.X + skeletron.width / 2 - 200f * npc.ai[0]) {
 						if (npc.velocity.X < 0f)
 							npc.velocity.X *= retreatFriction;
 
@@ -389,14 +446,14 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 							npc.velocity.X = -velCapX;
 					}
 
-					if (npc.position.Y > npc.Following().position.Y + 230f) {
+					if (npc.position.Y > skeletron.position.Y + 230f) {
 						if (npc.velocity.Y > 0f)
 							npc.velocity.Y *= retreatFriction;
 
 						npc.velocity.Y -= retreatFactorY;
 						if (npc.velocity.Y > velCapY)
 							npc.velocity.Y = velCapY;
-					} else if (npc.position.Y < npc.Following().position.Y + 230f) {
+					} else if (npc.position.Y < skeletron.position.Y + 230f) {
 						if (npc.velocity.Y < 0f)
 							npc.velocity.Y *= retreatFriction;
 
@@ -405,7 +462,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 							npc.velocity.Y = -velCapY;
 					}
 
-					if (npc.position.X + npc.width / 2 > npc.Following().position.X + npc.Following().width / 2 - 200f * npc.ai[0]) {
+					if (npc.position.X + npc.width / 2 > skeletron.position.X + skeletron.width / 2 - 200f * npc.ai[0]) {
 						if (npc.velocity.X > 0f)
 							npc.velocity.X *= retreatFriction;
 
@@ -414,7 +471,7 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 							npc.velocity.X = velCapX;
 					}
 
-					if (npc.position.X + npc.width / 2 < npc.Following().position.X + npc.Following().width / 2 - 200f * npc.ai[0]) {
+					if (npc.position.X + npc.width / 2 < skeletron.position.X + skeletron.width / 2 - 200f * npc.ai[0]) {
 						if (npc.velocity.X < 0f)
 							npc.velocity.X *= retreatFriction;
 
@@ -425,13 +482,13 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				}
 
 				Vector2 vector19 = new Vector2(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-				float num181 = npc.Following().position.X + npc.Following().width / 2 - 200f * npc.ai[0] - vector19.X;
-				float num182 = npc.Following().position.Y + 230f - vector19.Y;
+				float num181 = skeletron.position.X + skeletron.width / 2 - 200f * npc.ai[0] - vector19.X;
+				float num182 = skeletron.position.Y + 230f - vector19.Y;
 				npc.rotation = (float)Math.Atan2(num182, num181) + 1.57f;
 			} else if (npc.ai[2] == 1f) {
 				Vector2 vector20 = new Vector2(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-				float num184 = npc.Following().position.X + npc.Following().width / 2 - 200f * npc.ai[0] - vector20.X;
-				float num185 = npc.Following().position.Y + 230f - vector20.Y;
+				float num184 = skeletron.position.X + skeletron.width / 2 - 200f * npc.ai[0] - vector20.X;
+				float num185 = skeletron.position.Y + 230f - vector20.Y;
 				float num186;
 
 				npc.rotation = (float)Math.Atan2(num185, num184) + 1.57f;
@@ -442,13 +499,15 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				if (npc.velocity.Y < -13f)
 					npc.velocity.Y = -13f;
 
-				if (npc.position.Y < npc.Following().position.Y - 200f) {
+				if (npc.position.Y < skeletron.position.Y - 200f) {
 					npc.TargetClosest();
 					npc.ai[2] = 2f;
 
+					target = npc.Target();
+
 					vector20 = new Vector2(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-					num184 = npc.Target().position.X + npc.Target().width / 2 - vector20.X;
-					num185 = npc.Target().position.Y + npc.Target().height / 2 - vector20.Y;
+					num184 = target.position.X + target.width / 2 - vector20.X;
+					num185 = target.position.Y + target.height / 2 - vector20.Y;
 					num186 = (float)Math.Sqrt(num184 * num184 + num185 * num185);
 					num186 = 21f / num186;
 
@@ -457,12 +516,12 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 					npc.netUpdate = true;
 				}
 			} else if (npc.ai[2] == 2f) {
-				if (npc.position.Y > npc.Target().position.Y || npc.velocity.Y < 0f)
+				if (npc.position.Y > target.position.Y || npc.velocity.Y < 0f)
 					npc.ai[2] = 3f;
 			} else if (npc.ai[2] == 4f) {
 				Vector2 vector21 = new Vector2(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-				float num187 = npc.Following().position.X + npc.Following().width / 2 - 200f * npc.ai[0] - vector21.X;
-				float num188 = npc.Following().position.Y + 230f - vector21.Y;
+				float num187 = skeletron.position.X + skeletron.width / 2 - 200f * npc.ai[0] - vector21.X;
+				float num188 = skeletron.position.Y + 230f - vector21.Y;
 				float num189;
 
 				npc.rotation = (float)Math.Atan2(num188, num187) + 1.57f;
@@ -475,14 +534,15 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				else if (npc.velocity.X > 12f)
 					npc.velocity.X = 12f;
 
-				if (npc.position.X + npc.width / 2 < npc.Following().position.X + npc.Following().width / 2 - 500f || npc.position.X + npc.width / 2 > npc.Following().position.X + npc.Following().width / 2 + 500f) {
+				if (npc.position.X + npc.width / 2 < skeletron.position.X + skeletron.width / 2 - 500f || npc.position.X + npc.width / 2 > skeletron.position.X + skeletron.width / 2 + 500f) {
 					npc.TargetClosest();
-
 					npc.ai[2] = 5f;
 
+					target = npc.Target();
+
 					vector21 = new Vector2(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-					num187 = npc.Target().position.X + npc.Target().width / 2 - vector21.X;
-					num188 = npc.Target().position.Y + npc.Target().height / 2 - vector21.Y;
+					num187 = target.position.X + target.width / 2 - vector21.X;
+					num188 = target.position.Y + target.height / 2 - vector21.Y;
 					num189 = (float)Math.Sqrt(num187 * num187 + num188 * num188);
 					num189 = 22f / num189;
 
@@ -490,16 +550,16 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 					npc.velocity.Y = num188 * num189;
 					npc.netUpdate = true;
 				}
-			} else if (npc.ai[2] == 5f && ((npc.velocity.X > 0f && npc.Center.X > npc.Target().Center.X) || (npc.velocity.X < 0f && npc.Center.X < npc.Target().Center.X)))
+			} else if (npc.ai[2] == 5f && ((npc.velocity.X > 0f && npc.Center.X > target.Center.X) || (npc.velocity.X < 0f && npc.Center.X < target.Center.X)))
 				npc.ai[2] = 0f;
 
-			npc.Helper().Timer--;
-			if (npc.Helper().Timer <= 0) {
+			helperData.Timer--;
+			if (helperData.Timer <= 0) {
 				SoundEngine.PlaySound(SoundID.NPCHit2, npc.Center);
 
-				MiscUtils.SpawnProjectileSynced(npc.Center, npc.DirectionTo(npc.Target().Center) * 14f, ModContent.ProjectileType<SkeletronBone>(), 32, 4f);
+				MiscUtils.SpawnProjectileSynced(npc.GetSource_FromAI(), npc.Center, npc.DirectionTo(target.Center) * 14f, ModContent.ProjectileType<SkeletronBone>(), Main.masterMode ? 120 : 88, 4f);
 
-				npc.Helper().Timer = Main.rand.Next(60, 75);
+				helperData.Timer = Main.rand.Next(60, 75);
 
 				DetourNPCHelper.SendData(npc.whoAmI);
 			}
