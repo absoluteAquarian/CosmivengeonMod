@@ -30,9 +30,9 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 				}
 			}
 
-			if (Main.dayTime && npc.position.Y <= Main.worldSurface * 16.0 && (npc.type == NPCID.DemonEye || npc.type == NPCID.WanderingEye || npc.type == NPCID.CataractEye || npc.type == NPCID.SleepyEye || npc.type == NPCID.DialatedEye || npc.type == NPCID.GreenEye || npc.type == NPCID.PurpleEye || npc.type == NPCID.DemonEyeOwl || npc.type == NPCID.DemonEyeSpaceship)) {
-				if (npc.timeLeft > 10)
-					npc.timeLeft = 10;
+		//	if (Main.dayTime && npc.position.Y <= Main.worldSurface * 16.0 && (npc.type == NPCID.DemonEye || npc.type == NPCID.WanderingEye || npc.type == NPCID.CataractEye || npc.type == NPCID.SleepyEye || npc.type == NPCID.DialatedEye || npc.type == NPCID.GreenEye || npc.type == NPCID.PurpleEye || npc.type == NPCID.DemonEyeOwl || npc.type == NPCID.DemonEyeSpaceship)) {
+			if (NPC.DespawnEncouragement_AIStyle2_FloatingEye_IsDiscouraged(npc.type, npc.position, npc.target)) {
+				npc.EncourageDespawn(10);
 
 				npc.directionY = -1;
 				if (npc.velocity.Y > 0f)
