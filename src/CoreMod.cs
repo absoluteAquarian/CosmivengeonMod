@@ -70,7 +70,7 @@ namespace CosmivengeonMod {
 		//Stamina use hotkey
 		public static ModKeybind StaminaHotKey;
 
-		private static readonly MethodInfo Mod_get_File = typeof(Mod).GetProperty("File", BindingFlags.NonPublic | BindingFlags.Instance).GetGetMethod();
+		private static readonly MethodInfo Mod_get_File = typeof(Mod).GetProperty("File", BindingFlags.NonPublic | BindingFlags.Instance).GetGetMethod(nonPublic: true);
 
 		public override IContentSource CreateDefaultContentSource() => new PossibleAssetsDirectoryRedirectContentSource(Mod_get_File.Invoke(this, null) as TmodFile);
 
@@ -84,14 +84,14 @@ namespace CosmivengeonMod {
 			//Only run this segment if we're not loading on a server
 			if (!Main.dedServ && Main.netMode != NetmodeID.Server) {
 				//Add music boxes
-				MusicLoader.AddMusicBox(this, MusicLoader.GetMusicSlot("Sounds/Music/Frigid_Feud"),
+				MusicLoader.AddMusicBox(this, MusicLoader.GetMusicSlot(this, "Sounds/Music/Frigid_Feud"),
 					ModContent.ItemType<FrostbiteBox>(),
 					ModContent.TileType<FrostbiteBoxTile>());
-				MusicLoader.AddMusicBox(this, MusicLoader.GetMusicSlot("Sounds/Music/Successor_of_the_Jewel"),
+				MusicLoader.AddMusicBox(this, MusicLoader.GetMusicSlot(this, "Sounds/Music/Successor_of_the_Jewel"),
 					ModContent.ItemType<DraekBox>(),
 					ModContent.TileType<DraekBoxTile>());
 
-				Ref<Effect> eocEffect = new Ref<Effect>(ModContent.Request<Effect>("Effects/screen_eoc", AssetRequestMode.ImmediateLoad).Value);
+				Ref<Effect> eocEffect = new Ref<Effect>(Assets.Request<Effect>("Effects/screen_eoc", AssetRequestMode.ImmediateLoad).Value);
 
 				FilterCollection.Screen_EoC = new Filter(new ScreenShaderData(eocEffect, "ScreenDarken"), EffectPriority.High);
 

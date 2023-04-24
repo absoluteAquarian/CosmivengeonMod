@@ -1,8 +1,8 @@
 ﻿namespace CosmivengeonMod.DataStructures {
 	public struct ExtraJump {
-		public bool abilityActive;
-		public bool jumpEffectActive;
-		public bool jumpAgain;
+		public bool hasJumpOption;
+		public bool isPerformingJump;
+		public bool canJumpAgain;
 		public bool flag;
 	}
 }

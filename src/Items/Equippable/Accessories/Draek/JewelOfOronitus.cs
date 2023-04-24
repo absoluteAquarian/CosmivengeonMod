@@ -37,7 +37,7 @@ namespace CosmivengeonMod.Items.Equippable.Accessories.Draek {
 			player.accRunSpeed *= 1.1f;
 			player.maxFallSpeed *= 1.2f;
 			player.gravity *= 1.2f;
-			player.GetModPlayer<AccessoriesPlayer>().oronitusJump.abilityActive = true;
+			player.GetModPlayer<AccessoriesPlayer>().oronitusJump.hasJumpOption = true;
 		}
 	}
 }

@@ -26,11 +26,11 @@ namespace CosmivengeonMod.Players {
 			blizzardEyeAccessory = null;
 			activeBlizzardEye = false;
 
-			oronitusJump.abilityActive = false;
+			oronitusJump.hasJumpOption = false;
 		}
 
 		public override void UpdateDead() {
-			oronitusJump.abilityActive = false;
+			oronitusJump.hasJumpOption = false;
 			brokenFrostHorn = false;
 		}
 
