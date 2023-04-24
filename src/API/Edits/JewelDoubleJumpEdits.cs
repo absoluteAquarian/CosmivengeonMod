@@ -11,10 +11,6 @@ using Terraria.ID;
 
 namespace CosmivengeonMod.API.Edits {
 	internal class JewelDoubleJumpEdits : Edit {
-		private static Player editPlayer;
-
-		private static readonly FieldInfo editPlayer_Field = typeof(JewelDoubleJumpEdits).GetField(nameof(editPlayer), BindingFlags.NonPublic | BindingFlags.Static);
-
 		public override void LoadEdits() {
 			IL.Terraria.Player.CarpetMovement += Player_CarpetMovement;
 			IL.Terraria.Player.JumpMovement += Player_JumpMovement;
@@ -147,10 +143,11 @@ namespace CosmivengeonMod.API.Edits {
 				return false;
 			}
 
-			c.Emit(OpCodes.Ldarg_0);
-			c.Emit(OpCodes.Stsfld, editPlayer_Field);
-
-			c.EmitElseIfBlock(out _, branchAfterChecks, static () => editPlayer.GetModPlayer<AccessoriesPlayer>().oronitusJump.canJumpAgain,
+			c.EmitElseIfBlock(out _, branchAfterChecks,
+				condition: static cursor => {
+					cursor.Emit(OpCodes.Ldarg_0);
+					cursor.EmitDelegate(static (Player player) => player.GetModPlayer<AccessoriesPlayer>().oronitusJump.canJumpAgain);
+				},
 				action: static cursor => {
 					cursor.Emit(OpCodes.Ldarg_0);
 					cursor.EmitDelegate<Action<Player>>(static player => {
@@ -179,10 +176,11 @@ namespace CosmivengeonMod.API.Edits {
 				return false;
 			}
 
-			c.Emit(OpCodes.Ldarg_0);
-			c.Emit(OpCodes.Stsfld, editPlayer_Field);
-
-			c.EmitElseIfBlock(out _, blockEnd, static () => editPlayer.GetModPlayer<AccessoriesPlayer>().oronitusJump.flag,
+			c.EmitElseIfBlock(out _, blockEnd,
+				condition: static cursor => {
+					cursor.Emit(OpCodes.Ldarg_0);
+					cursor.EmitDelegate(static (Player player) => player.GetModPlayer<AccessoriesPlayer>().oronitusJump.flag);
+				},
 				action: static cursor => {
 					cursor.Emit(OpCodes.Ldarg_0);
 					cursor.EmitDelegate<Action<Player>>(static player => {
@@ -242,10 +240,11 @@ namespace CosmivengeonMod.API.Edits {
 				return false;
 			}
 
-			c.Emit(OpCodes.Ldarg_0);
-			c.Emit(OpCodes.Stsfld, editPlayer_Field);
-
-			c.EmitIfBlock(out _, IsPlayerPerformingOronitusJump,
+			c.EmitIfBlock(out _,
+				condition: static cursor => {
+					cursor.Emit(OpCodes.Ldarg_0);
+					cursor.EmitDelegate(IsPlayerPerformingOronitusJump);
+				},
 				action: static cursor => {
 					cursor.Emit(OpCodes.Ldarg_0);
 					cursor.EmitDelegate<Action<Player>>(static player => {
@@ -262,8 +261,8 @@ namespace CosmivengeonMod.API.Edits {
 			return true;
 		}
 
-		private static bool IsPlayerPerformingOronitusJump() {
-			var jump = editPlayer.GetModPlayer<AccessoriesPlayer>().oronitusJump;
+		private static bool IsPlayerPerformingOronitusJump(Player player) {
+			var jump = player.GetModPlayer<AccessoriesPlayer>().oronitusJump;
 
 			return jump.isPerformingJump && jump.hasJumpOption;
 		}

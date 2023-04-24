@@ -44,6 +44,33 @@
         <member name="M:SerousCommonLib.API.Extensions.EmitIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Collections.Generic.IEnumerable{MonoMod.Cil.ILLabel})">
             <inheritdoc cref="M:SerousCommonLib.API.Extensions.EmitIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])"/>
         </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,System.Action{MonoMod.Cil.ILCursor},System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])">
+            <summary>
+            Emits the IL equivalent of an "if" block
+            </summary>
+            <param name="c">The cursor</param>
+            <param name="targetAfterBlock">A label representing the a branching label to the instruction after this "if" block</param>
+            <param name="preConditionAction">An optional function to invoke before emitting the delegate for <paramref name="condition"/></param>
+            <param name="condition">The boolean condition within the "if" statement</param>
+            <param name="action">Write instructions that would go inside the "if" block here</param>
+            <param name="targetsToUpdate">A list of branching labels to update to point to the start of this "if" block</param>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,System.Action{MonoMod.Cil.ILCursor},System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Collections.Generic.IEnumerable{MonoMod.Cil.ILLabel})">
+            <inheritdoc cref="M:SerousCommonLib.API.Extensions.EmitIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,System.Action{MonoMod.Cil.ILCursor},System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])"/>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])">
+            <summary>
+            Emits the IL equivalent of an "if" block
+            </summary>
+            <param name="c">The cursor</param>
+            <param name="targetAfterBlock">A label representing the a branching label to the instruction after this "if" block</param>
+            <param name="condition">The delegate for emitting the "if" condition.  A <see langword="bool"/> value is expected to be on the stack after this delegate's instructions are executed</param>
+            <param name="action">Write instructions that would go inside the "if" block here</param>
+            <param name="targetsToUpdate">A list of branching labels to update to point to the start of this "if" block</param>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},System.Collections.Generic.IEnumerable{MonoMod.Cil.ILLabel})">
+            <inheritdoc cref="M:SerousCommonLib.API.Extensions.EmitIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])"/>
+        </member>
         <member name="M:SerousCommonLib.API.Extensions.EmitElseIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])">
             <summary>
             Emits the IL equivalent of an "else if" block
@@ -57,6 +84,35 @@
         </member>
         <member name="M:SerousCommonLib.API.Extensions.EmitElseIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Collections.Generic.IEnumerable{MonoMod.Cil.ILLabel})">
             <inheritdoc cref="M:SerousCommonLib.API.Extensions.EmitElseIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])"/>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitElseIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel,System.Action{MonoMod.Cil.ILCursor},System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])">
+            <summary>
+            Emits the IL equivalent of an "else if" block
+            </summary>
+            <param name="c">The cursor</param>
+            <param name="targetAfterIfBlock">A label representing the a branching label to the instruction after this "else if" block</param>
+            <param name="targetAfterEverything">A label representing where to jump to after executing this "else if" block's instructions</param>
+            <param name="preConditionAction">An optional function to invoke before emitting the delegate for <paramref name="condition"/></param>
+            <param name="condition">The boolean condition within the "else if" statement</param>
+            <param name="action">Write instructions that would go inside the "else if" block here</param>
+            <param name="targetsToUpdate">A list of branching labels to update to point to the start of this "else if" block</param>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitElseIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel,System.Action{MonoMod.Cil.ILCursor},System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Collections.Generic.IEnumerable{MonoMod.Cil.ILLabel})">
+            <inheritdoc cref="M:SerousCommonLib.API.Extensions.EmitElseIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel,System.Action{MonoMod.Cil.ILCursor},System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])"/>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitElseIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel,System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])">
+            <summary>
+            Emits the IL equivalent of an "else if" block
+            </summary>
+            <param name="c">The cursor</param>
+            <param name="targetAfterIfBlock">A label representing the a branching label to the instruction after this "else if" block</param>
+            <param name="targetAfterEverything">A label representing where to jump to after executing this "else if" block's instructions</param>
+            <param name="condition">The delegate for emitting the "if" condition.  A <see langword="bool"/> value is expected to be on the stack after this delegate's instructions are executed</param>
+            <param name="action">Write instructions that would go inside the "else if" block here</param>
+            <param name="targetsToUpdate">A list of branching labels to update to point to the start of this "else if" block</param>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitElseIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel,System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},System.Collections.Generic.IEnumerable{MonoMod.Cil.ILLabel})">
+            <inheritdoc cref="M:SerousCommonLib.API.Extensions.EmitElseIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel,System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])"/>
         </member>
         <member name="M:SerousCommonLib.API.Extensions.EmitIfElseBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel@,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])">
             <summary>
@@ -72,6 +128,37 @@
         </member>
         <member name="M:SerousCommonLib.API.Extensions.EmitIfElseBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel@,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},System.Collections.Generic.IEnumerable{MonoMod.Cil.ILLabel})">
             <inheritdoc cref="M:SerousCommonLib.API.Extensions.EmitIfElseBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel@,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])"/>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitIfElseBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel@,System.Action{MonoMod.Cil.ILCursor},System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])">
+            <summary>
+            Emits the IL equivalent of an "if - else" chain
+            </summary>
+            <param name="c">The cursor</param>
+            <param name="targetAfterIfBlock">A label representing the a branching label to the instruction after the "if" block</param>
+            <param name="targetAfterEverything">A label representing where to jump to after executing the "if" block's instructions</param>
+            <param name="preConditionAction">An optional function to invoke before emitting the delegate for <paramref name="condition"/></param>
+            <param name="condition">The boolean condition within the "if" statement</param>
+            <param name="actionWhenTrueCondition">Write instructions that would go inside the "if" block here</param>
+            <param name="actionWhenFalseCondition">Write instructions that would go inside the "else" block here</param>
+            <param name="targetsToUpdate">A list of branching labels to update to point to the start of this "if" block</param>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitIfElseBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel@,System.Action{MonoMod.Cil.ILCursor},System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},System.Collections.Generic.IEnumerable{MonoMod.Cil.ILLabel})">
+            <inheritdoc cref="M:SerousCommonLib.API.Extensions.EmitIfElseBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel@,System.Action{MonoMod.Cil.ILCursor},System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])"/>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitIfElseBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel@,System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])">
+            <summary>
+            Emits the IL equivalent of an "if - else" chain
+            </summary>
+            <param name="c">The cursor</param>
+            <param name="targetAfterIfBlock">A label representing the a branching label to the instruction after the "if" block</param>
+            <param name="targetAfterEverything">A label representing where to jump to after executing the "if" block's instructions</param>
+            <param name="condition">The delegate for emitting the "if" condition.  A <see langword="bool"/> value is expected to be on the stack after this delegate's instructions are executed</param>
+            <param name="actionWhenTrueCondition">Write instructions that would go inside the "if" block here</param>
+            <param name="actionWhenFalseCondition">Write instructions that would go inside the "else" block here</param>
+            <param name="targetsToUpdate">A list of branching labels to update to point to the start of this "if" block</param>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitIfElseBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel@,System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},System.Collections.Generic.IEnumerable{MonoMod.Cil.ILLabel})">
+            <inheritdoc cref="M:SerousCommonLib.API.Extensions.EmitIfElseBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel@,System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])"/>
         </member>
         <member name="M:SerousCommonLib.API.Extensions.EmitIfElseChainBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel[]@,SerousCommonLib.API.ILElseIfBlock[],System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])">
             <summary>
@@ -373,9 +460,19 @@
             A structure representing an "else if" block in IL
             </summary>
         </member>
+        <member name="F:SerousCommonLib.API.ILElseIfBlock.preConditionAction">
+            <summary>
+            An optional function that's invoked before emitting the delegate for <see cref="F:SerousCommonLib.API.ILElseIfBlock.condition"/>
+            </summary>
+        </member>
         <member name="F:SerousCommonLib.API.ILElseIfBlock.condition">
             <summary>
             The condition for the block
+            </summary>
+        </member>
+        <member name="F:SerousCommonLib.API.ILElseIfBlock.conditionDirect">
+            <summary>
+            If not null, this action acts as the delegate used for emitting the condition
             </summary>
         </member>
         <member name="F:SerousCommonLib.API.ILElseIfBlock.action">
