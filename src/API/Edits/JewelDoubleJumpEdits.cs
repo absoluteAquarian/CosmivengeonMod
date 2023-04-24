@@ -98,7 +98,6 @@ namespace CosmivengeonMod.API.Edits {
 			//This is where the actual jump happens
 			FieldInfo Player_canJumpAgain_Unicorn = typeof(Player).GetField("canJumpAgain_Unicorn", BindingFlags.Public | BindingFlags.Instance);
 			FieldInfo Player_canJumpAgain_Blizzard = typeof(Player).GetField("canJumpAgain_Blizzard", BindingFlags.Public | BindingFlags.Instance);
-			FieldInfo Player_doubleJumpUnicorn = typeof(Player).GetField("doubleJumpUnicorn", BindingFlags.Public | BindingFlags.Instance);
 			FieldInfo Player_autoJump = typeof(Player).GetField("autoJump", BindingFlags.Public | BindingFlags.Instance);
 			FieldInfo Player_justJumped = typeof(Player).GetField("justJumped", BindingFlags.Public | BindingFlags.Instance);
 			FieldInfo Vector2_X = typeof(Vector2).GetField("X", BindingFlags.Public | BindingFlags.Instance);
@@ -204,13 +203,9 @@ namespace CosmivengeonMod.API.Edits {
 		private static bool UpdatePatch(ILCursor c, ref string badReturnReason) {
 			// This is where 'AccessoriesPlayer.oronitusJump.canJumpAgain' is set or cleared
 			FieldInfo Player_canJumpAgain_Unicorn = typeof(Player).GetField("canJumpAgain_Unicorn", BindingFlags.Public | BindingFlags.Instance);
-			FieldInfo Player_doubleJumpUnicorn = typeof(Player).GetField("doubleJumpUnicorn", BindingFlags.Public | BindingFlags.Instance);
-			FieldInfo Player_dJumpEffectUnicorn = typeof(Player).GetField("dJumpEffectUnicorn", BindingFlags.Public | BindingFlags.Instance);
 			FieldInfo Player_maxRunSpeed = typeof(Player).GetField("maxRunSpeed", BindingFlags.Public | BindingFlags.Instance);
 			FieldInfo Player_sandStorm = typeof(Player).GetField("sandStorm", BindingFlags.Public | BindingFlags.Instance);
-			FieldInfo Player_runAcceleration = typeof(Player).GetField("runAcceleration", BindingFlags.Public | BindingFlags.Instance);
 			FieldInfo Entity_position = typeof(Entity).GetField("position", BindingFlags.Public | BindingFlags.Instance);
-			MethodInfo Player_DashMovement = typeof(Player).GetMethod("DashMovement", BindingFlags.Public | BindingFlags.Instance);
 
 			// First edit:  Some mounts block double jumps altogether. This should happen for this accessory too
 			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
