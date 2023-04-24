@@ -13,7 +13,7 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Utility {
 	public static class MiscUtils {
-		public static float DamageDecrease => Main.expertMode ? 0.25f : 0.5f;
+		public static float DamageDecrease => Main.masterMode ? 1f / 6f : Main.expertMode ? 1f / 4f : 1f / 2f;
 
 		public static Color TausFavouriteColour = new Color(106, 0, 170);
 

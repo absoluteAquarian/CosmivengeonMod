@@ -63,7 +63,6 @@ namespace CosmivengeonMod.API.Edits.Desomode {
 		/// A generic flag.
 		/// <list type="bullet">
 		/// <item>EoC - whether the boss has done the transition to Phase 3</item>
-		/// <item>QB - if the first charge attack has happened</item>
 		/// <item>WoF - mouth was forced within 100 tiles of the target player</item>
 		/// </list>
 		/// </summary>

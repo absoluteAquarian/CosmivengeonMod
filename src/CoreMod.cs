@@ -9,25 +9,20 @@ using CosmivengeonMod.NPCs.Bosses.FrostbiteBoss;
 using CosmivengeonMod.NPCs.Global;
 using CosmivengeonMod.Players;
 using CosmivengeonMod.Tiles.MusicBoxes;
-using CosmivengeonMod.UI;
 using CosmivengeonMod.Utility;
 using CosmivengeonMod.Systems;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using ReLogic.Content.Sources;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Terraria;
 using Terraria.Graphics.Effects;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
-using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Core;
-using Terraria.UI;
 
 namespace CosmivengeonMod {
 	public class CoreMod : Mod {

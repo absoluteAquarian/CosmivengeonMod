@@ -1,7 +1,5 @@
 ﻿using CosmivengeonMod.DataStructures;
 using CosmivengeonMod.Players;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;

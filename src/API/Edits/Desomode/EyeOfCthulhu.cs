@@ -5,7 +5,6 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.Graphics.Effects;
 using Terraria.ID;
-using static Terraria.ModLoader.PlayerDrawLayer;
 
 namespace CosmivengeonMod.API.Edits.Desomode {
 	public static partial class DesolationModeBossAI {
