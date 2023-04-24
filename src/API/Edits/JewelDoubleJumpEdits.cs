@@ -210,13 +210,11 @@ namespace CosmivengeonMod.API.Edits {
 			// First edit:  Some mounts block double jumps altogether. This should happen for this accessory too
 			if (!c.TryGotoNext(MoveType.After, i => i.MatchLdarg(0),
 				i => i.MatchLdcI4(0),
-				i => i.MatchStfld(Player_canJumpAgain_Unicorn),
-				i => i.MatchBr(out _))) {
+				i => i.MatchStfld(Player_canJumpAgain_Unicorn))) {
 				badReturnReason = "Could not find canJumpAgain_Unicorn clearing instruction sequence";
 				return false;
 			}
 
-			c.Index--;
 			c.Emit(OpCodes.Ldarg_0);
 			c.EmitDelegate<Action<Player>>(static player => player.GetModPlayer<AccessoriesPlayer>().oronitusJump.canJumpAgain = false);
 

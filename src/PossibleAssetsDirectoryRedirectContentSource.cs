@@ -25,8 +25,11 @@ namespace CosmivengeonMod {
 			//     services.AddService(typeof(AssetReaderCollection), assetReaderCollection);
 			var assetReaderCollection = Main.instance.Services.GetService(typeof(AssetReaderCollection)) as AssetReaderCollection;
 
-			SetAssetNames(file
-				.Select(fileEntry => fileEntry.Name)
+			var files = file.Select(static fileEntry => fileEntry.Name);
+			var filesWithoutAssetsDirectory = file.Where(static fileEntry => fileEntry.Name.StartsWith("Assets/"))
+				.Select(static fileEntry => fileEntry.Name[7..]);
+
+			SetAssetNames(files.Concat(filesWithoutAssetsDirectory)
 				.Where(name => assetReaderCollection.TryGetReader(Path.GetExtension(name), out _)));
 		}
 
