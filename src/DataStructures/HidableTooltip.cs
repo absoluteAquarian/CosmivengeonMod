@@ -47,10 +47,10 @@ namespace CosmivengeonMod.DataStructures {
 				var keys = PlayerInput.CurrentProfile.InputModes[InputMode.Keyboard].KeyStatus[TriggerNames.SmartSelect];
 				string key = keys.Count == 0 ? "<NOT BOUND>" : keys[0];
 
-				string name = Main.LocalPlayer.controlTorch ? "CustomTooltip" : "RevealTooltip";
-				string text = Main.LocalPlayer.controlTorch ? FlavourText : $"[c/555555:[Press \"{key}\" to view full tooltip.][c/555555:]]";
+				string name = PlayerInput.Triggers.Current.SmartSelect ? "CustomTooltip" : "RevealTooltip";
+				string text = PlayerInput.Triggers.Current.SmartSelect ? FlavourText : $"[c/555555:[Press \"{key}\" to view full tooltip.][c/555555:]]";
 
-				if (!Main.LocalPlayer.controlTorch)
+				if (!PlayerInput.Triggers.Current.SmartSelect)
 					tooltips[descriptionIndex] = new TooltipLine(Mod, name, text);
 				else {
 					var s = text.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);

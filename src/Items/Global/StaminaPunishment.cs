@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 namespace CosmivengeonMod.Items.Global {
 	public class StaminaPunishment : GlobalItem {
 		public override void HoldItem(Item item, Player player) {
-			if (item.IsAir || item.damage <= 0 || !item.channel)
+			if (item.IsAir || item.damage <= 0 || !item.channel || !player.ItemAnimationJustStarted)
 				return;
 
 			var mp = player.GetModPlayer<StaminaPlayer>();

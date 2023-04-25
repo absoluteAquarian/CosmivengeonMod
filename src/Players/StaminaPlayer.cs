@@ -88,19 +88,6 @@ namespace CosmivengeonMod.Players {
 			Main.NewText("Thank you for using Cosmivengeon Mod! Please know that this mod is not responsible for any issues that might occur when using Desolation Mode with any other mod's difficulty mode.", new Color(0xa6, 0x00, 0xcd));
 		}
 
-		public override void PostItemCheck() {
-			if (Player.HeldItem.IsAir || Player.HeldItem.damage <= 0 || Player.itemAnimation != Player.itemAnimationMax - 1)
-				return;
-
-			//If the stamina is recharging, punish the player for attacking
-			//Items that "channel" will apply a lesser penalty during the use
-			if (stamina.Recharging && stamina.Value < stamina.MaxValue && Player.HeldItem.channel) {
-				float amt = Player.HeldItem.useAnimation / 15f;
-
-				stamina.AddAttackPunishment(amt);
-			}
-		}
-
 		private int particleTimer = 0;
 
 		private int lastUpdate = -1;

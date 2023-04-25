@@ -300,7 +300,7 @@ End:
 					name = "_Red";
 			}
 
-			return ModContent.Request<Texture2D>($"Cosmivengeon/Abilities/BarFrameEnergyIcon{name}").Value;
+			return ModContent.Request<Texture2D>($"CosmivengeonMod/Abilities/BarFrameEnergyIcon{name}").Value;
 		}
 
 		/// <summary>
