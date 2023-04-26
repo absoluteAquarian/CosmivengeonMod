@@ -26,13 +26,13 @@ namespace CosmivengeonMod.Abilities {
 		public DrawData GetDrawData() {
 			var asset = ModContent.Request<Texture2D>("CosmivengeonMod/Abilities/EnergizedParticle");
 
-			int frame = Parent.GetModPlayer<StaminaPlayer>().stamina.GetIconFrame();
+			var stamina = Parent.GetModPlayer<StaminaPlayer>().stamina;
 
-			if (frame == 1)
-				return default;  // Gray
-
-			if (frame > 1)
-				frame--;
+			int frame = 1;
+			if (stamina.Value > stamina.MaxValue * Stamina.FlashThreshold)
+				frame = 0;
+			else if (stamina.Value > stamina.MaxValue * Stamina.FlashThreshold / 2)
+				frame = 2;
 
 			Rectangle src = asset.Value.Frame(1, 3, 0, frame, 0, -2);
 

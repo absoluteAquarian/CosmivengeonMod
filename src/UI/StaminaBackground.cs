@@ -14,8 +14,8 @@ namespace CosmivengeonMod.UI {
 		private StaminaBolt bolt;
 
 		public StaminaBackground() {
-			Width.Set(160f, 0f);
-			Height.Set(50f, 0f);
+			Width.Set(162f, 0f);
+			Height.Set(52f, 0f);
 		}
 
 		public override void OnInitialize() {

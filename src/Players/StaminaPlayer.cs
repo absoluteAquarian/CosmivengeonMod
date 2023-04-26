@@ -197,7 +197,7 @@ namespace CosmivengeonMod.Players {
 
 			if (modPlayer.stamina.Active) {
 				foreach (EnergizedParticle particle in modPlayer.energizedParticles) {
-					if (particle.Active) {
+					if (particle?.Active is true) {
 						DrawData data = particle.GetDrawData();
 						drawInfo.DrawDataCache.Add(data);
 					}

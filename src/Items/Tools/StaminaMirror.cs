@@ -114,13 +114,12 @@ namespace CosmivengeonMod.Items.Tools {
 			return $"{current} units ({sign}{diff} units)";
 		}
 
-		private static string GetPercentDiffString(float defaultRate, float multiplier) {
-			float current = defaultRate * multiplier;
+		private static string GetPercentDiffString(float defaultRate, float current) {
 			int cur = (int)((current - 1) * 100);
 			int diff = (int)((current - defaultRate) * 100);
 			string signCur = GetSign(cur);
 			string signDiff = GetSign(diff);
-			return $"{signCur}{cur}% ({signDiff}{diff}%)";
+			return $"{signCur}{cur:0.###}% ({signDiff}{diff:0.###}%)";
 		}
 
 		private static string GetRatesString(float current, float defaultRate) {
@@ -129,7 +128,7 @@ namespace CosmivengeonMod.Items.Tools {
 			int diff = (int)(current - defaultRate);
 			string signCur = GetSign(current);
 			string signDiff = GetSign(diff);
-			return $"{signCur}{current} units/s ({signDiff}{diff} units/s)";
+			return $"{signCur}{current:0.###} units/s ({signDiff}{diff:0.###} units/s)";
 		}
 
 		private static string GetSign(float value)

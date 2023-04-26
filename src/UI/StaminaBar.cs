@@ -10,20 +10,21 @@ using Terraria.UI;
 namespace CosmivengeonMod.UI {
 	public class StaminaBar : UIElement {
 		public StaminaBar() {
-			Width.Set(88f, 0f);
-			Height.Set(22f, 0f);
+			Width.Set(90f, 0f);
+			Height.Set(26f, 0f);
 		}
 
 		protected override void DrawSelf(SpriteBatch spriteBatch) {
 			Stamina stamina = Main.LocalPlayer.GetModPlayer<StaminaPlayer>().stamina;
 
-			Rectangle rect = GetDimensions().ToRectangle();
-
-			rect.Width = (int)(rect.Width * (float)stamina.Value / stamina.MaxValue);
-
 			var asset = ModContent.Request<Texture2D>("CosmivengeonMod/Abilities/Bar", AssetRequestMode.ImmediateLoad);
 
-			spriteBatch.Draw(asset.Value, rect, Color.White);
+			Rectangle rect = GetDimensions().ToRectangle();
+			Rectangle src = asset.Value.Bounds;
+
+			rect.Width = src.Width = (int)(src.Width * (float)stamina.Value / stamina.MaxValue);
+
+			spriteBatch.Draw(asset.Value, rect, src, Color.White);
 		}
 	}
 }

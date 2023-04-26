@@ -266,16 +266,19 @@ End:
 		/// Called in ModPlayer.PostUpdateMiscEffects()
 		/// </summary>
 		public void ApplyAttackSpeed(Player player) {
+			if (!WorldEvents.desoMode || (!Active && !ApplyExhaustionDebuffs))
+				return;
+
 			float apply = stats.attackSpeed.ApplyTo(DefaultAttackSpeed, DefaultExhaustedAttackSpeed, ApplyExhaustionDebuffs);
 
-			player.GetAttackSpeed(DamageClass.Generic) += 1f - apply;
+			player.GetAttackSpeed(DamageClass.Generic) += apply - 1f;
 		}
 
 		/// <summary>
 		/// Called in ModPlayer.PostUpdateRunSpeeds()
 		/// </summary>
 		public void ApplyRunSpeedChanges(Player player) {
-			if (!WorldEvents.desoMode)
+			if (!WorldEvents.desoMode || (!Active && !ApplyExhaustionDebuffs))
 				return;
 
 			stats.ApplyTo(ref player.maxRunSpeed, ref player.accRunSpeed, ref player.runAcceleration, ApplyExhaustionDebuffs);
