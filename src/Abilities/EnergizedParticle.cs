@@ -34,7 +34,7 @@ namespace CosmivengeonMod.Abilities {
 			if (frame > 1)
 				frame--;
 
-			Rectangle src = asset.Value.Frame(0, 3, 0, frame, 0, -2);
+			Rectangle src = asset.Value.Frame(1, 3, 0, frame, 0, -2);
 
 			return new DrawData(
 				asset.Value,
@@ -42,7 +42,7 @@ namespace CosmivengeonMod.Abilities {
 				src,
 				Color.White,
 				0f,
-				asset.Size() / 2f,
+				src.Size() / 2f,
 				Scale,
 				SpriteEffects.None,
 				0

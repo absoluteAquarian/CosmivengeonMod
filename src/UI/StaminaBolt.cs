@@ -21,7 +21,7 @@ namespace CosmivengeonMod.UI {
 			var asset = ModContent.Request<Texture2D>($"CosmivengeonMod/Abilities/BarFrameEnergyIcon", AssetRequestMode.ImmediateLoad);
 			var position = GetDimensions().Center();
 			var frame = asset.Value.Frame(1, 4, 0, stamina.GetIconFrame(), 0, -2);
-			var center = asset.Value.Size() / 2f;
+			var center = frame.Size() / 2f;
 
 			float scale = 1f;
 			if (stamina.UnderThreshold && !stamina.Exhaustion)
