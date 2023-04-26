@@ -28,9 +28,14 @@ namespace CosmivengeonMod.Systems {
 		}
 
 		public override void UpdateUI(GameTime gameTime) {
-			StaminaUI.Visible = !Main.gameMenu && WorldEvents.desoMode;
-			if (StaminaUI.Visible)
-				userInterface?.Update(gameTime);
+			bool visible = !Main.gameMenu && WorldEvents.desoMode;
+
+			if (!visible && userInterface.CurrentState is not null)
+				userInterface.SetState(null);
+			else if (visible && userInterface.CurrentState is null)
+				userInterface.SetState(staminaUI);
+
+			userInterface?.Update(gameTime);
 		}
 
 		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
@@ -40,8 +45,7 @@ namespace CosmivengeonMod.Systems {
 				layers.Insert(mouseIndex, new LegacyGameInterfaceLayer(
 					"CosmivengeonMod: Stamina UI",
 					delegate {
-						if (StaminaUI.Visible)
-							userInterface.Draw(Main.spriteBatch, new GameTime());
+						userInterface.Draw(Main.spriteBatch, new GameTime());
 						return true;
 					},
 					InterfaceScaleType.UI)
