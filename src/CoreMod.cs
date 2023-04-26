@@ -107,7 +107,7 @@ namespace CosmivengeonMod {
 					stat.restorationRate.active += 0.1f;
 					stat.restorationRate.exhausted += 0.6f;
 					stat.consumptionRate -= 0.035f;
-					stat.maxQuantity.Base += 0.1f;
+					stat.maxQuantity.Base += 0.1f * Stamina.DefaultMaxQuantity;
 				});
 			StaminaBuffsTrackingNPC.AddStaminaBossBuff(NPCID.EyeofCthulhu,
 				"Defeating the master observer of the night has honed your senses, allowing you to move and attack faster while in the Active state." +
@@ -173,7 +173,7 @@ namespace CosmivengeonMod {
 					stat.restorationRate.active += 0.225f;
 					stat.restorationRate.exhausted += 0.08f;
 					stat.consumptionRate -= 0.06f;
-					stat.maxQuantity.Base += 0.25f;
+					stat.maxQuantity.Base += 0.25f * Stamina.DefaultMaxQuantity;
 				});
 			StaminaBuffsTrackingNPC.AddStaminaBossBuff(NPCID.WallofFlesh,
 				"Defeating the horrifying guarding of the world has enlightened you to a new level of mastery over your Stamina." +
@@ -194,7 +194,7 @@ namespace CosmivengeonMod {
 					stat.restorationRate.active += 0.3f;
 					stat.restorationRate.exhausted += 0.1f;
 					stat.consumptionRate -= 0.1f;
-					stat.maxQuantity.Base += 0.5f;
+					stat.maxQuantity.Base += 0.5f * Stamina.DefaultMaxQuantity;
 				});
 			// TODO: add the rest of the vanilla boss stuff
 			//Vanilla minibosses
@@ -225,7 +225,7 @@ namespace CosmivengeonMod {
 					stat.maxRunSpeed.active += 0.02f;
 					stat.restorationRate.active += 0.18f;
 					stat.consumptionRate -= 0.075f;
-					stat.maxQuantity.Base += 0.15f;
+					stat.maxQuantity.Base += 0.15f * Stamina.DefaultMaxQuantity;
 				});
 			// TODO: add the rest of the Cosmivengeon boss stuff
 			// TODO: add cross-mod support
