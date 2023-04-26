@@ -6,9 +6,11 @@ using CosmivengeonMod.Systems;
 using SerousCommonLib.API;
 using Terraria;
 using Terraria.ModLoader;
+using CosmivengeonMod.Buffs.Harmful;
+using Terraria.ID;
 
 namespace CosmivengeonMod.API.Edits {
-	internal class DraekBossHealthMagicDetour : Edit {
+	internal class NPCPostDefaultsLogicDetour : Edit {
 		public override void LoadEdits() {
 			On.Terraria.NPC.SetDefaults += NPC_SetDefaults;
 		}
@@ -62,6 +64,16 @@ namespace CosmivengeonMod.API.Edits {
 
 			self.Desomode().QB_baseScale = self.scale;
 			self.Desomode().QB_baseSize = self.Size;
+
+			if (WorldEvents.desoMode && self.type == NPCID.KingSlime) {
+				// King Slime gets more buff immunity in Desolation mode
+				self.SetImmune(BuffID.OnFire);
+				self.SetImmune(BuffID.Frostburn);
+				self.SetImmune(BuffID.CursedInferno);
+				self.SetImmune(BuffID.ShadowFlame);
+				self.SetImmune(BuffID.Daybreak);
+				self.SetImmune(ModContent.BuffType<PrimordialWrath>());
+			}
 		}
 
 		public static int GetDraekMaxHealth(float bossScale)
