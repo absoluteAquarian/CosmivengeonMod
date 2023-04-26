@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CosmivengeonMod.Players;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.DataStructures;
@@ -11,7 +12,6 @@ namespace CosmivengeonMod.Abilities {
 		private Vector2 offset = Vector2.Zero;
 		public Vector2 Position => Parent.position + offset;
 		public float Scale = 1f;
-		public static Texture2D DrawTexture => ModContent.Request<Texture2D>("CosmivengeonMod/Abilities/EnergizedParticle").Value;
 		public bool Active = false;
 
 		private bool deleted = false;
@@ -24,15 +24,25 @@ namespace CosmivengeonMod.Abilities {
 		}
 
 		public DrawData GetDrawData() {
-			var texture = DrawTexture;
+			var asset = ModContent.Request<Texture2D>("CosmivengeonMod/Abilities/EnergizedParticle");
+
+			int frame = Parent.GetModPlayer<StaminaPlayer>().stamina.GetIconFrame();
+
+			if (frame == 1)
+				return default;  // Gray
+
+			if (frame > 1)
+				frame--;
+
+			Rectangle src = asset.Value.Frame(0, 3, 0, frame, 0, -2);
 
 			return new DrawData(
-				texture,
+				asset.Value,
 				Position - Main.screenPosition,
-				null,
-				Lighting.GetColor((int)(Position.X / 16f), (int)(Position.Y / 16f)),
+				src,
+				Color.White,
 				0f,
-				texture.Size() / 2f,
+				asset.Size() / 2f,
 				Scale,
 				SpriteEffects.None,
 				0

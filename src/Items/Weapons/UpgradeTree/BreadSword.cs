@@ -49,7 +49,7 @@ namespace CosmivengeonMod.Items.Weapons.UpgradeTree {
 
 			var stamina = player.GetModPlayer<StaminaPlayer>().stamina;
 			if (!stamina.Active)
-				stamina.Add(200, true);
+				stamina.Restore(200, true);
 		}
 	}
 }

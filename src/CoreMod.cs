@@ -23,6 +23,7 @@ using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Core;
+using CosmivengeonMod.Abilities;
 
 namespace CosmivengeonMod {
 	public class CoreMod : Mod {
@@ -99,85 +100,101 @@ namespace CosmivengeonMod {
 			//Vanilla bosses
 			StaminaBuffsTrackingNPC.AddStaminaBossBuff(NPCID.KingSlime,
 				"Defeating the monarch of slime has loosened up your muscles, allowing you to use Stamina for longer and recover from Exhaustion faster." +
-					"\n Idle increase rate: +10%, Exhaustion increase rate: +6%, Active use rate: -3.5%" +
+					"\n Idle restoration rate: +10%, Exhausted restoration rate: +6%, Active consumption rate: -3.5%" +
 					"\n Maximum Stamina: +1000 units",
-				stamina => {
-					stamina.AddEffects(incMult: 0.1f, exIncMult: 0.06f, decMult: -0.035f, maxAdd: 1000);
+				(out StaminaStatModifier stat) => {
+					stat = StaminaStatModifier.Default;
+					stat.restorationRate.active += 0.1f;
+					stat.restorationRate.exhausted += 0.6f;
+					stat.consumptionRate -= 0.035f;
+					stat.maxQuantity.Base += 0.1f;
 				});
 			StaminaBuffsTrackingNPC.AddStaminaBossBuff(NPCID.EyeofCthulhu,
 				"Defeating the master observer of the night has honed your senses, allowing you to move and attack faster while in the Active state." +
 					"\n Active attack speed rate: +3%" +
-					"\n Active move acceleration rate: +6%, Active max move speed: +5%",
-				stamina => {
-					stamina.AttackSpeedBuffMultiplier += 0.03f;
-					stamina.MoveSpeedBuffMultiplier += 0.06f;
-					stamina.MaxMoveSpeedBuffMultiplier += 0.05f;
+					"\n Active run acceleration rate: +6%, Active max run speed: +5%",
+				(out StaminaStatModifier stat) => {
+					stat = StaminaStatModifier.Default;
+					stat.attackSpeed.active += 0.03f;
+					stat.runAcceleration.active += 0.06f;
+					stat.maxRunSpeed.active += 0.05f;
 				});
 			StaminaBuffsTrackingNPC.AddStaminaBossBuff(NPCID.EaterofWorldsHead,
 				"Defeating the grotesque harbinger from the Corruption has strengthened your resolve, reducing the harmful effects from Exhaustion." +
-					"\n Exhaustion attack speed rate: +1.5%" +
-					"\n Exhaustion move acceleration rate: +4%, Exhaustion max move speed: +5.75%" +
-					"\n Exhausted increase rate: +6%",
-				stamina => {
-					stamina.AddEffects(exIncMult: 0.06f);
-					stamina.AttackSpeedDebuffMultiplier += 0.015f;
-					stamina.MoveSpeedDebuffMultiplier += 0.04f;
-					stamina.MaxMoveSpeedDebuffMultiplier += 0.0575f;
+					"\n Exhausted attack speed rate: +1.5%" +
+					"\n Exhausted run acceleration rate: +4%, Exhausted max run speed: +5.75%" +
+					"\n Exhausted restoration rate: +6%",
+				(out StaminaStatModifier stat) => {
+					stat = StaminaStatModifier.Default;
+					stat.attackSpeed.exhausted += 0.015f;
+					stat.runAcceleration.exhausted += 0.04f;
+					stat.maxRunSpeed.exhausted += 0.0575f;
+					stat.restorationRate.exhausted += 0.06f;
 				});
 			StaminaBuffsTrackingNPC.AddStaminaBossBuff(NPCID.BrainofCthulhu,
 				"Defeating the Crimson's mastermind has sharpened your wits, letting you react faster to your surroundings." +
 					"\n Active attack speed rate: +2.5%" +
-					"\n Active move acceleration rate: +7%, Active max move speed: +4%",
-				stamina => {
-					stamina.AttackSpeedBuffMultiplier += 0.025f;
-					stamina.MoveSpeedBuffMultiplier += 0.07f;
-					stamina.MaxMoveSpeedBuffMultiplier += 0.04f;
+					"\n Active run acceleration rate: +7%, Active max run speed: +4%",
+				(out StaminaStatModifier stat) => {
+					stat = StaminaStatModifier.Default;
+					stat.attackSpeed.active += 0.025f;
+					stat.runAcceleration.active += 0.07f;
+					stat.maxRunSpeed.active += 0.04f;
 				});
 			StaminaBuffsTrackingNPC.AddStaminaBossBuff(NPCID.QueenBee,
 				"Defeating the monarch of the jungle has improved your resilience to Exhaustion and your overall abilities while in the Active state." +
 					"\n Active attack speed rate: +2%" +
-					"\n Active move acceleration rate: +3%" +
-					"\n Exhaustion attack speed rate: +0.75%" +
-					"\n Exhaustion move acceleration rate: +1.5%",
-				stamina => {
-					stamina.AttackSpeedBuffMultiplier += 0.02f;
-					stamina.MoveSpeedBuffMultiplier += 0.03f;
-					stamina.AttackSpeedDebuffMultiplier += 0.0075f;
-					stamina.MoveSpeedDebuffMultiplier += 0.015f;
+					"\n Active run acceleration rate: +3%" +
+					"\n Exhausted attack speed rate: +0.75%" +
+					"\n Exhausted run acceleration rate: +1.5%",
+				(out StaminaStatModifier stat) => {
+					stat = StaminaStatModifier.Default;
+					stat.attackSpeed.active += 0.02f;
+					stat.runAcceleration.active += 0.03f;
+					stat.attackSpeed.exhausted += 0.0075f;
+					stat.runAcceleration.exhausted += 0.015f;
 				});
 			StaminaBuffsTrackingNPC.AddStaminaBossBuff(NPCID.SkeletronHead,
 				"Defeating the cursed guardian of the Dungeon has further increased your control over your Stamina." +
 					"\n Active attack speed rate: +3%" +
-					"\n Active move acceleration rate: +5%, Active max move speed: +5%" +
-					"\n Exhaustion attack speed rate: +2.5%" +
-					"\n Exhaustion move acceleration rate: +3.125%, Exhaustion max move speed: +3.125%" +
-					"\n Idle increase rate: +22.5%, Exhaustion increase rate: +8%, Active use rate: -6%" +
+					"\n Active run acceleration rate: +5%, Active max run speed: +5%" +
+					"\n Exhausted attack speed rate: +2.5%" +
+					"\n Exhausted run acceleration rate: +3.125%, Exhausted max run speed: +3.125%" +
+					"\n Idle restoration rate: +22.5%, Exhausted restoration rate: +8%, Active consumption rate: -6%" +
 					"\n Maximum Stamina: +2500 units",
-				stamina => {
-					stamina.AddEffects(incMult: 0.225f, exIncMult: 0.08f, decMult: -0.06f, maxAdd: 2500);
-					stamina.AttackSpeedBuffMultiplier += 0.03f;
-					stamina.MoveSpeedBuffMultiplier += 0.05f;
-					stamina.MaxMoveSpeedBuffMultiplier += 0.05f;
-					stamina.AttackSpeedDebuffMultiplier += 0.025f;
-					stamina.MoveSpeedDebuffMultiplier += 0.03125f;
-					stamina.MaxMoveSpeedDebuffMultiplier += 0.03125f;
+				(out StaminaStatModifier stat) => {
+					stat = StaminaStatModifier.Default;
+					stat.attackSpeed.active += 0.03f;
+					stat.runAcceleration.active += 0.05f;
+					stat.maxRunSpeed.active += 0.05f;
+					stat.attackSpeed.exhausted += 0.025f;
+					stat.runAcceleration.exhausted += 0.03125f;
+					stat.maxRunSpeed.exhausted += 0.03125f;
+					stat.restorationRate.active += 0.225f;
+					stat.restorationRate.exhausted += 0.08f;
+					stat.consumptionRate -= 0.06f;
+					stat.maxQuantity.Base += 0.25f;
 				});
 			StaminaBuffsTrackingNPC.AddStaminaBossBuff(NPCID.WallofFlesh,
 				"Defeating the horrifying guarding of the world has enlightened you to a new level of mastery over your Stamina." +
 					"\n Active attack speed rate: +3.25%" +
-					"\n Active move acceleration rate: +6.5%, Active max move speed: +6.5%" +
-					"\n Exhaustion attack speed rate: +2%" +
-					"\n Exhaustion move acceleration rate: +3%, Exhaustion max move speed: +3%" +
-					"\n Idle increase rate: +30%, Exhaustion increase rate: +10%, Active use rate: -10%" +
+					"\n Active run acceleration rate: +6.5%, Active max run speed: +6.5%" +
+					"\n Exhausted attack speed rate: +2%" +
+					"\n Exhausted run acceleration rate: +3%, Exhausted max run speed: +3%" +
+					"\n Idle restoration rate: +30%, Exhausted restoration rate: +10%, Active consumption rate: -10%" +
 					"\n Maximum Stamina: +5000 units",
-				stamina => {
-					stamina.AddEffects(incMult: 0.3f, exIncMult: 0.1f, decMult: -0.1f, maxAdd: 5000);
-					stamina.AttackSpeedBuffMultiplier += 0.0325f;
-					stamina.MoveSpeedBuffMultiplier += 0.065f;
-					stamina.MaxMoveSpeedBuffMultiplier += 0.065f;
-					stamina.AttackSpeedBuffMultiplier += 0.02f;
-					stamina.MoveSpeedDebuffMultiplier += 0.03f;
-					stamina.MaxMoveSpeedDebuffMultiplier += 0.03f;
+				(out StaminaStatModifier stat) => {
+					stat = StaminaStatModifier.Default;
+					stat.attackSpeed.active += 0.0325f;
+					stat.runAcceleration.active += 0.065f;
+					stat.maxRunSpeed.active += 0.065f;
+					stat.attackSpeed.exhausted += 0.02f;
+					stat.runAcceleration.exhausted += 0.03f;
+					stat.maxRunSpeed.exhausted += 0.03f;
+					stat.restorationRate.active += 0.3f;
+					stat.restorationRate.exhausted += 0.1f;
+					stat.consumptionRate -= 0.1f;
+					stat.maxQuantity.Base += 0.5f;
 				});
 			// TODO: add the rest of the vanilla boss stuff
 			//Vanilla minibosses
@@ -185,26 +202,30 @@ namespace CosmivengeonMod {
 			//Cosmivengeon bosses
 			StaminaBuffsTrackingNPC.AddStaminaBossBuff(ModContent.NPCType<Frostbite>(),
 				"Defeating the mutant frost demon has boosted your resistance to the effects of Exhaustion." +
-					"\n Exhaustion attack speed rate: +1.75%" +
-					"\n Exhaustion move acceleration rate: +1.25%, Exhaustion max move speed: +2.5%" +
-					"\n Exhaustion increase rate: +5%",
-				stamina => {
-					stamina.AddEffects(exIncMult: 0.05f);
-					stamina.AttackSpeedDebuffMultiplier += 0.0175f;
-					stamina.MoveSpeedDebuffMultiplier += 0.0125f;
-					stamina.MaxMoveSpeedDebuffMultiplier += 0.025f;
+					"\n Exhausted attack speed rate: +1.75%" +
+					"\n Exhausted run acceleration rate: +1.25%, Exhausted max run speed: +2.5%" +
+					"\n Exhausted restoration rate: +5%",
+				(out StaminaStatModifier stat) => {
+					stat = StaminaStatModifier.Default;
+					stat.attackSpeed.exhausted += 0.0175f;
+					stat.runAcceleration.exhausted += 0.0125f;
+					stat.maxRunSpeed.exhausted += 0.025f;
+					stat.restorationRate.exhausted += 0.05f;
 				});
 			StaminaBuffsTrackingNPC.AddStaminaBossBuff(ModContent.NPCType<DraekP2Head>(),
 				"Defeating the serpentine master of the Forest has taught you to steady your form, allowing you to use your Stamina for longer and slightly increasing its benefits." +
-					"\n Idle increase rate: +18%, Active use rate: -7.5%" +
+					"\n Idle restoration rate: +18%, Active consumption rate: -7.5%" +
 					"\n Active attack speed rate: +1.25%" +
-					"\n Active move acceleration rate: +2%, Active max move speed: +2%" +
+					"\n Active run acceleration rate: +2%, Active max run speed: +2%" +
 					"\n Maximum Stamina: +1500 units",
-				stamina => {
-					stamina.AddEffects(incMult: 0.18f, decMult: -0.075f, maxAdd: 1500);
-					stamina.AttackSpeedBuffMultiplier += 0.0125f;
-					stamina.MoveSpeedBuffMultiplier += 0.02f;
-					stamina.MaxMoveSpeedBuffMultiplier += 0.02f;
+				(out StaminaStatModifier stat) => {
+					stat = StaminaStatModifier.Default;
+					stat.attackSpeed.active += 0.0125f;
+					stat.runAcceleration.active += 0.02f;
+					stat.maxRunSpeed.active += 0.02f;
+					stat.restorationRate.active += 0.18f;
+					stat.consumptionRate -= 0.075f;
+					stat.maxQuantity.Base += 0.15f;
 				});
 			// TODO: add the rest of the Cosmivengeon boss stuff
 			// TODO: add cross-mod support

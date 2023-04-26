@@ -27,10 +27,10 @@ namespace CosmivengeonMod.Items.Tools {
 			//Get a copy of this player's Stamina and use it
 			StaminaPlayer staminaPlayer = player.GetModPlayer<StaminaPlayer>();
 			BossLogPlayer logPlayer = player.GetModPlayer<BossLogPlayer>();
-			Stamina stamina = new Stamina(player);
+			Stamina stamina = new Stamina();
 			stamina.Clone(staminaPlayer.stamina);
 			stamina.Reset();
-			stamina.ApplyEffects();
+			stamina.ProcessEffects(player);
 
 			string bosses = "";
 			foreach (var sbd in logPlayer.BossesKilled) {
@@ -70,19 +70,30 @@ namespace CosmivengeonMod.Items.Tools {
 			} else
 				bosses = null;
 
+			var maxQuantity = stamina.stats.maxQuantity.ApplyTo(Stamina.DefaultMaxQuantity);
+			var restorationRate = stamina.stats.restorationRate.active.ApplyTo(Stamina.DefaultRestorationRate);
+			var restorationRateExhausted = stamina.stats.restorationRate.exhausted.ApplyTo(Stamina.DefaultExhaustedRestorationRate);
+			var consumptionRate = stamina.stats.consumptionRate.ApplyTo(Stamina.DefaultConsumptionRate);
+			var attackSpeed = stamina.stats.attackSpeed.active.ApplyTo(Stamina.DefaultAttackSpeed);
+			var runAcceleration = stamina.stats.runAcceleration.active.ApplyTo(Stamina.DefaultRunAcceleration);
+			var maxRunSpeed = stamina.stats.maxRunSpeed.active.ApplyTo(Stamina.DefaultMaxRunSpeed);
+			var attackSpeedExhausted = stamina.stats.attackSpeed.exhausted.ApplyTo(Stamina.DefaultExhaustedAttackSpeed);
+			var runAccelerationExhausted = stamina.stats.runAcceleration.exhausted.ApplyTo(Stamina.DefaultExhaustedRunAcceleration);
+			var maxRunSpeedExhausted = stamina.stats.maxRunSpeed.exhausted.ApplyTo(Stamina.DefaultExhaustedMaxRunSpeed);
+
 			return
-				$"\nMaximum:  {GetUnitsDiffString((int)(Stamina.DefaultMaxValue * 10000), stamina.MaxValue)}" +
-				$"\nIncrease/Decrease Rates:" +
-				$"\n  Active Increase: {GetRatesString(stamina.IncreaseRate, Stamina.DefaultIncreaseRate)}" +
-				$"\n  Exhuasted Increase: {GetRatesString(stamina.ExhaustionIncreaseRate, Stamina.DefaultExhaustionIncreaseRate)}" +
-				$"\n  Active Decrease: {GetRatesString(-stamina.DecreaseRate, -Stamina.DefaultDecreaseRate)}" +
+				$"\nMaximum:  {GetUnitsDiffString((int)(Stamina.DefaultMaxQuantity * Stamina.ValueScalar), (int)(maxQuantity * Stamina.ValueScalar))}" +
+				$"\nRestoration/Consumption Rates:" +
+				$"\n  Active Restoration: {GetRatesString(restorationRate, Stamina.DefaultRestorationRate)}" +
+				$"\n  Exhuasted Restoration: {GetRatesString(restorationRateExhausted, Stamina.DefaultExhaustedRestorationRate)}" +
+				$"\n  Active Consumption: {GetRatesString(-consumptionRate, -Stamina.DefaultConsumptionRate)}" +
 				$"\nModifiers:" +
-				$"\n  Active - Attack Speed: {GetPercentDiffString(Stamina.DefaultAttackSpeedBuff, stamina.AttackSpeedBuffMultiplier)}" +
-				$"\n  Active - Move Acceleration: {GetPercentDiffString(Stamina.DefaultMoveSpeedBuff, stamina.MoveSpeedBuffMultiplier)}" +
-				$"\n  Active - Max Move Speed: {GetPercentDiffString(Stamina.DefaultMaxMoveSpeedBuff, stamina.MaxMoveSpeedBuffMultiplier)}" +
-				$"\n  Exhausted - Attack Speed: {GetPercentDiffString(Stamina.DefaultAttackSpeedDebuff, stamina.AttackSpeedDebuffMultiplier)}" +
-				$"\n  Exhausted - Move Acceleration: {GetPercentDiffString(Stamina.DefaultMoveSpeedDebuff, stamina.MoveSpeedDebuffMultiplier)}" +
-				$"\n  Exhausted - Max Move Speed: {GetPercentDiffString(Stamina.DefaultMaxMoveSpeedDebuff, stamina.MaxMoveSpeedDebuffMultiplier)}" +
+				$"\n  Active - Attack Speed: {GetPercentDiffString(Stamina.DefaultAttackSpeed, attackSpeed)}" +
+				$"\n  Active - Run Acceleration: {GetPercentDiffString(Stamina.DefaultRunAcceleration, runAcceleration)}" +
+				$"\n  Active - Max Run Speed: {GetPercentDiffString(Stamina.DefaultMaxRunSpeed, maxRunSpeed)}" +
+				$"\n  Exhausted - Attack Speed: {GetPercentDiffString(Stamina.DefaultExhaustedAttackSpeed, attackSpeedExhausted)}" +
+				$"\n  Exhausted - Run Acceleration: {GetPercentDiffString(Stamina.DefaultExhaustedRunAcceleration, runAccelerationExhausted)}" +
+				$"\n  Exhausted - Max Run Speed: {GetPercentDiffString(Stamina.DefaultExhaustedMaxRunSpeed, maxRunSpeedExhausted)}" +
 				$"\nDefeated Bosses:" +
 				$"\n  {bosses ?? "none"}";
 		}

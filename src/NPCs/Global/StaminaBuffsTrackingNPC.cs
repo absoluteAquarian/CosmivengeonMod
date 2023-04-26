@@ -16,18 +16,20 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.NPCs.Global {
 	public class StaminaBuffsTrackingNPC : GlobalNPC {
+		public delegate void GetStaminaStatsDelegate(out StaminaStatModifier stats);
+
 		public static List<int> BossIDs;
-		public static Dictionary<int, Action<Stamina>> BuffActions;
+		public static Dictionary<int, GetStaminaStatsDelegate> BuffActions;
 		public static Dictionary<int, string> OnKillMessages;
 
 		public static Dictionary<int, List<string>> BossNames;
 
 		public static void LoadBossNames() {
-			BossIDs = new List<int>();
-			BuffActions = new Dictionary<int, Action<Stamina>>();
-			OnKillMessages = new Dictionary<int, string>();
+			BossIDs = new();
+			BuffActions = new();
+			OnKillMessages = new();
 
-			BossNames = new Dictionary<int, List<string>>() {
+			BossNames = new() {
 				//Vanilla bosses
 				[NPCID.KingSlime] = new List<string>() { "King Slime", "Slime King", "KS", "SK" },
 				[NPCID.EyeofCthulhu] = new List<string>() { "Eye of Cthulhu", "EoC" },
@@ -58,7 +60,7 @@ namespace CosmivengeonMod.NPCs.Global {
 			};
 		}
 
-		public static void AddStaminaBossBuff(int type, string message, Action<Stamina> action) {
+		public static void AddStaminaBossBuff(int type, string message, GetStaminaStatsDelegate action) {
 			BossIDs.Add(type);
 			BuffActions.Add(type, action);
 			OnKillMessages.Add(type, message);

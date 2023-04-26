@@ -2,25 +2,41 @@
 using CosmivengeonMod.Players;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using System;
 using Terraria;
+using Terraria.ModLoader;
 using Terraria.UI;
 
 namespace CosmivengeonMod.UI {
-	public class StaminaBackUI : UIElement {
-		internal bool IsBar;
-		public StaminaBackUI() {
-			Left.Set(Stamina.BackDrawPos.X, 0f);
-			Top.Set(Stamina.BackDrawPos.Y, 0f);
+	public class StaminaBackground : UIElement {
+		private StaminaBar bar;
+		private StaminaBolt bolt;
+
+		public StaminaBackground() {
 			Width.Set(160f, 0f);
 			Height.Set(50f, 0f);
-			IsBar = false;
+		}
+
+		public override void OnInitialize() {
+			bolt = new StaminaBolt();
+			bolt.Left.Set(18, 0f);
+			bolt.Top.Set(14, 0f);
+
+			Append(bolt);
+
+			bar = new StaminaBar();
+			bar.Left.Set(58, 0f);
+			bar.Top.Set(14, 0f);
+
+			Append(bar);
 		}
 
 		protected override void DrawSelf(SpriteBatch spriteBatch) {
 			StaminaPlayer modPlayer = Main.LocalPlayer.GetModPlayer<StaminaPlayer>();
 			Stamina stamina = modPlayer.stamina;
 
+			/*
 			Texture2D texture = IsBar ? Stamina.GetBarTexture() : Stamina.GetBackTexture();
 			Vector2 drawPos = IsBar ? Stamina.BarDrawPos : Stamina.BackDrawPos;
 			Rectangle? sourceRect = IsBar ? (Rectangle?)stamina.GetBarRect() : null;
@@ -51,9 +67,18 @@ namespace CosmivengeonMod.UI {
 					spriteBatch.Draw(energy, drawPos + new Vector2(18, 14) + energy.Size() / 2f, null, Color.White * 0.65f, 0f, energy.Size() / 2f, 1f + 0.75f * (float)Math.Sin((1f - stamina.BumpTimer / 20f) * MathHelper.Pi), SpriteEffects.None, 0);
 				}
 			}
+			*/
 
-			if (ContainsPoint(Main.MouseScreen))
-				Main.hoverItemName = Main.LocalPlayer.GetModPlayer<StaminaPlayer>().stamina.GetHoverText();
+			var asset = ModContent.Request<Texture2D>("CosmivengeonMod/Abilities/BarFrame", AssetRequestMode.ImmediateLoad);
+
+			spriteBatch.Draw(asset.Value, GetDimensions().Position(), null, Color.White);
+		}
+
+		public override void Update(GameTime gameTime) {
+			base.Update(gameTime);
+
+			if (IsMouseHovering)
+				Main.instance.MouseText(Main.LocalPlayer.GetModPlayer<StaminaPlayer>().stamina.GetHoverText());
 		}
 	}
 }

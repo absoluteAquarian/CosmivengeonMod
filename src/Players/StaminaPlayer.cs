@@ -15,13 +15,10 @@ namespace CosmivengeonMod.Players {
 	public class StaminaPlayer : ModPlayer {
 		public Stamina stamina;
 
-		public int exhaustionAnimationTimer = 0;
-		public int shakeTimer = 0;
-
 		internal List<EnergizedParticle> energizedParticles;
 
 		public override void Initialize() {
-			stamina = new Stamina(Player);
+			stamina = new Stamina();
 			energizedParticles = new List<EnergizedParticle>();
 		}
 
@@ -38,17 +35,19 @@ namespace CosmivengeonMod.Players {
 		}
 
 		public override void PostUpdateRunSpeeds() {
-			stamina.RunSpeedChange();
+			stamina.ApplyRunSpeedChanges(Player);
 		}
 
 		public override void PreUpdate() {
-			stamina.FallSpeedDebuff();
+			stamina.ApplyFallSpeedDebuff(Player);
 		}
 
-		public override float UseTimeMultiplier(Item item) => stamina.UseTimeMultiplier();
-
 		public override void PostUpdateEquips() {
-			stamina.Update();
+			stamina.Update(Player);
+		}
+
+		public override void PostUpdateMiscEffects() {
+			stamina.ApplyAttackSpeed(Player);
 		}
 
 		public override void ProcessTriggers(TriggersSet triggersSet) {
@@ -99,12 +98,12 @@ namespace CosmivengeonMod.Players {
 			//Only update the particles once per tick
 			if (energizedParticles.Count > 0 && lastUpdate != Main.GameUpdateCount) {
 				foreach (EnergizedParticle particle in energizedParticles)
-					particle.Update();
+					particle?.Update();
 
 				int index = 0;
 				while (index < energizedParticles.Count) {
-					if (!energizedParticles[index].Active)
-						energizedParticles.RemoveAt(index);
+					if (energizedParticles[index] is { Active: false })
+						energizedParticles[index] = null;
 					else
 						index++;
 				}
@@ -118,26 +117,41 @@ namespace CosmivengeonMod.Players {
 				// turn slightly green
 				if (particleTimer < 0 && lastUpdate != Main.GameUpdateCount) {
 					particleTimer = Main.rand.Next(5, 15 + 1);
-					energizedParticles.Add(new EnergizedParticle(
+					
+					var particle = new EnergizedParticle(
 						Player,
 						new Vector2(Main.rand.NextFloat(-6, Player.width + 6), Main.rand.NextFloat(4, Player.height - 4)),
-						new Vector2(0, -1.5f * 16f / 60f))
-					);
+						new Vector2(0, -1.5f * 16f / 60f));
+
+					int index = -1;
+					for (int i = 0; i < energizedParticles.Count; i++) {
+						if (energizedParticles[i] is null) {
+							energizedParticles[i] = particle;
+							index = i;
+							break;
+						}
+					}
+
+					if (index == -1)
+						energizedParticles.Add(particle);
 				}
 
+				var color = stamina.EnergizedColor;
+
 				Color currentColor = new Color(r, g, b, a);
-				Color newColor = MiscUtils.Blend(currentColor, Stamina.EnergizedColor);
+				Color newColor = MiscUtils.Blend(currentColor, color);
 				r = newColor.R / 255f;
 				g = newColor.G / 255f;
 				b = newColor.B / 255f;
 				a = newColor.A / 255f;
 
-				Lighting.AddLight(Player.Center, (Stamina.EnergizedColor * 0.85f).ToVector3());
+				Lighting.AddLight(Player.Center, (color * 0.85f).ToVector3());
 			} else if (energizedParticles.Count > 0) {
-				foreach (EnergizedParticle particle in energizedParticles)
-					particle.Delete();
-
-				energizedParticles.Clear();
+				// Destroy all active particles
+				for (int i = 0; i < energizedParticles.Count; i++) {
+					energizedParticles[i]?.Delete();
+					energizedParticles[i] = null;
+				}
 			} else if (stamina.Exhaustion) {
 				Color currentColor = new Color(r, g, b, a);
 				Color newColor = Color.Gray;
