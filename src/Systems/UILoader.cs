@@ -15,8 +15,6 @@ namespace CosmivengeonMod.Systems {
 			//Only run this segment if we're not loading on a server
 			if (!Main.dedServ && Main.netMode != NetmodeID.Server) {
 				staminaUI = new StaminaUI();
-				staminaUI.Activate();
-
 				userInterface = new UserInterface();
 				userInterface.SetState(staminaUI);
 			}

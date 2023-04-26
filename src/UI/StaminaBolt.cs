@@ -10,8 +10,6 @@ using Terraria.UI;
 
 namespace CosmivengeonMod.UI {
 	internal class StaminaBolt : UIElement {
-		public float Scale { get; set; }
-
 		public StaminaBolt() {
 			Width.Set(22, 0f);
 			Height.Set(28, 0f);

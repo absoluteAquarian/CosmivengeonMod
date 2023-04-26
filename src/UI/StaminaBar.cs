@@ -5,9 +5,10 @@ using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
 using Terraria.ModLoader;
+using Terraria.UI;
 
 namespace CosmivengeonMod.UI {
-	public class StaminaBar : StaminaBackground {
+	public class StaminaBar : UIElement {
 		public StaminaBar() {
 			Width.Set(88f, 0f);
 			Height.Set(22f, 0f);
