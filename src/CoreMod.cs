@@ -96,6 +96,30 @@ namespace CosmivengeonMod {
 				Ref<Effect> eocEffect = new Ref<Effect>(Assets.Request<Effect>("Effects/screen_eoc", AssetRequestMode.ImmediateLoad).Value);
 
 				FilterCollection.Screen_EoC = new Filter(new ScreenShaderData(eocEffect, "ScreenDarken"), EffectPriority.High);
+
+				Main.rand ??= new();
+
+				BossPackage.bossInfo = new Dictionary<CosmivengeonBoss, BossPackage>() {
+					[CosmivengeonBoss.Frostbite] = new BossPackage(ModContent.NPCType<Frostbite>(),
+						-1,
+						"\"Looks like the lure didn't work.  Maybe it would work better in a colder area?\"",
+						static player => player.ZoneSnow,
+						new WeightedTable<int>(Main.rand)
+							.Add(MusicLoader.GetMusicSlot(Instance, "Sounds/Music/Frigid_Feud"), 1.0)),
+					[CosmivengeonBoss.Draek] = new BossPackage(ModContent.NPCType<Draek>(),
+						ModContent.NPCType<DraekP2Head>(),
+						"\"The geode was unresponsive.  Maybe I should try using it in the forest?\"",
+						static player => player.ZoneForest,
+						new WeightedTable<int>(Main.rand)
+							// 0.5% chance - retro kazoo theme
+							.Add(MusicLoader.GetMusicSlot(Instance, "Sounds/Music/successor_of_the_kazoo"), 0.005)
+							// 0.5% chance - kazoo theme
+							.Add(MusicLoader.GetMusicSlot(Instance, "Sounds/Music/Successor_of_the_Kazoo_Round_2"), 0.005)
+							// 5% chance - retro theme
+							.Add(MusicLoader.GetMusicSlot(Instance, "Sounds/Music/RETRO_SuccessorOfTheJewel"), 0.05)
+							// Remaining chance - current theme
+							.AddExcess(MusicLoader.GetMusicSlot(Instance, "Sounds/Music/Successor_of_the_Jewel"), 1.0))
+				};
 			}
 
 			//Make certain debuffs show the time remaining
@@ -104,30 +128,6 @@ namespace CosmivengeonMod {
 		}
 
 		public override void PostSetupContent() {
-			Main.rand ??= new();
-
-			BossPackage.bossInfo = new Dictionary<CosmivengeonBoss, BossPackage>() {
-				[CosmivengeonBoss.Frostbite] = new BossPackage(ModContent.NPCType<Frostbite>(),
-					-1,
-					"\"Looks like the lure didn't work.  Maybe it would work better in a colder area?\"",
-					static player => player.ZoneSnow,
-					new WeightedTable<int>(Main.rand)
-						.Add(MusicLoader.GetMusicSlot(Instance, "Sounds/Music/Frigid_Feud"), 1.0)),
-				[CosmivengeonBoss.Draek] = new BossPackage(ModContent.NPCType<Draek>(),
-					ModContent.NPCType<DraekP2Head>(),
-					"\"The geode was unresponsive.  Maybe I should try using it in the forest?\"",
-					static player => player.ZoneForest,
-					new WeightedTable<int>(Main.rand)
-						// 0.5% chance - retro kazoo theme
-						.Add(MusicLoader.GetMusicSlot(Instance, "Sounds/Music/successor_of_the_kazoo"), 0.005)
-						// 0.5% chance - kazoo theme
-						.Add(MusicLoader.GetMusicSlot(Instance, "Sounds/Music/Successor_of_the_Kazoo_Round_2"), 0.005)
-						// 5% chance - retro theme
-						.Add(MusicLoader.GetMusicSlot(Instance, "Sounds/Music/RETRO_SuccessorOfTheJewel"), 0.05)
-						// Remaining chance - current theme
-						.AddExcess(MusicLoader.GetMusicSlot(Instance, "Sounds/Music/Successor_of_the_Jewel"), 1.0))
-			};
-
 			CrossMod.Load();
 			StaminaBossKillBuffLoader.ValidateBuffData();
 		}
@@ -175,6 +175,23 @@ namespace CosmivengeonMod {
 					break;
 				case MessageType.SyncGlobalNPCBossData:
 					DetourNPCHelper.ReceiveData(reader);
+					break;
+				case MessageType.SpawnBoss:
+					clientWhoAmI = reader.ReadByte();
+					int npcType = reader.ReadInt32();
+					float tileRange = reader.ReadSingle();
+
+					MiscUtils.SummonBossNearPlayer(Main.player[clientWhoAmI], npcType, tileRange);
+					break;
+				case MessageType.SpawnBossAbovePlayer:
+					clientWhoAmI = reader.ReadByte();
+					npcType = reader.ReadInt32();
+					float leftOffset = reader.ReadSingle();
+					float rightOffset = reader.ReadSingle();
+					float upOffset = reader.ReadSingle();
+					float downOffset = reader.ReadSingle();
+
+					MiscUtils.SummonBossAbovePlayer(Main.player[clientWhoAmI], npcType, leftOffset, rightOffset, upOffset, downOffset);
 					break;
 				default:
 					Logger.WarnFormat("CosmivengeonMod: Unknown message type: {0}", message);

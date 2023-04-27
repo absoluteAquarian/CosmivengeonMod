@@ -29,6 +29,11 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Draek");
+
+			NPCID.Sets.NPCBestiaryDrawModifiers value = new NPCID.Sets.NPCBestiaryDrawModifiers(0) {
+				Hide = true // Hides this NPC from the Bestiary, useful for multi-part NPCs whom you only want one entry.
+			};
+			NPCID.Sets.NPCBestiaryDrawOffset.Add(NPC.type, value);
 		}
 
 		public int ActualMaxHealth;
@@ -726,6 +731,11 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 	internal class DraekP2_Body0 : Worm {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Draek");
+
+			NPCID.Sets.NPCBestiaryDrawModifiers value = new NPCID.Sets.NPCBestiaryDrawModifiers(0) {
+				Hide = true // Hides this NPC from the Bestiary, useful for multi-part NPCs whom you only want one entry.
+			};
+			NPCID.Sets.NPCBestiaryDrawOffset.Add(NPC.type, value);
 		}
 
 		public override void SetDefaults() {

@@ -10,6 +10,10 @@ namespace CosmivengeonMod.Items.Spawning.Boss {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Mysterious Geode");
 			Tooltip.SetDefault("Challenges the defender of the forest\nMust be used in the Forest biome");
+
+			ItemID.Sets.SortingPriorityBossSpawns[Type] = 12; // This helps sort inventory know that this is a boss summoning Item.
+
+			SacrificeTotal = 3;
 		}
 
 		public override void SetDefaults() {

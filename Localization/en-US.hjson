@@ -26,6 +26,31 @@
 			DraekStaminaBuff: "Defeating the serpentine master of the Forest has taught you to steady your form, allowing you to use your Stamina for longer and slightly increasing its benefits."
 		}
 
+		Bestiary: {
+			Bosses: {
+				Draek:
+				'''
+				An innocent snake that was corrupted by the power of a long-forgotten relic.
+				He fiercly guarded his territory from any challengers who seeked to claim it.
+				'''
+				Frostbite:
+				'''
+				One of the many members of a bizarre ecological miracle.
+				His species has adapted to the unforgiving wasteland that is the Tundra.
+				'''
+			}
+
+			BossMinions: {
+				Draek: {
+					LesserWyrm:
+					'''
+					The younger kin of Draek's species.
+					These snakes have not gained full sentience yet, solely relying on filial devotion in order be of service to Draek.
+					'''
+				}
+			}
+		}
+
 		LootText: {
 			Desolation: "Drops only in Desolation mode"
 			FirstKill: "Drops only on the first kill"

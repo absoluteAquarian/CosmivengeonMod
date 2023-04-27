@@ -7,6 +7,9 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.GameContent.Bestiary;
+using CosmivengeonMod.DataStructures.Bestiary;
+using System.Collections.Generic;
 
 namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons {
 	public class DraekWyrmSummon_Head : Worm {
@@ -21,6 +24,20 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons {
 
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Young Wyrm");
+
+			NPCID.Sets.NPCBestiaryDrawModifiers drawModifiers = new NPCID.Sets.NPCBestiaryDrawModifiers(0) {
+				CustomTexturePath = "CosmivengeonMod/Assets/NPCs/Bosses/DraekBoss/Summons/LesserWyrm_Bestiary",
+				SpriteDirection = 1,
+				Rotation = MathHelper.ToRadians(-30)
+			};
+			NPCID.Sets.NPCBestiaryDrawOffset.Add(Type, drawModifiers);
+		}
+
+		public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) {
+			bestiaryEntry.Info.AddRange(new List<IBestiaryInfoElement>() {
+				new ForestPortraitBackgroundProviderBestiaryInfoElement(),
+				new FlavorTextBestiaryInfoElement("Mods.CosmivengeonMod.Bestiary.BossMinions.Draek.LesserWyrm")
+			});
 		}
 
 		public override void SetDefaults() {
@@ -162,6 +179,11 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons {
 	internal class DraekWyrmSummon_Body0 : Worm {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Young Wyrm");
+
+			NPCID.Sets.NPCBestiaryDrawModifiers value = new NPCID.Sets.NPCBestiaryDrawModifiers(0) {
+				Hide = true // Hides this NPC from the Bestiary, useful for multi-part NPCs whom you only want one entry.
+			};
+			NPCID.Sets.NPCBestiaryDrawOffset.Add(NPC.type, value);
 		}
 
 		public override void SetDefaults() {
@@ -205,10 +227,6 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss.Summons {
 	}
 
 	internal class DraekWyrmSummon_Tail : DraekWyrmSummon_Body0 {
-		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Young Wyrm");
-		}
-
 		public override void SetDefaults() {
 			tail = true;
 

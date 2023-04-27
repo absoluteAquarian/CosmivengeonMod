@@ -3,6 +3,8 @@
 		SyncPlayer,
 		StaminaChanged,
 		SyncEoWGrab,
-		SyncGlobalNPCBossData
+		SyncGlobalNPCBossData,
+		SpawnBoss,
+		SpawnBossAbovePlayer
 	}
 }

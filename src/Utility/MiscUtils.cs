@@ -157,6 +157,9 @@ namespace CosmivengeonMod.Utility {
 		}
 
 		public static void PlayMusic(ModNPC modNPC, CosmivengeonBoss boss) {
+			if (Main.netMode == NetmodeID.Server)
+				return;
+
 			modNPC.Music = BossPackage.bossInfo[boss].musicTable.Get();
 		}
 
@@ -186,6 +189,19 @@ namespace CosmivengeonMod.Utility {
 		/// <param name="tileDistance">The radius of the circle around the <paramref name="player"/> where the NPC will spawn.</param>
 		/// <returns>Whether or not an NPC could be spawned.</returns>
 		public static bool SummonBossNearPlayer(Player player, int npcID, float tileDistance) {
+			if (player.whoAmI != Main.myPlayer)
+				return true;
+
+			if (Main.netMode == NetmodeID.MultiplayerClient) {
+				var packet = CoreMod.Instance.GetPacket();
+				packet.Write((byte)MessageType.SpawnBoss);
+				packet.Write((byte)player.whoAmI);
+				packet.Write(npcID);
+				packet.Write(tileDistance);
+				packet.Send();
+				return true;
+			}
+
 			float randomAngle;
 			Vector2 offset;
 			int targetX, targetY;
@@ -218,8 +234,26 @@ namespace CosmivengeonMod.Utility {
 		/// <param name="npcID">The ID of the NPC being spawned.</param>
 		/// <param name="maxNegX">The max X-coordinate offset to the left of the <paramref name="player"/>.</param>
 		/// <param name="maxPosX">The max X-coordinate offset to the right of the <paramref name="player"/>.</param>
+		/// <param name="maxNegY">The max Y-coordinate offset to the left of the <paramref name="player"/>.</param>
+		/// <param name="maxPosY">The max Y-coordinate offset to the right of the <paramref name="player"/>.</param>
 		/// <returns>Whether or not an NPC could be spawned.</returns>
 		public static bool SummonBossAbovePlayer(Player player, int npcID, float maxNegX, float maxPosX, float maxNegY, float maxPosY) {
+			if (player.whoAmI != Main.myPlayer)
+				return true;
+
+			if (Main.netMode == NetmodeID.MultiplayerClient) {
+				var packet = CoreMod.Instance.GetPacket();
+				packet.Write((byte)MessageType.SpawnBossAbovePlayer);
+				packet.Write((byte)player.whoAmI);
+				packet.Write(npcID);
+				packet.Write(maxNegX);
+				packet.Write(maxPosX);
+				packet.Write(maxNegY);
+				packet.Write(maxPosY);
+				packet.Send();
+				return true;
+			}
+
 			const float MinRange = 30 * 16;
 			float targetX;
 			//Keep generating new X-coords until one isn't very close to
@@ -243,7 +277,7 @@ namespace CosmivengeonMod.Utility {
 			=> $"CosmivengeonMod/Items/PlaceHolder{name}";
 
 		public static void SendMessage(string message, Color? color = null) {
-			color = color ?? Color.White;
+			color ??= Color.White;
 
 			if (Main.netMode == NetmodeID.SinglePlayer)
 				Main.NewText(message, color.Value);

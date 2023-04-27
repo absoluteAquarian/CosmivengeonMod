@@ -15,6 +15,9 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using ReLogic.Content;
+using Terraria.GameContent.Bestiary;
+using System.Collections.Generic;
+using CosmivengeonMod.DataStructures.Bestiary;
 
 namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 	[AutoloadBossHead]
@@ -48,6 +51,27 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 			Main.npcFrameCount[NPC.type] = 4;
 			NPCID.Sets.TrailCacheLength[NPC.type] = 5;
 			NPCID.Sets.TrailingMode[NPC.type] = 0;
+
+			// Add this in for bosses that have a summon item, requires corresponding code in the item
+			NPCID.Sets.MPAllowedEnemies[Type] = true;
+			// Automatically group with other bosses
+			NPCID.Sets.BossBestiaryPriority.Add(Type);
+
+			// Influences how the NPC looks in the Bestiary
+			NPCID.Sets.NPCBestiaryDrawModifiers drawModifiers = new NPCID.Sets.NPCBestiaryDrawModifiers(0) {
+				Direction = 1,
+				SpriteDirection = 1,
+				PortraitScale = 0.6f,
+				PortraitPositionYOverride = 0
+			};
+			NPCID.Sets.NPCBestiaryDrawOffset.Add(Type, drawModifiers);
+		}
+
+		public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) {
+			bestiaryEntry.Info.AddRange(new List<IBestiaryInfoElement>() {
+				new ForestPortraitBackgroundProviderBestiaryInfoElement(),
+				new FlavorTextBestiaryInfoElement("Mods.CosmivengeonMod.Bestiary.Bosses.Draek")
+			});
 		}
 
 		public int HealthThreshold;
@@ -371,12 +395,12 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 				Vector2 drawOrigin = RealFrame.Size() / 2f;
 				SpriteEffects effect = (NPC.spriteDirection == -1) ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 				for (int k = 0; k < afterImageLength / 2; k++) {
-					Vector2 drawPos = NPC.oldPos[k] - Main.screenPosition + drawOrigin + new Vector2(GraphicsOffsetX, GraphicsOffsetY);
+					Vector2 drawPos = NPC.oldPos[k] - screenPos + drawOrigin + new Vector2(GraphicsOffsetX, GraphicsOffsetY);
 
 					Color color = NPC.GetAlpha(drawColor) * (((float)NPC.oldPos.Length - k) / NPC.oldPos.Length);
 					color.A = (byte)(0.75f * 255f * (NPC.oldPos.Length - k) / NPC.oldPos.Length);   //Apply transparency
 
-					spriteBatch.Draw(RealTexture, drawPos, RealFrame, color, NPC.rotation, drawOrigin, NPC.scale, effect, 0f);
+					Main.EntitySpriteDraw(RealTexture, drawPos, RealFrame, color, NPC.rotation, drawOrigin, NPC.scale, effect, 0);
 				}
 			}
 			return false;   //Prevent sprite from being drawn normally
@@ -386,41 +410,10 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 			//We're going to manually draw Draek to better fit his hitbox size
 			SpriteEffects effect = (NPC.spriteDirection == -1) ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 			Vector2 drawOrigin = RealFrame.Size() / 2f;
-			Vector2 drawPos = NPC.position - Main.screenPosition + drawOrigin + new Vector2(GraphicsOffsetX, GraphicsOffsetY);
+			Vector2 drawPos = NPC.position - screenPos + drawOrigin + new Vector2(GraphicsOffsetX, GraphicsOffsetY);
 
 			spriteBatch.Draw(RealTexture, drawPos, RealFrame, drawColor, NPC.rotation, drawOrigin, NPC.scale, effect, 0f);
-
-#pragma warning disable CS0162
-			if (ShowDebug) {
-				Vector2 pos = NPC.Top + new Vector2(-NPC.width - 50, -70) - Main.screenPosition;
-				Utils.DrawBorderStringFourWay(spriteBatch, FontAssets.MouseText.Value,
-					$"AI: [ {(int)NPC.ai[0],3}, {(int)NPC.ai[1]}, {(int)NPC.ai[2],2}, {(int)NPC.ai[3],3} ]",
-					pos.X,
-					pos.Y,
-					Color.White,
-					Color.Black,
-					Vector2.Zero);
-				pos.Y += 18;
-				Utils.DrawBorderStringFourWay(spriteBatch, FontAssets.MouseText.Value,
-					$"Animation: [ {RealFrame.X / RealFrame.Width}, {RealFrame.Y / RealFrame.Height} ]",
-					pos.X,
-					pos.Y,
-					Color.White,
-					Color.Black,
-					Vector2.Zero);
-				pos.Y += 18;
-				Utils.DrawBorderStringFourWay(spriteBatch, FontAssets.MouseText.Value,
-					$"Texture: \"{(AI_Attack == Attack_Punch ? "Punch Sheet" : "Main Sheet")}\"",
-					pos.X,
-					pos.Y,
-					Color.White,
-					Color.Black,
-					Vector2.Zero);
-			}
-#pragma warning restore CS0162
 		}
-
-		private const bool ShowDebug = false;
 
 		public override bool CheckActive() {
 			return Vector2.Distance(NPC.Center, playerTarget.Center) > 200 * 16;

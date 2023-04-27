@@ -6,12 +6,18 @@ using System;
 using System.IO;
 using Terraria;
 using Terraria.ModLoader;
+using Terraria.ID;
 
 namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons {
 	public class FrostCloud : ModNPC {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Frost Cloud");
 			Main.npcFrameCount[NPC.type] = 4;
+
+			NPCID.Sets.NPCBestiaryDrawModifiers value = new NPCID.Sets.NPCBestiaryDrawModifiers(0) {
+				Hide = true // Hides this NPC from the Bestiary, useful for multi-part NPCs whom you only want one entry.
+			};
+			NPCID.Sets.NPCBestiaryDrawOffset.Add(NPC.type, value);
 		}
 
 		public override void SetDefaults() {

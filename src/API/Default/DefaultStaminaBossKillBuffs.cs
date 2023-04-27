@@ -109,6 +109,11 @@ namespace CosmivengeonMod.API.Default {
 			stat.consumptionRate -= 0.01f;
 			stat.maxQuantity.Base += 0.05f * Stamina.DefaultMaxQuantity;
 		}
+
+		public override void TransmuteNPCType(ref int type) {
+			if (type == ModContent.NPCType<DraekP2Head>())
+				type = ModContent.NPCType<Draek>();
+		}
 	}
 
 	// TODO: DD2 Dark Mage

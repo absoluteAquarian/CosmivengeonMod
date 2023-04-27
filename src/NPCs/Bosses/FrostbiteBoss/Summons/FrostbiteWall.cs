@@ -3,12 +3,18 @@ using CosmivengeonMod.Utility;
 using Microsoft.Xna.Framework;
 using System.IO;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss.Summons {
 	public class FrostbiteWall : ModNPC {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Frozen Totem");
+
+			NPCID.Sets.NPCBestiaryDrawModifiers value = new NPCID.Sets.NPCBestiaryDrawModifiers(0) {
+				Hide = true // Hides this NPC from the Bestiary, useful for multi-part NPCs whom you only want one entry.
+			};
+			NPCID.Sets.NPCBestiaryDrawOffset.Add(NPC.type, value);
 		}
 
 		private bool shouldShootBolts = false;

@@ -21,6 +21,9 @@ using Terraria.ModLoader;
 using Terraria.GameContent.ItemDropRules;
 using CosmivengeonMod.Items.Materials;
 using CosmivengeonMod.Items.Placeable.Trophies;
+using Terraria.GameContent.Bestiary;
+using CosmivengeonMod.DataStructures.Bestiary;
+using System.Collections.Generic;
 
 namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss {
 	[AutoloadBossHead]
@@ -28,6 +31,28 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Frostbite");
 			Main.npcFrameCount[NPC.type] = 15;
+
+			// Add this in for bosses that have a summon item, requires corresponding code in the item
+			NPCID.Sets.MPAllowedEnemies[Type] = true;
+			// Automatically group with other bosses
+			NPCID.Sets.BossBestiaryPriority.Add(Type);
+
+			// Influences how the NPC looks in the Bestiary
+			NPCID.Sets.NPCBestiaryDrawModifiers drawModifiers = new NPCID.Sets.NPCBestiaryDrawModifiers(0) {
+				Direction = -1,
+				SpriteDirection = -1,
+				PortraitScale = 0.6f,
+				PortraitPositionYOverride = 0,
+				Velocity = 1
+			};
+			NPCID.Sets.NPCBestiaryDrawOffset.Add(Type, drawModifiers);
+		}
+
+		public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) {
+			bestiaryEntry.Info.AddRange(new List<IBestiaryInfoElement>() {
+				new SnowPortraitBackgroundProviderBestiaryInfoElement(),
+				new FlavorTextBestiaryInfoElement("Mods.CosmivengeonMod.Bestiary.Bosses.Frostbite")
+			});
 		}
 
 		public override void SetDefaults() {

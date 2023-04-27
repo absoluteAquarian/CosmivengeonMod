@@ -18,6 +18,7 @@ namespace CosmivengeonMod.API {
 
 		protected sealed override void Register() {
 			Type = StaminaBossKillBuffLoader.Add(this);
+			ModTypeLookup<StaminaBossKillBuff>.Register(this);
 		}
 
 		public sealed override void SetupContent() => SetStaticDefaults();

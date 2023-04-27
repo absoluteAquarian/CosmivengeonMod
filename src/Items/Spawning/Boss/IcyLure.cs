@@ -12,6 +12,10 @@ namespace CosmivengeonMod.Items.Spawning.Boss {
 			DisplayName.SetDefault("Icy Lure");
 			Tooltip.SetDefault("Attracts an elemental frost lizard." +
 				"\nMust be used in the Snow biome.");
+
+			ItemID.Sets.SortingPriorityBossSpawns[Type] = 12; // This helps sort inventory know that this is a boss summoning Item.
+
+			SacrificeTotal = 3;
 		}
 
 		public override void SetDefaults() {
