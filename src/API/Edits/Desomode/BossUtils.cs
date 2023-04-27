@@ -3,8 +3,6 @@ using Terraria;
 
 namespace CosmivengeonMod.API.Edits.Desomode {
 	public static partial class DesolationModeBossAI {
-		// TODO: do any of the AIs need to be modified due to the 1.4 port?  would it be better to use IL edits instead?
-
 		public static Player Target(this NPC npc) => Main.player[npc.target];
 
 		public static DetourNPCHelper Helper(this NPC npc) => npc.GetGlobalNPC<DetourNPCHelper>();
