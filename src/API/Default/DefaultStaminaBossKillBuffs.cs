@@ -58,6 +58,8 @@ namespace CosmivengeonMod.API.Default {
 	public class EaterOfWorldsStaminaBuff : StaminaBossKillBuff {
 		public override int NPCType => NPCID.EaterofWorldsHead;
 
+		public override bool BossIsOnlyConditionallyABoss => true;
+
 		public override IEnumerable<string> GetBossNames() {
 			yield return "Eater of Worlds";
 			yield return "EoW";

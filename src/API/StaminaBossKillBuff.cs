@@ -16,6 +16,8 @@ namespace CosmivengeonMod.API {
 
 		public virtual string FlavorText => Language.GetTextValue($"Mods.{Mod.Name}.StaminaBuffText.{Name}");
 
+		public virtual bool BossIsOnlyConditionallyABoss => false;
+
 		protected sealed override void Register() {
 			Type = StaminaBossKillBuffLoader.Add(this);
 			ModTypeLookup<StaminaBossKillBuff>.Register(this);
@@ -160,7 +162,7 @@ namespace CosmivengeonMod.API {
 				if (npc < 0 || npc >= NPCLoader.NPCCount)
 					throw new IndexOutOfRangeException($"NPC ID for buff data \"{buff.FullName}\" ({npc}) was outside the range of valid IDs");
 
-				if (!ContentSamples.NpcsByNetId[npc].boss)
+				if (!buff.BossIsOnlyConditionallyABoss && !ContentSamples.NpcsByNetId[npc].boss)
 					throw new ArgumentException($"NPC ID for buff data \"{buff.FullName}\" ({npc}) did not refer to a boss NPC");
 
 				if (!buff.GetBossNames().Any())
