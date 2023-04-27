@@ -84,7 +84,9 @@ namespace CosmivengeonMod {
 			ModReferences.Load();
 
 			//Only run this segment if we're not loading on a server
-			if (!Main.dedServ && Main.netMode != NetmodeID.Server) {
+			bool server = Main.dedServ || Main.netMode == NetmodeID.Server;
+
+			if (!server) {
 				//Add music boxes
 				MusicLoader.AddMusicBox(this, MusicLoader.GetMusicSlot(this, "Sounds/Music/Frigid_Feud"),
 					ModContent.ItemType<FrostbiteBox>(),
@@ -96,21 +98,31 @@ namespace CosmivengeonMod {
 				Ref<Effect> eocEffect = new Ref<Effect>(Assets.Request<Effect>("Effects/screen_eoc", AssetRequestMode.ImmediateLoad).Value);
 
 				FilterCollection.Screen_EoC = new Filter(new ScreenShaderData(eocEffect, "ScreenDarken"), EffectPriority.High);
+			}
 
+			//Make certain debuffs show the time remaining
+			Main.buffNoTimeDisplay[BuffID.Slimed] = false;
+			Main.buffNoTimeDisplay[BuffID.Obstructed] = false;
+
+			if (!server)
 				Main.rand ??= new();
 
-				BossPackage.bossInfo = new Dictionary<CosmivengeonBoss, BossPackage>() {
-					[CosmivengeonBoss.Frostbite] = new BossPackage(ModContent.NPCType<Frostbite>(),
-						-1,
-						"\"Looks like the lure didn't work.  Maybe it would work better in a colder area?\"",
-						static player => player.ZoneSnow,
-						new WeightedTable<int>(Main.rand)
+			BossPackage.bossInfo = new Dictionary<CosmivengeonBoss, BossPackage>() {
+				[CosmivengeonBoss.Frostbite] = new BossPackage(ModContent.NPCType<Frostbite>(),
+					-1,
+					"\"Looks like the lure didn't work.  Maybe it would work better in a colder area?\"",
+					static player => player.ZoneSnow,
+					server
+						? null
+						: new WeightedTable<int>(Main.rand)
 							.Add(MusicLoader.GetMusicSlot(Instance, "Sounds/Music/Frigid_Feud"), 1.0)),
-					[CosmivengeonBoss.Draek] = new BossPackage(ModContent.NPCType<Draek>(),
-						ModContent.NPCType<DraekP2Head>(),
-						"\"The geode was unresponsive.  Maybe I should try using it in the forest?\"",
-						static player => player.ZoneForest,
-						new WeightedTable<int>(Main.rand)
+				[CosmivengeonBoss.Draek] = new BossPackage(ModContent.NPCType<Draek>(),
+					ModContent.NPCType<DraekP2Head>(),
+					"\"The geode was unresponsive.  Maybe I should try using it in the forest?\"",
+					static player => player.ZoneForest,
+					server
+						? null
+						: new WeightedTable<int>(Main.rand)
 							// 0.5% chance - retro kazoo theme
 							.Add(MusicLoader.GetMusicSlot(Instance, "Sounds/Music/successor_of_the_kazoo"), 0.005)
 							// 0.5% chance - kazoo theme
@@ -119,12 +131,7 @@ namespace CosmivengeonMod {
 							.Add(MusicLoader.GetMusicSlot(Instance, "Sounds/Music/RETRO_SuccessorOfTheJewel"), 0.05)
 							// Remaining chance - current theme
 							.AddExcess(MusicLoader.GetMusicSlot(Instance, "Sounds/Music/Successor_of_the_Jewel"), 1.0))
-				};
-			}
-
-			//Make certain debuffs show the time remaining
-			Main.buffNoTimeDisplay[BuffID.Slimed] = false;
-			Main.buffNoTimeDisplay[BuffID.Obstructed] = false;
+			};
 		}
 
 		public override void PostSetupContent() {
