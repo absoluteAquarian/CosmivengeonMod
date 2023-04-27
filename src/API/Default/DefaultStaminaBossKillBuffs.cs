@@ -16,10 +16,10 @@ namespace CosmivengeonMod.API.Default {
 
 		public override void ModifyStamina(out StaminaStatModifier stat) {
 			stat = StaminaStatModifier.Default;
-			stat.restorationRate.active += 0.1f;
-			stat.restorationRate.exhausted += 0.6f;
-			stat.consumptionRate -= 0.035f;
-			stat.maxQuantity.Base += 0.1f * Stamina.DefaultMaxQuantity;
+			stat.restorationRate.active += 0.04f;
+			stat.restorationRate.exhausted += 0.02f;
+			stat.consumptionRate -= 0.01f;
+			stat.maxQuantity.Base += 0.05f * Stamina.DefaultMaxQuantity;
 		}
 	}
 
@@ -32,10 +32,10 @@ namespace CosmivengeonMod.API.Default {
 
 		public override void ModifyStamina(out StaminaStatModifier stat) {
 			stat = StaminaStatModifier.Default;
-			stat.attackSpeed.exhausted += 0.0175f;
-			stat.runAcceleration.exhausted += 0.0125f;
-			stat.maxRunSpeed.exhausted += 0.025f;
-			stat.restorationRate.exhausted += 0.05f;
+			stat.attackSpeed.exhausted += 0.01f;
+			stat.runAcceleration.exhausted += 0.0075f;
+			stat.maxRunSpeed.exhausted += 0.015f;
+			stat.restorationRate.exhausted += 0.015f;
 		}
 	}
 
@@ -49,9 +49,9 @@ namespace CosmivengeonMod.API.Default {
 
 		public override void ModifyStamina(out StaminaStatModifier stat) {
 			stat = StaminaStatModifier.Default;
-			stat.attackSpeed.active += 0.03f;
-			stat.runAcceleration.active += 0.06f;
-			stat.maxRunSpeed.active += 0.05f;
+			stat.attackSpeed.active += 0.025f;
+			stat.runAcceleration.active += 0.04f;
+			stat.maxRunSpeed.active += 0.02f;
 		}
 	}
 
@@ -65,10 +65,10 @@ namespace CosmivengeonMod.API.Default {
 
 		public override void ModifyStamina(out StaminaStatModifier stat) {
 			stat = StaminaStatModifier.Default;
-			stat.attackSpeed.exhausted += 0.015f;
-			stat.runAcceleration.exhausted += 0.04f;
-			stat.maxRunSpeed.exhausted += 0.0575f;
-			stat.restorationRate.exhausted += 0.06f;
+			stat.attackSpeed.exhausted += 0.01f;
+			stat.runAcceleration.exhausted += 0.015f;
+			stat.maxRunSpeed.exhausted += 0.02f;
+			stat.restorationRate.exhausted += 0.01f;
 		}
 
 		public override void TransmuteNPCType(ref int type) {
@@ -87,9 +87,9 @@ namespace CosmivengeonMod.API.Default {
 
 		public override void ModifyStamina(out StaminaStatModifier stat) {
 			stat = StaminaStatModifier.Default;
-			stat.attackSpeed.active += 0.025f;
-			stat.runAcceleration.active += 0.07f;
-			stat.maxRunSpeed.active += 0.04f;
+			stat.attackSpeed.active += 0.015f;
+			stat.runAcceleration.active += 0.025f;
+			stat.maxRunSpeed.active += 0.02f;
 		}
 	}
 
@@ -102,12 +102,12 @@ namespace CosmivengeonMod.API.Default {
 
 		public override void ModifyStamina(out StaminaStatModifier stat) {
 			stat = StaminaStatModifier.Default;
-			stat.attackSpeed.active += 0.0125f;
-			stat.runAcceleration.active += 0.02f;
-			stat.maxRunSpeed.active += 0.02f;
-			stat.restorationRate.active += 0.18f;
-			stat.consumptionRate -= 0.075f;
-			stat.maxQuantity.Base += 0.15f * Stamina.DefaultMaxQuantity;
+			stat.attackSpeed.active += 0.01f;
+			stat.runAcceleration.active += 0.015f;
+			stat.maxRunSpeed.active += 0.015f;
+			stat.restorationRate.active += 0.05f;
+			stat.consumptionRate -= 0.01f;
+			stat.maxQuantity.Base += 0.05f * Stamina.DefaultMaxQuantity;
 		}
 	}
 
@@ -123,10 +123,10 @@ namespace CosmivengeonMod.API.Default {
 
 		public override void ModifyStamina(out StaminaStatModifier stat) {
 			stat = StaminaStatModifier.Default;
-			stat.attackSpeed.active += 0.02f;
-			stat.runAcceleration.active += 0.03f;
+			stat.attackSpeed.active += 0.015f;
+			stat.runAcceleration.active += 0.0225f;
 			stat.attackSpeed.exhausted += 0.0075f;
-			stat.runAcceleration.exhausted += 0.015f;
+			stat.runAcceleration.exhausted += 0.01f;
 		}
 	}
 
@@ -139,16 +139,16 @@ namespace CosmivengeonMod.API.Default {
 
 		public override void ModifyStamina(out StaminaStatModifier stat) {
 			stat = StaminaStatModifier.Default;
-			stat.attackSpeed.active += 0.03f;
-			stat.runAcceleration.active += 0.05f;
-			stat.maxRunSpeed.active += 0.05f;
-			stat.attackSpeed.exhausted += 0.025f;
-			stat.runAcceleration.exhausted += 0.03125f;
-			stat.maxRunSpeed.exhausted += 0.03125f;
-			stat.restorationRate.active += 0.225f;
-			stat.restorationRate.exhausted += 0.08f;
-			stat.consumptionRate -= 0.06f;
-			stat.maxQuantity.Base += 0.25f * Stamina.DefaultMaxQuantity;
+			stat.attackSpeed.active += 0.015f;
+			stat.runAcceleration.active += 0.025f;
+			stat.maxRunSpeed.active += 0.03f;
+			stat.attackSpeed.exhausted += 0.02f;
+			stat.runAcceleration.exhausted += 0.015f;
+			stat.maxRunSpeed.exhausted += 0.01f;
+			stat.restorationRate.active += 0.06f;
+			stat.restorationRate.exhausted += 0.04f;
+			stat.consumptionRate -= 0.015f;
+			stat.maxQuantity.Base += 0.075f * Stamina.DefaultMaxQuantity;
 		}
 	}
 
@@ -164,16 +164,16 @@ namespace CosmivengeonMod.API.Default {
 
 		public override void ModifyStamina(out StaminaStatModifier stat) {
 			stat = StaminaStatModifier.Default;
-			stat.attackSpeed.active += 0.0325f;
-			stat.runAcceleration.active += 0.065f;
-			stat.maxRunSpeed.active += 0.065f;
-			stat.attackSpeed.exhausted += 0.02f;
-			stat.runAcceleration.exhausted += 0.03f;
-			stat.maxRunSpeed.exhausted += 0.03f;
-			stat.restorationRate.active += 0.3f;
-			stat.restorationRate.exhausted += 0.1f;
-			stat.consumptionRate -= 0.1f;
-			stat.maxQuantity.Base += 0.5f * Stamina.DefaultMaxQuantity;
+			stat.attackSpeed.active += 0.02f;
+			stat.runAcceleration.active += 0.03f;
+			stat.maxRunSpeed.active += 0.025f;
+			stat.attackSpeed.exhausted += 0.015f;
+			stat.runAcceleration.exhausted += 0.02f;
+			stat.maxRunSpeed.exhausted += 0.015f;
+			stat.restorationRate.active += 0.08f;
+			stat.restorationRate.exhausted += 0.05f;
+			stat.consumptionRate -= 0.02f;
+			stat.maxQuantity.Base += 0.125f * Stamina.DefaultMaxQuantity;
 		}
 	}
 }

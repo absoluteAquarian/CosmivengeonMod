@@ -54,6 +54,8 @@ namespace CosmivengeonMod.Projectiles.Desomode {
 			if (Projectile.timeLeft > Attack_Death_Delay) {
 				if (!teleport.IsValid)
 					teleport = SoundEngine.PlaySound(teleportSound, Projectile.Center);
+				else if (SoundEngine.TryGetActiveSound(teleport, out var sound))
+					sound.Position = Projectile.Center;
 			} else {
 				if (SoundEngine.TryGetActiveSound(teleport, out var sound)) {
 					sound.Stop();
