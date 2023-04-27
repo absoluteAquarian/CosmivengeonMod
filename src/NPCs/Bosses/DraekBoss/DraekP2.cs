@@ -471,7 +471,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 		}
 
 		private void AI_Spit() {
-			if (spitTimer < 0 && Main.netMode != NetmodeID.MultiplayerClient) {
+			if (spitTimer < 0) {
 				MiscUtils.SpawnProjectileSynced(NPC.GetSource_FromAI(),
 					NPC.Center,
 					Vector2.Zero,
@@ -669,9 +669,6 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 		}
 
 		private void RockExplosion() {
-			if (Main.netMode == NetmodeID.MultiplayerClient)
-				return;
-
 			//Generate 10-16 small rocks going in several different directions and velocity changes
 			int amount = Main.rand.Next(10, 17);
 

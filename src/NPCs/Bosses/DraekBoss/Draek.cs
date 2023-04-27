@@ -875,7 +875,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 
 				if (!startDespawn) {
 					startDespawn = true;
-					NPC.timeLeft = (int)(0.5f * 60);
+					NPC.EncourageDespawn(30);
 
 					NPC.netUpdate = true;
 				}
@@ -912,7 +912,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 
 			int laserDamage = 20 + MiscUtils.GetModeChoice(0, 20, 30);
 
-			if (AI_Timer % delay == 0 && Main.netMode != NetmodeID.MultiplayerClient) {
+			if (AI_Timer % delay == 0) {
 				MiscUtils.SpawnProjectileSynced(NPC.GetSource_FromAI(),
 					NPC.Bottom - new Vector2(0, 0.667f * NPC.height),
 					Vector2.Zero,
@@ -922,6 +922,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 					playerTarget.Center.X + positionOffset.X,
 					playerTarget.Center.Y + positionOffset.Y
 				);
+
 				AI_Attack_Progress++;
 				//Play "boss laser" sound effect
 				SoundEngine.PlaySound(SoundID.Item33, NPC.Bottom - new Vector2(0, 0.667f * NPC.height));
@@ -987,6 +988,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 					}
 				}
 			}
+
 			if (!throwingSword) {
 				if (Vector2.Distance(npcTarget, NPC.Center) < 100 * 16)
 					AI_Timer++;
@@ -1064,6 +1066,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 							newVel = newVel.RotatedByRandom(MathHelper.ToRadians(30));
 
 						NPC.velocity = newVel;
+						NPC.netUpdate = true;
 
 						SoundEngine.PlaySound(fastCharge ? SoundID.ForceRoarPitched : SoundID.ForceRoar, NPC.Center);
 
@@ -1095,10 +1098,10 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 		}
 
 		private void AI_Summon(int times) {
-			while (SummonedWyrms < times && Main.netMode != NetmodeID.MultiplayerClient) {
+			while (SummonedWyrms < times) {
 				Vector2 range = NPC.Center + new Vector2(Main.rand.NextFloat(-8 * 16, 8 * 16), Main.rand.NextFloat(-8 * 16, 8 * 16));
 
-				NPC.NewNPC(NPC.GetSource_FromAI(), (int)range.X, (int)range.Y, ModContent.NPCType<DraekWyrmSummon_Head>(), ai2: NPC.whoAmI);
+				MiscUtils.SpawnNPCSynced(NPC.GetSource_FromAI(), range, ModContent.NPCType<DraekWyrmSummon_Head>(), ai2: NPC.whoAmI);
 
 				SummonedWyrms++;
 
@@ -1143,6 +1146,8 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 
 				arm.NPC.Center = spawnCenter;
 				arm.NPC.velocity = new Vector2(-20f * NPC.spriteDirection, 0).RotatedByRandom(MathHelper.ToRadians(15f));
+
+				arm.NPC.netUpdate = true;
 
 				SoundEngine.PlaySound(SoundID.Item1, spawnCenter);
 			}
@@ -1205,6 +1210,7 @@ namespace CosmivengeonMod.NPCs.Bosses.DraekBoss {
 							dust.velocity = Vector2.UnitX.RotatedByRandom(MathHelper.Pi) * 5.5f;
 						}
 					}
+
 					goreTop.X = NPC.Center.X;
 					goreTop.X += (NPC.TopRight.X - NPC.Center.X) / 2f;
 					for (int i = 0; i < 4; i++) {

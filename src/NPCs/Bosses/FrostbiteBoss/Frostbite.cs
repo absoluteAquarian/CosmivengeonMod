@@ -401,8 +401,7 @@ namespace CosmivengeonMod.NPCs.Bosses.FrostbiteBoss {
 			CheckTileStep();
 
 skipAI:
-
-//If Frostbite is charging/breathing frost, don't update the direction
+			//If Frostbite is charging/breathing frost, don't update the direction
 			if (AI_WaitTimer < 0 && CurrentSubphase == AI_Attack_Charge && AI_AttackProgress < 3)
 				NPC.spriteDirection = spriteDir;
 			else if (!forceSpriteTurn) {

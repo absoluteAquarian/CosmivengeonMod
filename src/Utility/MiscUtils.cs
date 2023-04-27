@@ -147,24 +147,26 @@ namespace CosmivengeonMod.Utility {
 		}
 
 		public static int SpawnProjectileSynced(IEntitySource source, Vector2 position, Vector2 velocity, int type, int damage, float knockback, float ai0 = 0f, float ai1 = 0f, int owner = -1) {
+			if (Main.netMode == NetmodeID.MultiplayerClient)
+				return Main.maxProjectiles;
+
 			if (owner == -1)
 				owner = Main.myPlayer;
 
 			int proj = Projectile.NewProjectile(source, position, velocity, type, TrueDamage(damage), knockback, owner, ai0, ai1);
-			if (Main.netMode != NetmodeID.SinglePlayer)
+			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.SyncProjectile, number: proj);
 
 			return proj;
 		}
 
 		public static int SpawnNPCSynced(IEntitySource source, Vector2 spawn, int type, float ai0 = 0f, float ai1 = 0f, float ai2 = 0f, float ai3 = 0f) {
-			int npc = Main.maxNPCs;
-			
-			if (Main.netMode != NetmodeID.MultiplayerClient) {
-				npc = NPC.NewNPC(source, (int)spawn.X, (int)spawn.Y, type, 0, ai0, ai1, ai2, ai3, 255);
+			if (Main.netMode == NetmodeID.MultiplayerClient)
+				return Main.maxNPCs;
 
+			int npc = NPC.NewNPC(source, (int)spawn.X, (int)spawn.Y, type, 0, ai0, ai1, ai2, ai3, 255);
+			if (Main.netMode == NetmodeID.Server)
 				NetMessage.SendData(MessageID.SyncNPC, number: npc);
-			}
 
 			return npc;
 		}
