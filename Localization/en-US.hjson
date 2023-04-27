@@ -13,6 +13,19 @@
 			DesolateClass: "desolate damage"
 		}
 
+		StaminaBuffText: {
+			KingSlimeStaminaBuff: "Defeating the monarch of slime has loosened up your muscles, allowing you to use Stamina for longer and recover from Exhaustion faster."
+			EyeOfCthulhuStaminaBuff: "Defeating the master observer of the night has honed your senses, allowing you to move and attack faster while in the Active state."
+			EaterOfWorldsStaminaBuff: "Defeating the grotesque harbinger from the Corruption has strengthened your resolve, reducing the harmful effects from Exhaustion."
+			BrainOfCthulhuStaminaBuff: "Defeating the Crimson's mastermind has sharpened your wits, letting you react faster to your surroundings."
+			QueenBeeStaminaBuff: "Defeating the monarch of the jungle has improved your resilience to Exhaustion and your overall abilities while in the Active state."
+			SkeletronStaminaBuff: "Defeating the cursed guardian of the Dungeon has further increased your control over your Stamina."
+			WallOfFleshStaminaBuff: "Defeating the horrifying master of the underworld has enlightened you to a new level of mastery over your Stamina."
+
+			FrostbiteStaminaBuff: "Defeating the mutant frost demon has boosted your resistance to the effects of Exhaustion."
+			DraekStaminaBuff: "Defeating the serpentine master of the Forest has taught you to steady your form, allowing you to use your Stamina for longer and slightly increasing its benefits."
+		}
+
 		LootText: {
 			Desolation: "Drops only in Desolation mode"
 			FirstKill: "Drops only on the first kill"

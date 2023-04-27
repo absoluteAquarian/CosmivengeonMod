@@ -6,25 +6,29 @@ using Terraria.ModLoader;
 
 namespace CosmivengeonMod.DataStructures {
 	public class BossPackage {
-		public int bossID;
-		public int altBossID;
-		public string badSummonUseMessage;
-		public Func<Player, bool> useRequirement;
-		public Func<float, int> music;
+		public readonly int bossID;
+		public readonly int altBossID;
+		public readonly string invalidSummonUseMessage;
+		public readonly Func<Player, bool> checkSummonRequirement;
+		public readonly WeightedTable<int> musicTable;
 
-		public static Dictionary<CosmivengeonBoss, BossPackage> bossInfo;
+		internal static Dictionary<CosmivengeonBoss, BossPackage> bossInfo;
 
-		public BossPackage(int id, int altID, string badUseMessage, Func<Player, bool> requirement, Func<float, int> musicFunc) {
-			if (ModContent.GetModNPC(id)?.Mod != CoreMod.Instance)
+		public BossPackage(int bossID, int altBossID, string invalidSummonUseMessage, Func<Player, bool> checkSummonRequirement, WeightedTable<int> musicTable) {
+			if (ModContent.GetModNPC(bossID)?.Mod != CoreMod.Instance)
 				throw new ArgumentException("ID wasn't a valid Cosmivengeon boss ID");
-			if (altID > 0 && ModContent.GetModNPC(altID)?.Mod != CoreMod.Instance)
+			if (altBossID > 0 && ModContent.GetModNPC(altBossID)?.Mod != CoreMod.Instance)
 				throw new ArgumentException("Alternate ID wasn't a valid Cosmivengeon boss ID");
 
-			bossID = id;
-			altBossID = altID;
-			badSummonUseMessage = badUseMessage;
-			useRequirement = requirement;
-			music = musicFunc;
+			this.bossID = bossID;
+			this.altBossID = altBossID;
+			this.invalidSummonUseMessage = invalidSummonUseMessage;
+			this.checkSummonRequirement = checkSummonRequirement;
+			this.musicTable = musicTable;
 		}
+
+		public static void SetBossInfo(CosmivengeonBoss boss, BossPackage info) => bossInfo[boss] = info;
+
+		public static bool TryGetBossInfo(CosmivengeonBoss boss, out BossPackage info) => bossInfo.TryGetValue(boss, out info);
 	}
 }

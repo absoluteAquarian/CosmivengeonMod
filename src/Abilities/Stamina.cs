@@ -1,16 +1,15 @@
 ﻿using CosmivengeonMod.Buffs.Mechanics;
-using CosmivengeonMod.NPCs.Global;
 using CosmivengeonMod.Players;
 using CosmivengeonMod.Utility;
 using CosmivengeonMod.Systems;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using CosmivengeonMod.API;
 
 namespace CosmivengeonMod.Abilities {
 	/// <summary>
@@ -317,18 +316,9 @@ End:
 			//Apply the boss buffs, if any should be applied
 			BossLogPlayer mp = player.GetModPlayer<BossLogPlayer>();
 
-			foreach (var (id, action) in StaminaBuffsTrackingNPC.BuffActions) {
-				if (id < NPCID.Count && mp.BossesKilled.Any(sbd => int.TryParse(sbd.key, out int i) && i == id)) {
-					action(out var npcStats);
-					stats = stats.CombineWith(npcStats);
-				} else if (id >= NPCID.Count) {
-					var mn = ModContent.GetModNPC(id);
-
-					if (mn != null && mp.BossesKilled.Any(sbd => sbd.mod == mn.Mod.Name && sbd.key == mn.Name)) {
-						action(out var npcStats);
-						stats = stats.CombineWith(npcStats);
-					}
-				}
+			foreach (var buff in StaminaBossKillBuffLoader.Filter(mp.BossesKilled)) {
+				buff.ModifyStamina(out var npcStats);
+				stats = stats.CombineWith(npcStats);
 			}
 
 			ApplyStats();

@@ -1,5 +1,4 @@
 ﻿using Terraria.ModLoader;
-using Terraria.ModLoader.IO;
 
 namespace CosmivengeonMod.Abilities {
 	public struct StaminaStatModifier {

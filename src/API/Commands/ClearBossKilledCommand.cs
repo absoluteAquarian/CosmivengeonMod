@@ -47,25 +47,25 @@ namespace CosmivengeonMod.API.Commands {
 				return;
 			}
 
+			var buffs = StaminaBossKillBuffLoader.Buffs;
+			var arg = args[0].ToLower();
+
 			int id;
 
 			//Check if the name is a boss name and not a number ID
-			var kvp = StaminaBuffsTrackingNPC.BossNames.Where(l => l.Value.Select(name => name.ToLower()).Contains(args[0].ToLower()));
-			if (kvp.Any()) {
-				//We can assume that only one list had this name in it;  If that isn't the case, then it's not Cosmivengeon's fault
-				id = kvp.First().Key;
+			if (buffs.FirstOrDefault(b => b.GetBossNames().Any(n => n.ToLower() == arg)) is StaminaBossKillBuff buffFromName) {
+				//We can assume that only one entry had this name in it;  If that isn't the case, then it's not Cosmivengeon's fault
+				id = buffFromName.NPCType;
 			} else if (!int.TryParse(args[0], out id) || id < 0 || id >= NPCLoader.NPCCount) {
 				caller.Reply("Invalid ID string provided.  Expected a positive integer that's a valid NPC ID or a string that's one of the predefined names for a boss.", Color.Red);
 				return;
 			}
 
-			int dictID = ConvertIDToTypeInDictionary(id);
+			foreach (var buff in buffs)
+				buff.TransmuteNPCType(ref id);
 
-			if (!StaminaBuffsTrackingNPC.BossIDs.Contains(dictID)) {
-				if (StaminaBuffsTrackingNPC.BossNames.ContainsKey(dictID))
-					caller.Reply("Stamina buffs for this boss have not been implemented yet.  Unable to clear or reset this flag.", Color.Red);
-				else
-					caller.Reply("Invalid NPC ID.  Expected an ID that corresponds to a boss NPC.", Color.Red);
+			if (!StaminaBossKillBuffLoader.TryFindBuffData(id, out _)) {
+				caller.Reply("Stamina buffs for this boss have not been implemented yet.  Unable to clear or reset this flag.", Color.Red);
 				return;
 			}
 
@@ -74,44 +74,22 @@ namespace CosmivengeonMod.API.Commands {
 				return;
 			}
 
-			string key = GetNPCKeyFromID(dictID);
-			var words = key.Split('.');
-
 			//Input is valid, let's try to use it
 			BossLogPlayer mp = caller.Player.GetModPlayer<BossLogPlayer>();
 			if (!flag)
-				mp.BossesKilled.RemoveAll(words[0], words[1]);
-			else if (!mp.BossesKilled.HasKey(words[0], words[1]))
-				mp.BossesKilled.Add(new StaminaBuffData(words[0], words[1]));
+				mp.BossesKilled.RemoveAll(id);
+			else if (!mp.BossesKilled.HasKey(id))
+				mp.BossesKilled.Add(new StaminaBuffData(id));
 
-			string bossName = GetBossNameFromDictionary(dictID);
-			string npcNameWithVerb = dictID == NPCID.Retinazer
+			string bossName = GetBossNameFromDictionary(id);
+			string npcNameWithVerb = id == NPCID.Retinazer || id == NPCID.Spazmatism
 				? $"\"{bossName}\" have"
 				: $"\"{bossName}\" has";
 
 			caller.Reply($"Boss killed flag for {npcNameWithVerb} been set to \"{flag.ToString().ToLower()}\".");
 		}
 
-		public static int ConvertIDToTypeInDictionary(int id) {
-			if (id == NPCID.EaterofWorldsBody || id == NPCID.EaterofWorldsTail)
-				return NPCID.EaterofWorldsHead;
-			if (id == NPCID.TheDestroyerBody || id == NPCID.TheDestroyerTail)
-				return NPCID.TheDestroyer;
-			if (id == NPCID.Spazmatism)
-				return NPCID.Retinazer;
-			return id;
-		}
-
 		public static string GetBossNameFromDictionary(int dictID)
-			=> dictID == NPCID.Retinazer ? Language.GetTextValue("Enemies.TheTwins") : Lang.GetNPCNameValue(dictID);
-
-		public static string GetNPCKeyFromID(int id) {
-			if (id < NPCID.Count)
-				return $"Terraria.{id}";
-
-			ModNPC mn = ModContent.GetModNPC(id);
-
-			return $"{mn.Mod.Name}.{mn.Name}";
-		}
+			=> dictID == NPCID.Retinazer || dictID == NPCID.Spazmatism ? Language.GetTextValue("Enemies.TheTwins") : Lang.GetNPCNameValue(dictID);
 	}
 }

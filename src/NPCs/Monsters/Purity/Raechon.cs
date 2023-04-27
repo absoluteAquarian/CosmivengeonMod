@@ -33,7 +33,7 @@ namespace CosmivengeonMod.NPCs.Monsters.Purity {
 		public override float SpawnChance(NPCSpawnInfo spawnInfo) {
 			//Player is in the Forest biome, it's daytime and the Eye of Cthulhu has been defeated
 			//5% chance to spawn
-			return MiscUtils.PlayerIsInForest(spawnInfo.Player) && Main.dayTime && NPC.downedBoss1 ? 0.05f : 0;
+			return spawnInfo.Player.ZoneForest && Main.dayTime && NPC.downedBoss1 ? 0.05f : 0;
 		}
 
 		public const float vel_CanSee = 8.335f;

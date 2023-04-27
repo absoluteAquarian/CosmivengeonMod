@@ -1,11 +1,4 @@
-﻿using CosmivengeonMod.Players;
-using CosmivengeonMod.Utility;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content;
-using Terraria;
-using Terraria.ModLoader;
-using Terraria.UI;
+﻿using Terraria.UI;
 
 namespace CosmivengeonMod.UI {
 	public class StaminaUI : UIState {

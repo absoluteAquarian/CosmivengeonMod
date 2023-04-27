@@ -17,21 +17,6 @@ namespace CosmivengeonMod.Utility {
 
 		public static Color TausFavouriteColour = new Color(106, 0, 170);
 
-		public static bool PlayerIsInForest(Player player) {
-			return !player.ZoneJungle
-				&& !player.ZoneDungeon
-				&& !player.ZoneCorrupt
-				&& !player.ZoneCrimson
-				&& !player.ZoneHallow
-				&& !player.ZoneSnow
-				&& !player.ZoneUndergroundDesert
-				&& !player.ZoneGlowshroom
-				&& !player.ZoneMeteor
-				&& !player.ZoneBeach
-				&& !player.ZoneDesert
-				&& player.ZoneOverworldHeight;
-		}
-
 		/// <summary>
 		/// Vanilla Terraria code is broken.  Reduces hostile projectile damage to account for this.
 		/// </summary>
@@ -172,9 +157,7 @@ namespace CosmivengeonMod.Utility {
 		}
 
 		public static void PlayMusic(ModNPC modNPC, CosmivengeonBoss boss) {
-			float songChance = Main.rand.NextFloat();
-
-			modNPC.Music = BossPackage.bossInfo?[boss]?.music(songChance) ?? 0;
+			modNPC.Music = BossPackage.bossInfo[boss].musicTable.Get();
 		}
 
 		/// <summary>
@@ -187,8 +170,8 @@ namespace CosmivengeonMod.Utility {
 				throw new ArgumentException($"Boss enum value hasn't been assigned to any boss information: CosmivengeonBoss.{boss}");
 
 			BossPackage package = BossPackage.bossInfo[boss];
-			if (!package.useRequirement(player))
-				Main.NewText($"[n:{player.name}] {package.badSummonUseMessage}");
+			if (!package.checkSummonRequirement(player))
+				Main.NewText($"[n:{player.name}] {package.invalidSummonUseMessage}");
 			else
 				canSummonBoss = !NPC.AnyNPCs(package.bossID) && (package.altBossID == -1 || !NPC.AnyNPCs(package.altBossID));
 

@@ -39,12 +39,29 @@ namespace CosmivengeonMod.DataStructures {
 			}
 		}
 
+		public void RemoveAll(int id) {
+			var data = new StaminaBuffData(id);
+
+			RemoveAll(data.mod, data.key);
+		}
+
 		public bool HasKey(string mod, string key) {
-			for (int i = 0; i < Count; i++)
+			for (int i = 0; i < Count; i++) {
 				if (this[i].mod == mod && this[i].key == key)
 					return true;
+			}
 
 			return false;
+		}
+
+		public bool HasKey(int id) {
+			var data = new StaminaBuffData(id);
+
+			return HasKey(data.mod, data.key);
+		}
+
+		public bool Has(StaminaBuffData data) {
+			return HasKey(data.mod, data.key);
 		}
 	}
 }

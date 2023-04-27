@@ -1,5 +1,4 @@
-﻿using CosmivengeonMod.API.Managers;
-using CosmivengeonMod.Buffs.Harmful;
+﻿using CosmivengeonMod.Buffs.Harmful;
 using GraphicsLib.Primitives;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

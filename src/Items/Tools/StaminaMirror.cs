@@ -5,7 +5,6 @@ using CosmivengeonMod.Players;
 using System.Text;
 using Terraria;
 using Terraria.ID;
-using Terraria.ModLoader;
 
 namespace CosmivengeonMod.Items.Tools {
 	public class StaminaMirror : HidableTooltip {
@@ -32,43 +31,16 @@ namespace CosmivengeonMod.Items.Tools {
 			stamina.Reset();
 			stamina.ProcessEffects(player);
 
-			string bosses = "";
+			StringBuilder sb = new();
+			int count = 0;
 			foreach (var sbd in logPlayer.BossesKilled) {
-				if (sbd.mod == "Terraria")
-					bosses += $"\"{ClearBossKilledCommand.GetBossNameFromDictionary(int.Parse(sbd.key))}\", ";
-				else {
-					var otherMod = ModLoader.GetMod(sbd.mod);
-					//Don't display the name if the mod it's from isn't loaded
-					if (otherMod == null)
-						continue;
+				string postfix = count % 4 == 3 ? "\n" : " ";
 
-					int id = otherMod.Find<ModNPC>(sbd.key).Type;
-					bosses += $"\"{ClearBossKilledCommand.GetBossNameFromDictionary(id)}\", ";
-				}
+				sb.Append($"\"{ClearBossKilledCommand.GetBossNameFromDictionary(sbd.GetNPCID())}\",{postfix}");
+				count++;
 			}
 
-			if (bosses != "") {
-				bosses = bosses.Remove(bosses.Length - 2, 2);
-
-				StringBuilder sb = new StringBuilder(bosses.Length);
-
-				var words = bosses.Split(',');
-				int counter = 0;
-				for (int i = 0; i < words.Length; i++) {
-					string word = words[i].Trim();
-
-					sb.Append(word);
-
-					counter++;
-					if (counter < 4)
-						sb.Append(", ");
-					else {
-						sb.Append(",\n  ");
-						counter = 0;
-					}
-				}
-			} else
-				bosses = null;
+			string bosses = count == 0 ? null : sb.ToString();
 
 			var maxQuantity = stamina.stats.maxQuantity.ApplyTo(Stamina.DefaultMaxQuantity);
 			var restorationRate = stamina.stats.restorationRate.active.ApplyTo(Stamina.DefaultRestorationRate);
