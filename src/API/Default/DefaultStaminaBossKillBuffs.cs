@@ -113,8 +113,8 @@ namespace CosmivengeonMod.API.Default {
 		}
 
 		public override void TransmuteNPCType(ref int type) {
-			if (type == ModContent.NPCType<DraekP2Head>())
-				type = ModContent.NPCType<Draek>();
+			if (type == ModContent.NPCType<Draek>())
+				type = ModContent.NPCType<DraekP2Head>();
 		}
 	}
 

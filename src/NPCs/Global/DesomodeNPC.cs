@@ -108,7 +108,7 @@ namespace CosmivengeonMod.NPCs.Global {
 
 					//Copied from Draek code and edited
 					for (int i = 0; i < npc.oldPos.Length; i++) {
-						Vector2 drawPos = npc.oldPos[i] - Main.screenPosition + npc.Size / 2f;
+						Vector2 drawPos = npc.oldPos[i] - screenPos + npc.Size / 2f;
 
 						Color color = npc.GetAlpha(drawColor) * (((float)npc.oldPos.Length - i) / npc.oldPos.Length);
 						color.A = (byte)(0.75f * 255f * (npc.oldPos.Length - i) / npc.oldPos.Length);   //Apply transparency
@@ -118,11 +118,11 @@ namespace CosmivengeonMod.NPCs.Global {
 				}
 			} else if (npc.type >= NPCID.EaterofWorldsHead && npc.type <= NPCID.EaterofWorldsTail && Debug.debug_showEoWOutlines) {
 				if (npc.type == NPCID.EaterofWorldsHead)
-					EoW_DrawOutline(spriteBatch, npc, "head");
+					EoW_DrawOutline(spriteBatch, npc, screenPos, "head");
 				else if (npc.type == NPCID.EaterofWorldsBody)
-					EoW_DrawOutline(spriteBatch, npc, "body");
+					EoW_DrawOutline(spriteBatch, npc, screenPos, "body");
 				else if (npc.type == NPCID.EaterofWorldsTail)
-					EoW_DrawOutline(spriteBatch, npc, "tail");
+					EoW_DrawOutline(spriteBatch, npc, screenPos, "tail");
 			} else if (npc.type == NPCID.QueenBee && npc.Helper().Flag) {
 				drawColor = Color.Red;
 
@@ -132,7 +132,7 @@ namespace CosmivengeonMod.NPCs.Global {
 				//Draw the auras
 				Texture2D texture = TextureAssets.Npc[npc.type].Value;
 				SpriteEffects effects = npc.spriteDirection == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-				Vector2 draw = npc.Top - Main.screenPosition;
+				Vector2 draw = npc.Top - screenPos;
 				for (int i = 0; i < 4; i++) {
 					Vector2 dir = Vector2.UnitX.RotateDegrees(rotateByDegrees: 90 * i, rotateByRandomDegrees: 0) * offset;
 
@@ -148,9 +148,9 @@ namespace CosmivengeonMod.NPCs.Global {
 			return true;
 		}
 
-		private void EoW_DrawOutline(SpriteBatch spriteBatch, NPC npc, string segment) {
+		private void EoW_DrawOutline(SpriteBatch spriteBatch, NPC npc, Vector2 screenPos, string segment) {
 			Texture2D texture = ModContent.Request<Texture2D>($"CosmivengeonMod/NPCs/Desomode/EoW outline {segment}", AssetRequestMode.ImmediateLoad).Value;
-			spriteBatch.Draw(texture, npc.Center - Main.screenPosition, null, EoW_GetOutlineColor(npc), npc.rotation, texture.Size() / 2f, npc.scale, SpriteEffects.None, 0);
+			spriteBatch.Draw(texture, npc.Center - screenPos, null, EoW_GetOutlineColor(npc), npc.rotation, texture.Size() / 2f, npc.scale, SpriteEffects.None, 0);
 		}
 
 		private Color EoW_GetOutlineColor(NPC npc) {

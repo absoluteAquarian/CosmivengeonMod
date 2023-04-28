@@ -233,14 +233,19 @@ End:
 			if (value > maxValue)
 				value = maxValue;
 
-			//-0.035 per second while not using a weapon
-			bool notUsingItem = player.itemAnimation == 0 && player.reuseDelay == 0;
-			bool itemIsWeapon = !player.HeldItem.IsAir && player.HeldItem.damage > 0 && player.HeldItem.useStyle != ItemUseStyleID.None;
-			if (AttackPunishment > 0 && (notUsingItem || !itemIsWeapon)) {
-				AttackPunishment -= (Active ? 0.01f : 0.035f) / 60f;
+			if (AttackPunishment > 0) {
+				bool notUsingItem = player.itemAnimation == 0 && player.reuseDelay == 0;
+				bool itemIsWeapon = !player.HeldItem.IsAir && player.HeldItem.damage > 0 && player.HeldItem.useStyle != ItemUseStyleID.None;
 
-				if (AttackPunishment < 0)
-					AttackPunishment = 0;
+				// Punishment will always decrease when the stamina bar is full
+				if (value >= maxValue || notUsingItem || !itemIsWeapon) {
+					float factor = value >= maxValue ? 2.5f : 1f;
+
+					AttackPunishment -= (Active ? 0.25f : 0.1f) / 60f * factor;
+
+					if (AttackPunishment < 0)
+						AttackPunishment = 0;
+				}
 			}
 		}
 

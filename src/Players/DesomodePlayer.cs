@@ -15,22 +15,31 @@ namespace CosmivengeonMod.Players {
 
 		private bool prevHoneyed = false;
 
+		private bool prevLeft = false, prevRight = false, prevUp = false, prevDown = false, prevJump = false;
+
 		public override void SetControls() {
 			if (!WorldEvents.desoMode)
 				return;
 
 			//Player is grabbed by an EoW worm head and isn't underground
 			if (DetourNPCHelper.EoW_GrabbingNPC != -1 && DetourNPCHelper.EoW_GrabbedPlayer == Player.whoAmI && !Main.npc[DetourNPCHelper.EoW_GrabbingNPC].Helper().Flag) {
-				if (Player.controlLeft && Player.releaseLeft)
+				// Player.releaseX will not suffice here...
+				if (Player.controlLeft && !prevLeft)
 					GrabCounter--;
-				if (Player.controlRight && Player.releaseRight)
+				if (Player.controlRight && !prevRight)
 					GrabCounter--;
-				if (Player.controlUp && Player.releaseUp)
+				if (Player.controlUp && !prevUp)
 					GrabCounter--;
-				if (Player.controlDown && Player.releaseDown)
+				if (Player.controlDown && !prevDown)
 					GrabCounter--;
-				if (Player.controlJump && Player.releaseJump)
+				if (Player.controlJump && !prevJump)
 					GrabCounter--;
+
+				prevLeft = Player.controlLeft;
+				prevRight = Player.controlRight;
+				prevUp = Player.controlUp;
+				prevDown = Player.controlDown;
+				prevJump = Player.controlJump;
 
 				//No jumping, mounting or grappling allowed!
 				Player.controlJump = false;
@@ -39,6 +48,12 @@ namespace CosmivengeonMod.Players {
 				Player.releaseMount = false;
 				Player.controlHook = false;
 				Player.releaseHook = false;
+				
+				Player.mount?.Dismount(Player);
+				Player.mount?.Reset();
+
+				for (int i = 0; i < Player.grappling.Length; i++)
+					Player.grappling[i] = -1;
 
 				//No dashing!
 				Player.controlRight = false;

@@ -39,7 +39,7 @@ namespace CosmivengeonMod.API {
 			var restorationRate = stat.restorationRate.active.ApplyTo(100) - 100;
 			var restorationRateExhausted = stat.restorationRate.exhausted.ApplyTo(100) - 100;
 			var consumptionRate = stat.consumptionRate.ApplyTo(100) - 100;
-			var maxQuantity = stat.maxQuantity.ApplyTo(Stamina.ValueScalar);
+			var maxQuantity = (stat.maxQuantity.ApplyTo(Stamina.DefaultMaxQuantity) - Stamina.DefaultMaxQuantity) * Stamina.ValueScalar;
 
 			if (attackSpeed != 0)
 				yield return $"Active attack speed rate: {attackSpeed:+0.###;-0.###}%";
